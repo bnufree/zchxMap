@@ -47,3 +47,13 @@ void MainWindow::slotRecvMapData(const QPixmap &data, int x, int y)
 {
     ui->ecdis->append(data, x, y);
 }
+
+void MainWindow::on_load_clicked()
+{
+    QRect rect =  ui->ecdis->geometry();
+    double lon = ui->lon->text().toDouble();
+    double lat = ui->lat->text().toDouble();
+    int zoom = ui->zoom->text().toInt();
+
+    mMapthread->appendTask(zchxMapTask(lon, lat, rect.width(), rect.height(), zoom));
+}

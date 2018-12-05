@@ -20,6 +20,9 @@ public:
 public slots:
     void updateGridLayout(int x, int y);
     void slotRecvMapData(const QPixmap& data, int x, int y);
+private slots:
+    void on_load_clicked();
+
 private:
     Ui::MainWindow *ui;
     zchxMapThread* mMapthread;

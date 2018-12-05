@@ -57,14 +57,16 @@ void zchxMapThread::run()
         //计算当前中心经纬度对应的墨卡托坐标
         Mercator center_mct = zchxEcdisUtils::wgs84LonlatToMercator(Wgs84LonLat(task.lon, task.lat));
         qDebug()<<"mercator (X, y) = "<<center_mct.mX<<center_mct.mY;
-        //计算层级的视窗对应的显示范围
+        //计算层级的视窗对应的显示范围()
         MapBounds view_bounds = calViewBounds(center_mct.mX, center_mct.mY, task.view_x, task.view_y, resolution);
         qDebug()<<"view_bounds:"<<view_bounds.min_x<<view_bounds.min_y<<view_bounds.max_x<<view_bounds.max_y;
         //取得对应的各个网格对应的地图瓦片数据索引
         int tile_start_x = floor(((view_bounds.min_x - total_bounds.min_x) / resolution) / MAP_IMG_SIZE);
         int tile_start_y = floor(((view_bounds.min_y - total_bounds.min_y) / resolution) / MAP_IMG_SIZE);
-        int tile_end_x = floor(((total_bounds.max_x - view_bounds.max_x) / resolution) / MAP_IMG_SIZE);
-        int tile_end_y = floor(((total_bounds.max_y - view_bounds.max_y) / resolution) / MAP_IMG_SIZE);
+//        int tile_end_x = floor(((total_bounds.max_x - view_bounds.max_x) / resolution) / MAP_IMG_SIZE);
+//        int tile_end_y = floor(((total_bounds.max_y - view_bounds.max_y) / resolution) / MAP_IMG_SIZE);
+        int tile_end_x = floor(((view_bounds.max_x - total_bounds.min_x) / resolution) / MAP_IMG_SIZE);
+        int tile_end_y = floor(((view_bounds.max_y - total_bounds.min_y) / resolution) / MAP_IMG_SIZE);
         qDebug()<<"tile range:(x0, y0)--(x1, y1)"<<tile_start_x<<tile_start_y<<tile_end_x<<tile_end_y;
         emit signalSendCurSize(tile_end_x-tile_start_x, tile_end_y-tile_start_y);
         //计算第一福瓦片对应的墨卡托坐标
@@ -83,7 +85,7 @@ void zchxMapThread::run()
                 int pos_x = pos.x() + (i-tile_start_x) * MAP_IMG_SIZE;
                 int pos_y = pos.y() + (k-tile_start_y) * MAP_IMG_SIZE;
                 zchxTileImageThread *thread = new zchxTileImageThread(url, pos_x, pos_y);
-                connect(thread, SIGNAL(signalSend(QPixmap,int,int)), this, SIGNAL(signalSendCurPixmap(int,int,QPixmap)));
+                connect(thread, SIGNAL(signalSend(QPixmap,int,int)), this, SIGNAL(signalSendCurPixmap(QPixmap, int, int)));
                 connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
                 thread->start();
             }
