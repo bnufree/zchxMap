@@ -22,6 +22,7 @@ public slots:
     void updateGridLayout(int x, int y);
     void slotRecvMapData(const QPixmap& data, int x, int y);
     void slotUpdateCurrentPos(double lon, double lat);
+    void slotDisplayNewMap(double lon, double lat, int zoom);
 private slots:
     void on_load_clicked();
 

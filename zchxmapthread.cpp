@@ -23,7 +23,7 @@ bool zchxMapThread::taskNow(zchxMapTask& task)
     QMutexLocker locker(&mMutex);
     if(mTaskList.size() == 0) return false;
     task = mTaskList.first();
-    mTaskList.pop_front();
+    mTaskList.clear();
     return true;
 }
 

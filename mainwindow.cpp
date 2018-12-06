@@ -36,13 +36,19 @@ void MainWindow::resizeEvent(QResizeEvent *e)
     QRect rect =  ui->ecdis->geometry();
     if(rect.topLeft().x() >0 && rect.topLeft().y() >= 0)
     {
+        qDebug()<<"init zoom:"<<ui->ecdis->zoom();
         //开始加载地图
         if(!mMapthread)
         {
             mMapthread = new zchxMapThread;
-            mMapthread->appendTask(zchxMapTask(rect.width(), rect.height(), ui->ecdis->zoom()));
+            zchxMapTask task(rect.width(), rect.height(), ui->ecdis->zoom());
+            ui->ecdis->setCenterPoint(QPointF(task.lon, task.lat));
+            ui->ecdis->setCurZoom(task.zoom);
+            mMapthread->appendTask(task);
             connect(mMapthread, SIGNAL(signalSendCurPixmap(QPixmap,int,int)), this, SLOT(slotRecvMapData(QPixmap,int,int)));
             connect(mMapthread, SIGNAL(signalSendCurSize(int,int)), this, SLOT(updateGridLayout(int,int)));
+            connect(ui->ecdis, SIGNAL(signalDisplayCurMap(double,double,int)),
+                    this, SLOT(slotDisplayNewMap(double,double,int)));
             mMapthread->start();
         }
 
@@ -69,4 +75,11 @@ void MainWindow::on_load_clicked()
 void MainWindow::slotUpdateCurrentPos(double lon, double lat)
 {
     mPosLabel->setText(QString("%1, %2").arg(lon, 0, 'f', 6).arg(lat, 0, 'f', 6));
+}
+
+void MainWindow::slotDisplayNewMap(double lon, double lat, int zoom)
+{
+    QRect rect =  ui->ecdis->geometry();
+    zchxMapTask task(lon, lat, rect.width(), rect.height(), zoom);
+    mMapthread->appendTask(task);
 }

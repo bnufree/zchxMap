@@ -24,11 +24,11 @@ struct zchxMapTask{
     zchxMapTask(int x, int y, int zoom)
     {
         //63.822037,41.449826
-        lat = 30.123456;
-        lon = 104.123456;
-        zoom = zoom;
-        view_x = x;
-        view_y = y;
+        this->lat = 30.123456;
+        this->lon = 104.123456;
+        this->zoom = zoom;
+        this->view_x = x;
+        this->view_y = y;
     }
 
     zchxMapTask(double lon, double lat, int x, int y, int zoom)

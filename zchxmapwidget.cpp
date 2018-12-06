@@ -1,5 +1,6 @@
 #include "zchxmapwidget.h"
 #include <QPainter>
+#include <QDebug>
 
 zchxMapWidget::zchxMapWidget(QWidget *parent) : QWidget(parent),mCurrentZoom(9)
 {
@@ -45,6 +46,17 @@ void zchxMapWidget::mouseMoveEvent(QMouseEvent *e)
 
 void zchxMapWidget::wheelEvent(QWheelEvent *e)
 {
-    QWidget::wheelEvent(e);
+    qDebug()<<__FUNCTION__<<__LINE__<<e->delta();
+    if(e->delta() > 0)
+    {
+        mCurrentZoom++;
+        if(mCurrentZoom >= 20) mCurrentZoom = 20;
+    } else
+    {
+        mCurrentZoom --;
+        if(mCurrentZoom <= 5) mCurrentZoom = 5;
+    }
 
+    emit signalDisplayCurMap(mCenterLonLat.x(), mCenterLonLat.y(), mCurrentZoom);
+    e->accept();
 }

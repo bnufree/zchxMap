@@ -21,6 +21,8 @@ public:
     void clear() {mDataList.clear(); update();}
     void setCurZoom(int zoom) {mCurrentZoom = zoom;}
     int  zoom() const {return mCurrentZoom;}
+    void setCenterPoint(const QPointF& pnt ) {mCenterLonLat = pnt;}
+    QPointF centerLonlat() const {return mCenterLonLat;}
 
 protected:
     void paintEvent(QPaintEvent* e);
@@ -33,12 +35,14 @@ protected:
 #endif
 
 signals:
+    void signalDisplayCurMap(double lon, double lat, int zoom);
 
 public slots:
     void append(const QPixmap& img, int x, int y);
 private:
     QList<MapData> mDataList;
     int             mCurrentZoom;
+    QPointF         mCenterLonLat;
 
 };
 
