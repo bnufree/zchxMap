@@ -9,6 +9,7 @@ class MainWindow;
 }
 
 class zchxMapThread;
+class QLabel;
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -20,12 +21,14 @@ public:
 public slots:
     void updateGridLayout(int x, int y);
     void slotRecvMapData(const QPixmap& data, int x, int y);
+    void slotUpdateCurrentPos(double lon, double lat);
 private slots:
     void on_load_clicked();
 
 private:
     Ui::MainWindow *ui;
     zchxMapThread* mMapthread;
+    QLabel*        mPosLabel;
 };
 
 #endif // MAINWINDOW_H
