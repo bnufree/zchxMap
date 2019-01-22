@@ -1,10 +1,10 @@
 #ifndef ZCHXTILEIMAGETHREAD_H
 #define ZCHXTILEIMAGETHREAD_H
 
-#include <QThread>
+#include <QRunnable>
 #include <QPixmap>
 
-class zchxTileImageThread : public QThread
+class zchxTileImageThread : public QObject, public QRunnable
 {
     Q_OBJECT
 public:

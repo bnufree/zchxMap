@@ -70,6 +70,7 @@ public slots:
 private:
     QList<zchxMapTask>      mTaskList;
     QMutex                  mMutex;
+    QList<QThread*>         mWorkThreadList;
 };
 
 #endif // ZCHXMAPTHREAD_H

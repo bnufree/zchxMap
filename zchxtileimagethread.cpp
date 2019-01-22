@@ -2,7 +2,7 @@
 #include "qhttpget.h"
 
 
-zchxTileImageThread::zchxTileImageThread(const QString& url, int pos_x, int pos_y, QObject *parent) : QThread(parent),
+zchxTileImageThread::zchxTileImageThread(const QString& url, int pos_x, int pos_y, QObject *parent) : QObject(parent),QRunnable(),
     mUrl(url),
     mPx(pos_x),
     mPy(pos_y)

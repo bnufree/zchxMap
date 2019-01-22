@@ -23,8 +23,11 @@ public slots:
     void slotRecvMapData(const QPixmap& data, int x, int y);
     void slotUpdateCurrentPos(double lon, double lat);
     void slotDisplayNewMap(double lon, double lat, int zoom);
+    void slotUpdateDownloadProgress(int val);
 private slots:
     void on_load_clicked();
+
+    void on_download_clicked();
 
 private:
     Ui::MainWindow *ui;

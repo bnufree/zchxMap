@@ -1,25 +1,17 @@
-#include "zchxmapthread.h"
-#include "zchxecdisutils.h"
-#include "zchxtileimagethread.h"
-#include <QDebug>
-#include <QThreadPool>
+#include "zchxmaploadthread.h"
 
-const MapBounds total_bounds = {EARTH_HALF_CIRCUL_LENGTH * (-1), EARTH_HALF_CIRCUL_LENGTH * (-1), EARTH_HALF_CIRCUL_LENGTH, EARTH_HALF_CIRCUL_LENGTH};
-
-#define     DBG_DOUBLE(val)      QString::number((val), 'f' , 2)
-
-zchxMapThread::zchxMapThread(QObject *parent) : QThread(parent)
+zchxMapLoadThread::zchxMapLoadThread(QObject *parent) : QObject(parent)
 {
     mTaskList.clear();
 }
 
-void zchxMapThread::appendTask(const zchxMapTask &task)
+void zchxMapLoadThread::appendTask(const MapLoadSetting &task)
 {
     QMutexLocker locker(&mMutex);
     mTaskList.append(task);
 }
 
-bool zchxMapThread::taskNow(zchxMapTask& task)
+bool zchxMapLoadThread::taskNow(MapLoadSetting& task)
 {
     QMutexLocker locker(&mMutex);
     if(mTaskList.size() == 0) return false;
@@ -28,42 +20,29 @@ bool zchxMapThread::taskNow(zchxMapTask& task)
     return true;
 }
 
-//每像素对应的墨卡托坐标的长度
-double zchxMapThread::calResolution(int zoom)
-{
-    return EARTH_HALF_CIRCUL_LENGTH * 2 / MAP_IMG_SIZE / pow(2, zoom);
-}
 
-MapBounds zchxMapThread::calViewBounds(double mct_x, double mct_y, double size_x, double size_y, double resolution)
-{
-    MapBounds bounds = { mct_x - resolution * size_x / 2.0,
-                              mct_y - resolution * size_y / 2.0,
-                              mct_x + resolution * size_x / 2.0,
-                              mct_y + resolution * size_y / 2.0 };
-
-    return bounds;
-
-}
-
-void zchxMapThread::run()
+void zchxMapLoadThread::run()
 {
     while (true) {
-        zchxMapTask task;
+        MapLoadSetting task;
         if(!taskNow(task))
         {
             QThread::sleep(5);
             continue;
         }
-        qDebug()<<"task:"<<task.lat<<task.lon<<task.zoom;
-        //计算当前层级对应的分辨率
-        double resolution = calResolution(task.zoom);
-        qDebug()<<"resolution:"<<resolution;
-        //计算当前中心经纬度对应的墨卡托坐标
-        Mercator center_mct = zchxEcdisUtils::wgs84LonlatToMercator(Wgs84LonLat(task.lon, task.lat));
-        qDebug()<<"mercator (X, y) = "<<DBG_DOUBLE(center_mct.mX)<<DBG_DOUBLE(center_mct.mY);
-        //计算层级的视窗对应的显示范围()
-        MapBounds view_bounds = calViewBounds(center_mct.mX, center_mct.mY, task.view_x, task.view_y, resolution);
-        qDebug()<<"view_bounds:"<<DBG_DOUBLE(view_bounds.min_x)<<DBG_DOUBLE(view_bounds.min_y)<<DBG_DOUBLE(view_bounds.max_x)<<DBG_DOUBLE(view_bounds.max_y);
+        struct MapBounds{
+            double     min_x;
+            double     min_y;
+            double     max_x;
+            double     max_y;
+        };
+        //整个地球的范围
+        static MapBounds total_bounds = {EARTH_HALF_CIRCUL_LENGTH * (-1), EARTH_HALF_CIRCUL_LENGTH * (-1), EARTH_HALF_CIRCUL_LENGTH, EARTH_HALF_CIRCUL_LENGTH};
+
+        //取得当前视窗的显示范围
+        MapBounds view_bounds = {task.mTopLeft.mMercatot.mX, task.mTopLeft.mMercatot.mY, task.mBottomRight.mMercatot.mX, task.mBottomRight.mMercatot.mY};
+        qDebug()<<"view_bounds:"<<FLOAT_STRING(view_bounds.min_x, 6)<<FLOAT_STRING(view_bounds.min_y, 6)<<FLOAT_STRING(view_bounds.max_x, 6)<<FLOAT_STRING(view_bounds.max_y, 6);
+        qDebug()<<"resolution:"<<task.mResolution;
         //取得对应的各个网格对应的地图瓦片数据索引
         int total_tile_X = floor(((total_bounds.max_x - total_bounds.min_x) / resolution) / MAP_IMG_SIZE);
         int total_tile_Y =  floor(((total_bounds.max_y - total_bounds.min_y) / resolution) / MAP_IMG_SIZE);
@@ -116,5 +95,3 @@ void zchxMapThread::run()
         QThread::msleep(500);
     }
 }
-
-

@@ -23,3 +23,9 @@ Mercator zchxEcdisUtils::wgs84LonlatToMercator(const Wgs84LonLat& wgs84 )
 
     return Mercator(x, y);
 }
+
+//每像素对应的墨卡托坐标的长度
+double zchxEcdisUtils::calResolution(int zoom)
+{
+    return EARTH_HALF_CIRCUL_LENGTH * 2 / MAP_IMG_SIZE / pow(2, zoom);
+}
