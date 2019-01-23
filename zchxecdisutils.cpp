@@ -16,7 +16,7 @@ Wgs84LonLat zchxEcdisUtils::mercatorToWgs84LonLat(const Mercator& mercator)
 
 Mercator zchxEcdisUtils::wgs84LonlatToMercator(const Wgs84LonLat& wgs84 )
 {
-    qDebug()<<"wgs:"<<wgs84.mLon<<wgs84.mLat;
+    //qDebug()<<"wgs:"<<wgs84.mLon<<wgs84.mLat;
     double x = wgs84.mLon * EARTH_HALF_CIRCUL_LENGTH / 180;
     double y = log(tan((90 + wgs84.mLat) * GLOB_PI / 360)) / (GLOB_PI / 180);
     y = y * EARTH_HALF_CIRCUL_LENGTH / 180;

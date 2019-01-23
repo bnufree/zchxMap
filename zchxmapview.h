@@ -5,10 +5,6 @@
 #include <QPointF>
 #include "zchxecdisutils.h"
 
-
-
-
-
 class zchxMapView : public QObject
 {
     Q_OBJECT
@@ -27,13 +23,13 @@ public:
     Point2D     mercator2pixel(const Mercator& mct);
     void        zoomIn();
     void        zoomOut();
+    void        update();
 
 signals:
-
+    void        updateMap(const MapLoadSetting& set);
 public slots:
 private:
-    MapPointData        mTopLeft;
-    MapPointData        mRightBottom;
+    MapRangeData        mMapRange;      //墨卡托坐标范围  左下最小  右上最大
     int                 mCurZoom;
     int                 mViewWidth;
     int                 mViewHeight;

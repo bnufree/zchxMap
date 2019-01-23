@@ -1,27 +1,28 @@
 #include "zchxmapview.h"
+#include <QDebug>
 
-zchxMapView::zchxMapView(double center_lat, double center_lon, int zoom, int width, int height, QObject *parent) : QObject(parent)
+zchxMapView::zchxMapView(double center_lat, double center_lon, int zoom, int width, int height, QObject *parent) : QObject(parent),
+  mViewWidth(0),
+  mViewHeight(0)
 {
-    setViewSize(width, height);
     setZoom(zoom);
-    updateCenter(center_lon, center_lat);
+    updateCenter(center_lon, center_lat);    
+    setViewSize(width, height);
 }
 
 void zchxMapView::setViewSize(int width, int height)
 {
     mViewHeight = height;
     mViewWidth = width;
-    mTopLeft.mPixelPos.x = 0;
-    mTopLeft.mPixelPos.y = 0;
-    mRightBottom.mPixelPos.x = width;
-    mRightBottom.mPixelPos.y = height;
+    updateDisplayRange();
 }
 
 void zchxMapView::setZoom(int zoom)
 {
-    if(zoom < 0 || zoom > 18) return;
+    if(zoom < 0 || zoom > 22) return;
     mCurZoom = zoom;
     mUnitMercatorLength = zchxEcdisUtils::calResolution(zoom);
+    updateDisplayRange();
 }
 
 int zchxMapView::zoom() const
@@ -44,11 +45,11 @@ void zchxMapView::updateCenter(const Point2D &point)
 
 Point2D zchxMapView::mercator2pixel(const Mercator &mct)
 {
-    double x = mct.mX - mTopLeft.mMercatot.mX;
-    double y = mct.mY - mTopLeft.mMercatot.mY;
+    double x = mct.mX - mMapRange.mLowerLeft.mX;
+    double y = mct.mY - mMapRange.mTopRight.mY;
     Point2D res;
-    res.x = mTopLeft.mPixelPos.x + x / mUnitMercatorLength;
-    res.y = mTopLeft.mPixelPos.y + y / mUnitMercatorLength;
+    res.x = x / mUnitMercatorLength;
+    res.y = 0 - y / mUnitMercatorLength;
     return res;
 }
 
@@ -64,12 +65,12 @@ Point2D zchxMapView::lonlat2pix(const Wgs84LonLat &ll)
 
 Wgs84LonLat zchxMapView::pix2Lonlat(const Point2D& pos)
 {
-    double x = pos.x - mTopLeft.mPixelPos.x;
-    double y = pos.y - mTopLeft.mPixelPos.y;
+    double x = pos.x;
+    double y = mViewHeight - pos.y;
     //获取当前指定位置对应的墨卡托坐标
     Mercator target;
-    target.mX = mTopLeft.mMercatot.mX + mUnitMercatorLength * x;
-    target.mY = mTopLeft.mMercatot.mY + mUnitMercatorLength * y;
+    target.mX = mMapRange.mLowerLeft.mX + mUnitMercatorLength * x;
+    target.mY = mMapRange.mLowerLeft.mY + mUnitMercatorLength * y;
 
     return zchxEcdisUtils::mercatorToWgs84LonLat(target);
 }
@@ -80,10 +81,19 @@ void zchxMapView::updateDisplayRange()
     //计算当前中心经纬度对应的墨卡托坐标
     Mercator center_mct = zchxEcdisUtils::wgs84LonlatToMercator(mCenter);
     //计算当前视窗对应的墨卡托坐标的显示范围
-    mTopLeft.mMercatot.mX = center_mct.mX - mUnitMercatorLength * mViewWidth / 2.0;
-    mTopLeft.mMercatot.mY = center_mct.mY - mUnitMercatorLength * mViewHeight / 2.0;
-    mRightBottom.mMercatot.mX = center_mct.mX + mUnitMercatorLength * mViewWidth / 2.0;
-    mRightBottom.mMercatot.mY = center_mct.mY + mUnitMercatorLength * mViewHeight / 2.0;
+    mMapRange.mLowerLeft.mX = center_mct.mX - mUnitMercatorLength * mViewWidth / 2.0;
+    mMapRange.mLowerLeft.mY = center_mct.mY - mUnitMercatorLength * mViewHeight / 2.0;
+    mMapRange.mTopRight.mX = center_mct.mX + mUnitMercatorLength * mViewWidth / 2.0;
+    mMapRange.mTopRight.mY = center_mct.mY + mUnitMercatorLength * mViewHeight / 2.0;
+
+    MapLoadSetting setting;
+    setting.mMapRange = mMapRange;
+    setting.mMode = 0;
+    setting.mResolution = mUnitMercatorLength;
+    setting.mZoom = zoom();
+    setting.mCenter = mCenter;
+    //qDebug()<<"size:"<<mViewWidth<<mViewHeight<<zoom();
+    emit updateMap(setting);
 }
 
 void zchxMapView::zoomIn()
@@ -96,4 +106,9 @@ void zchxMapView::zoomOut()
 {
     int zoom = mCurZoom;
     setZoom(--zoom);
+}
+
+void zchxMapView::update()
+{
+
 }

@@ -16,6 +16,7 @@ struct MapData{
 };
 
 class zchxMapView;
+class zchxMapLoadThread;
 
 class zchxMapWidget : public QWidget
 {
@@ -23,7 +24,6 @@ class zchxMapWidget : public QWidget
 public:
     explicit zchxMapWidget(QWidget *parent = 0);
     ~zchxMapWidget();
-    void clear() {mDataList.clear(); update();}
     void setCurZoom(int zoom);
     int  zoom() const;
     void setCenterLL(const Wgs84LonLat& pnt );
@@ -41,13 +41,19 @@ protected:
 #endif
 
 signals:
-    void signalDisplayCurMap(double lon, double lat, int zoom);
+    void signalDisplayCurPos(double lon, double lat);
+    void signalSendNewMap(double, double, int);
 
 public slots:
-    void append(const QPixmap& img, int x, int y);
+    void append(const QPixmap& img, int x, int y);    
+    void clear() {mDataList.clear(); update();}
+    void slotRecvNewMap(double lon, double lat, int zoom);
 private:
     QList<MapData> mDataList;
     zchxMapView*        mView;
+    zchxMapLoadThread*  mMapThread;
+    Wgs84LonLat         mCenter;
+    qint64              mLastWheelTime;
 
 };
 

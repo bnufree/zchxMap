@@ -5,6 +5,7 @@
 #include <QLabel>
 #include <QHBoxLayout>
 #include "zchxmapdownloadthread.h"
+#include <QSpacerItem>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -12,11 +13,9 @@ MainWindow::MainWindow(QWidget *parent) :
     mMapthread(0)
 {
     ui->setupUi(this);
-    mPosLabel = new QLabel(this);
-    ui->statusBar->setLayout(new QHBoxLayout);
-    ui->statusBar->layout()->addWidget(new QLabel);
-    ui->statusBar->layout()->addWidget(mPosLabel);
-    ui->statusBar->layout()->addWidget(new QLabel);
+    ui->statusBar->setVisible(false);
+    connect(ui->ecdis, SIGNAL(signalDisplayCurPos(double,double)), this, SLOT(slotUpdateCurrentPos(double,double)));
+    connect(ui->ecdis, SIGNAL(signalSendNewMap(double,double,int)), this, SLOT(slotDisplayMapCenterAndZoom(double,double,int)));
 }
 
 MainWindow::~MainWindow()
@@ -75,14 +74,14 @@ void MainWindow::on_load_clicked()
 
 void MainWindow::slotUpdateCurrentPos(double lon, double lat)
 {
-    mPosLabel->setText(QString("%1, %2").arg(lon, 0, 'f', 6).arg(lat, 0, 'f', 6));
+    ui->pos_label->setText(QString("%1, %2").arg(lon, 0, 'f', 6).arg(lat, 0, 'f', 6));
 }
 
-void MainWindow::slotDisplayNewMap(double lon, double lat, int zoom)
+void MainWindow::slotDisplayMapCenterAndZoom(double lon, double lat, int zoom)
 {
-    QRect rect =  ui->ecdis->geometry();
-    zchxMapTask task(lon, lat, rect.width(), rect.height(), zoom);
-    mMapthread->appendTask(task);
+    ui->lat->setText(FLOAT_STRING(lat, 6));
+    ui->lon->setText(FLOAT_STRING(lon, 6));
+    ui->zoom->setText(INT_STRING(zoom));
 }
 
 void MainWindow::on_download_clicked()

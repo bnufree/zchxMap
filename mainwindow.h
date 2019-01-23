@@ -22,7 +22,7 @@ public slots:
     void updateGridLayout(int x, int y);
     void slotRecvMapData(const QPixmap& data, int x, int y);
     void slotUpdateCurrentPos(double lon, double lat);
-    void slotDisplayNewMap(double lon, double lat, int zoom);
+    void slotDisplayMapCenterAndZoom(double lon, double lat, int zoom);
     void slotUpdateDownloadProgress(int val);
 private slots:
     void on_load_clicked();
@@ -32,7 +32,6 @@ private slots:
 private:
     Ui::MainWindow *ui;
     zchxMapThread* mMapthread;
-    QLabel*        mPosLabel;
 };
 
 #endif // MAINWINDOW_H

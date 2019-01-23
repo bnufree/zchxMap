@@ -1,11 +1,19 @@
 #include "zchxmapwidget.h"
 #include "zchxmapview.h"
+#include "zchxmaploadthread.h"
 #include <QPainter>
 #include <QDebug>
 
-zchxMapWidget::zchxMapWidget(QWidget *parent) : QWidget(parent)
+zchxMapWidget::zchxMapWidget(QWidget *parent) : QWidget(parent),
+    mLastWheelTime(0)
 {
-    mView = new zchxMapView(13.9526789, 113.1234567, 9, 0, 0);
+    this->setMouseTracking(true);
+    mView = new zchxMapView(22.274615, 112.982372, 9, 0, 0);
+    mMapThread = new zchxMapLoadThread;
+    connect(mView, SIGNAL(updateMap(MapLoadSetting)), mMapThread, SLOT(appendTask(MapLoadSetting)));
+    connect(mMapThread, SIGNAL(signalSendCurPixmap(QPixmap,int,int)), this, SLOT(append(QPixmap,int,int)));
+    connect(mMapThread, SIGNAL(signalSendNewMap(double, double, int)), this, SLOT(slotRecvNewMap(double,double,int)));
+    mMapThread->start();
 }
 
 zchxMapWidget::~zchxMapWidget()
@@ -16,8 +24,20 @@ zchxMapWidget::~zchxMapWidget()
 void zchxMapWidget::resizeEvent(QResizeEvent *e)
 {
     QSize size = e->size();
-    if(mView)mView->setViewSize(size.width(), size.height());
+    if(size.width() > 0 && size.height() > 0)
+    {
+        if(mView)mView->setViewSize(size.width(), size.height());
+    }
     QWidget::resizeEvent(e);
+}
+
+void zchxMapWidget::slotRecvNewMap(double lon, double lat, int zoom)
+{
+    qDebug()<<"new map info:"<<lon<<lat<<zoom;
+    mCenter.mLon = lon;
+    mCenter.mLat = lat;
+    emit signalSendNewMap(lon, lat, zoom);
+    clear();
 }
 
 void zchxMapWidget::append(const QPixmap &img, int x, int y)
@@ -35,6 +55,12 @@ void zchxMapWidget::paintEvent(QPaintEvent *e)
     {
         painter.drawPixmap(data.x, data.y, data.img);
     }
+
+    //画中心
+    Point2D pnt = mView->lonlat2pix(mCenter);
+    //qDebug()<<pnt.x<<pnt.y;
+    painter.setBrush(QBrush(Qt::red));
+    painter.drawEllipse(pnt.x, pnt.y, 5, 5);
 }
 
 void zchxMapWidget::mousePressEvent(QMouseEvent *e)
@@ -65,7 +91,7 @@ void zchxMapWidget::mouseMoveEvent(QMouseEvent *e)
     //获取当前位置对应的经纬度坐标
     if(!mView) return;
     Wgs84LonLat ll = mView->pix2Lonlat(pnt);
-    qDebug()<<ll.mLat<<ll.mLon;
+    emit signalDisplayCurPos(ll.mLon, ll.mLat);
 }
 
 void zchxMapWidget::setCurZoom(int zoom)
@@ -92,15 +118,19 @@ Wgs84LonLat zchxMapWidget:: centerLonlat() const
 
 void zchxMapWidget::wheelEvent(QWheelEvent *e)
 {
-    qDebug()<<__FUNCTION__<<__LINE__<<e->delta();
-    if(e->delta() > 0)
+    qDebug()<<__FUNCTION__<<__LINE__<<e->delta()<<e->angleDelta().x()<<e->angleDelta().y()<<e->phase();
+    if(QDateTime::currentMSecsSinceEpoch() - mLastWheelTime >= 3* 1000)
     {
-        //放大
-        if(mView) mView->zoomIn();
-    } else
-    {
-        //缩小
-        if(mView) mView->zoomOut();
+        if(e->delta() > 0)
+        {
+            //放大
+            if(mView) mView->zoomIn();
+        } else
+        {
+            //缩小
+            if(mView) mView->zoomOut();
+        }
+        mLastWheelTime = QDateTime::currentMSecsSinceEpoch();
     }
     e->accept();
 }

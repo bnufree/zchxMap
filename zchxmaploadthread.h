@@ -1,35 +1,30 @@
 #ifndef ZCHXMAPLOADTHREAD_H
 #define ZCHXMAPLOADTHREAD_H
 
-#include <QObject>
+#include <QThread>
 #include <QMutex>
 #include "zchxecdisutils.h"
 
-//每次加载瓦片地图的参数设定,主要是视窗的墨卡托范围,视窗屏幕坐标大小
-struct MapLoadSetting{
-    MapPointData    mTopLeft;
-    MapPointData    mBottomRight;
-    double          mResolution;
-};
 
-
-class zchxMapLoadThread : public QObject
+class zchxMapLoadThread : public QThread
 {
     Q_OBJECT
 public:
     explicit zchxMapLoadThread(QObject *parent = 0);
-    void     appendTask(const MapLoadSetting& task);
     void     run();
 private:
     bool     taskNow(MapLoadSetting& task);
 
 signals:
-
-public slots:
+    void     signalSendCurPixmap(const QPixmap& v, int x, int y);
+    void     signalSendNewMap(double lon, double lat, int zoom);
+public slots:    
+    void     appendTask(const MapLoadSetting& task);
 private:
     QList<MapLoadSetting>       mTaskList;
     QMutex                      mMutex;
     QList<QThread*>             mWorkThreadList;
+    QString                     mLocalUrl;
 };
 
 #endif // ZCHXMAPLOADTHREAD_H
