@@ -33,6 +33,7 @@ void zchxMapWidget::resizeEvent(QResizeEvent *e)
             connect(mView, SIGNAL(updateMap(MapLoadSetting)), mMapThread, SLOT(appendTask(MapLoadSetting)));
             connect(mMapThread, SIGNAL(signalSendCurPixmap(QPixmap,int,int)), this, SLOT(append(QPixmap,int,int)));
             connect(mMapThread, SIGNAL(signalSendNewMap(double, double, int)), this, SLOT(slotRecvNewMap(double,double,int)));
+            connect(mMapThread, SIGNAL(signalSendImgList(TileImageList)), this, SLOT(append(TileImageList)));
             mMapThread->start();
         } else
         {
@@ -54,8 +55,13 @@ void zchxMapWidget::slotRecvNewMap(double lon, double lat, int zoom)
 
 void zchxMapWidget::append(const QPixmap &img, int x, int y)
 {
-    MapData data = {img, x, y};
-    mDataList.append(data);
+    mDataList.append(TileImage(img, x, y));
+    update();
+}
+
+void zchxMapWidget::append(const TileImageList &list)
+{
+    mDataList.append(list);
     update();
 }
 
@@ -64,9 +70,9 @@ void zchxMapWidget::paintEvent(QPaintEvent *e)
     QPainter painter(this);
     painter.fillRect(0,0,width(),height(), QColor(100, 100, 100, 100));
     if(mDataList.size() == 0) return;
-    foreach(MapData data, mDataList)
+    foreach(TileImage data, mDataList)
     {
-        painter.drawPixmap(data.x, data.y, data.img);
+        painter.drawPixmap(data.mPosX, data.mPosY, data.mImg);
     }
 
     //画中心

@@ -5,6 +5,7 @@
 #include <QList>
 #include <QPixmap>
 #include <QMutex>
+#include "zchxecdisutils.h"
 
 struct MapBounds{
     double     min_x;

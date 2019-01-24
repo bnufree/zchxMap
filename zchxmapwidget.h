@@ -9,11 +9,11 @@
 #include <QPixmap>
 #include "zchxecdisutils.h"
 
-struct MapData{
-    QPixmap img;
-    int x;
-    int y;
-};
+//struct MapData{
+//    QPixmap img;
+//    int x;
+//    int y;
+//};
 
 class zchxMapView;
 class zchxMapLoadThread;
@@ -47,11 +47,12 @@ signals:
     void signalSendNewMap(double, double, int);
 
 public slots:
-    void append(const QPixmap& img, int x, int y);    
-    void clear() {mDataList.clear(); update();}
+    void append(const QPixmap& img, int x, int y);
+    void append(const TileImageList& list);
+    void clear() {mDataList.clear(); /*update();*/}
     void slotRecvNewMap(double lon, double lat, int zoom);
 private:
-    QList<MapData> mDataList;
+    TileImageList       mDataList;
     zchxMapView*        mView;
     zchxMapLoadThread*  mMapThread;
     Wgs84LonLat         mCenter;

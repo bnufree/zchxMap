@@ -97,14 +97,17 @@ struct MapLoadSetting{
 
 //瓦片图片信息
 struct TileImage {
-    QPixmap*    mImg;
+    QPixmap    mImg;
     int         mPosX;
     int         mPosY;
 
-    TileImage(){
-        mImg = 0;
-        mPosX = 0;
-        mPosY = 0;
+    TileImage(){}
+
+    TileImage(const QPixmap& img, int x, int y)
+    {
+        mImg = img;
+        mPosX = x;
+        mPosY = y;
     }
 };
 
@@ -112,16 +115,30 @@ class TileImageList:public QList<TileImage>
 {
 public:
     TileImageList():QList<TileImage>() {}
-    ~TileImageList()
-    {
-        for(int i=0; i<size(); i++)
-        {
-            QPixmap* img = this->at(i).mImg;
-            if(img) delete img;
-        }
-    }
+//    ~TileImageList()
+//    {
+//        for(int i=0; i<size(); i++)
+//        {
+//            QPixmap* img = this->at(i).mImg;
+//            if(img) delete img;
+//        }
+//    }
+
+//    void clear()
+//    {
+//        for(int i=0; i<size(); i++)
+//        {
+//            QPixmap* img = this->at(i).mImg;
+//            if(img) delete img;
+//        }
+
+//        QList<TileImage>::clear();
+//    }
 
 };
+
+Q_DECLARE_METATYPE(TileImage)
+Q_DECLARE_METATYPE(TileImageList)
 
 
 class zchxEcdisUtils

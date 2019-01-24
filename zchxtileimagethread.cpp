@@ -4,10 +4,13 @@
 #include <QPixmapCache>
 
 
-zchxTileImageThread::zchxTileImageThread(const QString& url, int pos_x, int pos_y, QObject *parent) : QObject(parent),QRunnable(),
+zchxTileImageThread::zchxTileImageThread(const QString& url, int pos_x, int pos_y, bool sendMsg, QObject* retobj, QObject *parent) : QObject(parent),QRunnable(),
+    mSendMsg(sendMsg),
     mUrl(url),
     mPx(pos_x),
-    mPy(pos_y)
+    mPy(pos_y),
+    mReturnObj(retobj)
+
 {
 
 }
@@ -17,7 +20,22 @@ void zchxTileImageThread::run()
     QPixmap *img = loadImage();
     if(img)
     {
-        emit signalSend(*img, mPx, mPy);
+        if(mSendMsg)
+        {
+            emit signalSend(*img, mPx, mPy);
+        } else
+        {
+            if(mReturnObj)
+            QMetaObject::invokeMethod(mReturnObj,
+                                      "appendTileImg",
+                                      Qt::DirectConnection,
+                                      Q_ARG(QPixmap, *img),
+                                      Q_ARG(int, mPx),
+                                      Q_ARG(int, mPy)
+                                      );
+        }
+
+
         delete img;
     }
 }

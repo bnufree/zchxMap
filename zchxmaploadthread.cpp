@@ -8,6 +8,7 @@ zchxMapLoadThread::zchxMapLoadThread(QObject *parent) : QThread(parent)
 {
     mTaskList.clear();
     qRegisterMetaType<MapLoadSetting>("const MapLoadSetting&");
+    qRegisterMetaType<TileImageList>("const TileImageList&");
 }
 
 void zchxMapLoadThread::appendTask(const MapLoadSetting &task)
@@ -80,6 +81,7 @@ void zchxMapLoadThread::run()
         //检查起始点是否在当前视窗的范围外
         qDebug()<<"top left corner:"<<pos.x<<pos.y;
         //获取各个瓦片的数据
+        mTileImgList.clear();
         QThreadPool pool;
         pool.setMaxThreadCount(16);
         emit signalSendNewMap(task.mCenter.mLon, task.mCenter.mLat, task.mZoom);
@@ -92,13 +94,22 @@ void zchxMapLoadThread::run()
                 }
                 int pos_x = pos.x + (i-tile_start_x) * MAP_IMG_SIZE;
                 int pos_y = pos.y + (k-tile_start_y) * MAP_IMG_SIZE;
-                zchxTileImageThread *thread = new zchxTileImageThread(url, pos_x, pos_y);
+                zchxTileImageThread *thread = new zchxTileImageThread(url, pos_x, pos_y, false, this);
                 thread->setAutoDelete(true);
                 connect(thread, SIGNAL(signalSend(QPixmap,int,int)), this, SIGNAL(signalSendCurPixmap(QPixmap, int, int)));
                 pool.start(thread);
             }
         }
         pool.waitForDone();
-        QThread::msleep(500);
+        if(mTileImgList.size() > 0)
+        {
+            emit signalSendImgList(mTileImgList);
+        }
     }
+}
+
+void zchxMapLoadThread::appendTileImg(const QPixmap& img, int x, int y)
+{
+    QMutexLocker locker(&mImgMutex);
+    mTileImgList.append(TileImage(img, x, y));
 }

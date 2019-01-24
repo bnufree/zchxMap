@@ -18,13 +18,17 @@ private:
 signals:
     void     signalSendCurPixmap(const QPixmap& v, int x, int y);
     void     signalSendNewMap(double lon, double lat, int zoom);
+    void     signalSendImgList(const TileImageList& list);
 public slots:    
     void     appendTask(const MapLoadSetting& task);
+    void     appendTileImg(const QPixmap& img, int x, int y);
 private:
     QList<MapLoadSetting>       mTaskList;
     QMutex                      mMutex;
     QList<QThread*>             mWorkThreadList;
     QString                     mLocalUrl;
+    TileImageList               mTileImgList;
+    QMutex                      mImgMutex;
 };
 
 #endif // ZCHXMAPLOADTHREAD_H

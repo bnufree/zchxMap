@@ -8,7 +8,7 @@ class zchxTileImageThread : public QObject, public QRunnable
 {
     Q_OBJECT
 public:
-    explicit zchxTileImageThread(const QString& url, int pos_x, int pos_y, QObject *parent = 0);
+    explicit zchxTileImageThread(const QString& url, int pos_x, int pos_y, bool sendMsg, QObject* retobj,  QObject *parent = 0);
     void run();
     QPixmap* loadImageFromUrl(const QString& url);
     QPixmap* loadImage();
@@ -20,6 +20,8 @@ private:
     QString mUrl;
     int mPx;
     int mPy;
+    bool mSendMsg;
+    QObject* mReturnObj;
 };
 
 #endif // ZCHXTILEIMAGETHREAD_H
