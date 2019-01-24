@@ -93,7 +93,7 @@ void zchxMapView::updateDisplayRange()
 
     MapLoadSetting setting;
     setting.mMapRange = mMapRange;
-    setting.mMode = 1;
+    setting.mMode = 0;
     setting.mResolution = mUnitMercatorLength;
     setting.mZoom = zoom();
     setting.mCenter = mCenter;

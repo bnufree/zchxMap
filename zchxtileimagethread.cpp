@@ -47,7 +47,7 @@ QPixmap* zchxTileImageThread::loadImage()
 
 QPixmap* zchxTileImageThread::loadImageFromUrl(const QString &url)
 {
-    //qDebug()<<"start load image:"<<QDateTime::currentDateTime();
+    //qDebug()<<"start load image:"<<QDateTime::currentDateTime()<<url;
     QPixmap *img = new QPixmap(256, 256);
     QPixmapCache::setCacheLimit(1);
     bool sts = false;
@@ -64,6 +64,6 @@ QPixmap* zchxTileImageThread::loadImageFromUrl(const QString &url)
     {
         img->fill(Qt::transparent);
     }
-    //qDebug()<<"end load image:"<<QDateTime::currentDateTime()<<" img:"<<img<<"sts:"<<sts;
+    qDebug()<<"end load image:"<<QDateTime::currentDateTime()<<" img:"<<url<<"sts:"<<sts;
     return img;
 }

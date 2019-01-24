@@ -4,9 +4,9 @@
 #include <QPainter>
 #include <QDebug>
 
-#define     DEFAULT_LON         112.982372
-#define     DEFAULT_LAT         22.274615
-#define     DEFAULT_ZOOM        9
+#define     DEFAULT_LON         113.093664
+#define     DEFAULT_LAT         22.216150
+#define     DEFAULT_ZOOM        13
 zchxMapWidget::zchxMapWidget(QWidget *parent) : QWidget(parent),
     mLastWheelTime(0),
     mView(0),
@@ -29,7 +29,7 @@ void zchxMapWidget::resizeEvent(QResizeEvent *e)
         if(!mView)
         {
             mView = new zchxMapView(DEFAULT_LAT, DEFAULT_LON, DEFAULT_ZOOM, size.width(), size.height());
-            mMapThread = new zchxMapLoadThread;
+            mMapThread = new zchxMapLoadThread(TILE_ORIGIN_BOTTEMLEFT);
             connect(mView, SIGNAL(updateMap(MapLoadSetting)), mMapThread, SLOT(appendTask(MapLoadSetting)));
             connect(mMapThread, SIGNAL(signalSendCurPixmap(QPixmap,int,int)), this, SLOT(append(QPixmap,int,int)));
             connect(mMapThread, SIGNAL(signalSendNewMap(double, double, int)), this, SLOT(slotRecvNewMap(double,double,int)));
