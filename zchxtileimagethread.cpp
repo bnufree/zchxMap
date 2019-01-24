@@ -1,6 +1,7 @@
 #include "zchxtileimagethread.h"
 #include "qhttpget.h"
 #include <QFile>
+#include <QPixmapCache>
 
 
 zchxTileImageThread::zchxTileImageThread(const QString& url, int pos_x, int pos_y, QObject *parent) : QObject(parent),QRunnable(),
@@ -12,26 +13,39 @@ zchxTileImageThread::zchxTileImageThread(const QString& url, int pos_x, int pos_
 }
 
 void zchxTileImageThread::run()
-{
-    if(mUrl.isEmpty()) return;
-    QPixmap img(256,256);
-    //qDebug()<<"url:"<<mUrl;
-    try {
-        if(mUrl.contains("http"))
-        {
-            img.loadFromData(QHttpGet::getContentOfURL(mUrl), "PNG");
-        } else
-        {
-            //读取本地文件
-            img.load(mUrl, "PNG");
-        }
-    } catch(...)
+{    
+    QPixmap *img = loadImage();
+    if(img)
     {
-        img.fill(QColor(0,0,150,10));
+        emit signalSend(*img, mPx, mPy);
+        delete img;
     }
+}
 
-    if(!img.isNull())
-    {
-        emit signalSend(img, mPx, mPy);
+QPixmap* zchxTileImageThread::loadImage()
+{
+    return loadImageFromUrl(mUrl);
+}
+
+QPixmap* zchxTileImageThread::loadImageFromUrl(const QString &url)
+{
+    //qDebug()<<"start load image:"<<QDateTime::currentDateTime();
+    QPixmap *img = new QPixmap(256, 256);
+    QPixmapCache::setCacheLimit(1);
+    bool sts = false;
+    if(!url.isEmpty()){
+        if(url.contains("http"))
+        {
+            sts = img->loadFromData(QHttpGet::getContentOfURL(url), "PNG");
+        } else if(QFile::exists(url))
+        {
+            sts = img->load(url, "PNG");
+        }
     }
+    if(!sts)
+    {
+        img->fill(Qt::transparent);
+    }
+    //qDebug()<<"end load image:"<<QDateTime::currentDateTime()<<" img:"<<img<<"sts:"<<sts;
+    return img;
 }

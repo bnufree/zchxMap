@@ -4,16 +4,16 @@
 #include <QPainter>
 #include <QDebug>
 
+#define     DEFAULT_LON         112.982372
+#define     DEFAULT_LAT         22.274615
+#define     DEFAULT_ZOOM        9
 zchxMapWidget::zchxMapWidget(QWidget *parent) : QWidget(parent),
-    mLastWheelTime(0)
+    mLastWheelTime(0),
+    mView(0),
+    mMapThread(0),
+    mDrag(0)
 {
-    this->setMouseTracking(true);
-    mView = new zchxMapView(22.274615, 112.982372, 9, 0, 0);
-    mMapThread = new zchxMapLoadThread;
-    connect(mView, SIGNAL(updateMap(MapLoadSetting)), mMapThread, SLOT(appendTask(MapLoadSetting)));
-    connect(mMapThread, SIGNAL(signalSendCurPixmap(QPixmap,int,int)), this, SLOT(append(QPixmap,int,int)));
-    connect(mMapThread, SIGNAL(signalSendNewMap(double, double, int)), this, SLOT(slotRecvNewMap(double,double,int)));
-    mMapThread->start();
+    this->setMouseTracking(true);    
 }
 
 zchxMapWidget::~zchxMapWidget()
@@ -26,7 +26,19 @@ void zchxMapWidget::resizeEvent(QResizeEvent *e)
     QSize size = e->size();
     if(size.width() > 0 && size.height() > 0)
     {
-        if(mView)mView->setViewSize(size.width(), size.height());
+        if(!mView)
+        {
+            mView = new zchxMapView(DEFAULT_LAT, DEFAULT_LON, DEFAULT_ZOOM, size.width(), size.height());
+            mMapThread = new zchxMapLoadThread;
+            connect(mView, SIGNAL(updateMap(MapLoadSetting)), mMapThread, SLOT(appendTask(MapLoadSetting)));
+            connect(mMapThread, SIGNAL(signalSendCurPixmap(QPixmap,int,int)), this, SLOT(append(QPixmap,int,int)));
+            connect(mMapThread, SIGNAL(signalSendNewMap(double, double, int)), this, SLOT(slotRecvNewMap(double,double,int)));
+            mMapThread->start();
+        } else
+        {
+            //重新更新地图显示的大小
+            mView->setViewSize(size.width(), size.height());
+        }
     }
     QWidget::resizeEvent(e);
 }
@@ -51,6 +63,7 @@ void zchxMapWidget::paintEvent(QPaintEvent *e)
 {
     QPainter painter(this);
     painter.fillRect(0,0,width(),height(), QColor(100, 100, 100, 100));
+    if(mDataList.size() == 0) return;
     foreach(MapData data, mDataList)
     {
         painter.drawPixmap(data.x, data.y, data.img);
@@ -65,29 +78,56 @@ void zchxMapWidget::paintEvent(QPaintEvent *e)
 
 void zchxMapWidget::mousePressEvent(QMouseEvent *e)
 {
-
+    if(e->buttons() & Qt::LeftButton)
+    {
+        updateCurrentPos(e->pos());
+        mPressPnt = e->pos();
+    }
+    e->accept();
 }
 
 void zchxMapWidget::mouseReleaseEvent(QMouseEvent *e)
 {
+    updateCurrentPos(e->pos());
+    if(mDrag)
+    {
+        QPoint pnt = e->pos();
+        if(mView) mView->drag(mPressPnt.x()- pnt.x(), mPressPnt.y() - pnt.y());
 
+    }
+    e->accept();
 }
 
 void zchxMapWidget::mouseDoubleClickEvent(QMouseEvent *e)
 {
-    //将当前的坐标点作为中心坐标点
-    Point2D pnt;
-    pnt.x = e->pos().x();
-    pnt.y = e->pos().y();
-    if(mView) mView->updateCenter(pnt);
+    if(mView)
+    {
+        //地图移动到当前点作为中心点
+        mView->updateCenter(Point2D(e->pos()));
+        //更新当前点的经纬度
+        updateCurrentPos(e->pos());
+    }
+    e->accept();
 }
 
 void zchxMapWidget::mouseMoveEvent(QMouseEvent *e)
 {
+    if(e->buttons() & Qt::LeftButton)
+    {
+        //当前鼠标按住左键移动拖动地图
+        mDrag = true;
+    } else {
+        //单纯地移动鼠标
+        updateCurrentPos(e->pos());
+
+    }
+    e->accept();
+}
+
+void zchxMapWidget::updateCurrentPos(const QPoint &p)
+{
     //取得当前的屏幕坐标
-    Point2D pnt;
-    pnt.x = e->pos().x();
-    pnt.y = e->pos().y();
+    Point2D pnt(p);
     //获取当前位置对应的经纬度坐标
     if(!mView) return;
     Wgs84LonLat ll = mView->pix2Lonlat(pnt);
@@ -118,8 +158,8 @@ Wgs84LonLat zchxMapWidget:: centerLonlat() const
 
 void zchxMapWidget::wheelEvent(QWheelEvent *e)
 {
-    qDebug()<<__FUNCTION__<<__LINE__<<e->delta()<<e->angleDelta().x()<<e->angleDelta().y()<<e->phase();
-    if(QDateTime::currentMSecsSinceEpoch() - mLastWheelTime >= 3* 1000)
+    //qDebug()<<__FUNCTION__<<__LINE__<<e->delta()<<e->angleDelta().x()<<e->angleDelta().y()<<e->phase();
+    if(QDateTime::currentMSecsSinceEpoch() - mLastWheelTime >= 1* 1000)
     {
         if(e->delta() > 0)
         {

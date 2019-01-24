@@ -24,6 +24,7 @@ public:
     void        zoomIn();
     void        zoomOut();
     void        update();
+    void        drag(int x, int y);
 
 signals:
     void        updateMap(const MapLoadSetting& set);

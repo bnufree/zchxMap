@@ -4,6 +4,7 @@
 #include <math.h>
 #include <QString>
 #include <QDateTime>
+#include <QPixmap>
 
 #define     GLOB_PI                                 (3.14159265358979323846)
 #define     DOUBLE_EPS                              0.000001
@@ -50,6 +51,29 @@ public:
 struct Point2D{
     double x;
     double y;
+
+    Point2D(double px, double py) {
+        x = px;
+        y = py;
+    }
+
+    Point2D()
+    {
+        x = 0;
+        y = 0;
+    }
+
+    Point2D(const QPoint& p)
+    {
+        x = p.x();
+        y = p.y();
+    }
+
+    Point2D(const QPointF& p)
+    {
+        x = p.x();
+        y = p.y();
+    }
 };
 
 //struct strLatLon{
@@ -69,6 +93,34 @@ struct MapLoadSetting{
     int             mZoom;
     int             mMode; //0:本地1:服务器地址
     Wgs84LonLat     mCenter;
+};
+
+//瓦片图片信息
+struct TileImage {
+    QPixmap*    mImg;
+    int         mPosX;
+    int         mPosY;
+
+    TileImage(){
+        mImg = 0;
+        mPosX = 0;
+        mPosY = 0;
+    }
+};
+
+class TileImageList:public QList<TileImage>
+{
+public:
+    TileImageList():QList<TileImage>() {}
+    ~TileImageList()
+    {
+        for(int i=0; i<size(); i++)
+        {
+            QPixmap* img = this->at(i).mImg;
+            if(img) delete img;
+        }
+    }
+
 };
 
 

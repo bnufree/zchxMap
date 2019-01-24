@@ -113,7 +113,6 @@ void zchxMapThread::run()
             }
         }
         pool.waitForDone();
-        QThread::msleep(500);
     }
 }
 

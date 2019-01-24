@@ -32,7 +32,7 @@ void zchxMapLoadThread::run()
         MapLoadSetting task;
         if(!taskNow(task))
         {
-            QThread::sleep(5);
+            QThread::msleep(50);
             continue;
         }
         struct MapBounds{
@@ -79,13 +79,10 @@ void zchxMapLoadThread::run()
         pos.y = (view_bounds.max_y - first_tile.mY) / resolution;
         //检查起始点是否在当前视窗的范围外
         qDebug()<<"top left corner:"<<pos.x<<pos.y;
-        QTime t;
-        t.start();
         //获取各个瓦片的数据
         QThreadPool pool;
         pool.setMaxThreadCount(16);
         emit signalSendNewMap(task.mCenter.mLon, task.mCenter.mLat, task.mZoom);
-
         for(int i=tile_start_x; i<=tile_end_x; i++){
             for(int k=tile_start_y; k<=tile_end_y; k++){
                 QString url = QString("http://mt2.google.cn/vt/lyrs=m@167000000&hl=zh-CN&gl=cn&x=%1&y=%2&z=%3&s=Galil").arg(i).arg(k).arg(task.mZoom);
@@ -99,11 +96,9 @@ void zchxMapLoadThread::run()
                 thread->setAutoDelete(true);
                 connect(thread, SIGNAL(signalSend(QPixmap,int,int)), this, SIGNAL(signalSendCurPixmap(QPixmap, int, int)));
                 pool.start(thread);
-                //thread->start();
             }
         }
         pool.waitForDone();
-        qDebug()<<"total time:"<<t.elapsed();
         QThread::msleep(500);
     }
 }

@@ -28,6 +28,8 @@ public:
     int  zoom() const;
     void setCenterLL(const Wgs84LonLat& pnt );
     Wgs84LonLat centerLonlat() const;
+private:
+    void updateCurrentPos(const QPoint& p);
 
 protected:
     void paintEvent(QPaintEvent* e);
@@ -54,7 +56,8 @@ private:
     zchxMapLoadThread*  mMapThread;
     Wgs84LonLat         mCenter;
     qint64              mLastWheelTime;
-
+    bool                mDrag;
+    QPoint              mPressPnt;
 };
 
 #endif // ZCHXMAPWIDGET_H

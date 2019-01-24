@@ -38,6 +38,11 @@ void zchxMapView::updateCenter(double lon, double lat)
     updateDisplayRange();
 }
 
+void zchxMapView::drag(int x, int y)
+{
+    updateCenter(Point2D(0.5*mViewWidth + x, 0.5*mViewHeight + y));
+}
+
 void zchxMapView::updateCenter(const Point2D &point)
 {
     updateCenter(pix2Lonlat(point));
@@ -88,11 +93,10 @@ void zchxMapView::updateDisplayRange()
 
     MapLoadSetting setting;
     setting.mMapRange = mMapRange;
-    setting.mMode = 0;
+    setting.mMode = 1;
     setting.mResolution = mUnitMercatorLength;
     setting.mZoom = zoom();
     setting.mCenter = mCenter;
-    //qDebug()<<"size:"<<mViewWidth<<mViewHeight<<zoom();
     emit updateMap(setting);
 }
 

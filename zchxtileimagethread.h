@@ -10,6 +10,8 @@ class zchxTileImageThread : public QObject, public QRunnable
 public:
     explicit zchxTileImageThread(const QString& url, int pos_x, int pos_y, QObject *parent = 0);
     void run();
+    QPixmap* loadImageFromUrl(const QString& url);
+    QPixmap* loadImage();
 
 signals:
     void signalSend(const QPixmap& img, int x, int y);
