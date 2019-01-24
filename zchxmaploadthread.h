@@ -25,7 +25,7 @@ signals:
     void     signalSendImgList(const TileImageList& list);
 public slots:    
     void     appendTask(const MapLoadSetting& task);
-    void     appendTileImg(const QPixmap& img, int x, int y);
+    void     appendTileImg(const QPixmap& img, int x, int y, const QString& name);
 private:
     QList<MapLoadSetting>       mTaskList;
     QMutex                      mMutex;

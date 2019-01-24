@@ -4,8 +4,9 @@
 #include <QPixmapCache>
 
 
-zchxTileImageThread::zchxTileImageThread(const QString& url, int pos_x, int pos_y, bool sendMsg, QObject* retobj, QObject *parent) : QObject(parent),QRunnable(),
+zchxTileImageThread::zchxTileImageThread(const QString& url, const QString& name,int pos_x, int pos_y, bool sendMsg, QObject* retobj, QObject *parent) : QObject(parent),QRunnable(),
     mSendMsg(sendMsg),
+    mName(name),
     mUrl(url),
     mPx(pos_x),
     mPy(pos_y),
@@ -31,7 +32,8 @@ void zchxTileImageThread::run()
                                       Qt::DirectConnection,
                                       Q_ARG(QPixmap, *img),
                                       Q_ARG(int, mPx),
-                                      Q_ARG(int, mPy)
+                                      Q_ARG(int, mPy),
+                                      Q_ARG(QString, mName)
                                       );
         }
 

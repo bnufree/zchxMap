@@ -102,7 +102,8 @@ void zchxMapThread::run()
                 QString url = QString("http://mt2.google.cn/vt/lyrs=m@167000000&hl=zh-CN&gl=cn&x=%1&y=%2&z=%3&s=Galil").arg(i).arg(k).arg(task.zoom);
                 int pos_x = pos.x() + (i-tile_start_x) * MAP_IMG_SIZE;
                 int pos_y = pos.y() + (k-tile_start_y) * MAP_IMG_SIZE;
-                zchxTileImageThread *thread = new zchxTileImageThread(url, pos_x, pos_y, true, 0);
+                QString name = QString("%1-%2").arg(i).arg(k);
+                zchxTileImageThread *thread = new zchxTileImageThread(url, name, pos_x, pos_y, true, 0);
                 thread->setAutoDelete(true);
                 //qDebug()<<"url:"<<url<<"pos:"<<pos_x<<pos_y;
                 connect(thread, SIGNAL(signalSend(QPixmap,int,int)), this, SIGNAL(signalSendCurPixmap(QPixmap, int, int)));

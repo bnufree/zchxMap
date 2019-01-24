@@ -122,14 +122,18 @@ void zchxMapLoadThread::run()
         emit signalSendNewMap(task.mCenter.mLon, task.mCenter.mLat, task.mZoom);
         for(int i=tile_start_x; i<=tile_end_x; i++){
             for(int k=tile_start_y; k<=tile_end_y; k++){
-                QString url = QString("http://mt2.google.cn/vt/lyrs=m@167000000&hl=zh-CN&gl=cn&x=%1&y=%2&z=%3&s=Galil").arg(i).arg(k).arg(task.mZoom);
+                //google
+                //QString url = QString("http://mt2.google.cn/vt/lyrs=m@167000000&hl=zh-CN&gl=cn&x=%1&y=%2&z=%3&s=Galil").arg(i).arg(k).arg(task.mZoom);
+                //shipxc
+                QString url = QString("http://m2.shipxy.com/tile.c?l=Na&m=o&x=%1&y=%2&z=%3").arg(i).arg(k).arg(task.mZoom);
                 if(task.mMode == 0)
                 {
                     url = QString("%1/data/JMtms/%2/%3/%4.png").arg(QApplication::applicationDirPath()).arg(task.mZoom).arg(i).arg(k);
                 }
                 int pos_x = pos.x + (i-tile_start_x) * MAP_IMG_SIZE;
                 int pos_y = pos.y + (k-tile_start_y) * MAP_IMG_SIZE * (mOriginPos == TILE_ORIGIN_TOPLEFT? 1 : -1);
-                zchxTileImageThread *thread = new zchxTileImageThread(url, pos_x, pos_y, false, this);
+                QString name = QString("%1-%2").arg(i).arg(k);
+                zchxTileImageThread *thread = new zchxTileImageThread(url, name, pos_x, pos_y, false, this);
                 thread->setAutoDelete(true);
                 connect(thread, SIGNAL(signalSend(QPixmap,int,int)), this, SIGNAL(signalSendCurPixmap(QPixmap, int, int)));
                 pool.start(thread);
@@ -143,8 +147,8 @@ void zchxMapLoadThread::run()
     }
 }
 
-void zchxMapLoadThread::appendTileImg(const QPixmap& img, int x, int y)
+void zchxMapLoadThread::appendTileImg(const QPixmap& img, int x, int y,  const QString& name)
 {
     QMutexLocker locker(&mImgMutex);
-    mTileImgList.append(TileImage(img, x, y));
+    mTileImgList.append(TileImage(img, x, y, name));
 }

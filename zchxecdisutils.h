@@ -100,14 +100,16 @@ struct TileImage {
     QPixmap    mImg;
     int         mPosX;
     int         mPosY;
+    QString     mName;
 
     TileImage(){}
 
-    TileImage(const QPixmap& img, int x, int y)
+    TileImage(const QPixmap& img, int x, int y, const QString& name = QString())
     {
         mImg = img;
         mPosX = x;
         mPosY = y;
+        mName = name;
     }
 };
 

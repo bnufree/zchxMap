@@ -73,6 +73,7 @@ void zchxMapWidget::paintEvent(QPaintEvent *e)
     foreach(TileImage data, mDataList)
     {
         painter.drawPixmap(data.mPosX, data.mPosY, data.mImg);
+        painter.drawText(data.mPosX, data.mPosY, data.mName);
     }
 
     //画中心
