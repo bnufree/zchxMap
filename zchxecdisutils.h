@@ -86,12 +86,23 @@ struct MapRangeData{
     Mercator    mTopRight;          //右上
 };
 
+enum    TILE_ORIGIN_POS{
+    TILE_ORIGIN_TOPLEFT = 0,        //左上
+    TILE_ORIGIN_BOTTEMLEFT,         //左下
+};
+
+enum    TILE_SOURCE{
+    TILE_GOOGLE = 0,
+    TILE_TMS,
+};
+
 //每次加载瓦片地图的参数设定,主要是视窗的墨卡托范围,视窗屏幕坐标大小
 struct MapLoadSetting{
     MapRangeData    mMapRange;
     double          mResolution;
     int             mZoom;
-    int             mMode; //0:本地1:服务器地址
+    int             mSource; //0:本地1:服务器地址
+    int             mTilePos;
     Wgs84LonLat     mCenter;
 };
 

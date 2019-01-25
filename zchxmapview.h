@@ -25,6 +25,7 @@ public:
     void        zoomOut();
     void        update();
     void        drag(int x, int y);
+    void        setSource(int source);
 
 signals:
     void        updateMap(const MapLoadSetting& set);
@@ -36,6 +37,7 @@ private:
     int                 mViewHeight;
     double              mUnitMercatorLength;
     Wgs84LonLat           mCenter;
+    int                 mSource;
 };
 
 #endif // ZCHXMAPVIEW_H

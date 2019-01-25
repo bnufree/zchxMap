@@ -28,6 +28,7 @@ public:
     int  zoom() const;
     void setCenterLL(const Wgs84LonLat& pnt );
     Wgs84LonLat centerLonlat() const;
+    void setSource(int source);
 private:
     void updateCurrentPos(const QPoint& p);
 

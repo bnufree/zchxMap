@@ -29,6 +29,10 @@ private slots:
 
     void on_download_clicked();
 
+    void on_source_activated(const QString &arg1);
+
+    void on_source_currentIndexChanged(int index);
+
 private:
     Ui::MainWindow *ui;
     zchxMapThread* mMapthread;

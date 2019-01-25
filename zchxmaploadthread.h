@@ -5,17 +5,15 @@
 #include <QMutex>
 #include "zchxecdisutils.h"
 
-enum    TILE_ORIGIN_POS{
-    TILE_ORIGIN_TOPLEFT = 0,        //左上
-    TILE_ORIGIN_BOTTEMLEFT,         //左下
-};
+
 
 class zchxMapLoadThread : public QThread
 {
     Q_OBJECT
 public:
-    explicit zchxMapLoadThread(TILE_ORIGIN_POS pos = TILE_ORIGIN_TOPLEFT, QObject *parent = 0);
+    explicit zchxMapLoadThread(QObject *parent = 0);
     void     run();
+    void     setTilePos(TILE_ORIGIN_POS pos);
 private:
     bool     taskNow(MapLoadSetting& task);
 
@@ -33,7 +31,6 @@ private:
     QString                     mLocalUrl;
     TileImageList               mTileImgList;
     QMutex                      mImgMutex;
-    int                         mOriginPos;
 };
 
 #endif // ZCHXMAPLOADTHREAD_H

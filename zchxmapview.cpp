@@ -3,7 +3,8 @@
 
 zchxMapView::zchxMapView(double center_lat, double center_lon, int zoom, int width, int height, QObject *parent) : QObject(parent),
   mViewWidth(0),
-  mViewHeight(0)
+  mViewHeight(0),
+  mSource(TILE_GOOGLE)
 {
     setZoom(zoom);
     updateCenter(center_lon, center_lat);    
@@ -15,6 +16,15 @@ void zchxMapView::setViewSize(int width, int height)
     mViewHeight = height;
     mViewWidth = width;
     updateDisplayRange();
+}
+
+void zchxMapView::setSource(int source)
+{
+    if(mSource != source)
+    {
+        mSource = source;
+        updateDisplayRange();
+    }
 }
 
 void zchxMapView::setZoom(int zoom)
@@ -93,7 +103,14 @@ void zchxMapView::updateDisplayRange()
 
     MapLoadSetting setting;
     setting.mMapRange = mMapRange;
-    setting.mMode = 0;
+    setting.mSource = mSource;
+    if(setting.mSource == TILE_GOOGLE)
+    {
+        setting.mTilePos = TILE_ORIGIN_TOPLEFT;
+    } else
+    {
+        setting.mTilePos = TILE_ORIGIN_BOTTEMLEFT;
+    }
     setting.mResolution = mUnitMercatorLength;
     setting.mZoom = zoom();
     setting.mCenter = mCenter;

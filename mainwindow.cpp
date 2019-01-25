@@ -16,6 +16,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->statusBar->setVisible(false);
     connect(ui->ecdis, SIGNAL(signalDisplayCurPos(double,double)), this, SLOT(slotUpdateCurrentPos(double,double)));
     connect(ui->ecdis, SIGNAL(signalSendNewMap(double,double,int)), this, SLOT(slotDisplayMapCenterAndZoom(double,double,int)));
+    ui->source->addItem(tr("谷歌"), TILE_GOOGLE);
+    ui->source->addItem(tr("TMS"), TILE_TMS);
 }
 
 MainWindow::~MainWindow()
@@ -102,4 +104,13 @@ void MainWindow::slotUpdateDownloadProgress(int val)
     {
         num = 1;
     }
+}
+
+void MainWindow::on_source_activated(const QString &arg1)
+{
+}
+
+void MainWindow::on_source_currentIndexChanged(int index)
+{
+    ui->ecdis->setSource(ui->source->currentData().toInt());
 }

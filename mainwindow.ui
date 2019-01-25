@@ -99,6 +99,16 @@
        </spacer>
       </item>
       <item>
+       <widget class="QLabel" name="label_4">
+        <property name="text">
+         <string>地图数据来源</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="source"/>
+      </item>
+      <item>
        <widget class="QLabel" name="label_2">
         <property name="text">
          <string>地图下载</string>

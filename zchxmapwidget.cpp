@@ -29,7 +29,7 @@ void zchxMapWidget::resizeEvent(QResizeEvent *e)
         if(!mView)
         {
             mView = new zchxMapView(DEFAULT_LAT, DEFAULT_LON, DEFAULT_ZOOM, size.width(), size.height());
-            mMapThread = new zchxMapLoadThread(TILE_ORIGIN_BOTTEMLEFT);
+            mMapThread = new zchxMapLoadThread;
             connect(mView, SIGNAL(updateMap(MapLoadSetting)), mMapThread, SLOT(appendTask(MapLoadSetting)));
             connect(mMapThread, SIGNAL(signalSendCurPixmap(QPixmap,int,int)), this, SLOT(append(QPixmap,int,int)));
             connect(mMapThread, SIGNAL(signalSendNewMap(double, double, int)), this, SLOT(slotRecvNewMap(double,double,int)));
@@ -68,7 +68,7 @@ void zchxMapWidget::append(const TileImageList &list)
 void zchxMapWidget::paintEvent(QPaintEvent *e)
 {
     QPainter painter(this);
-    painter.fillRect(0,0,width(),height(), QColor(100, 100, 100, 100));
+    painter.fillRect(0,0,width(),height(), Qt::white);
     if(mDataList.size() == 0) return;
     foreach(TileImage data, mDataList)
     {
@@ -180,4 +180,9 @@ void zchxMapWidget::wheelEvent(QWheelEvent *e)
         mLastWheelTime = QDateTime::currentMSecsSinceEpoch();
     }
     e->accept();
+}
+
+void zchxMapWidget::setSource(int source)
+{
+    if(mView) mView->setSource(source);
 }
