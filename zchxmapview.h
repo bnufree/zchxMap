@@ -15,6 +15,7 @@ public:
     int         zoom() const;
     void        setZoom(int zoom) ;
     void        setViewSize(int width, int height);
+    void        updateCenterAndZoom(const Wgs84LonLat& ll, int zoom);
     void        updateCenter(double lon, double lat);
     void        updateCenter(const Point2D& point);
     void        updateCenter(const Wgs84LonLat& ll) {updateCenter(ll.mLon, ll.mLat);}

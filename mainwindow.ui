@@ -99,6 +99,13 @@
        </spacer>
       </item>
       <item>
+       <widget class="QCheckBox" name="image_num">
+        <property name="text">
+         <string>显示图片编号</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QLabel" name="label_4">
         <property name="text">
          <string>地图数据来源</string>
@@ -107,13 +114,6 @@
       </item>
       <item>
        <widget class="QComboBox" name="source"/>
-      </item>
-      <item>
-       <widget class="QLabel" name="label_2">
-        <property name="text">
-         <string>地图下载</string>
-        </property>
-       </widget>
       </item>
       <item>
        <widget class="QProgressBar" name="progressBar">
@@ -128,6 +128,19 @@
          <string>开始下载</string>
         </property>
        </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_4">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
       </item>
      </layout>
     </item>

@@ -27,8 +27,10 @@ public:
     void setCurZoom(int zoom);
     int  zoom() const;
     void setCenterLL(const Wgs84LonLat& pnt );
+    void setCenterAndZoom(const Wgs84LonLat &ll, int zoom);
     Wgs84LonLat centerLonlat() const;
     void setSource(int source);
+    void setDisplayImgeNum(bool sts) {mDisplayImageNum = sts; update();}
 private:
     void updateCurrentPos(const QPoint& p);
 
@@ -60,6 +62,7 @@ private:
     qint64              mLastWheelTime;
     bool                mDrag;
     QPoint              mPressPnt;
+    bool                mDisplayImageNum;
 };
 
 #endif // ZCHXMAPWIDGET_H

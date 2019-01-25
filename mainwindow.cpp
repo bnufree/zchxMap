@@ -16,8 +16,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->statusBar->setVisible(false);
     connect(ui->ecdis, SIGNAL(signalDisplayCurPos(double,double)), this, SLOT(slotUpdateCurrentPos(double,double)));
     connect(ui->ecdis, SIGNAL(signalSendNewMap(double,double,int)), this, SLOT(slotDisplayMapCenterAndZoom(double,double,int)));
-    ui->source->addItem(tr("谷歌"), TILE_GOOGLE);
     ui->source->addItem(tr("TMS"), TILE_TMS);
+    ui->source->addItem(tr("谷歌"), TILE_GOOGLE);
+    ui->progressBar->setVisible(false);
+    ui->download->setVisible(false);
 }
 
 MainWindow::~MainWindow()
@@ -69,9 +71,7 @@ void MainWindow::on_load_clicked()
     double lon = ui->lon->text().toDouble();
     double lat = ui->lat->text().toDouble();
     int zoom = ui->zoom->text().toInt();
-    ui->ecdis->clear();
-    mMapthread->appendTask(zchxMapTask(lon, lat, rect.width(), rect.height(), zoom));
-    ui->ecdis->setCurZoom(zoom);
+    ui->ecdis->setCenterAndZoom(Wgs84LonLat(lon, lat), zoom);
 }
 
 void MainWindow::slotUpdateCurrentPos(double lon, double lat)
@@ -113,4 +113,9 @@ void MainWindow::on_source_activated(const QString &arg1)
 void MainWindow::on_source_currentIndexChanged(int index)
 {
     ui->ecdis->setSource(ui->source->currentData().toInt());
+}
+
+void MainWindow::on_image_num_clicked(bool checked)
+{
+    ui->ecdis->setDisplayImgeNum(checked);
 }

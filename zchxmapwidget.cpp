@@ -11,7 +11,8 @@ zchxMapWidget::zchxMapWidget(QWidget *parent) : QWidget(parent),
     mLastWheelTime(0),
     mView(0),
     mMapThread(0),
-    mDrag(0)
+    mDrag(0),
+    mDisplayImageNum(false)
 {
     this->setMouseTracking(true);    
 }
@@ -73,7 +74,7 @@ void zchxMapWidget::paintEvent(QPaintEvent *e)
     foreach(TileImage data, mDataList)
     {
         painter.drawPixmap(data.mPosX, data.mPosY, data.mImg);
-        painter.drawText(data.mPosX, data.mPosY, data.mName);
+        if(mDisplayImageNum)painter.drawText(data.mPosX, data.mPosY, data.mName);
     }
 
     //画中心
@@ -155,6 +156,11 @@ int  zchxMapWidget::zoom() const
 void zchxMapWidget::setCenterLL(const Wgs84LonLat& pnt )
 {
     if(mView) mView->updateCenter(pnt);
+}
+
+void zchxMapWidget::setCenterAndZoom(const Wgs84LonLat &ll, int zoom)
+{
+    if(mView) mView->updateCenterAndZoom(ll, zoom);
 }
 
 Wgs84LonLat zchxMapWidget:: centerLonlat() const

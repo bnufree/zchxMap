@@ -33,6 +33,8 @@ private slots:
 
     void on_source_currentIndexChanged(int index);
 
+    void on_image_num_clicked(bool checked);
+
 private:
     Ui::MainWindow *ui;
     zchxMapThread* mMapthread;

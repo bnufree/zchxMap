@@ -4,7 +4,7 @@
 zchxMapView::zchxMapView(double center_lat, double center_lon, int zoom, int width, int height, QObject *parent) : QObject(parent),
   mViewWidth(0),
   mViewHeight(0),
-  mSource(TILE_GOOGLE)
+  mSource(TILE_TMS)
 {
     setZoom(zoom);
     updateCenter(center_lon, center_lat);    
@@ -46,6 +46,12 @@ void zchxMapView::updateCenter(double lon, double lat)
     mCenter.mLon = lon;
     //重新计算当前视窗的显示范围
     updateDisplayRange();
+}
+
+void zchxMapView::updateCenterAndZoom(const Wgs84LonLat &ll, int zoom)
+{
+    mCenter = ll;
+    setZoom(zoom);
 }
 
 void zchxMapView::drag(int x, int y)
