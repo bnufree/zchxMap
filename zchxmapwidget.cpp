@@ -186,7 +186,7 @@ Wgs84LonLat zchxMapWidget:: centerLonlat() const
 void zchxMapWidget::wheelEvent(QWheelEvent *e)
 {
     //qDebug()<<__FUNCTION__<<__LINE__<<e->delta()<<e->angleDelta().x()<<e->angleDelta().y()<<e->phase();
-    if(QDateTime::currentMSecsSinceEpoch() - mLastWheelTime >= 1* 500)
+    if(QDateTime::currentMSecsSinceEpoch() - mLastWheelTime >= 1* 1000)
     {
         if(e->delta() > 0)
         {
