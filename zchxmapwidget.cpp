@@ -12,6 +12,8 @@ zchxMapWidget::zchxMapWidget(QWidget *parent) : QWidget(parent),
     mView(0),
     mMapThread(0),
     mDrag(0),
+    mDx(0),
+    mDy(0),
     mDisplayImageNum(false)
 {
     this->setMouseTracking(true);    
@@ -73,8 +75,8 @@ void zchxMapWidget::paintEvent(QPaintEvent *e)
     if(mDataList.size() == 0) return;
     foreach(TileImage data, mDataList)
     {
-        painter.drawPixmap(data.mPosX, data.mPosY, data.mImg);
-        if(mDisplayImageNum)painter.drawText(data.mPosX, data.mPosY, data.mName);
+        painter.drawPixmap(data.mPosX + mDx, data.mPosY + mDy, data.mImg);
+        if(mDisplayImageNum)painter.drawText(data.mPosX + mDx, data.mPosY + mDy, data.mName);
     }
 
     //画中心
@@ -101,6 +103,8 @@ void zchxMapWidget::mouseReleaseEvent(QMouseEvent *e)
     {
         QPoint pnt = e->pos();
         if(mView) mView->drag(mPressPnt.x()- pnt.x(), mPressPnt.y() - pnt.y());
+        mDx = 0;
+        mDy = 0;
 
     }
     e->accept();
@@ -124,6 +128,16 @@ void zchxMapWidget::mouseMoveEvent(QMouseEvent *e)
     {
         //当前鼠标按住左键移动拖动地图
         mDrag = true;
+        QPoint pnt = e->pos();
+        mDx = pnt.x() - mPressPnt.x();
+        mDy = pnt.y() - mPressPnt.y();
+//        if(mView) mView->drag(mPressPnt.x()- pnt.x(), mPressPnt.y() - pnt.y());
+//        mDx = 0;
+//        mDy = 0;
+        if(mDx > 0 || mDy > 0)
+        {
+            update();
+        }
     } else {
         //单纯地移动鼠标
         updateCurrentPos(e->pos());
@@ -172,7 +186,7 @@ Wgs84LonLat zchxMapWidget:: centerLonlat() const
 void zchxMapWidget::wheelEvent(QWheelEvent *e)
 {
     //qDebug()<<__FUNCTION__<<__LINE__<<e->delta()<<e->angleDelta().x()<<e->angleDelta().y()<<e->phase();
-    if(QDateTime::currentMSecsSinceEpoch() - mLastWheelTime >= 1* 1000)
+    if(QDateTime::currentMSecsSinceEpoch() - mLastWheelTime >= 1* 500)
     {
         if(e->delta() > 0)
         {

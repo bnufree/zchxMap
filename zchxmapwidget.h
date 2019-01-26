@@ -63,6 +63,8 @@ private:
     bool                mDrag;
     QPoint              mPressPnt;
     bool                mDisplayImageNum;
+    int                 mDx;
+    int                 mDy;
 };
 
 #endif // ZCHXMAPWIDGET_H
