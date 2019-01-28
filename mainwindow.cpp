@@ -6,16 +6,15 @@
 #include <QHBoxLayout>
 #include "zchxmapdownloadthread.h"
 #include <QSpacerItem>
+#include "zchxmapwidget.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    mMapthread(0)
+    mMapWidget(0)
 {
     ui->setupUi(this);
     ui->statusBar->setVisible(false);
-    connect(ui->ecdis, SIGNAL(signalDisplayCurPos(double,double)), this, SLOT(slotUpdateCurrentPos(double,double)));
-    connect(ui->ecdis, SIGNAL(signalSendNewMap(double,double,int)), this, SLOT(slotDisplayMapCenterAndZoom(double,double,int)));
     ui->source->addItem(tr("TMS"), TILE_TMS);
     ui->source->addItem(tr("谷歌"), TILE_GOOGLE);
     ui->progressBar->setVisible(false);
@@ -30,48 +29,37 @@ MainWindow::~MainWindow()
 
 void MainWindow::updateGridLayout(int x, int y)
 {
-    ui->ecdis->clear();
+    if(!mMapWidget) return;
+    mMapWidget->clear();
 }
 
 
 void MainWindow::resizeEvent(QResizeEvent *e)
 {
     QMainWindow::resizeEvent(e);
-    QRect rect =  ui->ecdis->geometry();
-//    if(rect.topLeft().x() >0 && rect.topLeft().y() >= 0)
-//    {
-//        qDebug()<<"init zoom:"<<ui->ecdis->zoom();
-//        //开始加载地图
-//        if(!mMapthread)
-//        {
-//            mMapthread = new zchxMapThread;
-//            zchxMapTask task(rect.width(), rect.height(), ui->ecdis->zoom());
-//            ui->ecdis->setCenterPoint(QPointF(task.lon, task.lat));
-//            ui->ecdis->setCurZoom(task.zoom);
-//            mMapthread->appendTask(task);
-//            connect(mMapthread, SIGNAL(signalSendCurPixmap(QPixmap,int,int)), this, SLOT(slotRecvMapData(QPixmap,int,int)));
-//            connect(mMapthread, SIGNAL(signalSendCurSize(int,int)), this, SLOT(updateGridLayout(int,int)));
-//            connect(ui->ecdis, SIGNAL(signalDisplayCurMap(double,double,int)),
-//                    this, SLOT(slotDisplayNewMap(double,double,int)));
-//            mMapthread->start();
-//        }
-
-
-//    }
+    if(!mMapWidget)
+    {
+        mMapWidget = new zchxMapWidget(ui->ecdis_frame);
+        connect(mMapWidget, SIGNAL(signalDisplayCurPos(double,double)), this, SLOT(slotUpdateCurrentPos(double,double)));
+        connect(mMapWidget, SIGNAL(signalSendNewMap(double,double,int)), this, SLOT(slotDisplayMapCenterAndZoom(double,double,int)));
+    }
+    mMapWidget->setGeometry(0, 0, ui->ecdis_frame->size().width(), ui->ecdis_frame->size().height());
 }
 
 void MainWindow::slotRecvMapData(const QPixmap &data, int x, int y)
 {
-    ui->ecdis->append(data, x, y);
+    if(!mMapWidget) return;
+    mMapWidget->append(data, x, y);
 }
 
 void MainWindow::on_load_clicked()
 {
-    QRect rect =  ui->ecdis->geometry();
+    //QRect rect =  ui->ecdis->geometry();
     double lon = ui->lon->text().toDouble();
     double lat = ui->lat->text().toDouble();
     int zoom = ui->zoom->text().toInt();
-    ui->ecdis->setCenterAndZoom(Wgs84LonLat(lon, lat), zoom);
+    if(!mMapWidget) return;
+    mMapWidget->setCenterAndZoom(Wgs84LonLat(lon, lat), zoom);
 }
 
 void MainWindow::slotUpdateCurrentPos(double lon, double lat)
@@ -112,10 +100,12 @@ void MainWindow::on_source_activated(const QString &arg1)
 
 void MainWindow::on_source_currentIndexChanged(int index)
 {
-    ui->ecdis->setSource(ui->source->currentData().toInt());
+    if(!mMapWidget) return;
+    mMapWidget->setSource(ui->source->currentData().toInt());
 }
 
 void MainWindow::on_image_num_clicked(bool checked)
 {
-    ui->ecdis->setDisplayImgeNum(checked);
+    if(!mMapWidget) return;
+    mMapWidget->setDisplayImgeNum(checked);
 }

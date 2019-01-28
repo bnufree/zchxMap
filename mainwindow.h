@@ -7,9 +7,7 @@
 namespace Ui {
 class MainWindow;
 }
-
-class zchxMapThread;
-class QLabel;
+class zchxMapWidget;
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -37,7 +35,7 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
-    zchxMapThread* mMapthread;
+    zchxMapWidget *mMapWidget;
 };
 
 #endif // MAINWINDOW_H

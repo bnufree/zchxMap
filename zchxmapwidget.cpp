@@ -73,8 +73,8 @@ void zchxMapWidget::paintEvent(QPaintEvent *e)
     if(mDataList.size() == 0) return;
     foreach(TileImage data, mDataList)
     {
-        painter.drawPixmap(data.mPosX, data.mPosY, data.mImg);
-        if(mDisplayImageNum)painter.drawText(data.mPosX, data.mPosY, data.mName);
+        painter.drawPixmap(data.mPosX - mDx, data.mPosY-mDy, data.mImg);
+        if(mDisplayImageNum)painter.drawText(data.mPosX-mDx, data.mPosY-mDy, data.mName);
     }
 
     //画中心
@@ -99,6 +99,9 @@ void zchxMapWidget::mouseReleaseEvent(QMouseEvent *e)
     updateCurrentPos(e->pos());
     if(mDrag)
     {
+        mDrag = false;
+        mDx = 0;
+        mDy = 0;
         QPoint pnt = e->pos();
         if(mView) mView->drag(mPressPnt.x()- pnt.x(), mPressPnt.y() - pnt.y());
 
@@ -124,6 +127,11 @@ void zchxMapWidget::mouseMoveEvent(QMouseEvent *e)
     {
         //当前鼠标按住左键移动拖动地图
         mDrag = true;
+        QPoint pnt = e->pos();
+        mDx = mPressPnt.x() - pnt.x();
+        mDy = mPressPnt.y() - pnt.y();
+        update();
+
     } else {
         //单纯地移动鼠标
         updateCurrentPos(e->pos());
