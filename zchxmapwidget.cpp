@@ -12,6 +12,8 @@ zchxMapWidget::zchxMapWidget(QWidget *parent) : QWidget(parent),
     mView(0),
     mMapThread(0),
     mDrag(0),
+    mDx(0),
+    mDy(0),
     mDisplayImageNum(false)
 {
     this->setMouseTracking(true);    
