@@ -25,8 +25,8 @@ public:
     const std::vector<std::pair<double, double> > &getPath() const;
     void setPath(const std::vector<std::pair<double, double> > &path);
 
-    RADARTYPE getType() const;
-    void setType(const RADARTYPE &type);
+    RADARTYPE getRadarType() const;
+    void setRadarType(const RADARTYPE &type);
 
     bool getShan() const;
     void setShan(bool shan);
@@ -52,7 +52,7 @@ public:
     void drawText(QPainter *painter, QPointF pos, int sideLen);
 private:
     std::vector<std::pair<double, double>> m_path;
-    RADARTYPE    m_type;
+    RADARTYPE    m_radar_type;
     ZCHX::Data::ITF_RadarPoint m_data;
     bool m_shan;
     bool m_needDrawBox;

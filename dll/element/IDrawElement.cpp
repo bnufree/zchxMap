@@ -11,7 +11,7 @@ Q_LOGGING_CATEGORY(ecdis, "zchx.Ecdis")
 using namespace DrawElement;
 int Element::g_maxLineLength = 100;
 
-Element::Element(const double &lat, const double &lon, const QColor& flashColor)
+Element::Element(const double &lat, const double &lon, ZCHX::Data::ELETYPE type,const QColor& flashColor)
     : elelat(lat)
     , elelon(lon)
     , displayLat(lat)
@@ -24,7 +24,7 @@ Element::Element(const double &lat, const double &lon, const QColor& flashColor)
     , isOpenMeet(false)
     , uuid(-1)
     , m_strID("")
-    , m_type(ZCHX::Data::ELE_NONE)
+    , m_element_type(type)
     , m_pos(QPointF(-1, -1))
     , m_forceImage(false)
     , m_layer(0)
@@ -38,23 +38,6 @@ Element::Element(const double &lat, const double &lon, const QColor& flashColor)
     , mBorderColor(QColor())
     , mFillingColor(QColor())
 {
-//	//先设定默认值
-//    m_mapFlashColor.insert(1, QColor(4,179,244));//重点区域
-//    m_mapFlashColor.insert(2, QColor(20,223,179));//速度监控区域
-//    m_mapFlashColor.insert(3, QColor(Qt::magenta));//边界
-//    m_mapFlashColor.insert(4, QColor(Qt::black));//危险圈
-//    m_mapFlashColor.insert(5, QColor(Qt::black));
-//    m_mapFlashColor.insert(11, QColor(255,0,0));
-//    m_mapFlashColor.insert(12, QColor(255,200,0));
-//    m_mapFlashColor.insert(13, QColor(237,255,0));
-//    m_mapFlashColor.insert(14, QColor(0,0,255));
-//    m_mapFlashColor.insert(15, QColor(0,255,0));
-//	//更新为指定的值
-//	if(flashColor.count() > 0)
-//	{
-//		updateFlashRegionColor(flashColor);
-//	}
-
 
     Element::g_maxLineLength = zchxEcdis::Profiles::instance()->value(MAP_INDEX, MAX_LINE_LENGTH).toInt();
 }
@@ -72,7 +55,7 @@ Element::Element(const Element &element)
     , isOpenMeet(element.isOpenMeet)
     , uuid(element.uuid)
     , m_strID(element.m_strID)
-    , m_type(element.m_type)
+    , m_element_type(element.m_element_type)
     , m_pos(element.m_pos)
     , m_forceImage(element.m_forceImage)
     , mFlashColor(element.mFlashColor)
@@ -139,14 +122,14 @@ void Element::setIsActive(bool value)
     isActive = value;
 }
 
-ZCHX::Data::ELETYPE Element::getType() const
+ZCHX::Data::ELETYPE Element::getElementType() const
 {
-    return m_type;
+    return m_element_type;
 }
 
-void Element::setType(const ZCHX::Data::ELETYPE &type)
+void Element::setElementType(const ZCHX::Data::ELETYPE &type)
 {
-    m_type = type;
+    m_element_type = type;
 }
 
 int Element::getUuid() const
@@ -321,6 +304,16 @@ void Element::removeChild(std::shared_ptr<Element> child)
 std::list<std::shared_ptr<Element> > &Element::getChildren()
 {
     return m_children;
+}
+
+void Element::setParent(std::shared_ptr<Element> ele)
+{
+    m_parent.reset(ele.get());
+}
+
+std::shared_ptr<Element> Element::parent()
+{
+    return m_parent;
 }
 
 void Element::drawSpeedDirectionLine(QPainter *painter, QPointF pos, qreal sog, qreal cog, qreal rot)

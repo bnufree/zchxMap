@@ -21,7 +21,7 @@ class ZCHX_ECDIS_EXPORT Element// : public QObject
 protected:
     ElementPrivate *d;
 public:
-    Element(const double &lat, const double &lon, const QColor& flashColor = QColor());
+    Element(const double &lat, const double &lon, ZCHX::Data::ELETYPE type = ZCHX::Data::ELE_NONE, const QColor& flashColor = QColor());
     Element(const Element &element);
     virtual ~Element();
 
@@ -49,8 +49,8 @@ public:
     /*!
      * \brief 图元的类型
      */
-    ZCHX::Data::ELETYPE getType() const;
-    void setType(const ZCHX::Data::ELETYPE &type);
+    ZCHX::Data::ELETYPE getElementType() const;
+    void setElementType(const ZCHX::Data::ELETYPE &type);
 
     /*!
      * \brief 图元的id
@@ -138,6 +138,9 @@ public:
     void removeChild(std::shared_ptr<Element> child);
     std::list<std::shared_ptr<Element> > &getChildren();
 
+    std::shared_ptr<Element> parent();
+    void setParent(std::shared_ptr<Element> ele);
+
     void setUuid(const QUuid &uuid);
     QUuid getUuid2() const;
 
@@ -212,13 +215,14 @@ protected://TODO: 添加私有类, 实现成员变量对外隐藏, 且防止依�
     bool   isOpenMeet;          //是否开启会遇显示
     int    uuid;
     QString m_strID;
-    ZCHX::Data::ELETYPE  m_type;
+    ZCHX::Data::ELETYPE  m_element_type;
     QPointF m_pos;
     //QMap<int, QColor> m_mapFlashColor;
     QColor      mFlashColor;
     bool m_forceImage;
 
     std::list<std::shared_ptr<Element> > m_children;
+    std::shared_ptr<Element>             m_parent;
 
     std::shared_ptr<zchxMapLayer> m_layer;
     zchxMapFrameWork *m_framework;

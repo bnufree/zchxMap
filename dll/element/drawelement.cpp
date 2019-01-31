@@ -793,10 +793,9 @@ void IslandLine::setColor(QString color)
 ///
 
 EllipseElement::EllipseElement(const ZCHX::Data::ITF_EleEllipse &ele)
-    :Element(ele.ll.lat,ele.ll.lon)
+    :Element(ele.ll.lat,ele.ll.lon, ZCHX::Data::ELEELLIPSE)
 {
     setEle(ele);
-    setType(ZCHX::Data::ELEELLIPSE);
 }
 
 ZCHX::Data::ITF_EleEllipse EllipseElement::ele() const
@@ -810,10 +809,9 @@ void EllipseElement::setEle(const ZCHX::Data::ITF_EleEllipse &ele)
 }
 
 TriangleElement::TriangleElement(const ZCHX::Data::ITF_EleTriangle &ele)
-    :Element(ele.ll.lat,ele.ll.lon)
+    :Element(ele.ll.lat,ele.ll.lon,ZCHX::Data::ELETRIANGLE)
 {
     setEle(ele);
-    setType(ZCHX::Data::ELETRIANGLE);
 }
 
 ZCHX::Data::ITF_EleTriangle TriangleElement::ele() const
@@ -827,10 +825,9 @@ void TriangleElement::setEle(const ZCHX::Data::ITF_EleTriangle &ele)
 }
 
 LineElement::LineElement(const ZCHX::Data::ITF_EleLine &ele)
-    :Element(ele.ll1.lat,ele.ll1.lon)
+    :Element(ele.ll1.lat,ele.ll1.lon,ZCHX::Data::ELELINE)
 {
     setEle(ele);
-    setType(ZCHX::Data::ELELINE);
 }
 
 ZCHX::Data::ITF_EleLine LineElement::ele() const
@@ -844,10 +841,9 @@ void LineElement::setEle(const ZCHX::Data::ITF_EleLine &ele)
 }
 
 RectElement::RectElement(const ZCHX::Data::ITF_EleRect &ele)
-    :Element(ele.ll.lat,ele.ll.lon)
+    :Element(ele.ll.lat,ele.ll.lon,ZCHX::Data::ELERECT)
 {
     setEle(ele);
-    setType(ZCHX::Data::ELERECT);
 }
 
 ZCHX::Data::ITF_EleRect RectElement::ele() const

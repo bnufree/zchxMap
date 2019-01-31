@@ -59,7 +59,13 @@ enum ELETYPE{
     ELEELLIPSE,  //圆元素
     ELETRIANGLE, //三角形元素
     ELELINE,     //直线元素
-    ELERECT      //矩形元素
+    ELERECT,      //矩形元素
+    ELEMENT_AIS,
+    ELEMENT_RADAR_POINT,
+    ELEMENT_CAMERA_ROD,//杆
+    ELEMENT_CAMERA,
+
+
 };
 enum ECDIS_DISPLAY_MODEL{//海图显示模式
     ECDIS_MODEL_BASE = 0, //海图基本模式

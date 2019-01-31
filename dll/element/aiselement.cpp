@@ -9,7 +9,7 @@
 namespace DrawElement{
 
 AisElement::AisElement()
-    : Element(0,0)
+    : Element(0,0,ZCHX::Data::ELEMENT_AIS)
 //    , m_isFleet(false)
 {
     m_drawTargetInfo = true;
@@ -17,7 +17,7 @@ AisElement::AisElement()
 }
 
 AisElement::AisElement(const ZCHX::Data::ITF_AIS &ele)
-    : Element(ele.lat,ele.lon, ele.warnStatusColor)
+    : Element(ele.lat,ele.lon, ZCHX::Data::ELEMENT_AIS, ele.warnStatusColor)
     , m_data(ele)
 //    , m_isFleet(false)
 {

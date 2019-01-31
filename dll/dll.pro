@@ -49,7 +49,8 @@ SOURCES += mainwindow.cpp \
     element/aiselement.cpp \
     element/camerarodelement.cpp \
     element/cameraelement.cpp \
-    element/radarelement.cpp
+    element/radarelement.cpp \
+    zchxradardatamgr.cpp
 
 HEADERS  += mainwindow.h \
     zchxmapthread.h \
@@ -88,7 +89,8 @@ HEADERS  += mainwindow.h \
     element/aiselement.hpp \
     element/camerarodelement.h \
     element/cameraelement.h \
-    element/radarelement.h
+    element/radarelement.h \
+    zchxradardatamgr.h
 
 FORMS    += mainwindow.ui \
     cardmouthinfodialog.ui \

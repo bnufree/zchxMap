@@ -184,14 +184,13 @@ bool RadarAreaElement::contains(zchxMapFrameWork *framework, double angleFromNor
 
 //雷达点
 RadarPointElement::RadarPointElement(const double &lat, const double &lon)
-    :Element(lat,lon)
+    :Element(lat,lon,ZCHX::Data::ELEMENT_RADAR_POINT),m_radar_type(RADARSHIP)
 {
-        setType(RADARSHIP);
         initFromSettings();
 }
 
 RadarPointElement::RadarPointElement(const ZCHX::Data::ITF_RadarPoint &ele)
-    :Element(ele.lat,ele.lon, ele.warnStatusColor),m_path(ele.path),m_type((RADARSHIP))
+    :Element(ele.lat,ele.lon, ZCHX::Data::ELEMENT_RADAR_POINT, ele.warnStatusColor),m_path(ele.path),m_radar_type((RADARSHIP))
 {
     if(!ele.path.empty())
     {
@@ -210,7 +209,7 @@ RadarPointElement::RadarPointElement(const ZCHX::Data::ITF_RadarPoint &ele)
 RadarPointElement::RadarPointElement(const DrawElement::RadarPointElement &pt)
     : Element(pt)
     , m_path(pt.m_path)
-    , m_type(pt.m_type)
+    , m_radar_type(pt.m_radar_type)
     , m_data(pt.m_data)
     , m_shan(pt.m_shan)
     , m_needDrawBox(pt.m_needDrawBox)
@@ -241,14 +240,14 @@ void RadarPointElement::setPath(const std::vector<std::pair<double, double> > &p
     m_path = path;
 }
 
-RADARTYPE RadarPointElement::getType() const
+RADARTYPE RadarPointElement::getRadarType() const
 {
-    return m_type;
+    return m_radar_type;
 }
 
-void RadarPointElement::setType(const RADARTYPE &type)
+void RadarPointElement::setRadarType(const RADARTYPE &type)
 {
-    m_type = type;
+    m_radar_type = type;
 }
 
 bool RadarPointElement::getShan() const
@@ -334,7 +333,7 @@ void RadarPointElement::drawElement(QPainter *painter)
     //开始处理雷达点具体画法
     QRect elementRect; //目标盒子
     //这个RADARPLAN是什么类型,暂时未知
-    if(getType() == DrawElement::RADARPLAN)
+    if(getRadarType() == DrawElement::RADARPLAN)
     {
         PainterPair chk(painter);
         if(getIsActive())
@@ -350,7 +349,7 @@ void RadarPointElement::drawElement(QPainter *painter)
         QRectF rect(pos.x() - curScale, pos.y() - curScale, curScale, curScale);
         painter->drawRect(rect);
     }
-    else if(getType() == DrawElement::RADARSHIP)
+    else if(getRadarType() == DrawElement::RADARSHIP)
     {
         QRect shipRect(0,0,sideLen,sideLen);
         shipRect.moveCenter(QPoint(pos.x(), pos.y()) );
