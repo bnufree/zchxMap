@@ -20,19 +20,13 @@ public:
     void setValue( const QString & prefix, const QString & key, const QVariant & value );
     void setDefault(const QString & prefix, const QString & key, const QVariant & value );
     QVariant value(const QString & prefix,const QString &keys,const QVariant & defaultValue = QVariant());
-
-    void setUserValue(const QString & prefix, const QString & key, const QVariant & value );
-    void setUserDefault(const QString & prefix, const QString & key, const QVariant & value );
-    QVariant userValue(const QString & prefix,const QString &keys,const QVariant & defaultValue = QVariant());
-
 private:
     explicit Profiles(QObject *parent = 0);
+    void     initDefaultValues();
 
 private:
 
     QSettings           *configSettings;
-    QSettings           *iniSettings;
-
     static Profiles     *minstance;
 
     class MGarbage // 它的唯一工作就是在析构函数中删除CSingleton的实例

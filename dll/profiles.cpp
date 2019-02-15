@@ -1,6 +1,7 @@
 ﻿#include "profiles.h"
 #include <QSettings>
 #include <QTextCodec>
+#include "zchxMapDatautils.h"
 
 namespace zchxEcdis {
 
@@ -12,9 +13,7 @@ Profiles::Profiles(QObject *parent) :
 {
     configSettings = new QSettings("mapdata/settings.ini", QSettings::IniFormat);
     configSettings->setIniCodec(QTextCodec::codecForName("GB18030"));
-
-    iniSettings = new QSettings(QSettings::IniFormat, QSettings::UserScope, QLatin1String("Frameworks"), QLatin1String("profiles"));
-    iniSettings->setIniCodec(QTextCodec::codecForName("GB18030"));
+    initDefaultValues();;
 }
 
 Profiles::~Profiles()
@@ -30,6 +29,42 @@ Profiles *Profiles::instance()
         minstance = new Profiles();
     }
     return minstance;
+}
+
+void Profiles::initDefaultValues()
+{
+    //地图配置文件相关的设定
+    setDefault(MAP_INDEX, MAX_LINE_LENGTH, 100);
+    setDefault(MAP_INDEX, WARN_FLAH_COLOR_ALPHA, 100);
+    setDefault(MAP_INDEX, OPEN_MEET, false);
+    setDefault(MAP_INDEX, MAP_UNIT, MapUnit::MapUnitNmi);
+    setDefault(MAP_INDEX, MAP_STYLE_AUTO_CHANGE, true);
+    setDefault(MAP_INDEX, MAP_DAY_TIME, "090000");
+    setDefault(MAP_INDEX, MAP_DUSK_TIME, "170000");
+    setDefault(MAP_INDEX, MAP_DUSK_TIME, "190000");
+    setDefault(MAP_INDEX, MAP_DEFAULT_LAT, 20.12345678);
+    setDefault(MAP_INDEX, MAP_DEFAULT_LON, 110.12345678);
+    setDefault(MAP_INDEX, MAP_DEFAULT_ZOOM, 13);
+    setDefault(MAP_INDEX, MAP_DEFAULT_TARGET_ZOOM, 15);
+    //Ais显示配置
+    setDefault(AIS_DISPLAY_SETTING, AIS_FILL_COLOR, QColor(Qt::green).name());
+    setDefault(AIS_DISPLAY_SETTING, AIS_TEXT_COLOR, QColor(Qt::black).name());
+    setDefault(AIS_DISPLAY_SETTING, AIS_BORDER_COLOR, QColor(Qt::green).name());
+    setDefault(AIS_DISPLAY_SETTING, AIS_CONCERN_COLOR, QColor(Qt::red).name());
+    setDefault(AIS_DISPLAY_SETTING, AIS_FORCED_IMAGE, false);
+    setDefault(AIS_DISPLAY_SETTING, AIS_CONCERN_NUM, 10);
+    setDefault(AIS_DISPLAY_SETTING, AIS_TAILTRACK_NUM, 10);
+    setDefault(AIS_DISPLAY_SETTING, AIS_REPLACE_TRACK, true);
+
+    //雷达显示配置
+    setDefault(RADAR_DISPLAY_SETTING, RADAR_FILL_COLOR, QColor(Qt::green).name());
+    setDefault(RADAR_DISPLAY_SETTING, RADAR_TEXT_COLOR, QColor(Qt::black).name());
+    setDefault(RADAR_DISPLAY_SETTING, RADAR_CONCERN_COLOR, QColor(Qt::red).name());
+    setDefault(RADAR_DISPLAY_SETTING, RADAR_BORDER_COLOR, QColor(Qt::black).name());
+    setDefault(RADAR_DISPLAY_SETTING, RADAR_SHAPE_RECT, true);
+    setDefault(RADAR_DISPLAY_SETTING, RADAR_FORCED_AIS, false);
+    setDefault(RADAR_DISPLAY_SETTING, RADAR_CONCERN_NUM, 10);
+    setDefault(RADAR_DISPLAY_SETTING, RADAR_TAILTRACK_NUM, 10);
 }
 
 /*-------------------------------------------
@@ -67,44 +102,6 @@ QVariant Profiles::value(const QString & prefix,const QString &keys, const QVari
 //    }
 //    configSettings->endGroup();
     return configSettings->value(prefix+"/"+keys,defaultValue);;
-}
-
-/*-------------------------------------------
- * 设置Ini默认值
----------------------------------------------*/
-void Profiles::setUserDefault(const QString & prefix,const QString &key, const QVariant &value)
-{
-    iniSettings->beginGroup(prefix);
-    if(iniSettings->value(key).toString().isEmpty())
-    {
-        iniSettings->setValue(key, value);
-    }
-    iniSettings->endGroup();
-}
-
-/*-------------------------------------------
- * 设置Ini配置文件值
----------------------------------------------*/
-void Profiles::setUserValue(const QString & prefix,const QString & key, const QVariant & value)
-{
-    iniSettings->beginGroup(prefix);
-    {
-        iniSettings->setValue(key, value);
-    }
-    iniSettings->endGroup();
-}
-/*-------------------------------------------
- * 返回值Ini
----------------------------------------------*/
-QVariant Profiles::userValue(const QString & prefix,const QString &keys, const QVariant &defaultValue)
-{
-    QVariant values;
-    iniSettings->beginGroup(prefix);
-    {
-        values =  iniSettings->value( keys,defaultValue);
-    }
-    iniSettings->endGroup();
-    return values;
 }
 }
 

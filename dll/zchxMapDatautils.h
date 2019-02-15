@@ -154,8 +154,44 @@ public:
     static Mercator wgs84LonlatToMercator(const LatLon& wgs84 );
     static Mercator wgs84LatLonToMercator(double lat, double lon ) {return wgs84LonlatToMercator(LatLon(lat, lon));}
     static double calResolution(int zoom);
+    //角度弧度换算
+    static double DegToRad(double deg);
+    //地球空间计算
+    // 地球半径 单位米.
+    static inline double EarthRadiusMeters() { return 6378000; }
+    // Length of one degree square at the equator in meters.
+    static inline double OneDegreeEquatorLengthMeters() { return 111319.49079; }
+    // Distance on unit sphere between (lat1, lon1) and (lat2, lon2).
+    // lat1, lat2, lon1, lon2 - in degrees.
+    static double DistanceOnSphere(double lat1Deg, double lon1Deg, double lat2Deg, double lon2Deg);
+    // Area on unit sphere for a triangle (ll1, ll2, ll3).
+    static double AreaOnSphere(LatLon const & ll1, LatLon const & ll2, LatLon const & ll3);
+    static double AreaOnSphere(std::vector<LatLon> vectorPoints);
 
+    // Distance in meteres on Earth between (lat1, lon1) and (lat2, lon2).
+    // lat1, lat2, lon1, lon2 - in degrees.
+    static double DistanceOnEarth(double lat1Deg, double lon1Deg, double lat2Deg, double lon2Deg)
+    {
+      return EarthRadiusMeters() * DistanceOnSphere(lat1Deg, lon1Deg, lat2Deg, lon2Deg);
+    }
 
+    static double DistanceOnEarth(LatLon const & ll1, LatLon const & ll2)
+    {
+      return DistanceOnEarth(ll1.lat, ll1.lon, ll2.lat, ll2.lon);
+    }
+
+    static double AreaOnEarth(LatLon const & ll1, LatLon const & ll2, LatLon const & ll3)
+    {
+      return OneDegreeEquatorLengthMeters() * OneDegreeEquatorLengthMeters() * AreaOnSphere(ll1, ll2, ll3);
+    }
+
+    static double AreaOnEarth(std::vector<LatLon> vectorPoints)
+    {
+      return OneDegreeEquatorLengthMeters() * OneDegreeEquatorLengthMeters() * AreaOnSphere(vectorPoints);
+    }
+
+    static double getTotalDistance(const std::vector<std::pair<double, double> > &pointList);
+    static double getTotalArea(const std::vector<std::pair<double, double> > &pointList);
 };
 
 enum eTool{
@@ -247,24 +283,39 @@ typedef struct tagMultiBeamImg {
 
 enum MapStyle
 {
-    MapStyleLight = 0, //< The first must be 0
-    MapStyleDark = 1,
-    MapStyleClear = 2,
-    MapStyleMerged = 3,
-    // Add new map style here
-    MapStyleEcdisDayBright = 4,       //晴天模式
-    MapStyleEcdisNight = 5,              //夜晚模式
-    MapStyleEcdisDayDUSK = 6,           //黄昏模式
-    MapStyleEcdisDayBlackBack = 7, //阴天模式
-    MapStyleEcdisDayWhiteBack = 8,  //白昼模式
+    MapStyleBase = 0x0001,
+    MapStyleStandard = 0x0002,
+    MapStyleAll = 0x0004,
+    MapStyleEcdisDayBright = 0x0008,       //晴天模式
+    MapStyleEcdisNight = 0x0010,              //夜晚模式
+    MapStyleEcdisDayDUSK = 0x0020,           //黄昏模式
+    MapStyleEcdisDayBlackBack = 0x0040, //阴天模式
+    MapStyleEcdisDayWhiteBack = 0x0080,  //白昼模式
     // Specifies number of MapStyle enum values, must be last
     MapStyleCount
+};
+
+enum MapUnit{
+    MapUnitMeter = 1,   //米
+    MapUnitFoot,    //英尺
+    MapUnitKm,  //千米
+    MapUnitNmi, //海里
 };
 
 //地图配置文件相关的设定
 #define             MAP_INDEX                       "Map_0"
 #define             MAX_LINE_LENGTH                 "MaxLineLength"
 #define             WARN_FLAH_COLOR_ALPHA           "FlashColorAlpha"
+#define             OPEN_MEET                       "OpenMeet"
+#define             MAP_UNIT                        "MapUnit"
+#define             MAP_STYLE_AUTO_CHANGE           "StyleAutoChange"
+#define             MAP_DAY_TIME                    "DayTime"
+#define             MAP_NIGHT_TIME                    "NightTime"
+#define             MAP_DUSK_TIME                    "DuskTime"
+#define             MAP_DEFAULT_LAT                      "Lat"
+#define             MAP_DEFAULT_LON                      "Lon"
+#define             MAP_DEFAULT_ZOOM                    "Zoom"
+#define             MAP_DEFAULT_TARGET_ZOOM             "TargetZoom"            //目标居中放大时的倍数
 
 //Ais显示配置
 #define             AIS_DISPLAY_SETTING             "AIS"
@@ -273,7 +324,11 @@ enum MapStyle
 #define             AIS_TEXT_COLOR                  "TextColor"
 #define             AIS_BORDER_COLOR                "BorderColor"
 #define             AIS_FORCED_IMAGE                "ForcedImageDisplay"
+#define             AIS_CONCERN_NUM                 "ConcernNum"
+#define             AIS_TAILTRACK_NUM               "TailTrackNum"
+#define             AIS_REPLACE_TRACK               "AutoReplaceTrack"
 
+//雷达显示配置
 #define             RADAR_DISPLAY_SETTING             "Radar"
 #define             RADAR_FILL_COLOR                  "FillColor"
 #define             RADAR_CONCERN_COLOR               "ConcernColor"
@@ -281,5 +336,7 @@ enum MapStyle
 #define             RADAR_BORDER_COLOR                "BorderColor"
 #define             RADAR_SHAPE_RECT                  "ShapeAsRect"
 #define             RADAR_FORCED_AIS                  "DrawAsAis"
+#define             RADAR_CONCERN_NUM                 "ConcernNum"
+#define             RADAR_TAILTRACK_NUM               "TailTrackNum"
 
 #endif // ZCHXECDISUTILS_H

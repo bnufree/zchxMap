@@ -241,3 +241,41 @@ void zchxCameraDatasMgr::zchxOpenCameraListDlg(QList<ZCHX::Data::ITF_CameraDev>&
     d.exec();
 }
 
+void zchxCameraDatasMgr::setCameraObservationZoneData(const std::vector<DrawElement::CameraObservationZone> &data)
+{
+    m_cameraObservationZone = data;
+}
+
+void zchxCameraDatasMgr::setCameraVideoWarnData(const std::vector<DrawElement::CameraVideoWarn> &data)
+{
+    //qDebug()<<__FILE__<<__LINE__<<data.size();
+    //为了让视频分析的目标被选择，这里进行比对更新,java后台端对目标进行了缓存，如果目标在
+    //m_CameraVideoWarn中存在，但是在data中不存在，则认为目标已经消失
+    //取得当前已经选择的视频分析目标
+    QString selObjId = "";
+    for(int i=0; i<m_CameraVideoWarn.size(); i++)
+    {
+        DrawElement::CameraVideoWarn &item = m_CameraVideoWarn[i];
+        if(item.getIsActive())
+        {
+            selObjId = item.getObjId();
+            break;
+        }
+    }
+
+    m_CameraVideoWarn = data;
+    if(selObjId.length() > 0)
+    {
+        for(int i=0; i<m_CameraVideoWarn.size(); i++)
+        {
+            DrawElement::CameraVideoWarn &item = m_CameraVideoWarn[i];
+            if(item.getObjId() == selObjId)
+            {
+                item.setIsActive(true);
+                break;
+            }
+        }
+    }
+}
+
+

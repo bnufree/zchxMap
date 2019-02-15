@@ -5,7 +5,7 @@ zchxMapFrameWork::zchxMapFrameWork(double center_lat, double center_lon, int zoo
   mViewWidth(0),
   mViewHeight(0),
   mSource(TILE_TMS),
-  mStyle(MapStyleLight),
+  mStyle(MapStyleEcdisDayBright),
   mMinZoom(0),
   mMaxZoom(22)
 {

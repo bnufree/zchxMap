@@ -543,6 +543,9 @@ typedef struct tagITF_RadarPoint
     uint    mode;                      // 模式 1:自动 2:手动
 //    QMap<int, QColor>          mWarnStsColorMap;
     QColor      warnStatusColor;
+    //添加是否显示关注,是否显示尾迹
+    bool        isConcern;
+    bool        isTailTrack;
 
 }ITF_RadarPoint;
 

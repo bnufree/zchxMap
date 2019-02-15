@@ -37,6 +37,11 @@ public:
     void zchxOpenCameraListDlg(DrawElement::AisElement *item);
     void zchxOpenCameraListDlg(QList<ZCHX::Data::ITF_CameraDev>& list, const LatLon& ll = LatLon());
 
+    //相机视场
+    void setCameraObservationZoneData(const std::vector<DrawElement::CameraObservationZone> &data);
+    //人车船视频分析目标更新
+    void setCameraVideoWarnData(const std::vector<DrawElement::CameraVideoWarn> &data);
+
 private:
     void updateAllCameraRodStatus();
 
@@ -52,6 +57,8 @@ private:
     std::vector<DrawElement::CameraRodElement> m_CameraRod;            //摄像杆数据
     std::vector<DrawElement::CameraElement> m_CameraDev;            //相机设备
     std::list<std::shared_ptr<ZCHX::Data::IPCastDevice>> m_ipcastDevices; //号角设备
+    std::vector<DrawElement::CameraObservationZone> m_cameraObservationZone;    //相机视场
+    std::vector<DrawElement::CameraVideoWarn> m_CameraVideoWarn;//人车船
 
     zchxMapWidget       *mDisplayWidget;
 };

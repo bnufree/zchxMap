@@ -3,14 +3,20 @@
 #include "zchxmaploadthread.h"
 #include "map_layer/zchxmaplayermgr.h"
 #include "camera_mgr/zchxcameradatasmgr.h"
+#include "zchxaisdatamgr.h"
+#include "zchxradardatamgr.h"
+#include "zchxuserdefinesdatamgr.h"
+#include "zchxroutedatamgr.h"
+#include "zchxshipplandatamgr.h"
 #include <QPainter>
 #include <QDebug>
 #include <QDomDocument>
+#include "profiles.h"
 
 
-#define     DEFAULT_LON         113.093664
-#define     DEFAULT_LAT         22.216150
-#define     DEFAULT_ZOOM        13
+//#define     DEFAULT_LON         113.093664
+//#define     DEFAULT_LAT         22.216150
+//#define     DEFAULT_ZOOM        13
 
 zchxMapWidget::zchxMapWidget(QWidget *parent) : QWidget(parent),
     mLastWheelTime(0),
@@ -29,7 +35,12 @@ zchxMapWidget::zchxMapWidget(QWidget *parent) : QWidget(parent),
     mCurPluginUserModel(ZCHX::Data::ECDIS_PLUGIN_USE_MODEL::ECDIS_PLUGIN_USE_DISPLAY_MODEL),
     mCurPickupType(ZCHX::Data::ECDIS_PICKUP_TYPE::ECDIS_PICKUP_ALL),
     mLayerMgr(new zchxMapLayerMgr(this)),
-    mCameraDataMgr(new zchxCameraDatasMgr(this))
+    mCameraDataMgr(new zchxCameraDatasMgr(this)),
+    mAisDataMgr(new zchxAisDataMgr(this)),
+    mUseDataMgr(new zchxUserDefinesDataMgr(this)),
+    mRadarDataMgr(new zchxRadarDataMgr(this)),
+    mRouteDataMgr(new zchxRouteDataMgr(this)),
+    mShipPlanDataMgr(new zchxShipPlanDataMgr(this))
 {
     this->setMouseTracking(true);    
 }
@@ -39,6 +50,11 @@ zchxMapWidget::~zchxMapWidget()
     if(!mFrameWork) delete mFrameWork;
 }
 
+void zchxMapWidget::setUseRightKey(bool bUseRightKey)
+{
+    mUseRightKey = bUseRightKey;
+}
+
 void zchxMapWidget::resizeEvent(QResizeEvent *e)
 {
     QSize size = e->size();
@@ -46,7 +62,10 @@ void zchxMapWidget::resizeEvent(QResizeEvent *e)
     {
         if(!mFrameWork)
         {
-            mFrameWork = new zchxMapFrameWork(DEFAULT_LAT, DEFAULT_LON, DEFAULT_ZOOM, size.width(), size.height());
+            double lat = zchxEcdis::Profiles::instance()->value(MAP_INDEX, MAP_DEFAULT_LAT).toDouble();
+            double lon = zchxEcdis::Profiles::instance()->value(MAP_INDEX, MAP_DEFAULT_LON).toDouble();
+            int zoom = zchxEcdis::Profiles::instance()->value(MAP_INDEX, MAP_DEFAULT_ZOOM).toInt();
+            mFrameWork = new zchxMapFrameWork(lat, lon, zoom, size.width(), size.height());
             mMapThread = new zchxMapLoadThread;
             connect(mFrameWork, SIGNAL(UpdateMap(MapLoadSetting)), mMapThread, SLOT(appendTask(MapLoadSetting)));
             connect(mMapThread, SIGNAL(signalSendCurPixmap(QPixmap,int,int)), this, SLOT(append(QPixmap,int,int)));
@@ -167,6 +186,24 @@ void zchxMapWidget::updateCurrentPos(const QPoint &p)
     emit signalDisplayCurPos(ll.lon, ll.lat);
 }
 
+void zchxMapWidget::autoChangeCurrentStyle()
+{
+    if(!zchxEcdis::Profiles::instance()->value(MAP_INDEX, MAP_STYLE_AUTO_CHANGE, false).toBool()) return;
+    //获取设定的白天,黄昏,夜晚的时间,根据当前时间自动设定地图颜色模式
+    QString cur_str = QTime::currentTime().toString("hhmmss");
+    if(cur_str < zchxEcdis::Profiles::instance()->value(MAP_INDEX, MAP_DAY_TIME).toString())
+    {
+        setMapStyle(MapStyleEcdisNight);
+    } else if(cur_str < zchxEcdis::Profiles::instance()->value(MAP_INDEX, MAP_DUSK_TIME).toString())
+    {
+        setMapStyle(MapStyleEcdisDayBright);
+    } else
+    {
+        setMapStyle(MapStyleEcdisDayDUSK);
+    }
+
+}
+
 void zchxMapWidget::setCurZoom(int zoom)
 {
     if(mFrameWork) mFrameWork->SetZoom(zoom);
@@ -186,6 +223,12 @@ void zchxMapWidget::setCenterLL(const LatLon& pnt )
 void zchxMapWidget::setCenterAndZoom(const LatLon &ll, int zoom)
 {
     if(mFrameWork) mFrameWork->UpdateCenterAndZoom(ll, zoom);
+}
+
+void zchxMapWidget::setCenterAtTargetLL(double lat, double lon)
+{
+    int zoom = zchxEcdis::Profiles::instance()->value(MAP_INDEX, MAP_DEFAULT_TARGET_ZOOM).toInt();
+    setCenterAndZoom(LatLon(lat, lon), zoom);
 }
 
 LatLon zchxMapWidget::centerLatLon() const
@@ -257,6 +300,79 @@ void zchxMapWidget::resetMapRotate(double lat, double lon)
     }
 }
 
+void zchxMapWidget::reset()
+{
+    double lat = zchxEcdis::Profiles::instance()->value(MAP_INDEX, MAP_DEFAULT_LAT).toDouble();
+    double lon = zchxEcdis::Profiles::instance()->value(MAP_INDEX, MAP_DEFAULT_LON).toDouble();
+    double zoom = zchxEcdis::Profiles::instance()->value(MAP_INDEX, MAP_DEFAULT_ZOOM).toInt();
+    setCenterAndZoom(LatLon(lat, lon), zoom);
+}
+
+void zchxMapWidget::setStyleAutoChange(bool val)
+{
+    zchxEcdis::Profiles::instance()->setValue(MAP_INDEX, MAP_STYLE_AUTO_CHANGE, val);
+}
+
+void zchxMapWidget::setGISDayBrightTime(const QTime &t)
+{
+    zchxEcdis::Profiles::instance()->setValue(MAP_INDEX, MAP_DAY_TIME, t.toString("hhmmss"));
+}
+
+void zchxMapWidget::setGISDuskTime(const QTime &t)
+{
+    zchxEcdis::Profiles::instance()->setValue(MAP_INDEX, MAP_DUSK_TIME, t.toString("hhmmss"));
+}
+
+void zchxMapWidget::setGISNightTime(const QTime &t)
+{
+    zchxEcdis::Profiles::instance()->setValue(MAP_INDEX, MAP_NIGHT_TIME, t.toString("hhmmss"));
+}
+
+void zchxMapWidget::setWarnColorAlphaStep(int val)
+{
+    zchxEcdis::Profiles::instance()->setValue(MAP_INDEX, WARN_FLAH_COLOR_ALPHA, val);
+}
+
+int zchxMapWidget::getWarnColorAlphaStep()
+{
+    return zchxEcdis::Profiles::instance()->value(MAP_INDEX, WARN_FLAH_COLOR_ALPHA).toInt();
+}
+
+zchxMapLayerMgr * zchxMapWidget::getMapLayerMgr()
+{
+    return mLayerMgr;
+}
+
+zchxCameraDatasMgr* zchxMapWidget::getCameraMgr()
+{
+    return mCameraDataMgr;
+}
+
+zchxAisDataMgr* zchxMapWidget::getAisDataMgr()
+{
+    return mAisDataMgr;
+}
+
+zchxUserDefinesDataMgr* zchxMapWidget::getUserDefinesDataMgr()
+{
+    return mUseDataMgr;
+}
+
+zchxRadarDataMgr* zchxMapWidget::getRadarDataMgr()
+{
+    return mRadarDataMgr;
+}
+
+zchxRouteDataMgr* zchxMapWidget::getRouteDataMgr()
+{
+    return mRouteDataMgr;
+}
+
+zchxShipPlanDataMgr* zchxMapWidget::getShipPlanDataMgr()
+{
+    return mShipPlanDataMgr;
+}
+
 bool zchxMapWidget::zchxUtilToolPoint4CurWindow(double lat, double lon, QPointF &p)
 {
     Point2D pos = mFrameWork->LatLon2Pixel(lat, lon);
@@ -326,209 +442,76 @@ std::shared_ptr<DrawElement::Element> zchxMapWidget::getCurrentSelectedElement()
     return mCurrentSelectElement;
 }
 
-bool zchxMapWidget::zchxWarringZoneData4id(int uuid, ZCHX::Data::ITF_WarringZone &info)
+void zchxMapWidget::setCurrentSelectedItem(std::shared_ptr<DrawElement::Element> item)
 {
-    std::vector<DrawElement::WarringZONE>::iterator it;
-    for(it = m_WarringZone.begin(); it != m_WarringZone.end(); ++it)
-    {
-        int myid = (*it).data().id;
-        if(uuid == myid)
-        {
-            info = (*it).data();
-            return true;
-        }
-    }
-    return false;
+    mCurrentSelectElement = item;
 }
 
-bool zchxMapWidget::zchxWarringZoneDataByName(const QString &name, ZCHX::Data::ITF_WarringZone &info)
+//地图工作模式
+void zchxMapWidget::setETool2DrawPickup()
 {
-    return zchxWarringZoneDataByName(name.toStdString(), info);
-}
-
-bool zchxMapWidget::zchxWarringZoneDataByName(const std::string &name, ZCHX::Data::ITF_WarringZone &info)
-{
-    std::vector<DrawElement::WarringZONE>::iterator it;
-    for(it=m_WarringZone.begin(); it != m_WarringZone.end(); ++it)
-    {
-        const DrawElement::WarringZONE &zone = (*it);
-        if(zone.name().compare(name) == 0)
-        {
-            info = zone.data();
-            return true;
-        }
-    }
-    return false;
-}
-
-DrawElement::WarringZONE* zchxMapWidget::zchxWarringZoneItem(const std::string &name)
-{
-    for(int i = 0; i < m_WarringZone.size(); ++i)
-    {
-        if(m_WarringZone[i].name().compare(name) == 0)
-        {
-            return &m_WarringZone[i];
-        }
-    }
-    return NULL;
-}
-
-bool zchxMapWidget::zchxChannelZoneData4id(int uuid, ZCHX::Data::tagITF_Channel &info)
-{
-    std::vector<DrawElement::Channel>::iterator it;
-    for(it = m_channelZone.begin(); it != m_channelZone.end(); ++it)
-    {
-        int myid = (*it).data().id;
-        if(uuid == myid)
-        {
-            info = (*it).data();
-            return true;
-        }
-    }
-    return false;
-}
-
-DrawElement::Channel *zchxMapWidget::zchxChannelZoneItem(const std::string &name)
-{
-    for(int i = 0; i < m_channelZone.size(); ++i)
-    {
-        if(m_channelZone[i].name().compare(name) == 0)
-        {
-            return &m_channelZone[i];
-        }
-    }
-
-    return NULL;
-}
-
-bool zchxMapWidget::zchxMooringZoneData4id(int uuid, ZCHX::Data::tagITF_Mooring &info)
-{
-    std::vector<DrawElement::Mooring>::iterator it;
-    for(it = m_mooringZone.begin(); it != m_mooringZone.end(); ++it)
-    {
-        int myid = (*it).data().id;
-        if(uuid == myid)
-        {
-            info = (*it).data();
-            return true;
-        }
-    }
-    return false;
-}
-
-DrawElement::Mooring *zchxMapWidget::zchxMooringZoneItem(const std::string &name)
-{
-    for(int i = 0; i < m_mooringZone.size(); ++i)
-    {
-        if(m_mooringZone[i].name().compare(name) == 0)
-        {
-            return &m_mooringZone[i];
-        }
-    }
-
-    return NULL;
-}
-
-bool zchxMapWidget::zchxCardMouthZoneData4id(int uuid, ZCHX::Data::tagITF_CardMouth &info)
-{
-    std::vector<DrawElement::CardMouth>::iterator it;
-    for(it = m_cardMouthZone.begin(); it != m_cardMouthZone.end(); ++it)
-    {
-        int myid = (*it).data().id;
-        if(uuid == myid)
-        {
-            info = (*it).data();
-            return true;
-        }
-    }
-    return false;
-}
-
-DrawElement::CardMouth *zchxMapWidget::zchxCardMouthZoneItem(const std::__cxx11::string &name)
-{
-    for(int i = 0; i < m_cardMouthZone.size(); ++i)
-    {
-        if(m_cardMouthZone[i].name().compare(name) == 0)
-        {
-            return &m_cardMouthZone[i];
-        }
-    }
-
-    return NULL;
-}
-
-
-
-DrawElement::CoastData* zchxMapWidget::zchxCoastDataZoneItem(const std::string &name)
-{
-    for(int i = 0; i < m_coastDataLine.size(); ++i)
-    {
-        if(m_coastDataLine[i].name().compare(name) == 0)
-        {
-            return &m_coastDataLine[i];
-        }
-    }
-
-    return NULL;
-}
-
-DrawElement::SeabedPipeLine *zchxMapWidget::zchxSeabedPipeLineZoneItem(const std::__cxx11::string &name)
-{
-    for(int i = 0; i < m_seabedPipeLineLine.size(); ++i)
-    {
-        if(m_seabedPipeLineLine[i].name().compare(name) == 0)
-        {
-            return &m_seabedPipeLineLine[i];
-        }
-    }
-
-    return NULL;
-}
-
-DrawElement::Structure *zchxMapWidget::zchxStructureZoneItem(const std::__cxx11::string &name)
-{
-    for(int i = 0; i < m_structurePoint.size(); ++i)
-    {
-        if(m_structurePoint[i].name().compare(name) == 0)
-        {
-            return &m_structurePoint[i];
-        }
-    }
-
-    return NULL;
-}
-
-DrawElement::AreaNet *zchxMapWidget::zchxAreaNetZoneItem(const std::__cxx11::string &name)
-{
-    for(int i = 0; i < m_areaNetZone.size(); ++i)
-    {
-        if(m_areaNetZone[i].name().compare(name) == 0)
-        {
-            return &m_areaNetZone[i];
-        }
-    }
-
-    return NULL;
-}
-
-bool zchxMapWidget::zchxIslandData4id(int uuid, ZCHX::Data::ITF_IslandLine &info)
-{
-    std::vector<DrawElement::IslandLine>::iterator it;
-    for(it =m_IslandLine.begin(); it != m_IslandLine.end(); ++it)
-    {
-        if(uuid == (*it).id())
-        {
-            info = (*it).data();
-            return true;
-        }
-    }
-    return false;
+    m_eToolPoints.clear();
+    m_eTool = DRAWPICKUP;
+    isActiveETool = true; //拾取时是否允许移动海图 true 不允许，false 允许
+    setCursor(Qt::ArrowCursor);
 }
 
 void zchxMapWidget::zchxShowCameraInfo(QPainter *painter)
 {
     mCameraDataMgr->showCameraRod(painter);
     mCameraDataMgr->showCamera(painter);
+}
+
+//GPS数据接口
+void zchxMapWidget::setGPSDataList(std::list<std::shared_ptr<ZCHX::Data::GPSPoint> > list)
+{
+    QMutexLocker locker(&m_gpsTracksMutex);
+    m_gpsTracks = list;
+}
+
+void zchxMapWidget::setGPSData(std::shared_ptr<ZCHX::Data::GPSPoint> data)
+{
+    QMutexLocker locker(&m_gpsTracksMutex);
+
+    //查找是否需要更新数据
+    std::list<std::shared_ptr<ZCHX::Data::GPSPoint> >::iterator it = m_gpsTracks.begin();
+    it = std::find_if(it, m_gpsTracks.end(), [data](std::shared_ptr<ZCHX::Data::GPSPoint> one) -> bool {
+            return (data->imei == one->imei);
+});
+
+    //更新数据
+    if(it != m_gpsTracks.end())
+    {
+        std::shared_ptr<ZCHX::Data::GPSPoint> old = *it;
+        old.reset(data.get());
+    }
+    else //添加数据
+    {
+        m_gpsTracks.push_back(data);
+    }
+}
+
+void zchxMapWidget::clearGPSData()
+{
+    QMutexLocker locker(&m_gpsTracksMutex);
+    m_gpsTracks.clear();
+}
+
+void zchxMapWidget::setFleet(const QMap<QString, ZCHX::Data::ITF_Fleet> &fleetMap)
+{
+    std::vector<DrawElement::DangerousCircle> list;
+    // 设置危险圈
+    QMap<QString, ZCHX::Data::ITF_Fleet>::const_iterator fleetIt = fleetMap.begin();
+    for (; fleetIt != fleetMap.end(); ++fleetIt)
+    {
+        ZCHX::Data::ITF_Fleet fleetInfo = *fleetIt;
+        if (fleetInfo.dangerCircleRadius > 0)
+        {
+            ZCHX::Data::ITF_DangerousCircle circle = {fleetIt.key(), 0, 0, 0, fleetInfo.dangerCircleRadius};
+            list.push_back(DrawElement::DangerousCircle(circle));
+        }
+    }
+    if(mUseDataMgr) mUseDataMgr->setDangerousCircleData(list);
 }
 
 
