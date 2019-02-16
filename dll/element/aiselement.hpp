@@ -56,6 +56,11 @@ public:
     bool needDrawImage() const;
     void setDrawTargetInfo(bool val);
     virtual void initFromSettings();
+    void setTrackList(const QList<ZCHX::Data::ITF_AIS>& list) {mTrackList = list; mBigDisplayTrackIndex = -1;}
+    void clearTrackList() {mTrackList.clear(); mBigDisplayTrackIndex = -1;}
+    void setBigDisplayTrackIndex(int index) {mBigDisplayTrackIndex = index;}
+    int  getBigDisplayTrackIndex() {return mBigDisplayTrackIndex;}
+    QList<ZCHX::Data::ITF_AIS> getTrackList() const {return mTrackList;}
 
 //    bool getFleet();
 //    void setFleet(bool val);
@@ -69,6 +74,9 @@ private:
     QPixmap m_cameraImage;
     QPointF m_cameraPos;
     bool    m_drawTargetInfo;
+    QList<ZCHX::Data::ITF_AIS> mTrackList;          //船舶的尾迹点
+    int    mBigDisplayTrackIndex;                        //当前放大显示的尾迹点
+
 //    bool    m_isFleet;
 
     std::vector<ZCHX::Data::ITF_CameraDev> m_cameraDev; //船舶的相机列表

@@ -316,6 +316,7 @@ enum MapUnit{
 #define             MAP_DEFAULT_LON                      "Lon"
 #define             MAP_DEFAULT_ZOOM                    "Zoom"
 #define             MAP_DEFAULT_TARGET_ZOOM             "TargetZoom"            //目标居中放大时的倍数
+#define             MAP_UPDATE_INTERVAL             "UpdateInterval"            //刷新时间间隔毫秒
 
 //Ais显示配置
 #define             AIS_DISPLAY_SETTING             "AIS"

@@ -1116,6 +1116,7 @@ ITF_AIS::ITF_AIS()
     , lat(-999)
     , icon_number(-1)
     , is_fleet(false)
+    , is_construction_ship(false)
 {
     _path.clear();
     _touchdown.clear();

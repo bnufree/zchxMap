@@ -46,6 +46,7 @@ void Profiles::initDefaultValues()
     setDefault(MAP_INDEX, MAP_DEFAULT_LON, 110.12345678);
     setDefault(MAP_INDEX, MAP_DEFAULT_ZOOM, 13);
     setDefault(MAP_INDEX, MAP_DEFAULT_TARGET_ZOOM, 15);
+    setDefault(MAP_INDEX, MAP_UPDATE_INTERVAL, 100);
     //Ais显示配置
     setDefault(AIS_DISPLAY_SETTING, AIS_FILL_COLOR, QColor(Qt::green).name());
     setDefault(AIS_DISPLAY_SETTING, AIS_TEXT_COLOR, QColor(Qt::black).name());

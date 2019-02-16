@@ -3,7 +3,7 @@
 #include "zchxmaploadthread.h"
 #include "map_layer/zchxmaplayermgr.h"
 #include "camera_mgr/zchxcameradatasmgr.h"
-#include "zchxaisdatamgr.h"
+#include "data_manager/zchxaisdatamgr.h"
 #include "zchxradardatamgr.h"
 #include "zchxuserdefinesdatamgr.h"
 #include "zchxroutedatamgr.h"
@@ -42,7 +42,12 @@ zchxMapWidget::zchxMapWidget(QWidget *parent) : QWidget(parent),
     mRouteDataMgr(new zchxRouteDataMgr(this)),
     mShipPlanDataMgr(new zchxShipPlanDataMgr(this))
 {
-    this->setMouseTracking(true);    
+    this->setMouseTracking(true);
+    mDataMgrList.append(mAisDataMgr);
+    QTimer *timer = new QTimer;
+    timer->setInterval(zchxEcdis::Profiles::instance()->value(MAP_INDEX, MAP_UPDATE_INTERVAL).toInt());
+    connect(timer, SIGNAL(timeout()), this, SLOT(update()));
+    timer->start();
 }
 
 zchxMapWidget::~zchxMapWidget()
@@ -93,27 +98,31 @@ void zchxMapWidget::slotRecvNewMap(double lon, double lat, int zoom)
 void zchxMapWidget::append(const QPixmap &img, int x, int y)
 {
     mDataList.append(TileImage(img, x, y));
-    update();
+    //update();
 }
 
 void zchxMapWidget::append(const TileImageList &list)
 {
     mDataList.append(list);
-    update();
+    //update();
 }
 
 void zchxMapWidget::paintEvent(QPaintEvent *e)
 {
     QPainter painter(this);
     painter.fillRect(0,0,width(),height(), Qt::white);
-    if(mDataList.size() == 0) return;
+    //显示地图
     foreach(TileImage data, mDataList)
     {
         painter.drawPixmap(data.mPosX - mDx, data.mPosY-mDy, data.mImg);
         if(mDisplayImageNum)painter.drawText(data.mPosX-mDx, data.mPosY-mDy, data.mName);
     }
+    //显示图元
+    foreach (zchxEcdisDataMgr* mgr, mDataMgrList) {
+        mgr->show(&painter);
+    }
 
-    //画中心
+    //显示当前的中心点
     Point2D pnt = mFrameWork->LatLon2Pixel(mCenter);
     //qDebug()<<pnt.x<<pnt.y;
     painter.setBrush(QBrush(Qt::red));
@@ -166,7 +175,7 @@ void zchxMapWidget::mouseMoveEvent(QMouseEvent *e)
         QPoint pnt = e->pos();
         mDx = mPressPnt.x() - pnt.x();
         mDy = mPressPnt.y() - pnt.y();
-        update();
+        //update();
 
     } else {
         //单纯地移动鼠标

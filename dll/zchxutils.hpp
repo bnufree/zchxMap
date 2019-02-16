@@ -639,6 +639,7 @@ public:
     bool is_fleet;                        //是否属于船队 true：是，false：否
     float danger_circle_radius;           //危险圈半径 单位：米（M）
     ZCHX::Data::AISCollide objCollide;    //AIS碰撞数据
+    bool is_construction_ship;            //是否是施工船,如果是,强制图片显示
 
     std::vector<std::pair<double, double> > _touchdown; //海缆轨迹
 

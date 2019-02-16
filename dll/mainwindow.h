@@ -171,7 +171,7 @@ public:
     //自定义显示样式
     void itfSetHistoryTrackStyle(const QString &color, const int lineWidth); //历史轨迹
     void itfSetPrepushTrackStyle(const QString &color, const int lineWidth); //预推轨迹
-    void itfSetMapUint(const int uint);                //设置单位 1为海里 2为千米  3为米
+    void itfSetMapUnit(const MapUnit& uint);                //设置单位 1为海里 2为千米  3为米
 
     //定义海图编辑获取数据接口
     //通过uuid取得海图上当前编辑后的数据

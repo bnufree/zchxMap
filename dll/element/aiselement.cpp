@@ -13,6 +13,8 @@ AisElement::AisElement()
 //    , m_isFleet(false)
 {
     m_drawTargetInfo = true;
+    mTrackList.clear();
+    mBigDisplayTrackIndex = -1;
     initFromSettings();
 }
 
@@ -22,6 +24,8 @@ AisElement::AisElement(const ZCHX::Data::ITF_AIS &ele)
 //    , m_isFleet(false)
 {
     setStrID(m_data.id);
+    mTrackList.clear();
+    mBigDisplayTrackIndex = -1;
     m_drawTargetInfo = true;
     initFromSettings();
 }
