@@ -26,8 +26,10 @@ public:
     //历史数据
     void setHistoryAisData(const QList<ZCHX::Data::ITF_AIS> &data);
     void setClearHistoryData(bool states);
-
-
+    //Ais数据显示配置
+    void SetEnableShipTag(int val);
+    void setHistoryTrackStyle(const QString &color, const int lineWidth); //历史尾迹样式
+    void setPrepushTrackStyle(const QString &color, const int lineWidth); //预推轨迹样式
 signals:
 
 public slots:
@@ -41,6 +43,11 @@ private:
     //QMap<QString, QList<ZCHX::Data::ITF_AIS>>                   m_aisTraceMap;          //船舶历史轨迹
     //QMap<QString, int>                                          m_aisIndexMap;          //当前船舶历史轨迹线上放大显示的轨迹点下标
     QHash<QString, std::shared_ptr<DrawElement::AisElement>>    m_historyAisMap;        //AIS历史对象,历史回放时使用
+    int                                                         mShipTagDisplayMode;    //配置船舶AIStag的显示配置
+    QString                                                     m_sHistoryTrackStyle;
+    int                                                         m_iHistoryTrackWidth;
+    QString                                                     m_sPrepushTrackStyle;
+    int                                                         m_iPrepushTrackWidth;
 };
 
 #endif // zchxAisDataMgr_H

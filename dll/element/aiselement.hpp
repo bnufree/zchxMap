@@ -7,14 +7,14 @@ namespace DrawElement
 {
 
 enum SHIP_ITEM {
-    SHIP_ITEM_LABEL = 0,
-    SHIP_ITEM_NAME,
-    SHIP_ITEM_MMSI,
-    SHIP_ITEM_LATLON,
-    SHIP_ITEM_SOG,
-    SHIP_ITEM_COG,
-    SHIP_ITEM_MULTILINE,
-    SHIP_ITEM_COUNT,
+    SHIP_ITEM_LABEL = 0x01,
+    SHIP_ITEM_NAME = 0x02,
+    SHIP_ITEM_MMSI = 0x04,
+    SHIP_ITEM_LATLON = 0x08,
+    SHIP_ITEM_SOG = 0x10,
+    SHIP_ITEM_COG = 0x20,
+    SHIP_ITEM_MULTILINE = 0x40,
+    SHIP_ITEM_DEFAULT = SHIP_ITEM_LABEL | SHIP_ITEM_NAME | SHIP_ITEM_MMSI | SHIP_ITEM_LATLON | SHIP_ITEM_SOG | SHIP_ITEM_COG | SHIP_ITEM_MULTILINE,
 };
 
 class  AisElement: public Element
@@ -39,11 +39,14 @@ public:
     void setCameraData(const std::vector<ZCHX::Data::ITF_CameraDev> &camera);
 
     void drawElement(QPainter *painter);
-    void drawTargetInformation(const QList<bool> &bList, QPainter *painter);
+    void drawTargetInformation(int mode, QPainter *painter);
     void drawCollide(const ZCHX::Data::ITF_AIS& targetAis, QPainter *painter);
     void drawCPA(QPainter *painter);
     void drawShipImage(QPainter *painter);
     void drawShipTriangle(QPainter *painter, const QColor& fillColor);
+    void drawTailTrack(QPainter* painter);
+    void drawTailTrackPolyLine(std::vector<QPointF>& pts, QPainter* painter);
+    void drawTailTrackPoint(QPainter* painter);
 
     bool isEmpty() const;
     void updateGeometry(QPointF pos, int size);
@@ -62,6 +65,9 @@ public:
     int  getBigDisplayTrackIndex() {return mBigDisplayTrackIndex;}
     QList<ZCHX::Data::ITF_AIS> getTrackList() const {return mTrackList;}
 
+    void setHistoryTrackStyle(const QString &color, const int lineWidth);
+    void setPrepushTrackStyle(const QString &color, const int lineWidth);
+
 //    bool getFleet();
 //    void setFleet(bool val);
 private:
@@ -76,6 +82,10 @@ private:
     bool    m_drawTargetInfo;
     QList<ZCHX::Data::ITF_AIS> mTrackList;          //船舶的尾迹点
     int    mBigDisplayTrackIndex;                        //当前放大显示的尾迹点
+    QString                                                     m_sHistoryTrackStyle;
+    int                                                         m_iHistoryTrackWidth;
+    QString                                                     m_sPrepushTrackStyle;
+    int                                                         m_iPrepushTrackWidth;
 
 //    bool    m_isFleet;
 

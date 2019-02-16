@@ -1,40 +1,140 @@
 #include "zchxaisdatamgr.h"
+#include "zchxmapframe.h"
 
 zchxAisDataMgr::zchxAisDataMgr(zchxMapWidget* w, QObject *parent) : zchxEcdisDataMgr(w, parent)
 {
     mMaxConcernNum = zchxEcdis::Profiles::instance()->value(AIS_DISPLAY_SETTING, AIS_CONCERN_NUM, 10).toInt();
     mMaxTailTrackNum = zchxEcdis::Profiles::instance()->value(AIS_DISPLAY_SETTING, AIS_TAILTRACK_NUM, 10).toInt();
     mReplaceTrackWherOver = zchxEcdis::Profiles::instance()->value(AIS_DISPLAY_SETTING, AIS_REPLACE_TRACK, true).toBool();
+    mShipTagDisplayMode = DrawElement::SHIP_ITEM_DEFAULT;
+}
+
+void zchxAisDataMgr::SetEnableShipTag(int val)
+{
+    mShipTagDisplayMode = val;
+}
+
+void zchxAisDataMgr::setHistoryTrackStyle(const QString &color, const int lineWidth)
+{
+    m_sHistoryTrackStyle = color;
+    m_iHistoryTrackWidth = lineWidth;
+}
+
+void zchxAisDataMgr::setPrepushTrackStyle(const QString &color, const int lineWidth)
+{
+    m_sPrepushTrackStyle = color;
+    m_iPrepushTrackWidth = lineWidth;
 }
 
 void zchxAisDataMgr::show(QPainter *painter)
 {
-#if 0
     if(!mDisplayWidget || !mDisplayWidget->getMapLayerMgr()) return;
-    if(!mDisplayWidget->getMapLayerMgr()->isLayerVisible(ZCHX::LAYER_RADAR)) return;
-    QMutexLocker locker(&mDataMutex);
-    std::vector<DrawElement::RadarPointElement>::iterator it;
-    for(it = m_RadarPoint.begin(); it != m_RadarPoint.end(); ++it)
+    if(!mDisplayWidget->getMapLayerMgr()->isLayerVisible(ZCHX::LAYER_AIS)) return;
+    if(m_aisMap.size() == 0) return;
+
+    PainterPair chk(painter);
+    int curScale = mDisplayWidget->zoom() < 7 ? 5 : 10;
+    int sideLen = 10;
+
+    QHash<QString, std::shared_ptr<DrawElement::AisElement>>::iterator it = m_aisMap.begin();
+    for(; it != m_aisMap.end(); ++it)
     {
-        DrawElement::RadarPointElement& item = (*it);
-        if(mDisplayWidget->getMapLayerMgr()->isLayerVisible(ZCHX::LAYER_RADAR_CURRENT))
+        std::shared_ptr<DrawElement::AisElement> item = it.value();
+        if(item->isEmpty()) continue;
+        QPointF pos = item->getCurrentPos();
+        if(!mDisplayWidget->rect().contains(pos.toPoint())) continue;
+        item->updateGeometry(pos, curScale);
+        item->setHistoryTrackStyle(m_sHistoryTrackStyle, m_iHistoryTrackWidth);
+
+        //一般船舶显示
+        if(mDisplayWidget->getMapLayerMgr()->isLayerVisible(ZCHX::LAYER_AIS_CURRENT) && item->getData().cargoType != 55)
         {
-            item.setIsOpenMeet(mDisplayWidget->getIsOpenMeet());
-            //检查当前点是否在矩形区域内
-            if(!mDisplayWidget->rect().contains(item.getCurrentPos().toPoint())) continue;
-            //预警状态, 闪烁; 0为无预警
-            if(item.getStatus() > 0)
+            item->drawFlashRegion(painter, pos, item->getData().warn_status, item->getData().warnStatusColor);
+            if(item->getType() == DrawElement::RADARPLAN)
             {
-                item.drawFlashRegion(painter, item.getCurrentPos(), item.getStatus(), item.getData().warnStatusColor);
+                if(item->getIsActive())
+                {
+                    PainterPair chk1(painter);
+                    painter->setPen(Qt::red);
+                    painter->drawRect(pos.x()-curScale-2,pos.y()-curScale-2,curScale+6,curScale+6);
+                }
+                PainterPair chk2(painter);
+                painter->setBrush(Qt::yellow);
+                QRectF rect(pos.x()-curScale,pos.y()-curScale,curScale,curScale);
+                painter->drawRect(rect);
             }
-            item.drawElement(painter);
+            //船
+            else if(item->getType() == DrawElement::RADARSHIP || item->getType() == 3)//3为融合数据
+            {
+                item->drawElement(painter);
+                item->drawActive(painter);
+                item->drawTargetInformation(mShipTagDisplayMode, painter);
+
+                QString targetId = item->getData().objCollide.id;
+                if (m_aisMap.contains(targetId))
+                {
+                    item->drawCollide(m_aisMap.value(targetId)->getData(), painter);
+                }
+                item->drawFocus(painter);
+
+                //绘制交汇
+                if(item->getData().RadarMeetVec.size() > 0)
+                {
+                    if(mDisplayWidget->getIsOpenMeet())
+                    {
+                        PainterPair chk2(painter);
+                        QPen pen(Qt::red,2,Qt::DashLine);
+                        painter->setPen(pen);
+                        uint time_hour = 0;
+                        uint time_minute = 0;
+                        uint time_second = 0;
+                        for(int j = 0; j < item->getData().RadarMeetVec.size(); j++)
+                        {
+                            ZCHX::Data::RadarMeet meetItem = item->getData().RadarMeetVec.at(j);
+                            Point2D meetPos = item->framework()->LatLon2Pixel(meetItem.lat, meetItem.lon);
+                            time_hour = meetItem.UTC / 3600;
+                            time_minute = meetItem.UTC / 60 - time_hour * 60;
+                            time_second = meetItem.UTC % 60;
+                            QString str = tr("Time ")+QString::number(time_hour)+tr("H ") + QString::number(time_minute)+ tr("M ")+ \
+                                    QString::number(time_second)+tr("S; Distance: ")+QString::number(meetItem.disrance,'f',3)+"m";
+
+                            painter->drawLine(pos.x(),pos.y(),meetPos.x,meetPos.y);
+                            painter->drawText(pos.x()-10,pos.y()-sideLen/2, str);
+                        }
+                    }
+                }
+            }
         }
-        if(mDisplayWidget->getMapLayerMgr()->isLayerVisible(ZCHX::LAYER_RADAR_TRACK) && item.getIsTailTrack())
+        //执法船显示
+        if(mDisplayWidget->getMapLayerMgr()->isLayerVisible(ZCHX::LAYER_AIS_LAW) && item->getData().cargoType == 55)
         {
-            item.drawTrack(painter);
+            item->drawFlashRegion(painter, pos, item->getData().warn_status, item->getData().warnStatusColor);
+            item->drawElement(painter);
+            item->drawTargetInformation(mShipTagDisplayMode,painter);
+            item->drawActive(painter);
+            item->drawFocus(painter);
+        }
+        //绘制船舶轨迹点  横琴项目
+        if(mDisplayWidget->getMapLayerMgr()->isLayerVisible(ZCHX::LAYER_AIS_TRACK))
+        {
+            std::vector<QPointF> pts = item->getTrack();
+            PainterPair chk2(painter);
+            painter->setPen(QPen(Qt::black,3,Qt::DashLine));
+            painter->drawPolyline(&pts[0],pts.size());
+        }
+        //显示海缆的触地点
+        if(mDisplayWidget->getMapLayerMgr()->isLayerVisible(ZCHX::LAYER_AIS_CABLE_TOUCHDOWN))
+        {
+            std::vector<QPointF> pts = item->getTouchdown();
+            if(pts.size() > 0)
+            {
+                PainterPair chk2(painter);
+                painter->setPen(QPen(Qt::green,3,Qt::DashLine));
+                painter->drawPolyline(&pts[0],pts.size());
+            }
         }
     }
-#endif
+
 }
 
 bool zchxAisDataMgr::updateActiveItem(const QPoint &pt)

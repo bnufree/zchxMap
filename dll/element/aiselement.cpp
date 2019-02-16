@@ -6,6 +6,8 @@
 #include "zchxutils.hpp"
 #include <QDebug>
 
+#define     SHIP_INTERVAL_TIME  60 * 1000 // 1分钟
+
 namespace DrawElement{
 
 AisElement::AisElement()
@@ -197,6 +199,136 @@ void AisElement::drawShipTriangle(QPainter *painter, const QColor& fillColor)
     }
 }
 
+void AisElement::setHistoryTrackStyle(const QString &color, const int lineWidth)
+{
+    m_sHistoryTrackStyle = color;
+    m_iHistoryTrackWidth = lineWidth;
+}
+
+void AisElement::setPrepushTrackStyle(const QString &color, const int lineWidth)
+{
+    m_sPrepushTrackStyle = color;
+    m_iPrepushTrackWidth = lineWidth;
+}
+
+void AisElement::drawTailTrackPolyLine(std::vector<QPointF>& pts, QPainter* painter)
+{
+    if(pts.size() == 0 || !painter) return;
+    //画尾迹线段
+    PainterPair chk(painter);
+    painter->setPen(QPen(QColor(m_sHistoryTrackStyle), m_iHistoryTrackWidth, Qt::SolidLine));
+    painter->drawPolyline(&pts[0], pts.size());
+}
+
+void AisElement::drawTailTrackPoint(QPainter *painter)
+{
+    int size = getTrackList().size();
+    if(size == 0 || !painter) return;
+    //画尾迹点
+    PainterPair chk(painter);
+    QColor color(230, 230, 230);
+    painter->setPen(QPen(color, 3, Qt::SolidLine));
+    qint64 PreviousTime = 0;
+    for(int i = 0; i < size; i++)
+    {
+        ZCHX::Data::ITF_AIS AisData = mTrackList[i];
+        Point2D meetPos = m_framework->LatLon2Pixel(AisData.lat,AisData.lon);
+        if(i == 0)
+        {
+            PreviousTime = AisData.UTC;
+            painter->setPen(QPen(color, 3, Qt::SolidLine));
+        }
+        else if(i == size - 1 && ((i + 1) % 5 > 0))
+        {
+            PreviousTime = mTrackList[i].UTC;
+            painter->drawEllipse(meetPos.x - 4, meetPos.y - 4, 8, 8);
+        }
+        else
+        {
+            if(AisData.UTC >= PreviousTime + SHIP_INTERVAL_TIME)
+            {
+                if((i + 1) % 5 > 0)
+                {
+                    PreviousTime = AisData.UTC;
+                    //painter->setPen(QPen(QColor(150,47,54),2,Qt::SolidLine));
+                    painter->drawEllipse(meetPos.x - 4, meetPos.y - 4, 8, 8);
+                }
+                else
+                {
+                    PreviousTime = AisData.UTC;
+                    PainterPair chk1(painter);
+                    painter->setBrush(color);
+                    painter->setPen(QPen(color, 3, Qt::SolidLine));
+                    painter->drawEllipse(meetPos.x - 8, meetPos.y - 8, 16, 16);
+                }
+            }
+        }
+    }
+}
+
+void AisElement::drawTailTrack(QPainter *painter)
+{
+    if(!painter) return;
+    //绘制船舶尾迹
+    int numberSize = getTrackList().size();
+    if(numberSize == 0) return;
+
+    int aisIndex = getBigDisplayTrackIndex();
+    std::vector<QPointF> pts;
+
+
+    //转换所有的点 转换为屏幕坐标点 绘制线段
+    for(int i = 0; i < numberSize; i++)
+    {
+        ZCHX::Data::ITF_AIS AisData = getTrackList().at(i);
+        Point2D pos =  m_framework->LatLon2Pixel(AisData.lat,AisData.lon);
+        pts.push_back(QPointF(pos.x, pos.y));
+    }
+    //画尾迹线段
+    drawTailTrackPolyLine(pts, painter);
+    drawTailTrackPoint(painter);
+    //绘制拾取的点
+    if(pts.size() > aisIndex && aisIndex >= 0)
+    {
+       QPointF PickPos = pts.at(aisIndex);
+       QRectF RectPos;
+       RectPos.setX(PickPos.x() - 10);
+       RectPos.setY(PickPos.y() - 10);
+       RectPos.setWidth(20);
+       RectPos.setHeight(20);
+
+       {
+           PainterPair chk(painter);
+           QPen pen(Qt::red,2,Qt::DotLine);
+           painter->setBrush(Qt::NoBrush);
+           painter->setPen(pen);
+           painter->drawRect(RectPos);
+       }
+
+       {
+           PainterPair chk(painter);
+           QColor color(230, 230, 230);
+           painter->setPen(QPen(color, 1, Qt::SolidLine));
+           painter->drawRect(PickPos.x() + 30, PickPos.y() - 50, 124, 20);
+           painter->drawLine(PickPos.x(), PickPos.y(), PickPos.x()+30, PickPos.y()-50);
+       }
+
+       {
+           PainterPair chk(painter);
+           painter->setPen(QPen(Qt::black,1,Qt::SolidLine));
+           ZCHX::Data::ITF_AIS AisData1 = mTrackList.at(aisIndex);
+           QDateTime ArriveTime;
+           ArriveTime.setMSecsSinceEpoch(AisData1.UTC);
+           QString TimeStr = ArriveTime.toString("yyyy-MM-dd,hh:mm:ss");
+           QFont objFont = painter->font();
+
+           objFont = QFont("微软雅黑",9,QFont::Normal,true);
+           painter->setFont(objFont);
+           painter->drawText(PickPos.x()+29,PickPos.y()-50,120,20,0,TimeStr);
+       }
+    }
+}
+
 void AisElement::drawElement(QPainter *painter)
 {
     if(!painter)  return;
@@ -230,6 +362,8 @@ void AisElement::drawElement(QPainter *painter)
     drawShipTriangle(painter, fillColor);
     //画船舶图片显示
     drawShipImage(painter);
+    //画尾迹
+    drawTailTrack(painter);
 }
 
 void AisElement::drawShipImage(QPainter *painter)
@@ -250,7 +384,7 @@ void AisElement::drawShipImage(QPainter *painter)
 
 
 
-void AisElement::drawTargetInformation(const QList<bool> &bList, QPainter *painter)
+void AisElement::drawTargetInformation(int mode, QPainter *painter)
 {
     if(!painter || !m_drawTargetInfo)
         return;
@@ -271,130 +405,61 @@ void AisElement::drawTargetInformation(const QList<bool> &bList, QPainter *paint
     QString Information ;
     ZCHX::Data::ITF_AIS AisData = getData();
     int sizeNumer = 0;
-    if(bList.size() == SHIP_ITEM::SHIP_ITEM_COUNT)
+    if(!(mode & SHIP_ITEM_LABEL)) return;
+
+    QString warnName = ZCHX::Utils::getWarnName(AisData.warn_status);
+    QStringList InfoList;
+    if(mode & SHIP_ITEM_NAME) InfoList.append(AisData.shipName);
+    if(mode & SHIP_ITEM_MMSI) InfoList.append(QString::number(AisData.mmsi));
+    if(mode & SHIP_ITEM_LATLON) {
+        QString geostr = QString("%1, %2")
+                .arg(ZCHX::Utils::instance()->latLonToString(AisData.lon, false))
+                .arg(ZCHX::Utils::instance()->latLonToString(AisData.lat, true));
+        InfoList.append(geostr);
+    }
+    if(mode & SHIP_ITEM::SHIP_ITEM_SOG) InfoList.append(QString("%1 Kn").arg(AisData.sog));
+    if(mode & SHIP_ITEM::SHIP_ITEM_COG) InfoList.append(QString("%1 °").arg(AisData.cog));
+    sizeNumer = InfoList.size();
+
+    if(mode & SHIP_ITEM::SHIP_ITEM_MULTILINE) //多行
     {
-        if(!bList.at(SHIP_ITEM::SHIP_ITEM_LABEL)) //是否显示
+        Information = InfoList.join("\n");
+        QFont font("微软雅黑", 9, QFont::Normal, false);//微软雅黑 新宋体
+        painter->setFont(font);
+        QRect rectangle = QRect(pos.x() - 150, pos.y() - 25 * sizeNumer, 300, 25 * sizeNumer);
+        painter->drawText(rectangle, Qt::AlignCenter,Information);
+
+        if(!warnName.isEmpty() && AisData.warn_status != ZCHX::Data::WARN_CHANNEL_COLLISION)
         {
-            return;
+            QPixmap devicePix;
+            devicePix.load(":/navig64/warning.png");
+            painter->drawPixmap(pos.x() - 50 - devicePix.width() / 2, pos.y() - 25 * sizeNumer + 5 - devicePix.height() / 2,
+                                devicePix.width(), devicePix.height(), devicePix);
+
+            painter->setPen(QPen(Qt::red, 1));
+            QRect rectangle = QRect(pos.x() - 150, pos.y() - 25 * sizeNumer - 5, 300, 25);
+            painter->drawText(rectangle, Qt::AlignCenter, warnName);
         }
+    } else {
+        Information = InfoList.join(" ");
+        QFont font("微软雅黑", 9, QFont::Normal, false);////微软雅黑 新宋体
+        painter->setFont(font);
+        QRect rectangle = QRect(pos.x()-(150*sizeNumer), pos.y()-30, 300*sizeNumer, 30);
+        painter->drawText(rectangle, Qt::AlignCenter, Information);
 
-        QString warnName = ZCHX::Utils::getWarnName(AisData.warn_status);
-        if(bList.at(SHIP_ITEM::SHIP_ITEM_MULTILINE)) //多行
+        if(!warnName.isEmpty() && AisData.warn_status != ZCHX::Data::WARN_CHANNEL_COLLISION)
         {
-            if(bList.at(SHIP_ITEM::SHIP_ITEM_NAME))
-            {
-                Information += AisData.shipName;
-                Information +="\n";
-                sizeNumer +=1;
-            }
-            if(bList.at(SHIP_ITEM::SHIP_ITEM_MMSI))
-            {
-                Information += QString::number(AisData.mmsi);
-                Information +="\n";
-                sizeNumer +=1;
-            }
-            if(bList.at(SHIP_ITEM::SHIP_ITEM_LATLON))
-            {
+            QPixmap devicePix;
+            devicePix.load(":/navig64/warning.png");
+            painter->drawPixmap(pos.x() - 50 - devicePix.width() / 2, pos.y() - 40 - devicePix.height() / 2,
+                                devicePix.width(), devicePix.height(), devicePix);
 
-                //Information += QString::number(AisData.lon);
-                Information += ZCHX::Utils::instance()->latLonToString(AisData.lon, false);
-                Information += ", ";
-                //Information += QString::number(AisData.lat);
-                Information +=ZCHX::Utils::instance()->latLonToString(AisData.lat, true);
-                Information += "\n";
-                sizeNumer +=1;
-            }
-            if(bList.at(SHIP_ITEM::SHIP_ITEM_SOG))
-            {
-                //Information += "Sog:";
-                Information += QString::number(AisData.sog);
-                Information += " Kn";
-                Information += "\n";
-                sizeNumer +=1;
-            }
-            if(bList.at(SHIP_ITEM::SHIP_ITEM_COG))
-            {
-                //Information += "Cog:";
-                Information += QString::number(AisData.cog);
-                Information += " °";
-                sizeNumer +=1;
-            }
-            QFont font("微软雅黑", 9, QFont::Normal, false);//微软雅黑 新宋体
-            painter->setFont(font);
-            QRect rectangle = QRect(pos.x() - 150, pos.y() - 25 * sizeNumer, 300, 25 * sizeNumer);
-            painter->drawText(rectangle, Qt::AlignCenter,Information);
-
-            if(!warnName.isEmpty() && AisData.warn_status != ZCHX::Data::WARN_CHANNEL_COLLISION)
-            {
-                QPixmap devicePix;
-                devicePix.load(":/navig64/warning.png");
-                painter->drawPixmap(pos.x() - 50 - devicePix.width() / 2, pos.y() - 25 * sizeNumer + 5 - devicePix.height() / 2,
-                                    devicePix.width(), devicePix.height(), devicePix);
-
-                painter->setPen(QPen(Qt::red, 1));
-                QRect rectangle = QRect(pos.x() - 150, pos.y() - 25 * sizeNumer - 5, 300, 25);
-                painter->drawText(rectangle, Qt::AlignCenter, warnName);
-            }
-        }
-        else
-        {
-            if(bList.at(SHIP_ITEM::SHIP_ITEM_NAME))
-            {
-                Information += AisData.shipName;
-                Information += " ";
-                sizeNumer += 1;
-            }
-            if(bList.at(SHIP_ITEM::SHIP_ITEM_MMSI))
-            {
-                Information += QString::number(AisData.mmsi);
-                Information += " ";
-                sizeNumer += 1;
-            }
-            if(bList.at(SHIP_ITEM::SHIP_ITEM_LATLON))
-            {
-
-                //Information += QString::number(AisData.lon);
-                Information += ZCHX::Utils::instance()->latLonToString(AisData.lon, false);
-                Information += ", ";
-                //Information += QString::number(AisData.lat);
-                Information +=ZCHX::Utils::instance()->latLonToString(AisData.lat, true);
-                Information += " ";
-                sizeNumer +=1;
-            }
-            if(bList.at(SHIP_ITEM::SHIP_ITEM_SOG))
-            {
-                //Information += "Sog:";
-                Information += QString::number(AisData.sog);
-                Information += " Kn";
-                Information += " ";
-                sizeNumer +=1;
-            }
-            if(bList.at(SHIP_ITEM::SHIP_ITEM_COG))
-            {
-                //Information += "Cog:";
-                Information += QString::number(AisData.cog);
-                Information += " °";
-                sizeNumer +=1;
-            }
-
-            QFont font("微软雅黑", 9, QFont::Normal, false);////微软雅黑 新宋体
-            painter->setFont(font);
-            QRect rectangle = QRect(pos.x()-(150*sizeNumer), pos.y()-30, 300*sizeNumer, 30);
-            painter->drawText(rectangle, Qt::AlignCenter, Information);
-
-            if(!warnName.isEmpty() && AisData.warn_status != ZCHX::Data::WARN_CHANNEL_COLLISION)
-            {
-                QPixmap devicePix;
-                devicePix.load(":/navig64/warning.png");
-                painter->drawPixmap(pos.x() - 50 - devicePix.width() / 2, pos.y() - 40 - devicePix.height() / 2,
-                                    devicePix.width(), devicePix.height(), devicePix);
-
-                painter->setPen(QPen(Qt::red, 1));
-                QRect rectangle = QRect(pos.x() - 150, pos.y() - 50, 300, 30);
-                painter->drawText(rectangle, Qt::AlignCenter, warnName);
-            }
+            painter->setPen(QPen(Qt::red, 1));
+            QRect rectangle = QRect(pos.x() - 150, pos.y() - 50, 300, 30);
+            painter->drawText(rectangle, Qt::AlignCenter, warnName);
         }
     }
+
 }
 
 void AisElement::drawCollide(const ZCHX::Data::ITF_AIS &targetAis, QPainter *painter)
