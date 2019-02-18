@@ -9,6 +9,7 @@ zchxMapLoadThread::zchxMapLoadThread(QObject *parent) : QThread(parent)
     mTaskList.clear();
     qRegisterMetaType<MapLoadSetting>("const MapLoadSetting&");
     qRegisterMetaType<TileImageList>("const TileImageList&");
+    mImgSync = true;
 }
 
 void zchxMapLoadThread::appendTask(const MapLoadSetting &task)
@@ -147,7 +148,7 @@ void zchxMapLoadThread::run()
         mTileImgList.clear();
         QThreadPool pool;
         pool.setMaxThreadCount(16);
-        emit signalSendNewMap(task.mCenter.lon, task.mCenter.lat, task.mZoom);
+        emit signalSendNewMap(task.mCenter.lon, task.mCenter.lat, task.mZoom, mImgSync);
         //获取在y方向上的瓦片数据个数
         int y_num = tile_end_y - tile_start_y + 1;
         int y_pos_0 = tile_start_y;
@@ -172,7 +173,7 @@ void zchxMapLoadThread::run()
                 int pos_x = pos.x + (i-tile_start_x) * MAP_IMG_SIZE;
                 int pos_y = pos.y + j * MAP_IMG_SIZE;
                 QString name = QString("%1-%2").arg(i).arg(k);
-                zchxTileImageThread *thread = new zchxTileImageThread(url, name, pos_x, pos_y, false, this);
+                zchxTileImageThread *thread = new zchxTileImageThread(url, name, pos_x, pos_y, mImgSync, this);
                 thread->setAutoDelete(true);
                 connect(thread, SIGNAL(signalSend(QPixmap,int,int)), this, SIGNAL(signalSendCurPixmap(QPixmap, int, int)));
                 pool.start(thread);

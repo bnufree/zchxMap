@@ -611,6 +611,9 @@ public slots: //定义Recive数据接口
     void itfRemoveFocusRadar(const QList<int>& list);
     void itfAppendFocusAis(const QStringList& list);
     void itfRemoveFocusAis(const QStringList& list);
+    //数据显示管理
+    void itfAppendItemDataMgr(std::shared_ptr<zchxEcdisDataMgr> mgr);
+    void itfRemoveItemDataMgr(std::shared_ptr<zchxEcdisDataMgr> mgr);
 protected Q_SLOTS:
     void OnMeasureAreaAction();
     void OnDirAngleAction();

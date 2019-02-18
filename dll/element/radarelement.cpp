@@ -230,6 +230,11 @@ const ZCHX::Data::ITF_RadarPoint &RadarPointElement::getData() const
     return m_data;
 }
 
+void RadarPointElement::setData(const ZCHX::Data::ITF_RadarPoint &data)
+{
+    m_data = data;
+}
+
 const std::vector<std::pair<double, double> >& RadarPointElement::getPath() const
 {
     return m_path;

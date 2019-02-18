@@ -3,8 +3,7 @@
 #include "zchxmaploadthread.h"
 #include "map_layer/zchxmaplayermgr.h"
 #include "camera_mgr/zchxcameradatasmgr.h"
-#include "data_manager/zchxaisdatamgr.h"
-#include "zchxradardatamgr.h"
+#include "data_manager/zchxdatamgrfactory.h"
 #include "zchxuserdefinesdatamgr.h"
 #include "zchxroutedatamgr.h"
 #include "zchxshipplandatamgr.h"
@@ -36,14 +35,12 @@ zchxMapWidget::zchxMapWidget(QWidget *parent) : QWidget(parent),
     mCurPickupType(ZCHX::Data::ECDIS_PICKUP_TYPE::ECDIS_PICKUP_ALL),
     mLayerMgr(new zchxMapLayerMgr(this)),
     mCameraDataMgr(new zchxCameraDatasMgr(this)),
-    mAisDataMgr(new zchxAisDataMgr(this)),
+    mDataMgrFactory(new zchxDataMgrFactory(this)),
     mUseDataMgr(new zchxUserDefinesDataMgr(this)),
-    mRadarDataMgr(new zchxRadarDataMgr(this)),
     mRouteDataMgr(new zchxRouteDataMgr(this)),
     mShipPlanDataMgr(new zchxShipPlanDataMgr(this))
 {
     this->setMouseTracking(true);
-    mDataMgrList.append(mAisDataMgr);
     QTimer *timer = new QTimer;
     timer->setInterval(zchxEcdis::Profiles::instance()->value(MAP_INDEX, MAP_UPDATE_INTERVAL).toInt());
     connect(timer, SIGNAL(timeout()), this, SLOT(update()));
@@ -74,7 +71,7 @@ void zchxMapWidget::resizeEvent(QResizeEvent *e)
             mMapThread = new zchxMapLoadThread;
             connect(mFrameWork, SIGNAL(UpdateMap(MapLoadSetting)), mMapThread, SLOT(appendTask(MapLoadSetting)));
             connect(mMapThread, SIGNAL(signalSendCurPixmap(QPixmap,int,int)), this, SLOT(append(QPixmap,int,int)));
-            connect(mMapThread, SIGNAL(signalSendNewMap(double, double, int)), this, SLOT(slotRecvNewMap(double,double,int)));
+            connect(mMapThread, SIGNAL(signalSendNewMap(double, double, int, bool)), this, SLOT(slotRecvNewMap(double,double,int, bool)));
             connect(mMapThread, SIGNAL(signalSendImgList(TileImageList)), this, SLOT(append(TileImageList)));
             mMapThread->start();
         } else
@@ -86,13 +83,13 @@ void zchxMapWidget::resizeEvent(QResizeEvent *e)
     QWidget::resizeEvent(e);
 }
 
-void zchxMapWidget::slotRecvNewMap(double lon, double lat, int zoom)
+void zchxMapWidget::slotRecvNewMap(double lon, double lat, int zoom, bool sync)
 {
-    qDebug()<<"new map info:"<<lon<<lat<<zoom;
+    qDebug()<<"new map info:"<<lon<<lat<<zoom<<sync;
     mCenter.lon = lon;
     mCenter.lat = lat;
     emit signalSendNewMap(lon, lat, zoom);
-    clear();
+    if(!sync) clear();
 }
 
 void zchxMapWidget::append(const QPixmap &img, int x, int y)
@@ -103,7 +100,10 @@ void zchxMapWidget::append(const QPixmap &img, int x, int y)
 
 void zchxMapWidget::append(const TileImageList &list)
 {
-    mDataList.append(list);
+    qDebug()<<__FUNCTION__<<__LINE__;
+    mDataList = list;
+    mDx = 0;
+    mDy = 0;
     //update();
 }
 
@@ -118,7 +118,7 @@ void zchxMapWidget::paintEvent(QPaintEvent *e)
         if(mDisplayImageNum)painter.drawText(data.mPosX-mDx, data.mPosY-mDy, data.mName);
     }
     //显示图元
-    foreach (zchxEcdisDataMgr* mgr, mDataMgrList) {
+    foreach (std::shared_ptr<zchxEcdisDataMgr> mgr, mDataMgrFactory->getManagers()) {
         mgr->show(&painter);
     }
 
@@ -145,8 +145,8 @@ void zchxMapWidget::mouseReleaseEvent(QMouseEvent *e)
     if(mDrag)
     {
         mDrag = false;
-        mDx = 0;
-        mDy = 0;
+        //mDx = 0;
+        //mDy = 0;
         QPoint pnt = e->pos();
         if(mFrameWork) mFrameWork->Drag(mPressPnt.x()- pnt.x(), mPressPnt.y() - pnt.y());
 
@@ -357,19 +357,11 @@ zchxCameraDatasMgr* zchxMapWidget::getCameraMgr()
     return mCameraDataMgr;
 }
 
-zchxAisDataMgr* zchxMapWidget::getAisDataMgr()
-{
-    return mAisDataMgr;
-}
+
 
 zchxUserDefinesDataMgr* zchxMapWidget::getUserDefinesDataMgr()
 {
     return mUseDataMgr;
-}
-
-zchxRadarDataMgr* zchxMapWidget::getRadarDataMgr()
-{
-    return mRadarDataMgr;
 }
 
 zchxRouteDataMgr* zchxMapWidget::getRouteDataMgr()
@@ -521,6 +513,13 @@ void zchxMapWidget::setFleet(const QMap<QString, ZCHX::Data::ITF_Fleet> &fleetMa
         }
     }
     if(mUseDataMgr) mUseDataMgr->setDangerousCircleData(list);
+}
+
+zchxEcdisDataMgr* zchxMapWidget::getManager(int type)
+{
+    std::shared_ptr<zchxEcdisDataMgr> mgr = mDataMgrFactory->getManager(type);
+    if(mgr) return mgr.get();
+    return 0;
 }
 
 

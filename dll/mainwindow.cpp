@@ -4,9 +4,8 @@
 #include "zchxmapdownloadthread.h"
 #include "map_layer/zchxmaplayermgr.h"
 #include "camera_mgr/zchxcameradatasmgr.h"
-#include "data_manager/zchxaisdatamgr.h"
+#include "data_manager/zchxdatamgrfactory.h"
 #include "zchxuserdefinesdatamgr.h"
-#include "zchxradardatamgr.h"
 #include "zchxroutedatamgr.h"
 #include "zchxshipplandatamgr.h"
 #include <QDebug>
@@ -221,33 +220,33 @@ void MainWindow::initSignalConnect()
 
 void MainWindow::itfSetAisData(const QList<ZCHX::Data::ITF_AIS> &data)
 {
-    mMapWidget->getAisDataMgr()->setAisData(data);
+    mMapWidget->getDataMgrFactory()->getAisDataMgr()->setAisData(data);
 }
 
 bool MainWindow::itfSetSingleAisData(QString id, const QList<ZCHX::Data::ITF_AIS> &data)
 {
-    return mMapWidget->getAisDataMgr()->setSingleAisData(id, data);
+    return mMapWidget->getDataMgrFactory()->getAisDataMgr()->setSingleAisData(id, data);
 }
 
 void MainWindow::itfRemoveAisHistoryData(QString id)
 {
-    mMapWidget->getAisDataMgr()->removeAisHistoryData(id);
+    mMapWidget->getDataMgrFactory()->getAisDataMgr()->removeAisHistoryData(id);
 }
 
 void MainWindow::itfSetHistoryAisData(const QList<ZCHX::Data::ITF_AIS> &data)
 {
-    mMapWidget->getAisDataMgr()->setHistoryAisData(data);
+    mMapWidget->getDataMgrFactory()->getAisDataMgr()->setHistoryAisData(data);
 }
 
 void MainWindow::itfSetClearHistoryData(bool states)
 {
-    mMapWidget->getAisDataMgr()->setClearHistoryData(states);
+    mMapWidget->getDataMgrFactory()->getAisDataMgr()->setClearHistoryData(states);
     //mMapWidget->getRadarDataMgr()->setClearHistoryData(states);
 }
 
 void MainWindow::itfSetConsAisData(const ZCHX::Data::ITF_AIS &data)
 {
-    mMapWidget->getAisDataMgr()->setConsAisData(data);
+    mMapWidget->getDataMgrFactory()->getAisDataMgr()->setConsAisData(data);
 }
 
 void MainWindow::itfSetRadarEchoData(const QMap<QDateTime, ZCHX::Data::ITF_RadarEchoMap> &data)
@@ -256,13 +255,13 @@ void MainWindow::itfSetRadarEchoData(const QMap<QDateTime, ZCHX::Data::ITF_Radar
 }
 void MainWindow::itfSetRadarPointData(const QList<ZCHX::Data::ITF_RadarPoint> &data)
 {
-    std::vector<DrawElement::RadarPointElement> list;
-    for(int i=0; i< data.count(); ++i)
-    {
-        DrawElement::RadarPointElement item(data.at(i));
-        list.push_back(item);
-    }
-    mMapWidget->getRadarDataMgr()->setRadarPointData(list);
+//    std::vector<DrawElement::RadarPointElement> list;
+//    for(int i=0; i< data.count(); ++i)
+//    {
+//        DrawElement::RadarPointElement item(data.at(i));
+//        list.push_back(item);
+//    }
+    mMapWidget->getDataMgrFactory()->getRadarDataMgr()->setRadarPointData(data);
 }
 
 void MainWindow::itfSetHistoryRadarPointData(const QList<ZCHX::Data::ITF_RadarPoint> &data)
@@ -273,7 +272,7 @@ void MainWindow::itfSetHistoryRadarPointData(const QList<ZCHX::Data::ITF_RadarPo
         DrawElement::RadarPointElement item(data.at(i));
         list.push_back(item);
     }
-    mMapWidget->getRadarDataMgr()->setHistoryRadarPointData(list);
+    mMapWidget->getDataMgrFactory()->getRadarDataMgr()->setHistoryRadarPointData(list);
 }
 
 
@@ -285,7 +284,7 @@ void MainWindow::itfSetRadarAreaData(const QList<ZCHX::Data::ITF_RadarArea> &dat
         DrawElement::RadarAreaElement item(data.at(i));
         list.push_back(item);
     }
-    mMapWidget->getRadarDataMgr()->setRadarAreaData(list);
+    mMapWidget->getDataMgrFactory()->getRadarDataMgr()->setRadarAreaData(list);
 }
 
 void MainWindow::itfSetCameraRodData(const QList<ZCHX::Data::ITF_CameraRod> &data)
@@ -586,7 +585,7 @@ void MainWindow::itfSetRadarFeatureZoneDagta(const QList<ZCHX::Data::ITF_RadarFe
 
     }
 
-    mMapWidget->getRadarDataMgr()->setRadarFeatureZoneData(list);
+    mMapWidget->getDataMgrFactory()->getRadarDataMgr()->setRadarFeatureZoneData(list);
 }
 
 void MainWindow::itfSetRouteLineData(const QList<ZCHX::Data::RouteLine> &data)
@@ -863,7 +862,7 @@ void MainWindow::itfSetPickUpRadarInfo(qint32 tracknumber)
 
 void MainWindow::itfSetPickUpAisInfo(QString id)
 {
-    mMapWidget->getAisDataMgr()->SetPickUpAisInfo(id);
+    mMapWidget->getDataMgrFactory()->getAisDataMgr()->SetPickUpAisInfo(id);
 }
 
 void MainWindow::itfSetPickUpPosition(QString id)
@@ -1873,5 +1872,15 @@ void MainWindow::itfToolBarCameraNetGridAdd(const QSizeF& size, const QString& c
 void MainWindow::itfSetCameraNetGridList(const QList<ZCHX::Data::ITF_CameraNetGrid> & list)
 {
     //mMapWidget->setCameraNetGridList(list);
+}
+
+void MainWindow::itfAppendItemDataMgr(std::shared_ptr<zchxEcdisDataMgr> mgr)
+{
+    mMapWidget->getDataMgrFactory()->appendDataMgr(mgr);
+}
+
+void MainWindow::itfRemoveItemDataMgr(std::shared_ptr<zchxEcdisDataMgr> mgr)
+{
+    mMapWidget->getDataMgrFactory()->removeDataMgr(mgr);
 }
 

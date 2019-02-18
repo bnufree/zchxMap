@@ -27,8 +27,7 @@ class QScaleSlider;
 class zchxMapLayerMgr;
 class zchxCameraDatasMgr;
 class zchxMapLayerMgr;
-class zchxAisDataMgr;
-class zchxRadarDataMgr;
+class zchxDataMgrFactory;
 class zchxUserDefinesDataMgr;
 class zchxRouteDataMgr;
 class zchxShipPlanDataMgr;
@@ -65,10 +64,11 @@ public:
 
     //数据控制
     zchxMapLayerMgr* getMapLayerMgr();
+    //数据显示管理
+    zchxDataMgrFactory* getDataMgrFactory() {return mDataMgrFactory;}
+    zchxEcdisDataMgr* getManager(int type);
     zchxCameraDatasMgr* getCameraMgr();
-    zchxAisDataMgr* getAisDataMgr();
     zchxUserDefinesDataMgr* getUserDefinesDataMgr();
-    zchxRadarDataMgr*       getRadarDataMgr();
     zchxRouteDataMgr*   getRouteDataMgr();
     zchxShipPlanDataMgr*    getShipPlanDataMgr();
 
@@ -128,6 +128,7 @@ public:
 
 
 
+
 private:
     void updateCurrentPos(const QPoint& p);
     void autoChangeCurrentStyle();
@@ -153,7 +154,7 @@ public slots:
     void append(const QPixmap& img, int x, int y);
     void append(const TileImageList& list);
     void clear() {mDataList.clear(); /*update();*/}
-    void slotRecvNewMap(double lon, double lat, int zoom);
+    void slotRecvNewMap(double lon, double lat, int zoom, bool sync);
 
     //旧地图的接口
 public:
@@ -901,12 +902,10 @@ private:
 
     zchxMapLayerMgr             *mLayerMgr;                     //地图图层管理
     zchxCameraDatasMgr          *mCameraDataMgr;                //相机相关的数据管理
-    zchxAisDataMgr              *mAisDataMgr;                   //船舶数据管理
     zchxUserDefinesDataMgr      *mUseDataMgr;                   //用户在地图上绘制的数据管理
-    zchxRadarDataMgr            *mRadarDataMgr;                 //雷达数据管理
     zchxRouteDataMgr            *mRouteDataMgr;                 //路由数据管理
     zchxShipPlanDataMgr         *mShipPlanDataMgr;              //船舶计划数据管理
-    QList<zchxEcdisDataMgr*>    mDataMgrList;                  //总的数据管理刷新是使用
+    zchxDataMgrFactory          *mDataMgrFactory;
     //路由信息控制显示
     bool mShowRoutePoint;  //0 隐藏点  1 显示点
     bool mShowRouteType;  //0隐藏类型  1显示类型

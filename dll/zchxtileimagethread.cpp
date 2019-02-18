@@ -4,8 +4,8 @@
 #include <QPixmapCache>
 
 
-zchxTileImageThread::zchxTileImageThread(const QString& url, const QString& name,int pos_x, int pos_y, bool sendMsg, QObject* retobj, QObject *parent) : QObject(parent),QRunnable(),
-    mSendMsg(sendMsg),
+zchxTileImageThread::zchxTileImageThread(const QString& url, const QString& name,int pos_x, int pos_y, bool imgSync, QObject* retobj, QObject *parent) : QObject(parent),QRunnable(),
+    mImgSync(imgSync),
     mName(name),
     mUrl(url),
     mPx(pos_x),
@@ -21,7 +21,7 @@ void zchxTileImageThread::run()
     QPixmap *img = loadImage();
     if(img)
     {
-        if(mSendMsg)
+        if(!mImgSync)
         {
             emit signalSend(*img, mPx, mPy);
         } else

@@ -50,12 +50,13 @@ SOURCES += mainwindow.cpp \
     element/camerarodelement.cpp \
     element/cameraelement.cpp \
     element/radarelement.cpp \
-    zchxradardatamgr.cpp \
     zchxuserdefinesdatamgr.cpp \
     zchxroutedatamgr.cpp \
     zchxshipplandatamgr.cpp \
     data_manager/zchxecdisdatamgr.cpp \
     data_manager/zchxaisdatamgr.cpp \
+    data_manager/zchxradardatamgr.cpp \
+    data_manager/zchxdatamgrfactory.cpp
 
 HEADERS  += mainwindow.h \
     zchxmapthread.h \
@@ -95,12 +96,14 @@ HEADERS  += mainwindow.h \
     element/camerarodelement.h \
     element/cameraelement.h \
     element/radarelement.h \
-    zchxradardatamgr.h \    
     zchxuserdefinesdatamgr.h \
     zchxroutedatamgr.h \
     zchxshipplandatamgr.h \
     data_manager/zchxecdisdatamgr.h \
     data_manager/zchxaisdatamgr.h \
+    data_manager/zchxradardatamgr.h \
+    data_manager/zchxdatamgrfactory.h \
+    data_manager/zchxdatamanagers.h
 
 FORMS    += mainwindow.ui \
     cardmouthinfodialog.ui \

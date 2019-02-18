@@ -1,7 +1,7 @@
 ﻿#pragma once
 
-#include "zchxutils.hpp"
-#include "zchx_ecdis_global.h"
+#include "./zchxutils.hpp"
+#include "./zchx_ecdis_global.h"
 #include <QtGui>
 
 class QGeoCoordinate;

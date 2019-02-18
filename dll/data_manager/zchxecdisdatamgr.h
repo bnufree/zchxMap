@@ -15,11 +15,19 @@ enum DataDisplayMode{
     Data_History,
 };
 
+
+enum    ZCHX_DATA_MGR_TYPE{
+    ZCHX_DATA_MGR_AIS = 1,
+    ZCHX_DATA_MGR_RADAR = 2,
+    ZCHX_DATA_MGR_USER_DEFINE,
+};
+
 class zchxEcdisDataMgr : public QObject
 {
     Q_OBJECT
 public:
-    explicit zchxEcdisDataMgr(zchxMapWidget* w, QObject *parent = 0);
+    explicit zchxEcdisDataMgr(zchxMapWidget* w, int type, QObject *parent = 0);
+    int     getType() const {return mType;}
     virtual void    show(QPainter* painter);
     int     getMaxConcernNum() const {return mMaxConcernNum;}
     int     getMaxTailTrackNum() const {return mMaxTailTrackNum;}
@@ -48,6 +56,7 @@ protected:
     zchxMapWidget       *mDisplayWidget;
     QStringList         mConcernList;
     QStringList         mTrackList;
+    int                 mType;                      //数据管理类型
 };
 
 #endif // ZCHXECDISDATAMGR_H

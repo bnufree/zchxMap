@@ -19,7 +19,7 @@ private:
 
 signals:
     void     signalSendCurPixmap(const QPixmap& v, int x, int y);
-    void     signalSendNewMap(double lon, double lat, int zoom);
+    void     signalSendNewMap(double lon, double lat, int zoom, bool sync);
     void     signalSendImgList(const TileImageList& list);
 public slots:    
     void     appendTask(const MapLoadSetting& task);
@@ -31,6 +31,7 @@ private:
     QString                     mLocalUrl;
     TileImageList               mTileImgList;
     QMutex                      mImgMutex;
+    bool                        mImgSync;
 };
 
 #endif // ZCHXMAPLOADTHREAD_H

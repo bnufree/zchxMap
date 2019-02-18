@@ -1,7 +1,8 @@
 #include "zchxecdisdatamgr.h"
 
-zchxEcdisDataMgr::zchxEcdisDataMgr(zchxMapWidget* w, QObject *parent) : QObject(parent)
+zchxEcdisDataMgr::zchxEcdisDataMgr(zchxMapWidget* w, int type, QObject *parent) : QObject(parent)
   ,mDisplayWidget(w)
+  ,mType(type)
   ,mMaxConcernNum(0)
   ,mMaxTailTrackNum(0)
   ,mReplaceTrackWherOver(true)

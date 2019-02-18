@@ -21,6 +21,7 @@ public:
     std::pair<double, double> getPoint();
 
     const ZCHX::Data::ITF_RadarPoint& getData() const;
+    void setData(const ZCHX::Data::ITF_RadarPoint& data);
 
     const std::vector<std::pair<double, double> > &getPath() const;
     void setPath(const std::vector<std::pair<double, double> > &path);
