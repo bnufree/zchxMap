@@ -13,17 +13,27 @@
 #include <QHBoxLayout>
 #include <QSpacerItem>
 
+namespace qt {
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    mMapWidget(0)
+    mMapWidget(0),
+    mStartLoad(false)
 {
-    ui->setupUi(this);
+    ui->setupUi(this);    
+    QPixmapCache::setCacheLimit(1);
     ui->statusBar->setVisible(false);
     ui->source->addItem(tr("TMS"), TILE_TMS);
     ui->source->addItem(tr("谷歌"), TILE_GOOGLE);
     ui->progressBar->setVisible(false);
     ui->download->setVisible(false);
+    ui->load_frame->setVisible(false);
+    ui->pos_frame->setVisible(false);
+    ui->ctrl_frame->setVisible(false);
+    mMapWidget = new zchxMapWidget(ui->ecdis_frame);
+    connect(mMapWidget, SIGNAL(signalDisplayCurPos(double,double)), this, SLOT(slotUpdateCurrentPos(double,double)));
+    connect(mMapWidget, SIGNAL(signalSendNewMap(double,double,int)), this, SLOT(slotDisplayMapCenterAndZoom(double,double,int)));
+    initSignalConnect();
 }
 
 MainWindow::~MainWindow()
@@ -35,28 +45,31 @@ MainWindow::~MainWindow()
 void MainWindow::updateGridLayout(int x, int y)
 {
     if(!mMapWidget) return;
-    mMapWidget->clear();
+    if(mMapWidget) mMapWidget->clear();
 }
 
 
 void MainWindow::resizeEvent(QResizeEvent *e)
 {
     QMainWindow::resizeEvent(e);
-    if(!mMapWidget)
-    {
-        mMapWidget = new zchxMapWidget(ui->ecdis_frame);
-        connect(mMapWidget, SIGNAL(signalDisplayCurPos(double,double)), this, SLOT(slotUpdateCurrentPos(double,double)));
-        connect(mMapWidget, SIGNAL(signalSendNewMap(double,double,int)), this, SLOT(slotDisplayMapCenterAndZoom(double,double,int)));
-        initSignalConnect();
-    }
-    mMapWidget->setGeometry(0, 0, ui->ecdis_frame->size().width(), ui->ecdis_frame->size().height());
+    if(!mStartLoad) return;
+    if(!mMapWidget) return;
+    loadEcdis();
     emit itfSignalIsEcdisResize();
+}
+
+void MainWindow::loadEcdis()
+{
+    if(!mStartLoad)
+    {
+        mStartLoad = true;
+    }
+    if(mMapWidget) mMapWidget->setGeometry(0, 0, ui->ecdis_frame->size().width(), ui->ecdis_frame->size().height());
 }
 
 void MainWindow::slotRecvMapData(const QPixmap &data, int x, int y)
 {
-    if(!mMapWidget) return;
-    mMapWidget->append(data, x, y);
+    if(mMapWidget) mMapWidget->append(data, x, y);
 }
 
 void MainWindow::on_load_clicked()
@@ -65,8 +78,7 @@ void MainWindow::on_load_clicked()
     double lon = ui->lon->text().toDouble();
     double lat = ui->lat->text().toDouble();
     int zoom = ui->zoom->text().toInt();
-    if(!mMapWidget) return;
-    mMapWidget->setCenterAndZoom(LatLon(lat, lon), zoom);
+    if(mMapWidget) mMapWidget->setCenterAndZoom(LatLon(lat, lon), zoom);
 }
 
 void MainWindow::slotUpdateCurrentPos(double lon, double lat)
@@ -108,14 +120,12 @@ void MainWindow::on_source_activated(const QString &arg1)
 
 void MainWindow::on_source_currentIndexChanged(int index)
 {
-    if(!mMapWidget) return;
-    mMapWidget->setSource(ui->source->currentData().toInt());
+    if(mMapWidget) mMapWidget->setSource(ui->source->currentData().toInt());
 }
 
 void MainWindow::on_image_num_clicked(bool checked)
 {
-    if(!mMapWidget) return;
-    mMapWidget->setDisplayImgeNum(checked);
+    if(mMapWidget) mMapWidget->setDisplayImgeNum(checked);
 }
 
 void MainWindow::initSignalConnect()
@@ -220,7 +230,7 @@ void MainWindow::initSignalConnect()
 
 void MainWindow::itfSetAisData(const QList<ZCHX::Data::ITF_AIS> &data)
 {
-    mMapWidget->getDataMgrFactory()->getAisDataMgr()->setAisData(data);
+    if(mMapWidget) mMapWidget->getDataMgrFactory()->getAisDataMgr()->setAisData(data);
 }
 
 bool MainWindow::itfSetSingleAisData(QString id, const QList<ZCHX::Data::ITF_AIS> &data)
@@ -230,252 +240,252 @@ bool MainWindow::itfSetSingleAisData(QString id, const QList<ZCHX::Data::ITF_AIS
 
 void MainWindow::itfRemoveAisHistoryData(QString id)
 {
-    mMapWidget->getDataMgrFactory()->getAisDataMgr()->removeAisHistoryData(id);
+    if(mMapWidget) mMapWidget->getDataMgrFactory()->getAisDataMgr()->removeAisHistoryData(id);
 }
 
 void MainWindow::itfSetHistoryAisData(const QList<ZCHX::Data::ITF_AIS> &data)
 {
-    mMapWidget->getDataMgrFactory()->getAisDataMgr()->setHistoryAisData(data);
+    if(mMapWidget) mMapWidget->getDataMgrFactory()->getAisDataMgr()->setHistoryAisData(data);
 }
 
 void MainWindow::itfSetClearHistoryData(bool states)
 {
-    mMapWidget->getDataMgrFactory()->getAisDataMgr()->setClearHistoryData(states);
-    //mMapWidget->getRadarDataMgr()->setClearHistoryData(states);
+    if(mMapWidget) mMapWidget->getDataMgrFactory()->getAisDataMgr()->setClearHistoryData(states);
+    //if(mMapWidget) mMapWidget->getRadarDataMgr()->setClearHistoryData(states);
 }
 
 void MainWindow::itfSetConsAisData(const ZCHX::Data::ITF_AIS &data)
 {
-    mMapWidget->getDataMgrFactory()->getAisDataMgr()->setConsAisData(data);
+    if(mMapWidget) mMapWidget->getDataMgrFactory()->getAisDataMgr()->setConsAisData(data);
 }
 
 void MainWindow::itfSetRadarEchoData(const QMap<QDateTime, ZCHX::Data::ITF_RadarEchoMap> &data)
 {
-    //mMapWidget->setRadarEchoData(data);
+    //if(mMapWidget) mMapWidget->setRadarEchoData(data);
 }
 void MainWindow::itfSetRadarPointData(const QList<ZCHX::Data::ITF_RadarPoint> &data)
 {
-//    std::vector<DrawElement::RadarPointElement> list;
+//    std::vector<RadarPointElement> list;
 //    for(int i=0; i< data.count(); ++i)
 //    {
-//        DrawElement::RadarPointElement item(data.at(i));
+//        RadarPointElement item(data.at(i));
 //        list.push_back(item);
 //    }
-    mMapWidget->getDataMgrFactory()->getRadarDataMgr()->setRadarPointData(data);
+    if(mMapWidget) mMapWidget->getDataMgrFactory()->getRadarDataMgr()->setRadarPointData(data);
 }
 
 void MainWindow::itfSetHistoryRadarPointData(const QList<ZCHX::Data::ITF_RadarPoint> &data)
 {
-    std::vector<DrawElement::RadarPointElement> list;
+    std::vector<RadarPointElement> list;
     for(int i=0; i< data.count(); ++i)
     {
-        DrawElement::RadarPointElement item(data.at(i));
+        RadarPointElement item(data.at(i));
         list.push_back(item);
     }
-    mMapWidget->getDataMgrFactory()->getRadarDataMgr()->setHistoryRadarPointData(list);
+    if(mMapWidget) mMapWidget->getDataMgrFactory()->getRadarDataMgr()->setHistoryRadarPointData(list);
 }
 
 
 void MainWindow::itfSetRadarAreaData(const QList<ZCHX::Data::ITF_RadarArea> &data)
 {
-    std::vector<DrawElement::RadarAreaElement> list;
+    std::vector<RadarAreaElement> list;
     for(int i=0; i < data.count(); ++i)
     {
-        DrawElement::RadarAreaElement item(data.at(i));
+        RadarAreaElement item(data.at(i));
         list.push_back(item);
     }
-    mMapWidget->getDataMgrFactory()->getRadarDataMgr()->setRadarAreaData(list);
+    if(mMapWidget) mMapWidget->getDataMgrFactory()->getRadarDataMgr()->setRadarAreaData(list);
 }
 
 void MainWindow::itfSetCameraRodData(const QList<ZCHX::Data::ITF_CameraRod> &data)
 {
-    std::vector<DrawElement::CameraRodElement> list;
+    std::vector<CameraRodElement> list;
     for(int i=0; i< data.count(); ++i)
     {
-        DrawElement::CameraRodElement item(data.at(i));
+        CameraRodElement item(data.at(i));
         item.setIsFocus(false);
         list.push_back(item);
         //        qDebug()<<"mainWindow:"<<data.at(i).ll.lat << data.at(i).ll.lon;
     }
-    mMapWidget->getCameraMgr()->setCameraRodData(list);
+    if(mMapWidget) mMapWidget->getCameraMgr()->setCameraRodData(list);
 }
 
 void MainWindow::itfSetCameraDevData(const QList<ZCHX::Data::ITF_CameraDev> &data)
 {
-    std::vector<DrawElement::CameraElement> list;
+    std::vector<CameraElement> list;
     for(int i = 0; i < data.count(); ++i)
     {
-        DrawElement::CameraElement item(data.at(i));
+        CameraElement item(data.at(i));
         list.push_back(item);
     }
-    mMapWidget->getCameraMgr()->setCameraDevData(list);
+    if(mMapWidget) mMapWidget->getCameraMgr()->setCameraDevData(list);
 }
 
 void MainWindow::itfSetAisCameraDevData(const QList<ZCHX::Data::ITF_CameraDev> &data)
 {
     //qDebug()<<__FUNCTION__<<__LINE__;
-    std::vector<DrawElement::CameraElement> list;
+    std::vector<CameraElement> list;
     for(int i = 0; i < data.count(); ++i)
     {
-        DrawElement::CameraElement item(data.at(i));
+        CameraElement item(data.at(i));
         list.push_back(item);
     }
-    mMapWidget->getCameraMgr()->setCameraDevData(list);
+    if(mMapWidget) mMapWidget->getCameraMgr()->setCameraDevData(list);
 }
 
 void MainWindow::itfSetPastrolStation(const QList<ZCHX::Data::ITF_PastrolStation> &data)
 {
-    std::vector<DrawElement::PastrolStation> list;
+    std::vector<PastrolStation> list;
     for(int i=0; i< data.count(); ++i)
     {
-        DrawElement::PastrolStation item(data.at(i));
+        PastrolStation item(data.at(i));
         list.push_back(item);
         //        qDebug()<<"mainWindow:"<<data.at(i).ll.lat << data.at(i).ll.lon;
     }
-    mMapWidget->getUserDefinesDataMgr()->setPastrolStation(list);
+    if(mMapWidget) mMapWidget->getUserDefinesDataMgr()->setPastrolStation(list);
 }
 
 void MainWindow::itfSetWarringZoneData(const QList<ZCHX::Data::ITF_WarringZone> &data)
 {
-    std::vector<DrawElement::WarringZONE> list;
+    std::vector<WarringZONE> list;
     for(int i=0; i< data.count(); ++i)
     {
-        DrawElement::WarringZONE item(data.at(i));
+        WarringZONE item(data.at(i));
         list.push_back(item);
     }
-    mMapWidget->getUserDefinesDataMgr()->setWarringZONEData(list);
+    if(mMapWidget) mMapWidget->getUserDefinesDataMgr()->setWarringZONEData(list);
 }
 
 void MainWindow::itfSetShipSiumtionData(const std::vector<std::pair<double, double> > &data)
 {
-    //mMapWidget->setShipSiumtionData(data);
+    //if(mMapWidget) mMapWidget->setShipSiumtionData(data);
 }
 
 void MainWindow::itfSetAISDataToSiumtion(const QList<ZCHX::Data::ITF_AIS> &data)
 {
-    //mMapWidget->setAisDataToSiumtion(data);
+    //if(mMapWidget) mMapWidget->setAisDataToSiumtion(data);
 }
 
 void MainWindow::itfSetCoastData(const QList<ZCHX::Data::ITF_CoastData> &data)
 {
-    std::vector<DrawElement::CoastData> list;
+    std::vector<CoastData> list;
     for(int i=0; i< data.count(); ++i)
     {
-        DrawElement::CoastData item(data.at(i));
+        CoastData item(data.at(i));
         list.push_back(item);
     }
-    mMapWidget->getUserDefinesDataMgr()->setCoastData(list);
+    if(mMapWidget) mMapWidget->getUserDefinesDataMgr()->setCoastData(list);
 }
 
 void MainWindow::itfImportCoastData(const std::vector<std::pair<double, double> > & data)
 {
-    mMapWidget->getUserDefinesDataMgr()->importCoastData(data);
+    if(mMapWidget) mMapWidget->getUserDefinesDataMgr()->importCoastData(data);
 }
 
 void MainWindow::itfSetSeabedPipeLine(const QList<ZCHX::Data::ITF_SeabedPipeLine> &data)
 {
-    std::vector<DrawElement::SeabedPipeLine> list;
+    std::vector<SeabedPipeLine> list;
     for(int i=0; i< data.count(); ++i)
     {
-        DrawElement::SeabedPipeLine item(data.at(i));
+        SeabedPipeLine item(data.at(i));
         list.push_back(item);
     }
-    mMapWidget->getUserDefinesDataMgr()->setSeabedPipeLine(list);
+    if(mMapWidget) mMapWidget->getUserDefinesDataMgr()->setSeabedPipeLine(list);
 }
 
 void MainWindow::itfImportSeabedPipeLine(const std::vector<std::pair<double, double> > & data)
 {
-    mMapWidget->getUserDefinesDataMgr()->importSeabedPipeLine(data);
+    if(mMapWidget) mMapWidget->getUserDefinesDataMgr()->importSeabedPipeLine(data);
 }
 
 void MainWindow::itfSetStructure(const QList<ZCHX::Data::ITF_Structure> &data)
 {
-    std::vector<DrawElement::Structure> list;
+    std::vector<Structure> list;
     for(int i=0; i< data.count(); ++i)
     {
-        DrawElement::Structure item(data.at(i));
+        Structure item(data.at(i));
         list.push_back(item);
     }
-    mMapWidget->getUserDefinesDataMgr()->setStructure(list);
+    if(mMapWidget) mMapWidget->getUserDefinesDataMgr()->setStructure(list);
 }
 
 void MainWindow::itfImportStructure(const std::pair<double, double> &data)
 {
-    //mMapWidget->importStructure(data);
+    //if(mMapWidget) mMapWidget->importStructure(data);
 }
 
 void MainWindow::itfSetAreaNet(const QList<ZCHX::Data::ITF_AreaNet> &data)
 {
-    std::vector<DrawElement::AreaNet> list;
+    std::vector<AreaNet> list;
     for(int i=0; i< data.count(); ++i)
     {
-        DrawElement::AreaNet item(data.at(i));
+        AreaNet item(data.at(i));
         list.push_back(item);
     }
-    mMapWidget->getUserDefinesDataMgr()->setAreaNet(list);
+    if(mMapWidget) mMapWidget->getUserDefinesDataMgr()->setAreaNet(list);
 }
 
 void MainWindow::itfImportAreaNet(const std::vector<std::pair<double, double> > &data)
 {
-    mMapWidget->getUserDefinesDataMgr()->importAreaNet(data);
+    if(mMapWidget) mMapWidget->getUserDefinesDataMgr()->importAreaNet(data);
 }
 
 void MainWindow::itfSetChannel(const QList<ZCHX::Data::ITF_Channel> &data)
 {
-    std::vector<DrawElement::Channel> list;
+    std::vector<Channel> list;
     for(int i=0; i< data.count(); ++i)
     {
-        DrawElement::Channel item(data.at(i));
+        Channel item(data.at(i));
         list.push_back(item);
     }
-    mMapWidget->getUserDefinesDataMgr()->setChannel(list);
+    if(mMapWidget) mMapWidget->getUserDefinesDataMgr()->setChannel(list);
 }
 
 void MainWindow::itfImportChannel(const std::vector<std::pair<double, double> > &data)
 {
-    mMapWidget->getUserDefinesDataMgr()->importChannel(data);
+    if(mMapWidget) mMapWidget->getUserDefinesDataMgr()->importChannel(data);
 }
 
 void MainWindow::itfSelectChannelLine(int channelId, const ZCHX::Data::ITF_ChannelLine & line)
 {
-    mMapWidget->getUserDefinesDataMgr()->selectChannelLine(channelId, line);
+    if(mMapWidget) mMapWidget->getUserDefinesDataMgr()->selectChannelLine(channelId, line);
 }
 
 void MainWindow::itfCancelChannelLine(int channelId)
 {
-    mMapWidget->getUserDefinesDataMgr()->cancelChannelLine(channelId);
+    if(mMapWidget) mMapWidget->getUserDefinesDataMgr()->cancelChannelLine(channelId);
 }
 
 void MainWindow::itfSetMooring(const QList<ZCHX::Data::ITF_Mooring> &data)
 {
-    std::vector<DrawElement::Mooring> list;
+    std::vector<Mooring> list;
     for(int i=0; i< data.count(); ++i)
     {
-        DrawElement::Mooring item(data.at(i));
+        Mooring item(data.at(i));
         list.push_back(item);
     }
-    mMapWidget->getUserDefinesDataMgr()->setMooring(list);
+    if(mMapWidget) mMapWidget->getUserDefinesDataMgr()->setMooring(list);
 }
 
 void MainWindow::itfImportMooring(const std::vector<std::pair<double, double> > &data)
 {
-    mMapWidget->getUserDefinesDataMgr()->importMooring(data);
+    if(mMapWidget) mMapWidget->getUserDefinesDataMgr()->importMooring(data);
 }
 
 void MainWindow::itfSetCardMouth(const QList<ZCHX::Data::ITF_CardMouth> &data)
 {
-    std::vector<DrawElement::CardMouth> list;
+    std::vector<CardMouth> list;
     for(int i=0; i< data.count(); ++i)
     {
-        DrawElement::CardMouth item(data.at(i));
+        CardMouth item(data.at(i));
         list.push_back(item);
     }
-    mMapWidget->getUserDefinesDataMgr()->setCardMouth(list);
+    if(mMapWidget) mMapWidget->getUserDefinesDataMgr()->setCardMouth(list);
 }
 
 void MainWindow::itfImportCardMouth(const std::vector<std::pair<double, double> > &data)
 {
-    mMapWidget->getUserDefinesDataMgr()->importCardMouth(data);
+    if(mMapWidget) mMapWidget->getUserDefinesDataMgr()->importCardMouth(data);
 }
 
 void MainWindow::itfSetFleet(const QList<ZCHX::Data::ITF_Fleet> &data)
@@ -485,27 +495,27 @@ void MainWindow::itfSetFleet(const QList<ZCHX::Data::ITF_Fleet> &data)
     {
         fleetMap.insert(data[i].aisId, data[i]);
     }
-    mMapWidget->setFleet(fleetMap);
+    if(mMapWidget) mMapWidget->setFleet(fleetMap);
 }
 
 void MainWindow::itfSetShipAlarmAscendMap(const QMap<QString, ZCHX::Data::ITF_ShipAlarmAscend> &shipAlarmAscendMap)
 {
-    //mMapWidget->setShipAlarmAscendMap(shipAlarmAscendMap);
+    //if(mMapWidget) mMapWidget->setShipAlarmAscendMap(shipAlarmAscendMap);
 }
 
 void MainWindow::itfUpdateWarringZone(const QList<ZCHX::Data::ITF_WarringZone> &data)
 {
-    mMapWidget->getUserDefinesDataMgr()->updateWarrningZone(data);
+    if(mMapWidget) mMapWidget->getUserDefinesDataMgr()->updateWarrningZone(data);
 }
 
 void MainWindow::itfUpdateWarringZone(const ZCHX::Data::ITF_WarringZone &zone)
 {
-    mMapWidget->getUserDefinesDataMgr()->updateWarrningZone(zone);
+    if(mMapWidget) mMapWidget->getUserDefinesDataMgr()->updateWarrningZone(zone);
 }
 
 void MainWindow::removeWarrningZone(const ZCHX::Data::ITF_WarringZone &zone)
 {
-    mMapWidget->getUserDefinesDataMgr()->removeWarrningZone(zone);
+    if(mMapWidget) mMapWidget->getUserDefinesDataMgr()->removeWarrningZone(zone);
 }
 
 QList<ZCHX::Data::ITF_WarringZone> MainWindow::getAllWarrningZone() const
@@ -516,184 +526,184 @@ QList<ZCHX::Data::ITF_WarringZone> MainWindow::getAllWarrningZone() const
 void MainWindow::itfSetIslandLineData(const QList<ZCHX::Data::ITF_IslandLine> &data)
 {
 //    qDebug()<<"接收到环岛线:"<<data.size();
-    std::vector<DrawElement::IslandLine> list;
+    std::vector<IslandLine> list;
     for(int i=0; i< data.count(); ++i)
     {
-        DrawElement::IslandLine item(data[i]);
+        IslandLine item(data[i]);
         list.push_back(item);
     }
-    mMapWidget->getUserDefinesDataMgr()->setIslandLineData(list);
+    if(mMapWidget) mMapWidget->getUserDefinesDataMgr()->setIslandLineData(list);
 }
 
 void MainWindow::itfSetLocalMarkData(const QList<ZCHX::Data::ITF_LocalMark> &data)
 {
-    std::vector<DrawElement::LocalMark> list;
+    std::vector<LocalMark> list;
     for(int i=0; i< data.count(); ++i)
     {
-        DrawElement::LocalMark item(data.at(i));
+        LocalMark item(data.at(i));
         list.push_back(item);
     }
-    mMapWidget->getUserDefinesDataMgr()->setLocalMarkData(list);
+    if(mMapWidget) mMapWidget->getUserDefinesDataMgr()->setLocalMarkData(list);
 }
 
 void MainWindow::itfSetCameraGdyData(const QList<ZCHX::Data::ITF_CameraDev> &data)
 {
-    std::vector<DrawElement::CameraElement> list;
+    std::vector<CameraElement> list;
     for(int i = 0; i < data.size(); ++i) {
-        DrawElement::CameraElement item(data.at(i));
+        CameraElement item(data.at(i));
         list.push_back(item);
     }
-    mMapWidget->getCameraMgr()->setCameraDevData(list);
+    if(mMapWidget) mMapWidget->getCameraMgr()->setCameraDevData(list);
 }
 
 void MainWindow::itfSetCameraPlanData(const QList<ZCHX::Data::ITF_CameraDev> &data)
 {
-    std::vector<DrawElement::CameraElement> list;
+    std::vector<CameraElement> list;
     for(int i = 0; i < data.size(); ++i) {
-        DrawElement::CameraElement item(data.at(i));
+        CameraElement item(data.at(i));
         list.push_back(item);
     }
-    mMapWidget->getCameraMgr()->setCameraDevData(list);
+    if(mMapWidget) mMapWidget->getCameraMgr()->setCameraDevData(list);
 }
 
 void MainWindow::itfSetDangerousCircleData(const QList<ZCHX::Data::ITF_DangerousCircle> &data)
 {
-    std::vector<DrawElement::DangerousCircle> list;
+    std::vector<DangerousCircle> list;
     uint uZoom = itfzchxUtilToolCurZoom();
     for(int i = 0; i < data.size(); ++i)
     {
-        DrawElement::DangerousCircle item(data.at(i));
+        DangerousCircle item(data.at(i));
         list.push_back(item);
     }
 
-    mMapWidget->getUserDefinesDataMgr()->setDangerousCircleData(list);
+    if(mMapWidget) mMapWidget->getUserDefinesDataMgr()->setDangerousCircleData(list);
 }
 
 void MainWindow::itfSetDangerousCircleRange(const double range)
 {
     //每一个危险圈设定半径  这里取消
-    //mMapWidget->setDangerousCircleRange(range);
+    //if(mMapWidget) mMapWidget->setDangerousCircleRange(range);
 }
 
 void MainWindow::itfSetRadarFeatureZoneDagta(const QList<ZCHX::Data::ITF_RadarFeaturesZone> &data)
 {
-    std::vector<DrawElement::RadarFeatureZone> list;
+    std::vector<RadarFeatureZone> list;
     for(int i=0; i< data.size(); ++i)
     {
-        DrawElement::RadarFeatureZone item(data.at(i));
+        RadarFeatureZone item(data.at(i));
         list.push_back(item);
 
     }
 
-    mMapWidget->getDataMgrFactory()->getRadarDataMgr()->setRadarFeatureZoneData(list);
+    if(mMapWidget) mMapWidget->getDataMgrFactory()->getRadarDataMgr()->setRadarFeatureZoneData(list);
 }
 
 void MainWindow::itfSetRouteLineData(const QList<ZCHX::Data::RouteLine> &data)
 {
-    std::vector<DrawElement::RouteLine> list;
+    std::vector<RouteLine> list;
     for(int i=0; i< data.count(); ++i)
     {
         ZCHX::Data::RouteLine tmp = data.at(i);
-        DrawElement::RouteLine item(tmp);
+        RouteLine item(tmp);
         list.push_back(item);
 
     }
-    mMapWidget->getRouteDataMgr()->setRouteLineData(list);
+    if(mMapWidget) mMapWidget->getRouteDataMgr()->setRouteLineData(list);
 }
 
 void MainWindow::itfSetALLSpecialRouteLineData(const QList<ZCHX::Data::SpecialRouteLine> &data)
 {
-    std::vector<DrawElement::SpecialRouteLine> list;
+    std::vector<SpecialRouteLine> list;
     for(int i=0; i< data.count(); ++i)
     {
         ZCHX::Data::SpecialRouteLine tmp = data.at(i);
-        DrawElement::SpecialRouteLine item(tmp);
+        SpecialRouteLine item(tmp);
         list.push_back(item);
     }
-    mMapWidget->getRouteDataMgr()->setALLSpecialRouteLineData(list);
+    if(mMapWidget) mMapWidget->getRouteDataMgr()->setALLSpecialRouteLineData(list);
 
 }
 
 void MainWindow::itfSetSpacilRouteLineData(const QList<ZCHX::Data::SpecialRouteLine> &data)
 {
-    std::vector<DrawElement::SpecialRouteLine> list;
+    std::vector<SpecialRouteLine> list;
     for(int i=0; i< data.count(); ++i)
     {
         ZCHX::Data::SpecialRouteLine tmp = data.at(i);
-        DrawElement::SpecialRouteLine item(tmp);
+        SpecialRouteLine item(tmp);
         list.push_back(item);
 
     }
-    mMapWidget->getRouteDataMgr()->setSpacilRouteLineData(list);
+    if(mMapWidget) mMapWidget->getRouteDataMgr()->setSpacilRouteLineData(list);
 }
 
 void MainWindow::itfSetPickUpSpacilRoutePoint(const ZCHX::Data::SpecialRoutePoint &data)
 {
-    mMapWidget->getRouteDataMgr()->setPickUpSpacilRoutePoint(data);
+    if(mMapWidget) mMapWidget->getRouteDataMgr()->setPickUpSpacilRoutePoint(data);
 }
 
 void MainWindow::itfSetHistoryRouteLineData(const QList<ZCHX::Data::RouteLine> &data)
 {
-    std::vector<DrawElement::RouteLine> list;
+    std::vector<RouteLine> list;
     for(int i=0; i< data.count(); ++i)
     {
         ZCHX::Data::RouteLine tmp = data.at(i);
-        DrawElement::RouteLine item(tmp);
+        RouteLine item(tmp);
         list.push_back(item);
 
     }
-    mMapWidget->getRouteDataMgr()->setHistoryRouteLineData(list);
+    if(mMapWidget) mMapWidget->getRouteDataMgr()->setHistoryRouteLineData(list);
 }
 
 void MainWindow::itfSetRouteDefaultCableData(const ZCHX::Data::CableAssembly &data, int uSlack)
 {
-    mMapWidget->getRouteDataMgr()->setRouteDefaultCableData(data,uSlack);
+    if(mMapWidget) mMapWidget->getRouteDataMgr()->setRouteDefaultCableData(data,uSlack);
 }
 
 void MainWindow::itfSetRouteConfigDisplay(int uRouteID, bool bShowPoint,bool bShowType,bool bShowLine,bool bShowCable, bool bShowIndex)
 {
-    //mMapWidget->setRouteConfigDisplay(uRouteID, bShowPoint, bShowType, bShowLine, bShowCable, bShowIndex);
+    //if(mMapWidget) mMapWidget->setRouteConfigDisplay(uRouteID, bShowPoint, bShowType, bShowLine, bShowCable, bShowIndex);
 }
 
 void MainWindow::itfSetRouteDisplayFlag(int uRouteID, int uDisplayFlag)
 {
-    //mMapWidget->setRouteDisplayFlag(uRouteID,uDisplayFlag);
+    //if(mMapWidget) mMapWidget->setRouteDisplayFlag(uRouteID,uDisplayFlag);
 }
 
 void MainWindow::itfCloseCurRouteLineData()
 {
-    //mMapWidget->closeCurRouteLineData();
+    //if(mMapWidget) mMapWidget->closeCurRouteLineData();
 }
 
 void MainWindow::itfDeleteRouteLineDataFromProjectID(const int uProjectID)
 {
-    //mMapWidget->deleteRouteLineDataFromProjectID(uProjectID);
+    //if(mMapWidget) mMapWidget->deleteRouteLineDataFromProjectID(uProjectID);
 }
 
 void MainWindow::itfSetShipPlanLineData(const QList<ZCHX::Data::ShipPlanLine> &data)
 {
-    std::vector<DrawElement::ShipPlanLine> list;
+    std::vector<ShipPlanLine> list;
     for(int i=0; i< data.count(); ++i)
     {
         ZCHX::Data::ShipPlanLine tmp = data.at(i);
-        DrawElement::ShipPlanLine item(tmp);
+        ShipPlanLine item(tmp);
         list.push_back(item);
 
     }
-    mMapWidget->getShipPlanDataMgr()->setShipPlanLineData(list);
+    if(mMapWidget) mMapWidget->getShipPlanDataMgr()->setShipPlanLineData(list);
 }
 
 void MainWindow::itfSetAllProjectShipPlanLineData(const QList<ZCHX::Data::ShipPlanLine> &data)
 {
-    std::vector<DrawElement::ShipPlanLine> list;
+    std::vector<ShipPlanLine> list;
     for(int i=0; i< data.count(); ++i)
     {
         ZCHX::Data::ShipPlanLine tmp = data.at(i);
-        DrawElement::ShipPlanLine item(tmp);
+        ShipPlanLine item(tmp);
         list.push_back(item);
     }
 
-    mMapWidget->getShipPlanDataMgr()->setAllProjecrShipPlanLineData(list);
+    if(mMapWidget) mMapWidget->getShipPlanDataMgr()->setAllProjecrShipPlanLineData(list);
 }
 
 void MainWindow::itfSetShipPlanProjectID(const int ProjectID)
@@ -703,255 +713,255 @@ void MainWindow::itfSetShipPlanProjectID(const int ProjectID)
 
 void MainWindow::itfSetRouteLinePickupLocation(const int uRouteID, const double dLat, const double dLon)
 {
-    //mMapWidget->setRouteLinePickupLocation(uRouteID,dLat,dLon);
+    //if(mMapWidget) mMapWidget->setRouteLinePickupLocation(uRouteID,dLat,dLon);
 }
 
 void MainWindow::itfSetRouteLinePickupInfor(const double dKp, bool bShowLength, const double dLength, bool bShowSlope, const double dSlope)
 {
-    //mMapWidget->setRouteLinePickupInfor(dKp,bShowLength,dLength,bShowSlope,dSlope);
+    //if(mMapWidget) mMapWidget->setRouteLinePickupInfor(dKp,bShowLength,dLength,bShowSlope,dSlope);
 }
 
 void MainWindow::itfChangeCurrentRouteLine(const ZCHX::Data::RouteLine &data, int uRouteID)
 {
-    //mMapWidget->changeCurrentRouteLine(data,uRouteID);
+    //if(mMapWidget) mMapWidget->changeCurrentRouteLine(data,uRouteID);
 }
 
 void MainWindow::itfChangeRoutePathAssessStatus(int uAssessStatus, int uRouteID)
 {
-    //mMapWidget->changeRoutePathAssessStatus(uAssessStatus,uRouteID);
+    //if(mMapWidget) mMapWidget->changeRoutePathAssessStatus(uAssessStatus,uRouteID);
 }
 
 void MainWindow::itfSetSimulateData(int uSimulateDataID, int uSimulateFlag)
 {
-    //mMapWidget->setSimulateData(uSimulateDataID,uSimulateFlag);
+    //if(mMapWidget) mMapWidget->setSimulateData(uSimulateDataID,uSimulateFlag);
 }
 
 void MainWindow::itfSetSimulateLocation(float fCurSimulateKP)
 {
-    //mMapWidget->setSimulateLocation(fCurSimulateKP);
+    //if(mMapWidget) mMapWidget->setSimulateLocation(fCurSimulateKP);
 }
 
 void MainWindow::itfSetCameraObservationZoneData(const QList<ZCHX::Data::ITF_CameraObservationZone> &data)
 {
-    std::vector<DrawElement::CameraObservationZone> list;
+    std::vector<CameraObservationZone> list;
     for(int i=0; i< data.size(); ++i)
     {
-        DrawElement::CameraObservationZone item(data.at(i));
+        CameraObservationZone item(data.at(i));
         list.push_back(item);
     }
 
-    mMapWidget->getCameraMgr()->setCameraObservationZoneData(list);
+    if(mMapWidget) mMapWidget->getCameraMgr()->setCameraObservationZoneData(list);
 }
 
 void MainWindow::itfSetRadarVideoData(double dCentreLon, double dCentreLat, double dDistance, int uType, int uLoopNum)
 {
 
-    //mMapWidget->setRadarVideoData(dCentreLon,dCentreLat,dDistance,uType,uLoopNum);
+    //if(mMapWidget) mMapWidget->setRadarVideoData(dCentreLon,dCentreLat,dDistance,uType,uLoopNum);
 }
 
 void MainWindow::itfSetRadarVideoPixmap(int uIndex, const QPixmap &objPixmap, const QPixmap &prePixmap)
 {
-    //mMapWidget->setRadarVideoPixmap(uIndex,objPixmap,prePixmap);
+    //if(mMapWidget) mMapWidget->setRadarVideoPixmap(uIndex,objPixmap,prePixmap);
 }
 
 void MainWindow::itfSetCurrentRadarVideoPixmap(const QPixmap &objPixmap)
 {
-    //mMapWidget->setCurrentRadarVideoPixmap(objPixmap);
+    //if(mMapWidget) mMapWidget->setCurrentRadarVideoPixmap(objPixmap);
 }
 
 //void MainWindow::itfSetMultibeamData(const QList<ZCHX::Data::ITF_Multibeam> &data, const double dMinLon, const double dMinLat, const double dMaxLon, const double dMaxLat, const double dMinX, const double dMinY, const double dMinZ, const double dMaxX, const double dMaxY, const double dMaxZ)
 //{
-//    std::vector<DrawElement::Multibeam> list;
+//    std::vector<Multibeam> list;
 //    for(int i=0; i< data.count(); ++i)
 //    {
 //        ZCHX::Data::ITF_Multibeam tmp = data.at(i);
-//        DrawElement::Multibeam item(tmp);
+//        Multibeam item(tmp);
 //        list.push_back(item);
 //    }
 
-//    mMapWidget->setMultibeamData(list,dMinLon,dMinLat,dMaxLon,dMaxLat,dMinX,dMinY,dMinZ,dMaxX,dMaxY,dMaxZ);
+//    if(mMapWidget) mMapWidget->setMultibeamData(list,dMinLon,dMinLat,dMaxLon,dMaxLat,dMinX,dMinY,dMinZ,dMaxX,dMaxY,dMaxZ);
 //}
 
 void MainWindow::itfSetMultibeamDataByImg(int iRouteID, const QPixmap &samplePixmap, const QPixmap &objPixmap, double dMinLon, double dMinLat, double dMaxLon, double dMaxLat)
 {
-    //mMapWidget->setMultibeamDataByImg(iRouteID, samplePixmap, objPixmap, dMinLon, dMinLat, dMaxLon, dMaxLat);
+    //if(mMapWidget) mMapWidget->setMultibeamDataByImg(iRouteID, samplePixmap, objPixmap, dMinLon, dMinLat, dMaxLon, dMaxLat);
 }
 
 void MainWindow::itfSetAllProjectRouteLineData(const QList<ZCHX::Data::RouteLine> &data)
 {
 
-    std::vector<DrawElement::RouteLine> list;
+    std::vector<RouteLine> list;
     for(int i=0; i< data.count(); ++i)
     {
         ZCHX::Data::RouteLine tmp = data.at(i);
-        DrawElement::RouteLine item(tmp);
+        RouteLine item(tmp);
         list.push_back(item);
 
     }
 
-    mMapWidget->getRouteDataMgr()->setAllProjectRouteLineData(list);
+    if(mMapWidget) mMapWidget->getRouteDataMgr()->setAllProjectRouteLineData(list);
 
 }
 
 void MainWindow::itfSetRouteCrossData(const QList<ZCHX::Data::ITF_RouteCross> &data)
 {
-    std::vector<DrawElement::RouteCross> list;
+    std::vector<RouteCross> list;
     for(int i=0; i< data.count(); ++i)
     {
         ZCHX::Data::ITF_RouteCross tmp = data.at(i);
-        DrawElement::RouteCross item(tmp);
+        RouteCross item(tmp);
         list.push_back(item);
 
     }
 
-    mMapWidget->getRouteDataMgr()->setRouteCrossData(list);
+    if(mMapWidget) mMapWidget->getRouteDataMgr()->setRouteCrossData(list);
 }
 void MainWindow::itfSetCameraVideoWarnData(const QList<ZCHX::Data::ITF_CameraVideoWarn> &data)
 {
 
-    std::vector<DrawElement::CameraVideoWarn> list;
+    std::vector<CameraVideoWarn> list;
 
     for(int i=0; i< data.size(); ++i)
     {
 
-        DrawElement::CameraVideoWarn item(data.at(i));
+        CameraVideoWarn item(data.at(i));
 
         list.push_back(item);
 
     }
 
-    mMapWidget->getCameraMgr()->setCameraVideoWarnData(list);
+    if(mMapWidget) mMapWidget->getCameraMgr()->setCameraVideoWarnData(list);
 
 }
 
 void MainWindow::itfAppendElementItem(const ZCHX::Data::ITF_EleEllipse &item)
 {
-    //mMapWidget->appendElementItem(item);
+    //if(mMapWidget) mMapWidget->appendElementItem(item);
 }
 
 void MainWindow::itfAppendElementItem(const ZCHX::Data::ITF_EleTriangle &item)
 {
-    //mMapWidget->appendElementItem(item);
+    //if(mMapWidget) mMapWidget->appendElementItem(item);
 }
 
 void MainWindow::itfAppendElementItem(const ZCHX::Data::ITF_EleLine &item)
 {
-    //mMapWidget->appendElementItem(item);
+    //if(mMapWidget) mMapWidget->appendElementItem(item);
 }
 
 void MainWindow::itfAppendElementItem(const ZCHX::Data::ITF_EleRect &item)
 {
-    //mMapWidget->appendElementItem(item);
+    //if(mMapWidget) mMapWidget->appendElementItem(item);
 }
 
-void MainWindow::itfRemoveElementItem(DrawElement::Element *pitem)
+void MainWindow::itfRemoveElementItem(Element *pitem)
 {
-    //mMapWidget->removeElementItem(pitem);
+    //if(mMapWidget) mMapWidget->removeElementItem(pitem);
 }
 
 void MainWindow::itfClearElementData()
 {
-    //mMapWidget->clearElementData();
+    //if(mMapWidget) mMapWidget->clearElementData();
 }
 
 
 void MainWindow::itfSetPickUpRadarInfo(qint32 tracknumber)
 {
-    //mMapWidget->SetPickUpRadarInfo(tracknumber);
+    //if(mMapWidget) mMapWidget->SetPickUpRadarInfo(tracknumber);
 }
 
 void MainWindow::itfSetPickUpAisInfo(QString id)
 {
-    mMapWidget->getDataMgrFactory()->getAisDataMgr()->SetPickUpAisInfo(id);
+    if(mMapWidget) mMapWidget->getDataMgrFactory()->getAisDataMgr()->SetPickUpAisInfo(id);
 }
 
 void MainWindow::itfSetPickUpPosition(QString id)
 {
-    //mMapWidget->SetPickUpPosition(id);
+    //if(mMapWidget) mMapWidget->SetPickUpPosition(id);
 }
 
 void MainWindow::itfSetPickUpRouteCross(const int id)
 {
-    //mMapWidget->SetPickUpRouteCross(id);
+    //if(mMapWidget) mMapWidget->SetPickUpRouteCross(id);
 }
 
 void MainWindow::itfSetShipSimulationExtrapolationDatas(const QList<ZCHX::Data::ITF_AIS> &DataList)
 {
-    //mMapWidget->setShipSimulationExtrapolationDatas(DataList);
+    //if(mMapWidget) mMapWidget->setShipSimulationExtrapolationDatas(DataList);
 }
 
 void MainWindow::itfSetRealTimeShipTrailDatas(const QMap<QString, QList<ZCHX::Data::ITF_AIS> > &DataList)
 {
-    //mMapWidget->setRealTimeShipTrailDatas(DataList);
+    //if(mMapWidget) mMapWidget->setRealTimeShipTrailDatas(DataList);
 }
 
 void MainWindow::itfSetRadarTailTrackList(const QList<int> &numbers)
 {
-    //mMapWidget->setRadarTailTracklist(numbers);
+    //if(mMapWidget) mMapWidget->setRadarTailTracklist(numbers);
 }
 
 void MainWindow::itfSetRouteHistogramData(const int RouteId, const QMap<int, QList<int> > &DataList)
 {
-    //mMapWidget->setRouteHistogramData(RouteId,DataList);
+    //if(mMapWidget) mMapWidget->setRouteHistogramData(RouteId,DataList);
 }
 
 void MainWindow::itfSetRealTimeFlowLineHistogramData(const QMap<int, QList<int> > &DataList)
 {
-    //mMapWidget->setRealTimeFlowLineHistogramData(DataList);
+    //if(mMapWidget) mMapWidget->setRealTimeFlowLineHistogramData(DataList);
 }
 
 void MainWindow::itfSetInTheAreaOfTrackData(const QList<QList<ZCHX::Data::LatLon> > &data)
 {
-    //mMapWidget->setInTheAreaOfTrackData(data);
+    //if(mMapWidget) mMapWidget->setInTheAreaOfTrackData(data);
 }
 
 void MainWindow::itfSetRolePrivilegeList(const QList<int> &list)
 {
 
-    //mMapWidget->setRolePrivilegeList(list);
+    //if(mMapWidget) mMapWidget->setRolePrivilegeList(list);
 }
 void MainWindow::itfSetIsHideMap(bool b)
 {
-    mMapWidget->setIsHideMap(b);
+    if(mMapWidget) mMapWidget->setIsHideMap(b);
 }
 
 void MainWindow::itfSetNavigateionging(bool b)
 {
-    mMapWidget->setIsNavigation(b);
+    if(mMapWidget) mMapWidget->setIsNavigation(b);
 }
 
 void MainWindow::itfSetIsOpenMeet(bool b)
 {
-    mMapWidget->setIsOpenMeet(b);
+    if(mMapWidget) mMapWidget->setIsOpenMeet(b);
 }
 
 void MainWindow::itfSetPuickupType(const ZCHX::Data::ECDIS_PICKUP_TYPE &type)
 {
-    mMapWidget->setCurPickupType(type);
+    if(mMapWidget) mMapWidget->setCurPickupType(type);
 }
 
 void MainWindow::itfUpdateCameraDevStatus(uint cameid, uint st)
 {
-    //mMapWidget->zchxUpdateCameraDevStatus(cameid, st);
+    //if(mMapWidget) mMapWidget->zchxUpdateCameraDevStatus(cameid, st);
 }
 void MainWindow::itfSetRadarTrackPoint(bool b)
 {
-    mMapWidget->setEnableRadarTrackPoint(b);
+    if(mMapWidget) mMapWidget->setEnableRadarTrackPoint(b);
 }
 
 void MainWindow::itfSetEnableCameraTargerTrack(bool b)
 {
-    mMapWidget->setEnableCameracombinedTrack(b);
+    if(mMapWidget) mMapWidget->setEnableCameracombinedTrack(b);
 }
 
 void MainWindow::itfSetEnableRouteHistogram(bool b)
 {
-    mMapWidget->setEnableRouteHistogram(b);
+    if(mMapWidget) mMapWidget->setEnableRouteHistogram(b);
 }
 
 void MainWindow::itfSetEnableShipTag(const QList<bool> &bList)
 {
-    //mMapWidget->SetEnableShipTag(bList);
+    //if(mMapWidget) mMapWidget->SetEnableShipTag(bList);
 }
 
 void MainWindow::itfSetEnableTooBarVisable(bool visible)
@@ -961,22 +971,22 @@ void MainWindow::itfSetEnableTooBarVisable(bool visible)
 
 void MainWindow::itfsetPluginUseModel(const ZCHX::Data::ECDIS_PLUGIN_USE_MODEL &mod)
 {
-    mMapWidget->setCurPluginUserModel(mod);
+    if(mMapWidget) mMapWidget->setCurPluginUserModel(mod);
 }
 
 void MainWindow::itfsetSelectedShip()
 {
-    //mMapWidget->setETool2DrawTrackTarget();
+    //if(mMapWidget) mMapWidget->setETool2DrawTrackTarget();
 }
 
 void MainWindow::itfsetSelectedAllTrack()
 {
-    //mMapWidget->setETool2DrawCameraTrackTarget();
+    //if(mMapWidget) mMapWidget->setETool2DrawCameraTrackTarget();
 }
 
 void MainWindow::itfsetSelectedRouteOrCross()
 {
-    //mMapWidget->setETool2DrawRouteOrCross();
+    //if(mMapWidget) mMapWidget->setETool2DrawRouteOrCross();
 }
 
 double MainWindow::itfzchxUtilToolAngle4north()
@@ -987,7 +997,7 @@ double MainWindow::itfzchxUtilToolAngle4north()
 void MainWindow::itfzchxUtilToolSetAngle4north(double ang)
 {
 //    qDebug()<<"MainWindow::itfzchxUtilToolSetAngle4north 当前角度:" << ang;
-    mMapWidget->zchxUtilToolSetAngle4north(ang);
+    if(mMapWidget) mMapWidget->zchxUtilToolSetAngle4north(ang);
 }
 
 bool MainWindow::itfzchxUtilToolPoint4CurWindow(double lat, double lon, QPointF &p)
@@ -1011,7 +1021,7 @@ uint MainWindow::itfzchxUtilToolCurZoom()
 
 void MainWindow::setMapUnit(const MapUnit &unit)
 {
-    mMapWidget->setMapUnit(unit);
+    if(mMapWidget) mMapWidget->setMapUnit(unit);
 }
 
 void MainWindow::setIsShowStatusBar(bool bShow)
@@ -1019,7 +1029,7 @@ void MainWindow::setIsShowStatusBar(bool bShow)
     statusBar()->setVisible(bShow);
 }
 
-std::shared_ptr<DrawElement::Element> MainWindow::getCurrentSelectedElement()
+std::shared_ptr<Element> MainWindow::getCurrentSelectedElement()
 {
     return mMapWidget->getCurrentSelectedElement();
 }
@@ -1042,17 +1052,17 @@ void MainWindow::itfCardMouthZoneData4id(int uuid, ZCHX::Data::tagITF_CardMouth 
 bool MainWindow::getIsAtiAdaptor() const
 {
     return true;
-    //return mMapWidget->getIsAtiAdaptor();
+    //return if(mMapWidget) mMapWidget->getIsAtiAdaptor();
 }
 
 void MainWindow::setIsAtiAdaptor(bool isAtiAdaptor)
 {
-    //mMapWidget->setIsAtiAdaptor(isAtiAdaptor);
+    //if(mMapWidget) mMapWidget->setIsAtiAdaptor(isAtiAdaptor);
 }
 
 void MainWindow::setUseRightKey(bool bUseRightKey)
 {
-    mMapWidget->setUseRightKey(bUseRightKey);
+    if(mMapWidget) mMapWidget->setUseRightKey(bUseRightKey);
 }
 
 
@@ -1069,7 +1079,7 @@ void MainWindow::closeEvent(QCloseEvent * e)
  */
 void MainWindow::OnMeasureAreaAction()
 {
-    //mMapWidget->setETool2DrawArea();
+    //if(mMapWidget) mMapWidget->setETool2DrawArea();
 }
 
 /**
@@ -1079,303 +1089,303 @@ void MainWindow::OnMeasureAreaAction()
  */
 void MainWindow::OnDirAngleAction()
 {
-    //mMapWidget->setETool2DrawDirAngle();
+    //if(mMapWidget) mMapWidget->setETool2DrawDirAngle();
 }
 
 void MainWindow::OnDistantcAction()
 {
-    //mMapWidget->setETool2DrawDistance();
+    //if(mMapWidget) mMapWidget->setETool2DrawDistance();
 }
 
 void MainWindow::OnExitEToolAction()
 {
-    //mMapWidget->releaseDrawStatus();
+    //if(mMapWidget) mMapWidget->releaseDrawStatus();
 }
 
 void MainWindow::OnWarringZONEAction()
 {
-    //mMapWidget->setETool2DrawZONE();
+    //if(mMapWidget) mMapWidget->setETool2DrawZONE();
 }
 
 void MainWindow::OnWarringZONESelected()
 {
-    //mMapWidget->setETool2SelectZONE();
+    //if(mMapWidget) mMapWidget->setETool2SelectZONE();
 }
 
 void MainWindow::OnWarringZONEmove()
 {
-    //mMapWidget->setETool2moveZONE();
+    //if(mMapWidget) mMapWidget->setETool2moveZONE();
 }
 
 void MainWindow::OnWarringZONEmoveCtrlPoint()
 {
-    //mMapWidget->setETool2ctrlZONE();
+    //if(mMapWidget) mMapWidget->setETool2ctrlZONE();
 }
 
 void MainWindow::OnWarringZONEDelCtrlPoint()
 {
-    //mMapWidget->setETool2delCtrlZONE();
+    //if(mMapWidget) mMapWidget->setETool2delCtrlZONE();
 }
 
 void MainWindow::OnWarringZONEAddCtrlPoint()
 {
-    //mMapWidget->setETool2addCtrlZONE();
+    //if(mMapWidget) mMapWidget->setETool2addCtrlZONE();
 }
 
 void MainWindow::OnCoastDataLineAdd()
 {
-    //mMapWidget->setETool2Draw4CoastDataLine();
+    //if(mMapWidget) mMapWidget->setETool2Draw4CoastDataLine();
 }
 
 void MainWindow::OnSeabedPipeLineLineAdd()
 {
-    //mMapWidget->setETool2Draw4SeabedPipeLineLine();
+    //if(mMapWidget) mMapWidget->setETool2Draw4SeabedPipeLineLine();
 }
 
 void MainWindow::OnStructurePointAdd()
 {
-    //mMapWidget->setETool2Draw4StructurePoint();
+    //if(mMapWidget) mMapWidget->setETool2Draw4StructurePoint();
 }
 
 void MainWindow::OnAreaNetZoneAdd()
 {
-    //mMapWidget->setETool2Draw4AreaNetZone();
+    //if(mMapWidget) mMapWidget->setETool2Draw4AreaNetZone();
 }
 
 void MainWindow::OnChannelAreaAdd()
 {
-    //mMapWidget->setETool2Draw4ChannelArea();
+    //if(mMapWidget) mMapWidget->setETool2Draw4ChannelArea();
 }
 
 void MainWindow::OnChannelZONESelected()
 {
-    //mMapWidget->setETool2SelectChannel();
+    //if(mMapWidget) mMapWidget->setETool2SelectChannel();
 }
 
 void MainWindow::OnChannelZONEMove()
 {
-    //mMapWidget->setETool2moveChannel();
+    //if(mMapWidget) mMapWidget->setETool2moveChannel();
 }
 
 void MainWindow::OnChannelZONEMoveCtrlPoint()
 {
-    //mMapWidget->setETool2ctrlChannel();
+    //if(mMapWidget) mMapWidget->setETool2ctrlChannel();
 }
 
 void MainWindow::OnChannelZONEDelCtrlPoint()
 {
-    //mMapWidget->setETool2delCtrlChannel();
+    //if(mMapWidget) mMapWidget->setETool2delCtrlChannel();
 }
 
 void MainWindow::OnChannelZONEAddCtrlPoint()
 {
-    //mMapWidget->setETool2addCtrlChannel();
+    //if(mMapWidget) mMapWidget->setETool2addCtrlChannel();
 }
 
 void MainWindow::OnMooringAreaAdd()
 {
-    //mMapWidget->setETool2Draw4MooringArea();
+    //if(mMapWidget) mMapWidget->setETool2Draw4MooringArea();
 }
 
 void MainWindow::OnMooringZONESelected()
 {
-    //mMapWidget->setETool2SelectMooring();
+    //if(mMapWidget) mMapWidget->setETool2SelectMooring();
 }
 
 void MainWindow::OnMooringZONEMove()
 {
-    //mMapWidget->setETool2moveMooring();
+    //if(mMapWidget) mMapWidget->setETool2moveMooring();
 }
 
 void MainWindow::OnMooringZONEMoveCtrlPoint()
 {
-    //mMapWidget->setETool2ctrlMooring();
+    //if(mMapWidget) mMapWidget->setETool2ctrlMooring();
 }
 
 void MainWindow::OnMooringZONEDelCtrlPoint()
 {
-    //mMapWidget->setETool2delCtrlMooring();
+    //if(mMapWidget) mMapWidget->setETool2delCtrlMooring();
 }
 
 void MainWindow::OnMooringZONEAddCtrlPoint()
 {
-    //mMapWidget->setETool2addCtrlMooring();
+    //if(mMapWidget) mMapWidget->setETool2addCtrlMooring();
 }
 
 void MainWindow::OnCardMouthAreaAdd()
 {
-    //mMapWidget->setETool2Draw4CardMouthArea();
+    //if(mMapWidget) mMapWidget->setETool2Draw4CardMouthArea();
 }
 
 void MainWindow::OnCardMouthZONESelected()
 {
-    //mMapWidget->setETool2SelectCardMouth();
+    //if(mMapWidget) mMapWidget->setETool2SelectCardMouth();
 }
 
 void MainWindow::OnCardMouthZONEMove()
 {
-    //mMapWidget->setETool2moveCardMouth();
+    //if(mMapWidget) mMapWidget->setETool2moveCardMouth();
 }
 
 void MainWindow::OnCardMouthZONEMoveCtrlPoint()
 {
-    //mMapWidget->setETool2ctrlCardMouth();
+    //if(mMapWidget) mMapWidget->setETool2ctrlCardMouth();
 }
 
 void MainWindow::OnCardMouthZONEDelCtrlPoint()
 {
-    //mMapWidget->setETool2delCtrlCardMouth();
+    //if(mMapWidget) mMapWidget->setETool2delCtrlCardMouth();
 }
 
 void MainWindow::OnCardMouthZONEAddCtrlPoint()
 {
-    //mMapWidget->setETool2addCtrlCardMouth();
+    //if(mMapWidget) mMapWidget->setETool2addCtrlCardMouth();
 }
 
 void MainWindow::OnIslandLineAdd()
 {
-    //mMapWidget->setETool2Draw4IslandLine();
+    //if(mMapWidget) mMapWidget->setETool2Draw4IslandLine();
 }
 
 void MainWindow::OnIslandLineSelected()
 {
-    //mMapWidget->setETool2Select4IslandLine();
+    //if(mMapWidget) mMapWidget->setETool2Select4IslandLine();
 }
 
 void MainWindow::OnIslandLineMove()
 {
-    //mMapWidget->setETool2move4IslandLine();
+    //if(mMapWidget) mMapWidget->setETool2move4IslandLine();
 }
 
 void MainWindow::OnIslandLineMoveCtrlPoint()
 {
-    //mMapWidget->setETool2moveCtrlPoint4IslandLine();
+    //if(mMapWidget) mMapWidget->setETool2moveCtrlPoint4IslandLine();
 }
 
 void MainWindow::OnIslandLineDelCtrlPoint()
 {
-    //mMapWidget->setETool2delCtrlPoint4IslandLine();
+    //if(mMapWidget) mMapWidget->setETool2delCtrlPoint4IslandLine();
 }
 
 void MainWindow::OnIslandLineAddCtrlPoint()
 {
-    //mMapWidget->setETool2addCtrlPoint4IslandLine();
+    //if(mMapWidget) mMapWidget->setETool2addCtrlPoint4IslandLine();
 }
 
 void MainWindow::itfToolBarShipPlanLineAdd()
 {
-    //mMapWidget->setETool2DrawShipPlanLine();
+    //if(mMapWidget) mMapWidget->setETool2DrawShipPlanLine();
 }
 
 void MainWindow::itfToolBarShipPlanLineSelected()
 {
-     //mMapWidget->setETool2SelectShipPlanLine();
+     //if(mMapWidget) mMapWidget->setETool2SelectShipPlanLine();
 }
 
 void MainWindow::itfToolBarShipPlanLineInsertCtrlPoint()
 {
-    //mMapWidget->setETool2insertCtrlPointShipPlanLine();
+    //if(mMapWidget) mMapWidget->setETool2insertCtrlPointShipPlanLine();
 }
 
 void MainWindow::itfToolBarShipPlanLineMoveCtrlPoint()
 {
-    //mMapWidget->setETool2moveCtrlPointShipPlanLine();
+    //if(mMapWidget) mMapWidget->setETool2moveCtrlPointShipPlanLine();
 }
 
 void MainWindow::itfToolBarShipPlanLineDelCtrlPoint()
 {
-    //mMapWidget->setETool2delCtrlPointShipPlanLine();
+    //if(mMapWidget) mMapWidget->setETool2delCtrlPointShipPlanLine();
 }
 
 void MainWindow::itfToolBarShipPlanLineAddCtrlPoint()
 {
-    //mMapWidget->setETool2addCtrlPointShipPlanLine();
+    //if(mMapWidget) mMapWidget->setETool2addCtrlPointShipPlanLine();
 }
 
 void MainWindow::itfSetShipPlanWaterDepth(QList<ZCHX::Data::ITF_WaterDepth> &WaterData)
 {
-    //mMapWidget->setShipPlanWaterDepth(WaterData);
+    //if(mMapWidget) mMapWidget->setShipPlanWaterDepth(WaterData);
 }
 
 void MainWindow::itfSetHistoryTrackStyle(const QString &color, const int lineWidth)
 {
-   //mMapWidget->setHistoryTrackStyle(color, lineWidth);
+   //if(mMapWidget) mMapWidget->setHistoryTrackStyle(color, lineWidth);
 }
 
 void MainWindow::itfSetPrepushTrackStyle(const QString &color, const int lineWidth)
 {
-    //mMapWidget->setPrepushTrackStyle(color, lineWidth);
+    //if(mMapWidget) mMapWidget->setPrepushTrackStyle(color, lineWidth);
 }
 
 void MainWindow::itfSetMapUnit(const MapUnit& uint)
 {
-    mMapWidget->setMapUnit(uint);
+    if(mMapWidget) mMapWidget->setMapUnit(uint);
 }
 
 void MainWindow::OnPickupAction()
 {
-    mMapWidget->setETool2DrawPickup();
-    mMapWidget->setCurPickupType(ZCHX::Data::ECDIS_PICKUP_ALL);
+    if(mMapWidget) mMapWidget->setETool2DrawPickup();
+    if(mMapWidget) mMapWidget->setCurPickupType(ZCHX::Data::ECDIS_PICKUP_ALL);
 }
 
 void MainWindow::OnShowAllAction()
 {
-    //mMapWidget->ShowAll();
+    //if(mMapWidget) mMapWidget->ShowAll();
 }
 
 void MainWindow::OnLocalMarkAction()
 {
-    //mMapWidget->setETool2DrawLocalMark();
+    //if(mMapWidget) mMapWidget->setETool2DrawLocalMark();
 }
 
 void MainWindow::OnGpsAction()
 {
-    //mMapWidget->setETool2DrawGps();
+    //if(mMapWidget) mMapWidget->setETool2DrawGps();
 }
 
 void MainWindow::OnSelBaseDisplayStyle()
 {
-    //mMapWidget->setMapStyle(MapStyleBase);
+    //if(mMapWidget) mMapWidget->setMapStyle(MapStyleBase);
 }
 
 void MainWindow::OnSelStandardDisplayStyle()
 {
-    //mMapWidget->SetMapStyle(MapStyleStandard);
+    //if(mMapWidget) mMapWidget->SetMapStyle(MapStyleStandard);
 }
 
 void MainWindow::OnSelAllDisplayStyle()
 {
-    //mMapWidget->SetMapStyle(MapStyleAll);
+    //if(mMapWidget) mMapWidget->SetMapStyle(MapStyleAll);
 }
 
 void MainWindow::OnSelDayBlackBackDisplyStyle()
 {
-    mMapWidget->setMapStyle(MapStyleEcdisDayBlackBack);
+    if(mMapWidget) mMapWidget->setMapStyle(MapStyleEcdisDayBlackBack);
 }
 
 void MainWindow::OnSelNightDisplyStyle()
 {
-     mMapWidget->setMapStyle(MapStyleEcdisNight);
+     if(mMapWidget) mMapWidget->setMapStyle(MapStyleEcdisNight);
 }
 
 void MainWindow::OnSelDayDUSKDisplyStyle()
 {
-     mMapWidget->setMapStyle(MapStyleEcdisDayDUSK);
+     if(mMapWidget) mMapWidget->setMapStyle(MapStyleEcdisDayDUSK);
 }
 
 void MainWindow::OnSelDayWhiteBackDisplyStyle()
 {
-     mMapWidget->setMapStyle(MapStyleEcdisDayWhiteBack);
+     if(mMapWidget) mMapWidget->setMapStyle(MapStyleEcdisDayWhiteBack);
 }
 
 void MainWindow::OnSelDayBrightDisplyStyle()
 {
-     mMapWidget->setMapStyle(MapStyleEcdisDayBright);
+     if(mMapWidget) mMapWidget->setMapStyle(MapStyleEcdisDayBright);
 }
 
 void MainWindow::OnZONESelected()
 {
-    //mMapWidget->setETool2SelectCommonZONE();
+    //if(mMapWidget) mMapWidget->setETool2SelectCommonZONE();
 }
 
 void MainWindow::OnSetMapAngle(double angle)
@@ -1385,72 +1395,72 @@ void MainWindow::OnSetMapAngle(double angle)
 
 void MainWindow::setMapCenterAndZoom(double lat, double lon, int zoom)
 {
-    mMapWidget->setCenterAndZoom(LatLon(lat, lon), zoom);
+    if(mMapWidget) mMapWidget->setCenterAndZoom(LatLon(lat, lon), zoom);
 }
 
 void MainWindow::setMapCenterAndRotate(double lat, double lon, double ang)
 {
-    mMapWidget->setMapRotateAtLL(lat, lon, ang * 180 / GLOB_PI);
+    if(mMapWidget) mMapWidget->setMapRotateAtLL(lat, lon, ang * 180 / GLOB_PI);
 }
 
 void MainWindow::setMapCenterAndRotate_new(double lat, double lon, double ang)
 {
-    mMapWidget->setMapRotateAtLL(lat, lon, ang);
+    if(mMapWidget) mMapWidget->setMapRotateAtLL(lat, lon, ang);
 }
 
 void MainWindow::resetMapRotate(double lat, double lon)
 {
-    mMapWidget->resetMapRotate(lat,lon);
+    if(mMapWidget) mMapWidget->resetMapRotate(lat,lon);
 }
 
 void MainWindow::setMapCenter(double lat, double lon)
 {
-    mMapWidget->setCenterAndZoom(LatLon(lat, lon), -1);
+    if(mMapWidget) mMapWidget->setCenterAndZoom(LatLon(lat, lon), -1);
 }
 
 void MainWindow::resetMap()
 {
-    mMapWidget->reset();
+    if(mMapWidget) mMapWidget->reset();
 }
 
 void MainWindow::zchxSetStyleAutoChange(bool val)
 {
-    mMapWidget->setStyleAutoChange(val);
+    if(mMapWidget) mMapWidget->setStyleAutoChange(val);
 }
 
 void MainWindow::zchxSetGISDayBrightTime(const QTime &t)
 {
-    mMapWidget->setGISDayBrightTime(t);
+    if(mMapWidget) mMapWidget->setGISDayBrightTime(t);
 }
 
 void MainWindow::zchxSetGISDuskTime(const QTime &t)
 {
-    mMapWidget->setGISDuskTime(t);
+    if(mMapWidget) mMapWidget->setGISDuskTime(t);
 }
 
 void MainWindow::zchxSetGISNightTime(const QTime &t)
 {
-    mMapWidget->setGISNightTime(t);
+    if(mMapWidget) mMapWidget->setGISNightTime(t);
 }
 
 void MainWindow::zchxClearAisData(qint64 cTime, uint sec)
 {
-    //mMapWidget->clearAisData(cTime, sec);
+    //if(mMapWidget) mMapWidget->clearAisData(cTime, sec);
 }
 
 void MainWindow::itfzchxUtilToolCameraRodFocus(uint cameid, int tag)
 {
-    //mMapWidget->zchxCameraRodFocus(cameid,tag);
+    //if(mMapWidget) mMapWidget->zchxCameraRodFocus(cameid,tag);
 }
 
 void MainWindow::itfToolBarZoomIn()
 {
-    //mMapWidget->ScalePlus();
+    //if(mMapWidget) mMapWidget->ScalePlus();
 }
 
 void MainWindow::itfToolBarZoomOut()
 {
-    //mMapWidget->ScaleMinus();
+    //if(mMapWidget) mMapWidget->ScaleMinus();
 }
 
 void MainWindow::itfToolBarRoam()
@@ -1660,17 +1670,17 @@ void MainWindow::itfToolBarLocalMark()
 
 void MainWindow::itfToolBarSelectAnRegion()
 {
-    //mMapWidget->selectAnRegion();
+    //if(mMapWidget) mMapWidget->selectAnRegion();
 }
 
 void MainWindow::itfToolBarLocationMark()
 {
-    //mMapWidget->setLocationMark();
+    //if(mMapWidget) mMapWidget->setLocationMark();
 }
 
 void MainWindow::itfToolBarFixedReferencePoint()
 {
-    //mMapWidget->setFixedReferencePoint();
+    //if(mMapWidget) mMapWidget->setFixedReferencePoint();
 }
 
 void MainWindow::itfToolBarZONESelected()
@@ -1680,7 +1690,7 @@ void MainWindow::itfToolBarZONESelected()
 
 void MainWindow::itfToolBarDrawRadarArea()
 {
-    //mMapWidget->setETool2DrawRadarZONE();
+    //if(mMapWidget) mMapWidget->setETool2DrawRadarZONE();
 }
 void MainWindow::itfToolBarGps()
 {
@@ -1756,41 +1766,41 @@ void MainWindow::iftSetElementFlashStep(int step)
 
 void MainWindow::iftSetIsWarningType(bool bWarningType)
 {
-    //mMapWidget->setIsWarningType(bWarningType);
+    //if(mMapWidget) mMapWidget->setIsWarningType(bWarningType);
 }
 
-void MainWindow::itfAddLayer(std::shared_ptr<zchxMapLayer> layer, std::shared_ptr<zchxMapLayer> parent)
+void MainWindow::itfAddLayer(std::shared_ptr<MapLayer> layer, std::shared_ptr<MapLayer> parent)
 {
-    zchxMapLayerMgr *mgr = mMapWidget->getMapLayerMgr();
+    MapLayerMgr *mgr = mMapWidget->getMapLayerMgr();
     if(!mgr) return;
     mgr->addLayer(layer, parent);
 }
 
 bool MainWindow::itfContainsLayer(const QString &type) const
 {
-    zchxMapLayerMgr *mgr = mMapWidget->getMapLayerMgr();
+    MapLayerMgr *mgr = mMapWidget->getMapLayerMgr();
     if(!mgr) return false;
     return mgr->containsLayer(type);
 }
 
 QStringList MainWindow::itfGetLayerList() const
 {
-    zchxMapLayerMgr *mgr = mMapWidget->getMapLayerMgr();
+    MapLayerMgr *mgr = mMapWidget->getMapLayerMgr();
     if(!mgr) return QStringList();
     return mgr->getLayerList();
 }
 
-std::shared_ptr<zchxMapLayer> MainWindow::itfGetLayer(const QString &type)
+std::shared_ptr<MapLayer> MainWindow::itfGetLayer(const QString &type)
 {
-    zchxMapLayerMgr *mgr = mMapWidget->getMapLayerMgr();
+    MapLayerMgr *mgr = mMapWidget->getMapLayerMgr();
     if(!mgr) return 0;
     return mgr->getLayer(type);
 }
 
-const std::list<std::shared_ptr<zchxMapLayer> > &MainWindow::itfGetLayerTree()
+const std::list<std::shared_ptr<MapLayer> > &MainWindow::itfGetLayerTree()
 {
-    zchxMapLayerMgr *mgr = mMapWidget->getMapLayerMgr();
-    if(!mgr) return std::list<std::shared_ptr<zchxMapLayer> >();
+    MapLayerMgr *mgr = mMapWidget->getMapLayerMgr();
+    if(!mgr) return std::list<std::shared_ptr<MapLayer> >();
     return mgr->getLayerTree();
 }
 
@@ -1821,66 +1831,67 @@ void MainWindow::itfClearGPSData()
 
 void MainWindow::setCurrentProjectID(int id)
 {
-    //mMapWidget->setCurrentProjectID(id);
+    //if(mMapWidget) mMapWidget->setCurrentProjectID(id);
 }
 
 void MainWindow::itfSetCableBaseDataList(const QList<ZCHX::Data::CableBaseData> &list)
 {
-    mMapWidget->setCableBaseDataList(list);
+    if(mMapWidget) mMapWidget->setCableBaseDataList(list);
 }
 
 void MainWindow::itfSetCableInterfaceDataList(const QList<ZCHX::Data::CableInterfaceData> &list)
 {
-    mMapWidget->setCableInterfaceDataList(list);
+    if(mMapWidget) mMapWidget->setCableInterfaceDataList(list);
 }
 
 void MainWindow::itfSetDisplayRouteIndex(bool display)
 {
-    mMapWidget->setDisplayRouteIndex(display);
+    if(mMapWidget) mMapWidget->setDisplayRouteIndex(display);
 }
 
 void MainWindow::itfSetDisplayRouteAc(bool display)
 {
-    mMapWidget->setDisplayRouteAc(display);
+    if(mMapWidget) mMapWidget->setDisplayRouteAc(display);
 }
 
 void MainWindow::itfAppendFocusAis(const QStringList &list)
 {
-    //mMapWidget->appendFocusAis(list);
+    //if(mMapWidget) mMapWidget->appendFocusAis(list);
 }
 
 void MainWindow::itfRemoveFocusAis(const QStringList &list)
 {
-    //mMapWidget->removeFocusAis(list);
+    //if(mMapWidget) mMapWidget->removeFocusAis(list);
 }
 
 void MainWindow::itfAppendFocusRadar(const QList<int>& list)
 {
-    //mMapWidget->appendFocusRadarPoint(list);
+    //if(mMapWidget) mMapWidget->appendFocusRadarPoint(list);
 }
 
 void MainWindow::itfRemoveFocusRadar(const QList<int>& list)
 {
-    //mMapWidget->removeFocusRadarPoint(list);
+    //if(mMapWidget) mMapWidget->removeFocusRadarPoint(list);
 }
 
 void MainWindow::itfToolBarCameraNetGridAdd(const QSizeF& size, const QString& camera)
 {
-    //mMapWidget->setETool2DrawCameraNetGrid(size, camera);
+    //if(mMapWidget) mMapWidget->setETool2DrawCameraNetGrid(size, camera);
 }
 
 void MainWindow::itfSetCameraNetGridList(const QList<ZCHX::Data::ITF_CameraNetGrid> & list)
 {
-    //mMapWidget->setCameraNetGridList(list);
+    //if(mMapWidget) mMapWidget->setCameraNetGridList(list);
 }
 
 void MainWindow::itfAppendItemDataMgr(std::shared_ptr<zchxEcdisDataMgr> mgr)
 {
-    mMapWidget->getDataMgrFactory()->appendDataMgr(mgr);
+    if(mMapWidget) mMapWidget->getDataMgrFactory()->appendDataMgr(mgr);
 }
 
 void MainWindow::itfRemoveItemDataMgr(std::shared_ptr<zchxEcdisDataMgr> mgr)
 {
-    mMapWidget->getDataMgrFactory()->removeDataMgr(mgr);
+    if(mMapWidget) mMapWidget->getDataMgrFactory()->removeDataMgr(mgr);
+}
 }
 

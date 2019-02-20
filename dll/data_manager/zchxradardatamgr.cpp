@@ -1,10 +1,11 @@
 #include "zchxradardatamgr.h"
 #include "zchxmapframe.h"
 
+namespace qt {
 zchxRadarDataMgr::zchxRadarDataMgr(zchxMapWidget* w, QObject *parent) : zchxEcdisDataMgr(w, ZCHX_DATA_MGR_RADAR, parent)
 {
-    mMaxConcernNum = zchxEcdis::Profiles::instance()->value(RADAR_DISPLAY_SETTING, RADAR_CONCERN_NUM, 10).toInt();
-    mMaxTailTrackNum = zchxEcdis::Profiles::instance()->value(RADAR_DISPLAY_SETTING, RADAR_TAILTRACK_NUM, 10).toInt();
+    mMaxConcernNum = Profiles::instance()->value(RADAR_DISPLAY_SETTING, RADAR_CONCERN_NUM, 10).toInt();
+    mMaxTailTrackNum = Profiles::instance()->value(RADAR_DISPLAY_SETTING, RADAR_TAILTRACK_NUM, 10).toInt();
 }
 
 void zchxRadarDataMgr::removeTrack(const QString &id)
@@ -29,10 +30,10 @@ void zchxRadarDataMgr::show(QPainter *painter)
     if(!mDisplayWidget || !mDisplayWidget->getMapLayerMgr()) return;
     if(!mDisplayWidget->getMapLayerMgr()->isLayerVisible(ZCHX::LAYER_RADAR)) return;
     QMutexLocker locker(&mDataMutex);
-    QMap<QString, std::shared_ptr<DrawElement::RadarPointElement>>::iterator it = m_RadarPoint.begin();
+    QMap<QString, std::shared_ptr<RadarPointElement>>::iterator it = m_RadarPoint.begin();
     for(; it != m_RadarPoint.end(); ++it)
     {
-        std::shared_ptr<DrawElement::RadarPointElement> item = it.value();
+        std::shared_ptr<RadarPointElement> item = it.value();
         if(mDisplayWidget->getMapLayerMgr()->isLayerVisible(ZCHX::LAYER_RADAR_CURRENT))
         {
             item->setIsOpenMeet(mDisplayWidget->getIsOpenMeet());
@@ -70,7 +71,7 @@ void zchxRadarDataMgr::setRadarPointData(const QList<ZCHX::Data::ITF_RadarPoint>
             //取消原来数据的关注和尾迹
             removeConcern(trackID);
             removeTrack(trackID);
-            std::shared_ptr<DrawElement::RadarPointElement> item = m_RadarPoint.value(trackID, 0);
+            std::shared_ptr<RadarPointElement> item = m_RadarPoint.value(trackID, 0);
             if(item) item.reset();
             //删除对应的实时数据
             m_RadarPoint.remove(trackID);
@@ -82,9 +83,9 @@ void zchxRadarDataMgr::setRadarPointData(const QList<ZCHX::Data::ITF_RadarPoint>
     {
         //更新item对应的数据
         QString id = QString::number(aisdata.trackNumber);
-        std::shared_ptr<DrawElement::RadarPointElement> item = m_RadarPoint.value(id, 0);
+        std::shared_ptr<RadarPointElement> item = m_RadarPoint.value(id, 0);
         if(!item) {
-            item = std::shared_ptr<DrawElement::RadarPointElement>(new DrawElement::RadarPointElement(aisdata));
+            item = std::shared_ptr<RadarPointElement>(new RadarPointElement(aisdata));
             item->setFrameWork(mDisplayWidget->framework());
         } else {
             item->setData(aisdata);
@@ -109,7 +110,7 @@ void zchxRadarDataMgr::setRadarPointData(const QList<ZCHX::Data::ITF_RadarPoint>
 #if 0
     if (m_bCameraTargerTrack &&m_cameraTrackTarget.type == 1)
     {
-        DrawElement::AisElement *item = m_aisMap.value(m_cameraTrackTarget.id, NULL);
+        AisElement *item = m_aisMap.value(m_cameraTrackTarget.id, NULL);
         if(item)
         {
                 m_cameraTrackTarget.id = item->getStrID(); //设置当前选中的船舶的
@@ -135,17 +136,17 @@ bool zchxRadarDataMgr::updateActiveItem(const QPoint &pt)
 }
 
 
-void zchxRadarDataMgr::setRadarAreaData(const std::vector<DrawElement::RadarAreaElement> &data)
+void zchxRadarDataMgr::setRadarAreaData(const std::vector<RadarAreaElement> &data)
 {
     m_RadarArea = data;
 }
 
-void zchxRadarDataMgr::setRadarFeatureZoneData(const std::vector<DrawElement::RadarFeatureZone> &data)
+void zchxRadarDataMgr::setRadarFeatureZoneData(const std::vector<RadarFeatureZone> &data)
 {
     m_radarFeatureZone = data;
 }
 
-void zchxRadarDataMgr::setHistoryRadarPointData(const std::vector<DrawElement::RadarPointElement> &data)
+void zchxRadarDataMgr::setHistoryRadarPointData(const std::vector<RadarPointElement> &data)
 {
     //存储上一次雷达的转向(绘制雷达的当前转向)
     m_pRadarPointHistory.clear();
@@ -153,7 +154,7 @@ void zchxRadarDataMgr::setHistoryRadarPointData(const std::vector<DrawElement::R
     {
         for(int i=0; i < m_HistoryRadarPoint.size(); ++i)
         {
-            DrawElement::RadarPointElement &item  = m_HistoryRadarPoint[i];
+            RadarPointElement &item  = m_HistoryRadarPoint[i];
             double point = item.getData().cog;
             int radar_number = item.getData().trackNumber;
             m_pRadarPointHistory.insert(radar_number, point);
@@ -167,10 +168,10 @@ void zchxRadarDataMgr::setHistoryRadarPointData(const std::vector<DrawElement::R
         if(m_cameraTrackTarget.type == 2) // 上次数据为雷达
         {
             bool isFind = false;
-            DrawElement::RadarPoint *pRadarPointItem = NULL;
+            RadarPoint *pRadarPointItem = NULL;
             for(int i=0; i< m_HistoryRadarPoint.size(); ++i)
             {
-                DrawElement::RadarPoint &item = m_HistoryRadarPoint[i];
+                RadarPoint &item = m_HistoryRadarPoint[i];
                 pRadarPointItem = &item;
                 if(pRadarPointItem)
                 {
@@ -209,7 +210,7 @@ void zchxRadarDataMgr::setHistoryRadarPointData(const std::vector<DrawElement::R
     }
     for(int i=0; i < m_HistoryRadarPoint.size(); ++i)
     {
-        DrawElement::RadarPoint &item  = m_HistoryRadarPoint[i];
+        RadarPoint &item  = m_HistoryRadarPoint[i];
         const ZCHX::Data::ITF_RadarPoint& point = item.getData();
         if(point.trackNumber == trackNumber)
         {
@@ -223,4 +224,5 @@ void zchxRadarDataMgr::setHistoryRadarPointData(const std::vector<DrawElement::R
         }
     }
 #endif
+}
 }

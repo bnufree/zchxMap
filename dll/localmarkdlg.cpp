@@ -3,6 +3,7 @@
 
 #include<QMessageBox>
 
+namespace qt {
 LocalMarkDlg::LocalMarkDlg(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::LocalMarkDlg)
@@ -47,4 +48,5 @@ void LocalMarkDlg::onSetApplyBtnClicked()
     localMarkData.localName = localMarkName;
     localMarkData.ll = {ui->latLedt->text().trimmed().toDouble(),ui->lonLedt->text().trimmed().toDouble()};
     accept();
+}
 }

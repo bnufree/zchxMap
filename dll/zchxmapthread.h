@@ -7,6 +7,7 @@
 #include <QMutex>
 #include "zchxMapDataUtils.h"
 
+namespace qt {
 struct MapBounds{
     double     min_x;
     double     min_y;
@@ -73,5 +74,6 @@ private:
     QMutex                  mMutex;
     QList<QThread*>         mWorkThreadList;
 };
+}
 
 #endif // ZCHXMAPTHREAD_H

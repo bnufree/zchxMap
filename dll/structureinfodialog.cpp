@@ -1,6 +1,7 @@
 #include "structureinfodialog.h"
 #include "ui_structureinfodialog.h"
 
+namespace qt {
 StructureInfoDialog::StructureInfoDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::StructureInfoDialog)
@@ -36,4 +37,5 @@ void StructureInfoDialog::on_comfirmButton_clicked()
 void StructureInfoDialog::on_cancelButton_clicked()
 {
     reject();
+}
 }

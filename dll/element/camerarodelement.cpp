@@ -1,7 +1,7 @@
 #include "camerarodelement.h"
 #include "zchxmapframe.h"
 
-namespace DrawElement
+namespace qt
 {
 CameraRodElement::CameraRodElement(const ZCHX::Data::ITF_CameraRod &data)
     :Element(data.nLatLon.lat,data.nLatLon.lon)

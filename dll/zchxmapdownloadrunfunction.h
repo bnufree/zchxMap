@@ -4,6 +4,7 @@
 #include <QRunnable>
 #include <QObject>
 
+namespace qt {
 struct zchxMapRange{
     double bottemLat;
     double bottemLon;    
@@ -32,5 +33,6 @@ private:
     int mZoom;
     zchxMapRange mRange;
 };
+}
 
 #endif // ZCHXMAPDOWNLOADRUNFUNCTION_H

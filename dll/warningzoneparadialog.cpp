@@ -2,6 +2,7 @@
 #include "warningzoneparadialog.h"
 #include "ui_warningzoneparadialog.h"
 
+namespace qt {
 WarningZoneParaDialog::WarningZoneParaDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::WarningZoneParaDialog)
@@ -149,4 +150,5 @@ void WarningZoneParaDialog::on_OtherradioButton_clicked()
         ui->type_1_RButton->setEnabled(false);
         ui->type_2_RButton->setEnabled(false);
     }
+}
 }

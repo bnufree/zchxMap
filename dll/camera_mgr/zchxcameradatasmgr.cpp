@@ -4,13 +4,14 @@
 #include "zchxmapframe.h"
 #include <QDebug>
 
+namespace qt {
 zchxCameraDatasMgr::zchxCameraDatasMgr(zchxMapWidget* w,  QObject *parent) : QObject(parent),
     mDisplayWidget(w)
 {
 
 }
 
-void zchxCameraDatasMgr::setCameraRodData(const std::vector<DrawElement::CameraRodElement> &data)
+void zchxCameraDatasMgr::setCameraRodData(const std::vector<CameraRodElement> &data)
 {
     m_CameraRod = data;
 
@@ -21,14 +22,14 @@ void zchxCameraDatasMgr::updateAllCameraRodStatus()
 {
     for(uint i = 0; i < m_CameraRod.size(); ++i)
     {
-        DrawElement::CameraRodElement *rod = &m_CameraRod[i];
+        CameraRodElement *rod = &m_CameraRod[i];
         checkCameraRodStatus(rod);
     }
 }
 
 void zchxCameraDatasMgr::zchxUpdateCameraRodStatus(uint uuid)
 {
-    DrawElement::CameraRodElement *rod = getCameraRod(uuid);
+    CameraRodElement *rod = getCameraRod(uuid);
     if(!rod)
         return;
 
@@ -36,11 +37,11 @@ void zchxCameraDatasMgr::zchxUpdateCameraRodStatus(uint uuid)
     //    update();
 }
 
-DrawElement::CameraRodElement *zchxCameraDatasMgr::getCameraRod(uint uuid)
+CameraRodElement *zchxCameraDatasMgr::getCameraRod(uint uuid)
 {
     for(int i= 0; i< m_CameraRod.size();++i)
     {
-        DrawElement::CameraRodElement *item = &m_CameraRod[i];
+        CameraRodElement *item = &m_CameraRod[i];
         if(item->getUuid() == uuid)
         {
             return item;
@@ -51,15 +52,15 @@ DrawElement::CameraRodElement *zchxCameraDatasMgr::getCameraRod(uint uuid)
 
 void zchxCameraDatasMgr::showCameraRod(QPainter *painter)
 {
-    std::vector<DrawElement::CameraRodElement>::iterator it;
+    std::vector<CameraRodElement>::iterator it;
     for(it = m_CameraRod.begin(); it != m_CameraRod.end(); ++it)
     {
-        DrawElement::CameraRodElement item = (*it);
+        CameraRodElement item = (*it);
         item.drawElement(painter);
     }
 }
 
-ZCHX::Data::CAMERAROD_STATUS zchxCameraDatasMgr::checkCameraRodStatus(DrawElement::CameraRodElement *item)
+ZCHX::Data::CAMERAROD_STATUS zchxCameraDatasMgr::checkCameraRodStatus(CameraRodElement *item)
 {
     if(!item)
         return ZCHX::Data::CAMERAROD_ERROR;
@@ -69,7 +70,7 @@ ZCHX::Data::CAMERAROD_STATUS zchxCameraDatasMgr::checkCameraRodStatus(DrawElemen
     int carmeDevNum = 0;
 
     //检查相机状态
-    for(const DrawElement::CameraElement &camera : m_CameraDev)
+    for(const CameraElement &camera : m_CameraDev)
     {
         if( ZCHX::Data::CAMERA_GDY  ==  camera.getType())
             continue;
@@ -136,7 +137,7 @@ void zchxCameraDatasMgr::updateIPCastDeviceList(std::list<std::shared_ptr<ZCHX::
     updateAllCameraRodStatus();
 }
 
-void zchxCameraDatasMgr::setCameraDevData(const std::vector<DrawElement::CameraElement> &data)
+void zchxCameraDatasMgr::setCameraDevData(const std::vector<CameraElement> &data)
 {
     m_CameraDev = data;
 
@@ -145,10 +146,10 @@ void zchxCameraDatasMgr::setCameraDevData(const std::vector<DrawElement::CameraE
 
 void zchxCameraDatasMgr::showCamera(QPainter *painter)
 {
-    std::vector<DrawElement::CameraElement>::iterator it;
+    std::vector<CameraElement>::iterator it;
     for(it = m_CameraDev.begin(); it != m_CameraDev.end(); ++it)
     {
-        DrawElement::CameraElement item = (*it);
+        CameraElement item = (*it);
         item.drawElement(painter);
     }
 }
@@ -157,7 +158,7 @@ void zchxCameraDatasMgr::slotSelectCameraFromDlg(const ZCHX::Data::ITF_CameraDev
 {
     for(int i=0; i<m_CameraDev.size(); i++)
     {
-        DrawElement::CameraElement &item = m_CameraDev[i];
+        CameraElement &item = m_CameraDev[i];
         item.setIsActive(false);
         if(item.data().nDBID == camera.nDBID)
         {
@@ -167,7 +168,7 @@ void zchxCameraDatasMgr::slotSelectCameraFromDlg(const ZCHX::Data::ITF_CameraDev
     }
 }
 
-void zchxCameraDatasMgr::zchxOpenCameraListDlg(DrawElement::CameraRodElement *item)
+void zchxCameraDatasMgr::zchxOpenCameraListDlg(CameraRodElement *item)
 {
     if(!item)
         return;
@@ -202,7 +203,7 @@ void zchxCameraDatasMgr::zchxOpenCameraListDlg(DrawElement::CameraRodElement *it
     zchxOpenCameraListDlg(list, LatLon(item->lat(), item->lon()));
 }
 
-void zchxCameraDatasMgr::zchxOpenCameraListDlg(DrawElement::AisElement *item)
+void zchxCameraDatasMgr::zchxOpenCameraListDlg(AisElement *item)
 {
     if(!item && !item->hasCamera())
         return;
@@ -241,12 +242,12 @@ void zchxCameraDatasMgr::zchxOpenCameraListDlg(QList<ZCHX::Data::ITF_CameraDev>&
     d.exec();
 }
 
-void zchxCameraDatasMgr::setCameraObservationZoneData(const std::vector<DrawElement::CameraObservationZone> &data)
+void zchxCameraDatasMgr::setCameraObservationZoneData(const std::vector<CameraObservationZone> &data)
 {
     m_cameraObservationZone = data;
 }
 
-void zchxCameraDatasMgr::setCameraVideoWarnData(const std::vector<DrawElement::CameraVideoWarn> &data)
+void zchxCameraDatasMgr::setCameraVideoWarnData(const std::vector<CameraVideoWarn> &data)
 {
     //qDebug()<<__FILE__<<__LINE__<<data.size();
     //为了让视频分析的目标被选择，这里进行比对更新,java后台端对目标进行了缓存，如果目标在
@@ -255,7 +256,7 @@ void zchxCameraDatasMgr::setCameraVideoWarnData(const std::vector<DrawElement::C
     QString selObjId = "";
     for(int i=0; i<m_CameraVideoWarn.size(); i++)
     {
-        DrawElement::CameraVideoWarn &item = m_CameraVideoWarn[i];
+        CameraVideoWarn &item = m_CameraVideoWarn[i];
         if(item.getIsActive())
         {
             selObjId = item.getObjId();
@@ -268,7 +269,7 @@ void zchxCameraDatasMgr::setCameraVideoWarnData(const std::vector<DrawElement::C
     {
         for(int i=0; i<m_CameraVideoWarn.size(); i++)
         {
-            DrawElement::CameraVideoWarn &item = m_CameraVideoWarn[i];
+            CameraVideoWarn &item = m_CameraVideoWarn[i];
             if(item.getObjId() == selObjId)
             {
                 item.setIsActive(true);
@@ -276,6 +277,7 @@ void zchxCameraDatasMgr::setCameraVideoWarnData(const std::vector<DrawElement::C
             }
         }
     }
+}
 }
 
 

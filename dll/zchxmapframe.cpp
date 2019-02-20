@@ -1,10 +1,11 @@
 #include "zchxmapframe.h"
 #include <QDebug>
 
-zchxMapFrameWork::zchxMapFrameWork(double center_lat, double center_lon, int zoom, int width, int height, QObject *parent) : QObject(parent),
+namespace qt {
+zchxMapFrameWork::zchxMapFrameWork(double center_lat, double center_lon, int zoom, int width, int height, int source, QObject *parent) : QObject(parent),
   mViewWidth(0),
   mViewHeight(0),
-  mSource(TILE_TMS),
+  mSource(source),
   mStyle(MapStyleEcdisDayBright),
   mMinZoom(0),
   mMaxZoom(22)
@@ -156,4 +157,5 @@ void zchxMapFrameWork::ZoomOut()
 void zchxMapFrameWork::Update()
 {
 
+}
 }

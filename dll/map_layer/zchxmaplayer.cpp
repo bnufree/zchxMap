@@ -3,45 +3,46 @@
 #include "zchxmapframe.h"
 #include <QGeoCoordinate>
 
-zchxMapLayer::zchxMapLayer(const QString &type, const QString &displayName, bool visible, QObject *parent)
-    : QObject(*new zchxMapLayerPrivate(type, displayName, visible), parent)
+namespace qt {
+MapLayer::MapLayer(const QString &type, const QString &displayName, bool visible, QObject *parent)
+    : QObject(*new MapLayerPrivate(type, displayName, visible), parent)
 {
 
 }
 
-zchxMapLayer::zchxMapLayer(zchxMapWidget *drawWidget, const QString &type, const QString &displayName, bool visible, QObject *parent)
-    : QObject(*new zchxMapLayerPrivate(drawWidget, type, displayName, visible), parent)
+MapLayer::MapLayer(zchxMapWidget *drawWidget, const QString &type, const QString &displayName, bool visible, QObject *parent)
+    : QObject(*new MapLayerPrivate(drawWidget, type, displayName, visible), parent)
 {
 
 }
 
-zchxMapLayer::zchxMapLayer(QObject *parent)
-    : QObject(*new zchxMapLayerPrivate, parent)
+MapLayer::MapLayer(QObject *parent)
+    : QObject(*new MapLayerPrivate, parent)
 {
 
 }
 
-QString zchxMapLayer::type() const
+QString MapLayer::type() const
 {
-    Q_D(const zchxMapLayer);
+    Q_D(const MapLayer);
     return d->m_type;
 }
 
-void zchxMapLayer::setType(const QString &type)
+void MapLayer::setType(const QString &type)
 {
-    Q_D(zchxMapLayer);
+    Q_D(MapLayer);
     d->m_type = type;
 }
 
-QString zchxMapLayer::displayName() const
+QString MapLayer::displayName() const
 {
-    Q_D(const zchxMapLayer);
+    Q_D(const MapLayer);
     return d->m_displayName;
 }
 
-void zchxMapLayer::setDisplayName(const QString &displayName)
+void MapLayer::setDisplayName(const QString &displayName)
 {
-    Q_D(zchxMapLayer);
+    Q_D(MapLayer);
     if(displayName == d->m_displayName)
         return;
 
@@ -49,15 +50,15 @@ void zchxMapLayer::setDisplayName(const QString &displayName)
     emit displayNameChanged(d->m_displayName);
 }
 
-bool zchxMapLayer::visible() const
+bool MapLayer::visible() const
 {
-    Q_D(const zchxMapLayer);
+    Q_D(const MapLayer);
     return d->m_visible;
 }
 
-void zchxMapLayer::setVisible(bool visible)
+void MapLayer::setVisible(bool visible)
 {
-    Q_D(zchxMapLayer);
+    Q_D(MapLayer);
     if(visible == d->m_visible)
         return;
 
@@ -65,36 +66,36 @@ void zchxMapLayer::setVisible(bool visible)
     emit visibleChanged(d->m_visible);
 }
 
-bool zchxMapLayer::hasChildLayer() const
+bool MapLayer::hasChildLayer() const
 {
-    Q_D(const zchxMapLayer);
+    Q_D(const MapLayer);
     return !d->m_children.empty();
 }
 
-const std::list<std::shared_ptr<zchxMapLayer> > &zchxMapLayer::getChildLayers()
+const std::list<std::shared_ptr<MapLayer> > &MapLayer::getChildLayers()
 {
-    Q_D(const zchxMapLayer);
+    Q_D(const MapLayer);
     return d->m_children;
 }
 
-void zchxMapLayer::addChildLayer(std::shared_ptr<zchxMapLayer> layer)
+void MapLayer::addChildLayer(std::shared_ptr<MapLayer> layer)
 {
-    Q_D(zchxMapLayer);
+    Q_D(MapLayer);
     bool added = (std::find(d->m_children.begin(), d->m_children.end(), layer) != d->m_children.end());
     if(!added)
         d->m_children.push_back(layer);
 }
 
-void zchxMapLayer::removeChildLayer(std::shared_ptr<zchxMapLayer> layer)
+void MapLayer::removeChildLayer(std::shared_ptr<MapLayer> layer)
 {
-    Q_D(zchxMapLayer);
+    Q_D(MapLayer);
     d->m_children.remove(layer);
 }
 
-std::shared_ptr<zchxMapLayer> zchxMapLayer::getChildLayer(const QString &type)
+std::shared_ptr<MapLayer> MapLayer::getChildLayer(const QString &type)
 {
-    Q_D(zchxMapLayer);
-    for(std::shared_ptr<zchxMapLayer> layer : d->m_children)
+    Q_D(MapLayer);
+    for(std::shared_ptr<MapLayer> layer : d->m_children)
     {
         if(layer->type() == type)
             return layer;
@@ -102,12 +103,12 @@ std::shared_ptr<zchxMapLayer> zchxMapLayer::getChildLayer(const QString &type)
     return NULL;
 }
 
-void zchxMapLayer::addElement(std::shared_ptr<DrawElement::Element> element)
+void MapLayer::addElement(std::shared_ptr<Element> element)
 {
     if(!element)
         return;
 
-    Q_D(zchxMapLayer);
+    Q_D(MapLayer);
     if(element->layer())
     {
         element->layer()->removeElement(element);
@@ -125,12 +126,12 @@ void zchxMapLayer::addElement(std::shared_ptr<DrawElement::Element> element)
 //    update();
 }
 
-void zchxMapLayer::removeElement(std::shared_ptr<DrawElement::Element> element)
+void MapLayer::removeElement(std::shared_ptr<Element> element)
 {
     if(!element)
         return;
 
-    Q_D(zchxMapLayer);
+    Q_D(MapLayer);
     element->layer().reset();
 
     bool contained = (std::find(d->m_elements.begin(), d->m_elements.end(), element) != d->m_elements.end());
@@ -142,15 +143,15 @@ void zchxMapLayer::removeElement(std::shared_ptr<DrawElement::Element> element)
 //    update();
 }
 
-std::list<std::shared_ptr<DrawElement::Element> > zchxMapLayer::getElements()
+std::list<std::shared_ptr<Element> > MapLayer::getElements()
 {
-    Q_D(zchxMapLayer);
+    Q_D(MapLayer);
     return d->m_elements;
 }
 
-void zchxMapLayer::update()
+void MapLayer::update()
 {
-    Q_D(zchxMapLayer);
+    Q_D(MapLayer);
     if(!d->m_enableUpdate)
         return;
 
@@ -160,20 +161,20 @@ void zchxMapLayer::update()
     }
 }
 
-void zchxMapLayer::drawLayer(QPainter *painter)
+void MapLayer::drawLayer(QPainter *painter)
 {
-    Q_D(zchxMapLayer);
-    for(std::shared_ptr<DrawElement::Element> element : d->m_elements)
+    Q_D(MapLayer);
+    for(std::shared_ptr<Element> element : d->m_elements)
     {
         if(element.get())
             element->drawElement(painter);
     }
 }
 
-std::shared_ptr<DrawElement::Element> zchxMapLayer::pickUpElement(QPointF pos, const QGeoCoordinate &geoPos)
+std::shared_ptr<Element> MapLayer::pickUpElement(QPointF pos, const QGeoCoordinate &geoPos)
 {
-    Q_D(zchxMapLayer);
-    for(std::shared_ptr<DrawElement::Element> element : d->m_elements)
+    Q_D(MapLayer);
+    for(std::shared_ptr<Element> element : d->m_elements)
     {
         if(!element)
             continue;
@@ -192,10 +193,10 @@ std::shared_ptr<DrawElement::Element> zchxMapLayer::pickUpElement(QPointF pos, c
     return NULL;
 }
 
-std::shared_ptr<DrawElement::Element> zchxMapLayer::pickUpElement(const QString &id)
+std::shared_ptr<Element> MapLayer::pickUpElement(const QString &id)
 {
-    Q_D(zchxMapLayer);
-    for(std::shared_ptr<DrawElement::Element> element : d->m_elements)
+    Q_D(MapLayer);
+    for(std::shared_ptr<Element> element : d->m_elements)
     {
         if(!element)
             continue;
@@ -208,12 +209,12 @@ std::shared_ptr<DrawElement::Element> zchxMapLayer::pickUpElement(const QString 
     return NULL;
 }
 
-std::shared_ptr<DrawElement::Element> zchxMapLayer::pickUpElement(QPointF pos)
+std::shared_ptr<Element> MapLayer::pickUpElement(QPointF pos)
 {
-    Q_D(zchxMapLayer);
+    Q_D(MapLayer);
     if(d->m_drawWidget->framework())
     {
-        for(std::shared_ptr<DrawElement::Element> element : d->m_elements)
+        for(std::shared_ptr<Element> element : d->m_elements)
         {
             if(!element)
                 return element;
@@ -227,9 +228,9 @@ std::shared_ptr<DrawElement::Element> zchxMapLayer::pickUpElement(QPointF pos)
     return NULL;
 }
 
-QPointF zchxMapLayer::convertToView(double lon, double lat)
+QPointF MapLayer::convertToView(double lon, double lat)
 {
-    Q_D(zchxMapLayer);
+    Q_D(MapLayer);
     QPointF pos;
     if(d->m_drawWidget->framework())
     {
@@ -239,11 +240,11 @@ QPointF zchxMapLayer::convertToView(double lon, double lat)
     return pos;
 }
 
-bool zchxMapLayer::clearElementState()
+bool MapLayer::clearElementState()
 {
     bool cleared = false;
-    Q_D(zchxMapLayer);
-    for(std::shared_ptr<DrawElement::Element> e : d->m_elements)
+    Q_D(MapLayer);
+    for(std::shared_ptr<Element> e : d->m_elements)
     {
         if(!e)
             continue;
@@ -256,11 +257,11 @@ bool zchxMapLayer::clearElementState()
     return cleared;
 }
 
-bool zchxMapLayer::clearActiveState()
+bool MapLayer::clearActiveState()
 {
     bool cleared = false;
-    Q_D(zchxMapLayer);
-    for(std::shared_ptr<DrawElement::Element> element : d->m_elements)
+    Q_D(MapLayer);
+    for(std::shared_ptr<Element> element : d->m_elements)
     {
         if(!element)
             continue;
@@ -271,11 +272,11 @@ bool zchxMapLayer::clearActiveState()
     return cleared;
 }
 
-bool zchxMapLayer::clearFocusState()
+bool MapLayer::clearFocusState()
 {
     bool cleared = false;
-    Q_D(zchxMapLayer);
-    for(std::shared_ptr<DrawElement::Element> element : d->m_elements)
+    Q_D(MapLayer);
+    for(std::shared_ptr<Element> element : d->m_elements)
     {
         if(!element)
             continue;
@@ -286,11 +287,11 @@ bool zchxMapLayer::clearFocusState()
     return cleared;
 }
 
-bool zchxMapLayer::clearHoverState()
+bool MapLayer::clearHoverState()
 {
     bool cleared = false;
-    Q_D(zchxMapLayer);
-    for(std::shared_ptr<DrawElement::Element> element : d->m_elements)
+    Q_D(MapLayer);
+    for(std::shared_ptr<Element> element : d->m_elements)
     {
         if(!element)
             continue;
@@ -301,34 +302,34 @@ bool zchxMapLayer::clearHoverState()
     return cleared;
 }
 
-bool zchxMapLayer::getEnableUpdate() const
+bool MapLayer::getEnableUpdate() const
 {
-    Q_D(const zchxMapLayer);
+    Q_D(const MapLayer);
     return d->m_enableUpdate;
 }
 
-void zchxMapLayer::setEnableUpdate(bool enableUpdate)
+void MapLayer::setEnableUpdate(bool enableUpdate)
 {
-    Q_D(zchxMapLayer);
+    Q_D(MapLayer);
     d->m_enableUpdate = enableUpdate;
 }
 
-ZCHX::Data::ECDIS_PLUGIN_USE_MODELs zchxMapLayer::mode() const
+ZCHX::Data::ECDIS_PLUGIN_USE_MODELs MapLayer::mode() const
 {
-    Q_D(const zchxMapLayer);
+    Q_D(const MapLayer);
     return d->m_mode;
 }
 
-void zchxMapLayer::setMode(const ZCHX::Data::ECDIS_PLUGIN_USE_MODEL &mode, bool addOrRemove)
+void MapLayer::setMode(const ZCHX::Data::ECDIS_PLUGIN_USE_MODEL &mode, bool addOrRemove)
 {
-    Q_D(zchxMapLayer);
+    Q_D(MapLayer);
     if(addOrRemove)
         d->m_mode |= mode;
     else
         d->m_mode &= ~mode;
 }
 
-zchxMapLayerPrivate::zchxMapLayerPrivate()
+MapLayerPrivate::MapLayerPrivate()
     : m_visible(true)
     , m_enableUpdate(true)
     , m_drawWidget(0)
@@ -336,7 +337,7 @@ zchxMapLayerPrivate::zchxMapLayerPrivate()
 
 }
 
-zchxMapLayerPrivate::zchxMapLayerPrivate(const QString &type, const QString &displayName, bool visible)
+MapLayerPrivate::MapLayerPrivate(const QString &type, const QString &displayName, bool visible)
     : m_type(type)
     , m_displayName(displayName)
     , m_visible(visible)
@@ -346,7 +347,7 @@ zchxMapLayerPrivate::zchxMapLayerPrivate(const QString &type, const QString &dis
 
 }
 
-zchxMapLayerPrivate::zchxMapLayerPrivate(zchxMapWidget *drawWidget, const QString &type, const QString &displayName, bool visible)
+MapLayerPrivate::MapLayerPrivate(zchxMapWidget *drawWidget, const QString &type, const QString &displayName, bool visible)
     : m_type(type)
     , m_displayName(displayName)
     , m_visible(visible)
@@ -354,4 +355,5 @@ zchxMapLayerPrivate::zchxMapLayerPrivate(zchxMapWidget *drawWidget, const QStrin
     , m_drawWidget(drawWidget)
 {
 
+}
 }

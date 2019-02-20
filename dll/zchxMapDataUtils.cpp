@@ -2,6 +2,7 @@
 #include <math.h>
 #include <QDebug>
 
+namespace qt {
 zchxMapDataUtils::zchxMapDataUtils()
 {
 
@@ -110,5 +111,6 @@ double zchxMapDataUtils::getTotalArea(const std::vector<std::pair<double, double
     }
 
     return areaNum;
+}
 }
 

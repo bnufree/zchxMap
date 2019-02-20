@@ -8,7 +8,7 @@
 
 #define     SHIP_INTERVAL_TIME  60 * 1000 // 1分钟
 
-namespace DrawElement{
+namespace qt{
 
 AisElement::AisElement()
     : Element(0,0,ZCHX::Data::ELEMENT_AIS)
@@ -614,11 +614,11 @@ std::vector<ZCHX::Data::ITF_CameraDev> AisElement::getCameraData() const
 void AisElement::initFromSettings()
 {
     //初始化Ais颜色设定,默认设定添加
-    mTextColor.setNamedColor(zchxEcdis::Profiles::instance()->value(AIS_DISPLAY_SETTING, AIS_TEXT_COLOR, QColor(Qt::black).name()).toString());
-    mBorderColor.setNamedColor(zchxEcdis::Profiles::instance()->value(AIS_DISPLAY_SETTING, AIS_BORDER_COLOR, QColor(Qt::green).name()).toString());
-    mFillingColor.setNamedColor(zchxEcdis::Profiles::instance()->value(AIS_DISPLAY_SETTING, AIS_FILL_COLOR, QColor(Qt::green).name()).toString());
-    mConcernColor.setNamedColor(zchxEcdis::Profiles::instance()->value(AIS_DISPLAY_SETTING, AIS_CONCERN_COLOR, QColor(Qt::red).name()).toString());
-    setForceImage(zchxEcdis::Profiles::instance()->value(AIS_DISPLAY_SETTING, AIS_FORCED_IMAGE, false).toBool());
+    mTextColor.setNamedColor(Profiles::instance()->value(AIS_DISPLAY_SETTING, AIS_TEXT_COLOR, QColor(Qt::black).name()).toString());
+    mBorderColor.setNamedColor(Profiles::instance()->value(AIS_DISPLAY_SETTING, AIS_BORDER_COLOR, QColor(Qt::green).name()).toString());
+    mFillingColor.setNamedColor(Profiles::instance()->value(AIS_DISPLAY_SETTING, AIS_FILL_COLOR, QColor(Qt::green).name()).toString());
+    mConcernColor.setNamedColor(Profiles::instance()->value(AIS_DISPLAY_SETTING, AIS_CONCERN_COLOR, QColor(Qt::red).name()).toString());
+    setForceImage(Profiles::instance()->value(AIS_DISPLAY_SETTING, AIS_FORCED_IMAGE, false).toBool());
     Element::initFromSettings();
 
     //qDebug()<<"ais ini seetings."<<getForceImage()<<mFillingColor.name()<<mTextColor.name()<<mConcernColor.name()<<mBorderColor.name();

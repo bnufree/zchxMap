@@ -3,13 +3,14 @@
 #include <QDebug>
 #include <QPointF>
 
+namespace qt {
 // 排序函数
-bool sortByX(const DrawElement::Multibeam &v1, const DrawElement::Multibeam &v2)
+bool sortByX(const Multibeam &v1, const Multibeam &v2)
 {
     return v1.data().m_dX < v2.data().m_dX;//升序排列
 }
 
-bool sortByY(const DrawElement::Multibeam &v1, const DrawElement::Multibeam &v2)
+bool sortByY(const Multibeam &v1, const Multibeam &v2)
 {
     return v1.data().m_dY < v2.data().m_dY;//升序排列
 }
@@ -24,18 +25,18 @@ ZCHXDrawMultibeam::ZCHXDrawMultibeam(QObject *parent)
 
 void ZCHXDrawMultibeam::itfSetMultibeamData(const QList<ZCHX::Data::ITF_Multibeam> &data, const double dMinX, const double dMinY, const double dMinZ, const double dMaxX, const double dMaxY, const double dMaxZ)
 {
-    std::vector<DrawElement::Multibeam> list;
+    std::vector<Multibeam> list;
     for(int i=0; i< data.count(); ++i)
     {
         ZCHX::Data::ITF_Multibeam tmp = data.at(i);
-        DrawElement::Multibeam item(tmp);
+        Multibeam item(tmp);
         list.push_back(item);
     }
 
     setMultibeamData(list,dMinX,dMinY,dMinZ,dMaxX,dMaxY,dMaxZ);
 }
 
-void ZCHXDrawMultibeam::setMultibeamData(const std::vector<DrawElement::Multibeam> &data, const double dMinX, const double dMinY, const double dMinZ, const double dMaxX, const double dMaxY, const double dMaxZ)
+void ZCHXDrawMultibeam::setMultibeamData(const std::vector<Multibeam> &data, const double dMinX, const double dMinY, const double dMinZ, const double dMaxX, const double dMaxY, const double dMaxZ)
 {
     m_Multibeam = data;
     if(m_Multibeam.size()<=0)
@@ -247,13 +248,13 @@ void ZCHXDrawMultibeam::zchxDrawMultibeam()
     QPixmap objPixmap(m_uMultibeamPixmapWidth, m_uMultibeamPixmapHeight);
     objPixmap.fill(Qt::transparent);//用透明色填充
     QPainter objPainter(&objPixmap);
-    std::vector<DrawElement::Multibeam>::iterator it;
+    std::vector<Multibeam>::iterator it;
 
     int uIndex = 0;
     int size = m_Multibeam.size();
     for(; uIndex < size; uIndex++)
     {
-        DrawElement::Multibeam ele = m_Multibeam.at(uIndex);
+        Multibeam ele = m_Multibeam.at(uIndex);
         ZCHX::Data::ITF_Multibeam objMultibeamData = ele.data();
 
         double dCurX = objMultibeamData.m_dX;
@@ -346,10 +347,10 @@ QColor ZCHXDrawMultibeam::getMultibeamColor(double dValue)
 bool ZCHXDrawMultibeam::isExistInMultibeam(const double dX, const double dY, double &dHeight)
 {
     dHeight = 0;
-    std::vector<DrawElement::Multibeam>::iterator it;
+    std::vector<Multibeam>::iterator it;
     for (it = m_Multibeam.begin(); it != m_Multibeam.end(); ++it)
     {
-        DrawElement::Multibeam ele = (*it);
+        Multibeam ele = (*it);
         ZCHX::Data::ITF_Multibeam objMultibeamData = ele.data();
         if((qAbs(objMultibeamData.m_dX - dX) < 1) && (qAbs(objMultibeamData.m_dY - dY) < 1))
         {
@@ -367,7 +368,7 @@ bool ZCHXDrawMultibeam::isExistInMultibeamBySort(const int index, const double d
 
     for (int i = index; i < size; i++)
     {
-        DrawElement::Multibeam ele = m_Multibeam.at(i);
+        Multibeam ele = m_Multibeam.at(i);
         ZCHX::Data::ITF_Multibeam objMultibeamData = ele.data();
 
         if (objMultibeamData.m_dX > dX && (qAbs(objMultibeamData.m_dX - dX) > 1))
@@ -384,7 +385,7 @@ bool ZCHXDrawMultibeam::isExistInMultibeamBySort(const int index, const double d
 
     for (int i = index - 1; i >= 0; i--)
     {
-        DrawElement::Multibeam ele = m_Multibeam.at(i);
+        Multibeam ele = m_Multibeam.at(i);
         ZCHX::Data::ITF_Multibeam objMultibeamData = ele.data();
 
         if (objMultibeamData.m_dX < dX && (qAbs(objMultibeamData.m_dX - dX) > 1))
@@ -400,4 +401,5 @@ bool ZCHXDrawMultibeam::isExistInMultibeamBySort(const int index, const double d
     }
 
     return false;
+}
 }

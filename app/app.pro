@@ -9,7 +9,7 @@ IDE_APP_PATH = ../../bin
 
 include($$PSFW_3RDPARTYPATH/zchx_ecdis/zchx_ecdis.pri)
 
-QT       += core gui network
+QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -17,5 +17,12 @@ TARGET = zchxMapTest
 TEMPLATE = app
 DESTDIR = ../../bin
 
-SOURCES += main.cpp
+SOURCES += main.cpp \
+    testmainwindow.cpp
+
+FORMS += \
+    testmainwindow.ui
+
+HEADERS += \
+    testmainwindow.h
 

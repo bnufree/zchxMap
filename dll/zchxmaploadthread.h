@@ -6,7 +6,7 @@
 #include "zchxMapDataUtils.h"
 
 
-
+namespace qt {
 class zchxMapLoadThread : public QThread
 {
     Q_OBJECT
@@ -33,5 +33,6 @@ private:
     QMutex                      mImgMutex;
     bool                        mImgSync;
 };
+}
 
 #endif // ZCHXMAPLOADTHREAD_H

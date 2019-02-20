@@ -4,6 +4,7 @@
 #include <QRunnable>
 #include <QPixmap>
 
+namespace qt {
 class zchxTileImageThread : public QObject, public QRunnable
 {
     Q_OBJECT
@@ -24,5 +25,6 @@ private:
     QString mName;
     QObject* mReturnObj;
 };
+}
 
 #endif // ZCHXTILEIMAGETHREAD_H

@@ -2,6 +2,7 @@
 #include "ui_cardmouthinfodialog.h"
 #include <QColorDialog>
 
+namespace qt {
 CardMouthInfoDialog::CardMouthInfoDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::CardMouthInfoDialog)
@@ -81,4 +82,5 @@ void CardMouthInfoDialog::on_comfirmButton_clicked()
 void CardMouthInfoDialog::on_cancelButton_clicked()
 {
     reject();
+}
 }

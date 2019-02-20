@@ -3,8 +3,7 @@
 #include "map_layer/zchxMapLayer.h"
 #include <QPainter>
 
-namespace DrawElement
-{
+namespace qt {
 CameraElement::CameraElement(const ZCHX::Data::ITF_CameraDev &data, Element* depends)
     :Element(data.nLatLon.lat, data.nLatLon.lon), mDependElement(depends)
 {

@@ -8,7 +8,7 @@
 
 Q_LOGGING_CATEGORY(ecdis, "zchx.Ecdis")
 
-using namespace DrawElement;
+namespace qt {
 int Element::g_maxLineLength = 100;
 
 Element::Element(const double &lat, const double &lon, ZCHX::Data::ELETYPE type,const QColor& flashColor)
@@ -39,7 +39,7 @@ Element::Element(const double &lat, const double &lon, ZCHX::Data::ELETYPE type,
     , mFillingColor(QColor())
 {
 
-    Element::g_maxLineLength = zchxEcdis::Profiles::instance()->value(MAP_INDEX, MAX_LINE_LENGTH).toInt();
+    Element::g_maxLineLength = Profiles::instance()->value(MAP_INDEX, MAX_LINE_LENGTH).toInt();
 }
 
 Element::Element(const Element &element)
@@ -80,7 +80,7 @@ Element::~Element()
 {
 }
 
-std::shared_ptr<zchxMapLayer> Element::getLayer()
+std::shared_ptr<MapLayer> Element::getLayer()
 {
     return m_layer;
 }
@@ -369,7 +369,7 @@ void Element::drawFlashRegion(QPainter *painter, QPointF pos, int status, QColor
     // 航运预警不闪烁
     if (status < ZCHX::Data::WARN_CHANNEL_YAW || status > ZCHX::Data::WARN_CHANNEL_MOORING)
     {
-        flashcolor.setAlpha(zchxEcdis::Profiles::instance()->value(MAP_INDEX, WARN_FLAH_COLOR_ALPHA, 100).toInt());
+        flashcolor.setAlpha(Profiles::instance()->value(MAP_INDEX, WARN_FLAH_COLOR_ALPHA, 100).toInt());
     }
     PainterPair chk(painter);
     painter->setPen(Qt::NoPen);
@@ -517,4 +517,5 @@ bool Element::isLayervisible()
 {
     if(!m_layer) return false;
     return m_layer->visible();
+}
 }

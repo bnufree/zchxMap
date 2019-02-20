@@ -5,6 +5,7 @@
 #include <QDebug>
 #include <QDir>
 
+namespace qt {
 zchxMapDownloadRunFunction::zchxMapDownloadRunFunction(const zchxMapRange& range, int zoom):QRunnable(),mZoom(zoom), mRange(range)
 {
     setAutoDelete(true);
@@ -62,4 +63,5 @@ void zchxMapDownloadRunFunction::run()
     }
 
     emit signalDownloadFinished(mZoom);
+}
 }

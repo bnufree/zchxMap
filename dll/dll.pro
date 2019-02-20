@@ -4,12 +4,31 @@
 #
 #-------------------------------------------------
 
+defineReplace(qtLibraryName) {
+   unset(LIBRARY_NAME)
+   LIBRARY_NAME = $$1
+   CONFIG(debug, debug|release) {
+      !debug_and_release|build_pass {
+          mac:RET = $$member(LIBRARY_NAME, 0)_debug
+              else:win32:RET = $$member(LIBRARY_NAME, 0)d
+      }
+   }
+   isEmpty(RET):RET = $$LIBRARY_NAME
+   return($$RET)
+}
+
 QT       += core gui network positioning core_private opengl svg xml
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = zchx_ecdis
+TARGET = $$qtLibraryName($$TARGET)
+
 TEMPLATE = lib
+CONFIG += shared dll
+
+#
+#TEMPLATE = lib
 DESTDIR = ../../bin
 
 DEFINES *= ZCHX_ECDIS_PLUGIN

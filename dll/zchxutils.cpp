@@ -2,6 +2,7 @@
 #include "zchxMapDatautils.h"
 #include "zchxmapframe.h"
 
+namespace qt {
 namespace ZCHX {
 Utils *Utils::d = NULL;
 QString Utils::gCurrProject;
@@ -1208,4 +1209,6 @@ bool tagITF_ChannelLine::operator ==(const tagITF_ChannelLine &other)
 }
 
 }
-} //ZCHX
+}
+}
+//} //ZCHX

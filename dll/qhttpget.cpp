@@ -3,6 +3,7 @@
 #include <QThread>
 #include <QEventLoop>
 
+namespace qt {
 QHttpGet::QHttpGet(const QString& url, bool sequential, QObject *parent) :
     QThread(parent),mMgr(0), mUrl(url), mReply(0), mIsSequential(sequential), mUpdateTimer(0)
 {
@@ -184,6 +185,7 @@ QByteArray QHttpGet::getContentOfURLWithPost(const QString &url, const QByteArra
     delete reply;
     reply = 0;
     return recv;
+}
 }
 
 

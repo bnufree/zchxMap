@@ -1,6 +1,6 @@
 #include "zchxdatamgrfactory.h"
 
-
+namespace qt {
 zchxDataMgrFactory::zchxDataMgrFactory(zchxMapWidget* w) : mWidget(w)
 {
 
@@ -55,6 +55,7 @@ zchxAisDataMgr* zchxDataMgrFactory::getAisDataMgr()
 zchxRadarDataMgr* zchxDataMgrFactory::getRadarDataMgr()
 {
     return static_cast<zchxRadarDataMgr*>(getManager(ZCHX_DATA_MGR_RADAR).get());
+}
 }
 
 

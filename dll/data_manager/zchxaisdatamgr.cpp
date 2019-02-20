@@ -1,12 +1,13 @@
 #include "zchxaisdatamgr.h"
 #include "zchxmapframe.h"
 
+namespace qt {
 zchxAisDataMgr::zchxAisDataMgr(zchxMapWidget* w, QObject *parent) : zchxEcdisDataMgr(w, ZCHX_DATA_MGR_AIS, parent)
 {
-    mMaxConcernNum = zchxEcdis::Profiles::instance()->value(AIS_DISPLAY_SETTING, AIS_CONCERN_NUM, 10).toInt();
-    mMaxTailTrackNum = zchxEcdis::Profiles::instance()->value(AIS_DISPLAY_SETTING, AIS_TAILTRACK_NUM, 10).toInt();
-    mReplaceTrackWherOver = zchxEcdis::Profiles::instance()->value(AIS_DISPLAY_SETTING, AIS_REPLACE_TRACK, true).toBool();
-    mShipTagDisplayMode = DrawElement::SHIP_ITEM_DEFAULT;
+    mMaxConcernNum = Profiles::instance()->value(AIS_DISPLAY_SETTING, AIS_CONCERN_NUM, 10).toInt();
+    mMaxTailTrackNum = Profiles::instance()->value(AIS_DISPLAY_SETTING, AIS_TAILTRACK_NUM, 10).toInt();
+    mReplaceTrackWherOver = Profiles::instance()->value(AIS_DISPLAY_SETTING, AIS_REPLACE_TRACK, true).toBool();
+    mShipTagDisplayMode = SHIP_ITEM_DEFAULT;
 }
 
 void zchxAisDataMgr::SetEnableShipTag(int val)
@@ -36,10 +37,10 @@ void zchxAisDataMgr::show(QPainter *painter)
     int curScale = mDisplayWidget->zoom() < 7 ? 5 : 10;
     int sideLen = 10;
 
-    QHash<QString, std::shared_ptr<DrawElement::AisElement>>::iterator it = m_aisMap.begin();
+    QHash<QString, std::shared_ptr<AisElement>>::iterator it = m_aisMap.begin();
     for(; it != m_aisMap.end(); ++it)
     {
-        std::shared_ptr<DrawElement::AisElement> item = it.value();
+        std::shared_ptr<AisElement> item = it.value();
         if(item->isEmpty()) continue;
         QPointF pos = item->getCurrentPos();
         if(!mDisplayWidget->rect().contains(pos.toPoint())) continue;
@@ -50,7 +51,7 @@ void zchxAisDataMgr::show(QPainter *painter)
         if(mDisplayWidget->getMapLayerMgr()->isLayerVisible(ZCHX::LAYER_AIS_CURRENT) && item->getData().cargoType != 55)
         {
             item->drawFlashRegion(painter, pos, item->getData().warn_status, item->getData().warnStatusColor);
-            if(item->getType() == DrawElement::RADARPLAN)
+            if(item->getType() == RADARPLAN)
             {
                 if(item->getIsActive())
                 {
@@ -64,7 +65,7 @@ void zchxAisDataMgr::show(QPainter *painter)
                 painter->drawRect(rect);
             }
             //船
-            else if(item->getType() == DrawElement::RADARSHIP || item->getType() == 3)//3为融合数据
+            else if(item->getType() == RADARSHIP || item->getType() == 3)//3为融合数据
             {
                 item->drawElement(painter);
                 item->drawActive(painter);
@@ -146,7 +147,7 @@ bool zchxAisDataMgr::updateActiveItem(const QPoint &pt)
 bool zchxAisDataMgr::setSingleAisData(QString id, const QList<ZCHX::Data::ITF_AIS> &data)
 {
     if(!isTrack(id)) return false;
-    std::shared_ptr<DrawElement::AisElement> item = m_aisMap.value(id, NULL);
+    std::shared_ptr<AisElement> item = m_aisMap.value(id, NULL);
     if(item)
     {
         item->setTrackList(data);
@@ -164,7 +165,7 @@ void zchxAisDataMgr::removeTrack(const QString &id)
 {
     if(isTrack(id))
     {
-        std::shared_ptr<DrawElement::AisElement> item = m_aisMap.value(id, 0);
+        std::shared_ptr<AisElement> item = m_aisMap.value(id, 0);
         if(item) item->clearTrackList();
         zchxEcdisDataMgr::removeTrack(id);
         emit mDisplayWidget->signalSendHistoryTrail(id, false);
@@ -185,14 +186,14 @@ void zchxAisDataMgr::SetPickUpAisInfo(QString id)
     mDisplayWidget->setCurrentSelectedItem(0);
     mDisplayWidget->setCurPickupType(ZCHX::Data::ECDIS_PICKUP_AIS);
     //将当前所有的船舶选择状态清空
-    QHash<QString, std::shared_ptr<DrawElement::AisElement>>::const_iterator it = m_aisMap.begin();
+    QHash<QString, std::shared_ptr<AisElement>>::const_iterator it = m_aisMap.begin();
     for(; it != m_aisMap.end(); ++it)
     {
         it.value()->setIsActive(false);
     }
     //将当前id的船舶设定为active状态
     if(id.isEmpty()) return;
-    std::shared_ptr<DrawElement::AisElement> item = m_aisMap.value(id, NULL);
+    std::shared_ptr<AisElement> item = m_aisMap.value(id, NULL);
     if(!item) return;
     item->setIsActive(true);
     //将当前的船舶居中放大显示
@@ -221,7 +222,7 @@ void zchxAisDataMgr::setAisData(const QList<ZCHX::Data::ITF_AIS> &data, bool che
                 //取消原来数据的关注和尾迹
                 removeConcern(dataShipId);
                 removeTrack(dataShipId);
-                std::shared_ptr<DrawElement::AisElement> item = m_aisMap.value(dataShipId, 0);
+                std::shared_ptr<AisElement> item = m_aisMap.value(dataShipId, 0);
                 if(item) item.reset();
                 //删除对应的实时数据
                 m_aisMap.remove(dataShipId);
@@ -233,9 +234,9 @@ void zchxAisDataMgr::setAisData(const QList<ZCHX::Data::ITF_AIS> &data, bool che
     for (const ZCHX::Data::ITF_AIS &aisdata : data)
     {
         //更新item对应的数据
-        std::shared_ptr<DrawElement::AisElement> item = m_aisMap.value(aisdata.id, 0);
+        std::shared_ptr<AisElement> item = m_aisMap.value(aisdata.id, 0);
         if(!item) {
-            item = std::shared_ptr<DrawElement::AisElement>(new DrawElement::AisElement(aisdata));
+            item = std::shared_ptr<AisElement>(new AisElement(aisdata));
             item->setFrameWork(mDisplayWidget->framework());
         } else {
             item->setData(aisdata);
@@ -265,7 +266,7 @@ void zchxAisDataMgr::setAisData(const QList<ZCHX::Data::ITF_AIS> &data, bool che
 #if 0
     if (m_bCameraTargerTrack &&m_cameraTrackTarget.type == 1)
     {
-        DrawElement::AisElement *item = m_aisMap.value(m_cameraTrackTarget.id, NULL);
+        AisElement *item = m_aisMap.value(m_cameraTrackTarget.id, NULL);
         if(item)
         {
                 m_cameraTrackTarget.id = item->getStrID(); //设置当前选中的船舶的
@@ -297,12 +298,12 @@ void zchxAisDataMgr::setConsAisData(const ZCHX::Data::ITF_AIS &aisdata)
 }
 
 
-std::shared_ptr<DrawElement::AisElement> zchxAisDataMgr::getCurrentAis()
+std::shared_ptr<AisElement> zchxAisDataMgr::getCurrentAis()
 {
     if(!mDisplayWidget || !mDisplayWidget->getCurrentSelectedElement()) return NULL;
-    std::shared_ptr<DrawElement::Element> item = mDisplayWidget->getCurrentSelectedElement();
+    std::shared_ptr<Element> item = mDisplayWidget->getCurrentSelectedElement();
     if(item->getElementType() != ZCHX::Data::ELEMENT_AIS) return NULL;
-    return std::shared_ptr<DrawElement::AisElement>(static_cast<DrawElement::AisElement*>(item.get()));
+    return std::shared_ptr<AisElement>(static_cast<AisElement*>(item.get()));
 }
 
 void zchxAisDataMgr::setClearHistoryData(bool states)
@@ -320,5 +321,6 @@ void zchxAisDataMgr::setClearHistoryData(bool states)
             removeTrack(mTrackList.first());
         }
     }
+}
 }
 

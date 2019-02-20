@@ -7,13 +7,14 @@
 #include "channelinfodialog.h"
 #include "mooringinfodialog.h"
 
+namespace qt {
 zchxUserDefinesDataMgr::zchxUserDefinesDataMgr(zchxMapWidget* w, QObject *parent) : QObject(parent),mDisplayWidget(w)
 {
 }
 
 bool zchxUserDefinesDataMgr::zchxWarringZoneData4id(int uuid, ZCHX::Data::ITF_WarringZone &info)
 {
-    std::vector<DrawElement::WarringZONE>::iterator it;
+    std::vector<WarringZONE>::iterator it;
     for(it = m_WarringZone.begin(); it != m_WarringZone.end(); ++it)
     {
         int myid = (*it).data().id;
@@ -33,10 +34,10 @@ bool zchxUserDefinesDataMgr::zchxWarringZoneDataByName(const QString &name, ZCHX
 
 bool zchxUserDefinesDataMgr::zchxWarringZoneDataByName(const std::string &name, ZCHX::Data::ITF_WarringZone &info)
 {
-    std::vector<DrawElement::WarringZONE>::iterator it;
+    std::vector<WarringZONE>::iterator it;
     for(it=m_WarringZone.begin(); it != m_WarringZone.end(); ++it)
     {
-        const DrawElement::WarringZONE &zone = (*it);
+        const WarringZONE &zone = (*it);
         if(zone.name().compare(name) == 0)
         {
             info = zone.data();
@@ -47,7 +48,7 @@ bool zchxUserDefinesDataMgr::zchxWarringZoneDataByName(const std::string &name, 
 }
 
 
-DrawElement::WarringZONE* zchxUserDefinesDataMgr::zchxWarringZoneItem(const std::string &name)
+WarringZONE* zchxUserDefinesDataMgr::zchxWarringZoneItem(const std::string &name)
 {
     for(int i = 0; i < m_WarringZone.size(); ++i)
     {
@@ -69,7 +70,7 @@ void zchxUserDefinesDataMgr::updateWarrningZone(const QList<ZCHX::Data::ITF_Warr
 
 void zchxUserDefinesDataMgr::updateWarrningZone(const ZCHX::Data::ITF_WarringZone &zone)
 {
-    DrawElement::WarringZONE *zoneItem = zchxWarringZoneItem(zone.name.toStdString());
+    WarringZONE *zoneItem = zchxWarringZoneItem(zone.name.toStdString());
     //更新已有的
     if(zoneItem)
     {
@@ -78,25 +79,25 @@ void zchxUserDefinesDataMgr::updateWarrningZone(const ZCHX::Data::ITF_WarringZon
     else
     {
         //没有就添加
-        DrawElement::WarringZONE newitem(zone);
+        WarringZONE newitem(zone);
         {
             m_WarringZone.push_back(newitem);
         }
     }
 }
 
-void zchxUserDefinesDataMgr::setWarringZONEData(const std::vector<DrawElement::WarringZONE> &data)
+void zchxUserDefinesDataMgr::setWarringZONEData(const std::vector<WarringZONE> &data)
 {
     m_WarringZone = data;
 }
 
 void zchxUserDefinesDataMgr::removeWarrningZone(const ZCHX::Data::ITF_WarringZone &zone)
 {
-    std::vector<DrawElement::WarringZONE>::iterator it;
+    std::vector<WarringZONE>::iterator it;
     {
         for(it = m_WarringZone.begin(); it != m_WarringZone.end(); ++it)
         {
-            const DrawElement::WarringZONE &one = (*it);
+            const WarringZONE &one = (*it);
             if(zone.name == QString::fromStdString(one.name())
                     || zone.id == one.id())
             {
@@ -110,7 +111,7 @@ void zchxUserDefinesDataMgr::removeWarrningZone(const ZCHX::Data::ITF_WarringZon
 QList<ZCHX::Data::ITF_WarringZone> zchxUserDefinesDataMgr::getAllWarrningZone() const
 {
     QList<ZCHX::Data::ITF_WarringZone> list;
-    for(const DrawElement::WarringZONE &zone : m_WarringZone)
+    for(const WarringZONE &zone : m_WarringZone)
         list.push_back(zone.data());
     return list;
 }
@@ -128,7 +129,7 @@ void zchxUserDefinesDataMgr::updateCoastDataZone(const QList<ZCHX::Data::ITF_Coa
 
 
 
-DrawElement::CoastData* zchxUserDefinesDataMgr::zchxCoastDataZoneItem(const std::string &name)
+CoastData* zchxUserDefinesDataMgr::zchxCoastDataZoneItem(const std::string &name)
 {
     for(int i = 0; i < m_coastDataLine.size(); ++i)
     {
@@ -141,7 +142,7 @@ DrawElement::CoastData* zchxUserDefinesDataMgr::zchxCoastDataZoneItem(const std:
     return NULL;
 }
 
-DrawElement::SeabedPipeLine *zchxUserDefinesDataMgr::zchxSeabedPipeLineZoneItem(const std::string &name)
+SeabedPipeLine *zchxUserDefinesDataMgr::zchxSeabedPipeLineZoneItem(const std::string &name)
 {
     for(int i = 0; i < m_seabedPipeLineLine.size(); ++i)
     {
@@ -154,7 +155,7 @@ DrawElement::SeabedPipeLine *zchxUserDefinesDataMgr::zchxSeabedPipeLineZoneItem(
     return NULL;
 }
 
-DrawElement::Structure *zchxUserDefinesDataMgr::zchxStructureZoneItem(const std::string &name)
+Structure *zchxUserDefinesDataMgr::zchxStructureZoneItem(const std::string &name)
 {
     for(int i = 0; i < m_structurePoint.size(); ++i)
     {
@@ -167,7 +168,7 @@ DrawElement::Structure *zchxUserDefinesDataMgr::zchxStructureZoneItem(const std:
     return NULL;
 }
 
-DrawElement::AreaNet *zchxUserDefinesDataMgr::zchxAreaNetZoneItem(const std::string &name)
+AreaNet *zchxUserDefinesDataMgr::zchxAreaNetZoneItem(const std::string &name)
 {
     for(int i = 0; i < m_areaNetZone.size(); ++i)
     {
@@ -183,7 +184,7 @@ DrawElement::AreaNet *zchxUserDefinesDataMgr::zchxAreaNetZoneItem(const std::str
 
 void zchxUserDefinesDataMgr::updateCoastDataZone(const ZCHX::Data::ITF_CoastData &zone)
 {
-    DrawElement::CoastData *zoneItem = zchxCoastDataZoneItem(zone.name.toStdString());
+    CoastData *zoneItem = zchxCoastDataZoneItem(zone.name.toStdString());
     //更新已有的
     if(zoneItem)
     {
@@ -192,7 +193,7 @@ void zchxUserDefinesDataMgr::updateCoastDataZone(const ZCHX::Data::ITF_CoastData
     else
     {
         //没有就添加
-        DrawElement::CoastData newitem(zone);
+        CoastData newitem(zone);
         //if(zone.defenceShape == 2) //防线
             m_coastDataLine.push_back(newitem);
 //        else
@@ -210,7 +211,7 @@ void zchxUserDefinesDataMgr::updateSeabedPipeLineZone(const QList<ZCHX::Data::IT
 
 void zchxUserDefinesDataMgr::updateSeabedPipeLineZone(const ZCHX::Data::ITF_SeabedPipeLine &zone)
 {
-    DrawElement::SeabedPipeLine *zoneItem = zchxSeabedPipeLineZoneItem(zone.name.toStdString());
+    SeabedPipeLine *zoneItem = zchxSeabedPipeLineZoneItem(zone.name.toStdString());
     //更新已有的
     if(zoneItem)
     {
@@ -219,7 +220,7 @@ void zchxUserDefinesDataMgr::updateSeabedPipeLineZone(const ZCHX::Data::ITF_Seab
     else
     {
         //没有就添加
-        DrawElement::SeabedPipeLine newitem(zone);
+        SeabedPipeLine newitem(zone);
         m_seabedPipeLineLine.push_back(newitem);
     }
 }
@@ -234,7 +235,7 @@ void zchxUserDefinesDataMgr::updateStructureZone(const QList<ZCHX::Data::ITF_Str
 
 void zchxUserDefinesDataMgr::updateStructureZone(const ZCHX::Data::ITF_Structure &zone)
 {
-    DrawElement::Structure *zoneItem = zchxStructureZoneItem(zone.name.toStdString());
+    Structure *zoneItem = zchxStructureZoneItem(zone.name.toStdString());
     //更新已有的
     if(zoneItem)
     {
@@ -243,7 +244,7 @@ void zchxUserDefinesDataMgr::updateStructureZone(const ZCHX::Data::ITF_Structure
     else
     {
         //没有就添加
-        DrawElement::Structure newitem(zone);
+        Structure newitem(zone);
         m_structurePoint.push_back(newitem);
     }
 }
@@ -258,7 +259,7 @@ void zchxUserDefinesDataMgr::updateAreaNetZone(const QList<ZCHX::Data::ITF_AreaN
 
 void zchxUserDefinesDataMgr::updateAreaNetZone(const ZCHX::Data::ITF_AreaNet &zone)
 {
-    DrawElement::AreaNet *zoneItem = zchxAreaNetZoneItem(zone.name.toStdString());
+    AreaNet *zoneItem = zchxAreaNetZoneItem(zone.name.toStdString());
     //更新已有的
     if(zoneItem)
     {
@@ -267,7 +268,7 @@ void zchxUserDefinesDataMgr::updateAreaNetZone(const ZCHX::Data::ITF_AreaNet &zo
     else
     {
         //没有就添加
-        DrawElement::AreaNet newitem(zone);
+        AreaNet newitem(zone);
         m_areaNetZone.push_back(newitem);
     }
 }
@@ -280,7 +281,7 @@ void zchxUserDefinesDataMgr::updateChannelZone(const QList<ZCHX::Data::ITF_Chann
     }
 }
 
-DrawElement::Channel *zchxUserDefinesDataMgr::zchxChannelZoneItem(const std::string &name)
+Channel *zchxUserDefinesDataMgr::zchxChannelZoneItem(const std::string &name)
 {
     for(int i = 0; i < m_channelZone.size(); ++i)
     {
@@ -295,7 +296,7 @@ DrawElement::Channel *zchxUserDefinesDataMgr::zchxChannelZoneItem(const std::str
 
 bool zchxUserDefinesDataMgr::zchxChannelZoneData4id(int uuid, ZCHX::Data::tagITF_Channel &info)
 {
-    std::vector<DrawElement::Channel>::iterator it;
+    std::vector<Channel>::iterator it;
     for(it = m_channelZone.begin(); it != m_channelZone.end(); ++it)
     {
         int myid = (*it).data().id;
@@ -310,7 +311,7 @@ bool zchxUserDefinesDataMgr::zchxChannelZoneData4id(int uuid, ZCHX::Data::tagITF
 
 void zchxUserDefinesDataMgr::updateChannelZone(const ZCHX::Data::ITF_Channel &zone)
 {
-    DrawElement::Channel *zoneItem = zchxChannelZoneItem(zone.name.toStdString());
+    Channel *zoneItem = zchxChannelZoneItem(zone.name.toStdString());
     //更新已有的
     if(zoneItem)
     {
@@ -319,7 +320,7 @@ void zchxUserDefinesDataMgr::updateChannelZone(const ZCHX::Data::ITF_Channel &zo
     else
     {
         //没有就添加
-        DrawElement::Channel newitem(zone);
+        Channel newitem(zone);
         m_channelZone.push_back(newitem);
     }
 }
@@ -334,7 +335,7 @@ void zchxUserDefinesDataMgr::updateMooringZone(const QList<ZCHX::Data::ITF_Moori
 
 bool zchxUserDefinesDataMgr::zchxMooringZoneData4id(int uuid, ZCHX::Data::tagITF_Mooring &info)
 {
-    std::vector<DrawElement::Mooring>::iterator it;
+    std::vector<Mooring>::iterator it;
     for(it = m_mooringZone.begin(); it != m_mooringZone.end(); ++it)
     {
         int myid = (*it).data().id;
@@ -347,7 +348,7 @@ bool zchxUserDefinesDataMgr::zchxMooringZoneData4id(int uuid, ZCHX::Data::tagITF
     return false;
 }
 
-DrawElement::Mooring *zchxUserDefinesDataMgr::zchxMooringZoneItem(const std::string &name)
+Mooring *zchxUserDefinesDataMgr::zchxMooringZoneItem(const std::string &name)
 {
     for(int i = 0; i < m_mooringZone.size(); ++i)
     {
@@ -362,7 +363,7 @@ DrawElement::Mooring *zchxUserDefinesDataMgr::zchxMooringZoneItem(const std::str
 
 void zchxUserDefinesDataMgr::updateMooringZone(const ZCHX::Data::ITF_Mooring &zone)
 {
-    DrawElement::Mooring *zoneItem = zchxMooringZoneItem(zone.name.toStdString());
+    Mooring *zoneItem = zchxMooringZoneItem(zone.name.toStdString());
     //更新已有的
     if(zoneItem)
     {
@@ -371,7 +372,7 @@ void zchxUserDefinesDataMgr::updateMooringZone(const ZCHX::Data::ITF_Mooring &zo
     else
     {
         //没有就添加
-        DrawElement::Mooring newitem(zone);
+        Mooring newitem(zone);
         m_mooringZone.push_back(newitem);
     }
 }
@@ -386,7 +387,7 @@ void zchxUserDefinesDataMgr::updateCardMouthZone(const QList<ZCHX::Data::ITF_Car
 
 void zchxUserDefinesDataMgr::updateCardMouthZone(const ZCHX::Data::ITF_CardMouth &zone)
 {
-    DrawElement::CardMouth *zoneItem = zchxCardMouthZoneItem(zone.name.toStdString());
+    CardMouth *zoneItem = zchxCardMouthZoneItem(zone.name.toStdString());
     //更新已有的
     if(zoneItem)
     {
@@ -395,19 +396,19 @@ void zchxUserDefinesDataMgr::updateCardMouthZone(const ZCHX::Data::ITF_CardMouth
     else
     {
         //没有就添加
-        DrawElement::CardMouth newitem(zone);
+        CardMouth newitem(zone);
         m_cardMouthZone.push_back(newitem);
     }
 }
 
-void zchxUserDefinesDataMgr::setIslandLineData(const std::vector<DrawElement::IslandLine> &data)
+void zchxUserDefinesDataMgr::setIslandLineData(const std::vector<IslandLine> &data)
 {
     m_IslandLine = data;
 }
 
 bool zchxUserDefinesDataMgr::zchxIslandData4id(int uuid, ZCHX::Data::ITF_IslandLine &info)
 {
-    std::vector<DrawElement::IslandLine>::iterator it;
+    std::vector<IslandLine>::iterator it;
     for(it =m_IslandLine.begin(); it != m_IslandLine.end(); ++it)
     {
         if(uuid == (*it).id())
@@ -419,12 +420,12 @@ bool zchxUserDefinesDataMgr::zchxIslandData4id(int uuid, ZCHX::Data::ITF_IslandL
     return false;
 }
 
-void zchxUserDefinesDataMgr::setLocalMarkData(const std::vector<DrawElement::LocalMark> &data)
+void zchxUserDefinesDataMgr::setLocalMarkData(const std::vector<LocalMark> &data)
 {
     m_LocalMark = data;
 }
 
-void zchxUserDefinesDataMgr::setCoastData(const std::vector<DrawElement::CoastData> &data)
+void zchxUserDefinesDataMgr::setCoastData(const std::vector<CoastData> &data)
 {
     m_coastDataLine = data;
 }
@@ -453,7 +454,7 @@ void zchxUserDefinesDataMgr::importCoastData(const std::vector<std::pair<double,
     }
 }
 
-void zchxUserDefinesDataMgr::setSeabedPipeLine(const std::vector<DrawElement::SeabedPipeLine> &data)
+void zchxUserDefinesDataMgr::setSeabedPipeLine(const std::vector<SeabedPipeLine> &data)
 {
     m_seabedPipeLineLine = data;
 }
@@ -482,12 +483,12 @@ void zchxUserDefinesDataMgr::importSeabedPipeLine(const std::vector<std::pair<do
     }
 }
 
-void zchxUserDefinesDataMgr::setStructure(const std::vector<DrawElement::Structure> & data)
+void zchxUserDefinesDataMgr::setStructure(const std::vector<Structure> & data)
 {
     m_structurePoint = data;
 }
 
-void zchxUserDefinesDataMgr::setAreaNet(const std::vector<DrawElement::AreaNet> &data)
+void zchxUserDefinesDataMgr::setAreaNet(const std::vector<AreaNet> &data)
 {
     m_areaNetZone = data;
 }
@@ -517,7 +518,7 @@ void zchxUserDefinesDataMgr::importAreaNet(const std::vector<std::pair<double, d
     }
 }
 
-void zchxUserDefinesDataMgr::setChannel(const std::vector<DrawElement::Channel> &data)
+void zchxUserDefinesDataMgr::setChannel(const std::vector<Channel> &data)
 {
     m_channelZone = data;
 }
@@ -601,7 +602,7 @@ void zchxUserDefinesDataMgr::cancelChannelLine(int channelId)
     }
 }
 
-void zchxUserDefinesDataMgr::setMooring(const std::vector<DrawElement::Mooring> &data)
+void zchxUserDefinesDataMgr::setMooring(const std::vector<Mooring> &data)
 {
     m_mooringZone = data;
 }
@@ -632,14 +633,14 @@ void zchxUserDefinesDataMgr::importMooring(const std::vector<std::pair<double, d
     }
 }
 
-void zchxUserDefinesDataMgr::setCardMouth(const std::vector<DrawElement::CardMouth> &data)
+void zchxUserDefinesDataMgr::setCardMouth(const std::vector<CardMouth> &data)
 {
     m_cardMouthZone = data;
 }
 
 bool zchxUserDefinesDataMgr::zchxCardMouthZoneData4id(int uuid, ZCHX::Data::tagITF_CardMouth &info)
 {
-    std::vector<DrawElement::CardMouth>::iterator it;
+    std::vector<CardMouth>::iterator it;
     for(it = m_cardMouthZone.begin(); it != m_cardMouthZone.end(); ++it)
     {
         int myid = (*it).data().id;
@@ -653,7 +654,7 @@ bool zchxUserDefinesDataMgr::zchxCardMouthZoneData4id(int uuid, ZCHX::Data::tagI
 }
 
 
-DrawElement::CardMouth *zchxUserDefinesDataMgr::zchxCardMouthZoneItem(const std::string &name)
+CardMouth *zchxUserDefinesDataMgr::zchxCardMouthZoneItem(const std::string &name)
 {
     for(int i = 0; i < m_cardMouthZone.size(); ++i)
     {
@@ -693,12 +694,13 @@ void zchxUserDefinesDataMgr::importCardMouth(const std::vector<std::pair<double,
 }
 
 
-void zchxUserDefinesDataMgr::setDangerousCircleData(const std::vector<DrawElement::DangerousCircle> &data)
+void zchxUserDefinesDataMgr::setDangerousCircleData(const std::vector<DangerousCircle> &data)
 {
     m_DangerousCircle = data;
 }
 
-void zchxUserDefinesDataMgr::setPastrolStation(const std::vector<DrawElement::PastrolStation> &data)
+void zchxUserDefinesDataMgr::setPastrolStation(const std::vector<PastrolStation> &data)
 {
     m_PastrolStation = data;
+}
 }

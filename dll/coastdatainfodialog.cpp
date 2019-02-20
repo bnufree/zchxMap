@@ -1,6 +1,7 @@
 #include "coastdatainfodialog.h"
 #include "ui_coastdatainfodialog.h"
 
+namespace qt {
 CoastDataInfoDialog::CoastDataInfoDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::CoastDataInfoDialog)
@@ -41,4 +42,5 @@ void CoastDataInfoDialog::on_comfirmButton_clicked()
 void CoastDataInfoDialog::on_cancelButton_clicked()
 {
     reject();
+}
 }

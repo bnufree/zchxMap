@@ -6,10 +6,7 @@
 #include <QDebug>
 #include "zchxutils.hpp"
 
-namespace DrawElement{
-
-
-
+namespace qt{
 
 MoveElement::MoveElement()
     :Element(0,0)
@@ -1363,29 +1360,29 @@ void Multibeam::setData(const ZCHX::Data::ITF_Multibeam &data)
     m_data = data;
 }
 
-RadarVideo::RadarVideo(const ZCHX::Data::ITF_RadarVideo &ele, int uIndex)
+RadarVideoElement::RadarVideoElement(const ZCHX::Data::ITF_RadarVideo &ele, int uIndex)
     :Element(ele.dCentreLat,ele.dCentreLon),m_uMsgIndex(uIndex)
 {
     m_data = ele;
 }
 
-ZCHX::Data::ITF_RadarVideo RadarVideo::data() const
+ZCHX::Data::ITF_RadarVideo RadarVideoElement::data() const
 {
     return m_data;
 }
 
-void RadarVideo::setData(const ZCHX::Data::ITF_RadarVideo &data)
+void RadarVideoElement::setData(const ZCHX::Data::ITF_RadarVideo &data)
 {
     m_data = data;
 }
 
 
-void RadarVideo::setMsgIndex(int uIndex)
+void RadarVideoElement::setMsgIndex(int uIndex)
 {
     m_uMsgIndex = uIndex;
 }
 
-int RadarVideo::getMsgIndex()
+int RadarVideoElement::getMsgIndex()
 {
     return m_uMsgIndex;
 }

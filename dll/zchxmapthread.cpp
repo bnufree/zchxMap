@@ -3,9 +3,11 @@
 #include <QDebug>
 #include <QThreadPool>
 
-const MapBounds total_bounds = {EARTH_HALF_CIRCUL_LENGTH * (-1), EARTH_HALF_CIRCUL_LENGTH * (-1), EARTH_HALF_CIRCUL_LENGTH, EARTH_HALF_CIRCUL_LENGTH};
-
 #define     DBG_DOUBLE(val)      QString::number((val), 'f' , 2)
+
+
+namespace qt {
+const MapBounds total_bounds = {EARTH_HALF_CIRCUL_LENGTH * (-1), EARTH_HALF_CIRCUL_LENGTH * (-1), EARTH_HALF_CIRCUL_LENGTH, EARTH_HALF_CIRCUL_LENGTH};
 
 zchxMapThread::zchxMapThread(QObject *parent) : QThread(parent)
 {
@@ -114,6 +116,7 @@ void zchxMapThread::run()
         }
         pool.waitForDone();
     }
+}
 }
 
 

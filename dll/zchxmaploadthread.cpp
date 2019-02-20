@@ -4,6 +4,7 @@
 #include <QApplication>
 #include <zchxtileimagethread.h>
 
+namespace qt {
 zchxMapLoadThread::zchxMapLoadThread(QObject *parent) : QThread(parent)
 {
     mTaskList.clear();
@@ -168,7 +169,7 @@ void zchxMapLoadThread::run()
                     url = QString("http://mt2.google.cn/vt/lyrs=m@167000000&hl=zh-CN&gl=cn&x=%1&y=%2&z=%3&s=Galil").arg(i).arg(k).arg(task.mZoom);
                 } else if(task.mSource == TILE_TMS)
                 {
-                    url = QString("%1/data/JMtms/%2/%3/%4.png").arg(QApplication::applicationDirPath()).arg(task.mZoom).arg(i).arg(k);
+                    url = QString("%1/data/%2/%3/%4.png").arg(QApplication::applicationDirPath()).arg(task.mZoom).arg(i).arg(k);
                 }
                 int pos_x = pos.x + (i-tile_start_x) * MAP_IMG_SIZE;
                 int pos_y = pos.y + j * MAP_IMG_SIZE;
@@ -191,4 +192,5 @@ void zchxMapLoadThread::appendTileImg(const QPixmap& img, int x, int y,  const Q
 {
     QMutexLocker locker(&mImgMutex);
     mTileImgList.append(TileImage(img, x, y, name));
+}
 }

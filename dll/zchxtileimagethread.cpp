@@ -3,7 +3,7 @@
 #include <QFile>
 #include <QPixmapCache>
 
-
+namespace qt {
 zchxTileImageThread::zchxTileImageThread(const QString& url, const QString& name,int pos_x, int pos_y, bool imgSync, QObject* retobj, QObject *parent) : QObject(parent),QRunnable(),
     mImgSync(imgSync),
     mName(name),
@@ -51,7 +51,7 @@ QPixmap* zchxTileImageThread::loadImageFromUrl(const QString &url)
 {
     //qDebug()<<"start load image:"<<QDateTime::currentDateTime()<<url;
     QPixmap *img = new QPixmap(256, 256);
-    QPixmapCache::setCacheLimit(1);
+    //QPixmapCache::setCacheLimit(1);
     bool sts = false;
     if(!url.isEmpty()){
         if(url.contains("http"))
@@ -68,4 +68,5 @@ QPixmap* zchxTileImageThread::loadImageFromUrl(const QString &url)
     }
     //qDebug()<<"end load image:"<<QDateTime::currentDateTime()<<" img:"<<url<<"sts:"<<sts;
     return img;
+}
 }

@@ -16,7 +16,7 @@
 //#define     DEFAULT_LON         113.093664
 //#define     DEFAULT_LAT         22.216150
 //#define     DEFAULT_ZOOM        13
-
+namespace qt {
 zchxMapWidget::zchxMapWidget(QWidget *parent) : QWidget(parent),
     mLastWheelTime(0),
     mFrameWork(0),
@@ -33,7 +33,7 @@ zchxMapWidget::zchxMapWidget(QWidget *parent) : QWidget(parent),
     mIsCameraDisplayWithoutRod(true),
     mCurPluginUserModel(ZCHX::Data::ECDIS_PLUGIN_USE_MODEL::ECDIS_PLUGIN_USE_DISPLAY_MODEL),
     mCurPickupType(ZCHX::Data::ECDIS_PICKUP_TYPE::ECDIS_PICKUP_ALL),
-    mLayerMgr(new zchxMapLayerMgr(this)),
+    mLayerMgr(new MapLayerMgr(this)),
     mCameraDataMgr(new zchxCameraDatasMgr(this)),
     mDataMgrFactory(new zchxDataMgrFactory(this)),
     mUseDataMgr(new zchxUserDefinesDataMgr(this)),
@@ -42,9 +42,13 @@ zchxMapWidget::zchxMapWidget(QWidget *parent) : QWidget(parent),
 {
     this->setMouseTracking(true);
     QTimer *timer = new QTimer;
-    timer->setInterval(zchxEcdis::Profiles::instance()->value(MAP_INDEX, MAP_UPDATE_INTERVAL).toInt());
+    timer->setInterval(Profiles::instance()->value(MAP_INDEX, MAP_UPDATE_INTERVAL).toInt());
     connect(timer, SIGNAL(timeout()), this, SLOT(update()));
     timer->start();
+    //创建数据管理容器
+    mDataMgrFactory->createManager(qt::ZCHX_DATA_MGR_AIS);
+    mDataMgrFactory->createManager(qt::ZCHX_DATA_MGR_RADAR);
+
 }
 
 zchxMapWidget::~zchxMapWidget()
@@ -64,10 +68,11 @@ void zchxMapWidget::resizeEvent(QResizeEvent *e)
     {
         if(!mFrameWork)
         {
-            double lat = zchxEcdis::Profiles::instance()->value(MAP_INDEX, MAP_DEFAULT_LAT).toDouble();
-            double lon = zchxEcdis::Profiles::instance()->value(MAP_INDEX, MAP_DEFAULT_LON).toDouble();
-            int zoom = zchxEcdis::Profiles::instance()->value(MAP_INDEX, MAP_DEFAULT_ZOOM).toInt();
-            mFrameWork = new zchxMapFrameWork(lat, lon, zoom, size.width(), size.height());
+            double lat = Profiles::instance()->value(MAP_INDEX, MAP_DEFAULT_LAT).toDouble();
+            double lon = Profiles::instance()->value(MAP_INDEX, MAP_DEFAULT_LON).toDouble();
+            int     source = Profiles::instance()->value(MAP_INDEX, MAP_SOURCE).toInt();
+            int zoom = Profiles::instance()->value(MAP_INDEX, MAP_DEFAULT_ZOOM).toInt();
+            mFrameWork = new zchxMapFrameWork(lat, lon, zoom, size.width(), size.height(), source);
             mMapThread = new zchxMapLoadThread;
             connect(mFrameWork, SIGNAL(UpdateMap(MapLoadSetting)), mMapThread, SLOT(appendTask(MapLoadSetting)));
             connect(mMapThread, SIGNAL(signalSendCurPixmap(QPixmap,int,int)), this, SLOT(append(QPixmap,int,int)));
@@ -197,13 +202,13 @@ void zchxMapWidget::updateCurrentPos(const QPoint &p)
 
 void zchxMapWidget::autoChangeCurrentStyle()
 {
-    if(!zchxEcdis::Profiles::instance()->value(MAP_INDEX, MAP_STYLE_AUTO_CHANGE, false).toBool()) return;
+    if(!Profiles::instance()->value(MAP_INDEX, MAP_STYLE_AUTO_CHANGE, false).toBool()) return;
     //获取设定的白天,黄昏,夜晚的时间,根据当前时间自动设定地图颜色模式
     QString cur_str = QTime::currentTime().toString("hhmmss");
-    if(cur_str < zchxEcdis::Profiles::instance()->value(MAP_INDEX, MAP_DAY_TIME).toString())
+    if(cur_str < Profiles::instance()->value(MAP_INDEX, MAP_DAY_TIME).toString())
     {
         setMapStyle(MapStyleEcdisNight);
-    } else if(cur_str < zchxEcdis::Profiles::instance()->value(MAP_INDEX, MAP_DUSK_TIME).toString())
+    } else if(cur_str < Profiles::instance()->value(MAP_INDEX, MAP_DUSK_TIME).toString())
     {
         setMapStyle(MapStyleEcdisDayBright);
     } else
@@ -236,7 +241,7 @@ void zchxMapWidget::setCenterAndZoom(const LatLon &ll, int zoom)
 
 void zchxMapWidget::setCenterAtTargetLL(double lat, double lon)
 {
-    int zoom = zchxEcdis::Profiles::instance()->value(MAP_INDEX, MAP_DEFAULT_TARGET_ZOOM).toInt();
+    int zoom = Profiles::instance()->value(MAP_INDEX, MAP_DEFAULT_TARGET_ZOOM).toInt();
     setCenterAndZoom(LatLon(lat, lon), zoom);
 }
 
@@ -311,43 +316,43 @@ void zchxMapWidget::resetMapRotate(double lat, double lon)
 
 void zchxMapWidget::reset()
 {
-    double lat = zchxEcdis::Profiles::instance()->value(MAP_INDEX, MAP_DEFAULT_LAT).toDouble();
-    double lon = zchxEcdis::Profiles::instance()->value(MAP_INDEX, MAP_DEFAULT_LON).toDouble();
-    double zoom = zchxEcdis::Profiles::instance()->value(MAP_INDEX, MAP_DEFAULT_ZOOM).toInt();
+    double lat = Profiles::instance()->value(MAP_INDEX, MAP_DEFAULT_LAT).toDouble();
+    double lon = Profiles::instance()->value(MAP_INDEX, MAP_DEFAULT_LON).toDouble();
+    double zoom = Profiles::instance()->value(MAP_INDEX, MAP_DEFAULT_ZOOM).toInt();
     setCenterAndZoom(LatLon(lat, lon), zoom);
 }
 
 void zchxMapWidget::setStyleAutoChange(bool val)
 {
-    zchxEcdis::Profiles::instance()->setValue(MAP_INDEX, MAP_STYLE_AUTO_CHANGE, val);
+    Profiles::instance()->setValue(MAP_INDEX, MAP_STYLE_AUTO_CHANGE, val);
 }
 
 void zchxMapWidget::setGISDayBrightTime(const QTime &t)
 {
-    zchxEcdis::Profiles::instance()->setValue(MAP_INDEX, MAP_DAY_TIME, t.toString("hhmmss"));
+    Profiles::instance()->setValue(MAP_INDEX, MAP_DAY_TIME, t.toString("hhmmss"));
 }
 
 void zchxMapWidget::setGISDuskTime(const QTime &t)
 {
-    zchxEcdis::Profiles::instance()->setValue(MAP_INDEX, MAP_DUSK_TIME, t.toString("hhmmss"));
+    Profiles::instance()->setValue(MAP_INDEX, MAP_DUSK_TIME, t.toString("hhmmss"));
 }
 
 void zchxMapWidget::setGISNightTime(const QTime &t)
 {
-    zchxEcdis::Profiles::instance()->setValue(MAP_INDEX, MAP_NIGHT_TIME, t.toString("hhmmss"));
+    Profiles::instance()->setValue(MAP_INDEX, MAP_NIGHT_TIME, t.toString("hhmmss"));
 }
 
 void zchxMapWidget::setWarnColorAlphaStep(int val)
 {
-    zchxEcdis::Profiles::instance()->setValue(MAP_INDEX, WARN_FLAH_COLOR_ALPHA, val);
+    Profiles::instance()->setValue(MAP_INDEX, WARN_FLAH_COLOR_ALPHA, val);
 }
 
 int zchxMapWidget::getWarnColorAlphaStep()
 {
-    return zchxEcdis::Profiles::instance()->value(MAP_INDEX, WARN_FLAH_COLOR_ALPHA).toInt();
+    return Profiles::instance()->value(MAP_INDEX, WARN_FLAH_COLOR_ALPHA).toInt();
 }
 
-zchxMapLayerMgr * zchxMapWidget::getMapLayerMgr()
+MapLayerMgr * zchxMapWidget::getMapLayerMgr()
 {
     return mLayerMgr;
 }
@@ -438,12 +443,12 @@ void zchxMapWidget::setCurPickupType(const ZCHX::Data::ECDIS_PICKUP_TYPE &curPic
     mCurPickupType = curPickupType;
 }
 
-std::shared_ptr<DrawElement::Element> zchxMapWidget::getCurrentSelectedElement()
+std::shared_ptr<Element> zchxMapWidget::getCurrentSelectedElement()
 {
     return mCurrentSelectElement;
 }
 
-void zchxMapWidget::setCurrentSelectedItem(std::shared_ptr<DrawElement::Element> item)
+void zchxMapWidget::setCurrentSelectedItem(std::shared_ptr<Element> item)
 {
     mCurrentSelectElement = item;
 }
@@ -500,7 +505,7 @@ void zchxMapWidget::clearGPSData()
 
 void zchxMapWidget::setFleet(const QMap<QString, ZCHX::Data::ITF_Fleet> &fleetMap)
 {
-    std::vector<DrawElement::DangerousCircle> list;
+    std::vector<DangerousCircle> list;
     // 设置危险圈
     QMap<QString, ZCHX::Data::ITF_Fleet>::const_iterator fleetIt = fleetMap.begin();
     for (; fleetIt != fleetMap.end(); ++fleetIt)
@@ -509,7 +514,7 @@ void zchxMapWidget::setFleet(const QMap<QString, ZCHX::Data::ITF_Fleet> &fleetMa
         if (fleetInfo.dangerCircleRadius > 0)
         {
             ZCHX::Data::ITF_DangerousCircle circle = {fleetIt.key(), 0, 0, 0, fleetInfo.dangerCircleRadius};
-            list.push_back(DrawElement::DangerousCircle(circle));
+            list.push_back(DangerousCircle(circle));
         }
     }
     if(mUseDataMgr) mUseDataMgr->setDangerousCircleData(list);
@@ -520,6 +525,7 @@ zchxEcdisDataMgr* zchxMapWidget::getManager(int type)
     std::shared_ptr<zchxEcdisDataMgr> mgr = mDataMgrFactory->getManager(type);
     if(mgr) return mgr.get();
     return 0;
+}
 }
 
 

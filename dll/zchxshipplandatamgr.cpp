@@ -7,17 +7,18 @@
 #include "channelinfodialog.h"
 #include "mooringinfodialog.h"
 
+namespace qt {
 zchxShipPlanDataMgr::zchxShipPlanDataMgr(zchxMapWidget* w, QObject *parent) : QObject(parent),mDisplayWidget(w)
 {
 }
 
 
-void zchxShipPlanDataMgr::setAllProjecrShipPlanLineData(const std::vector<DrawElement::ShipPlanLine> &data)
+void zchxShipPlanDataMgr::setAllProjecrShipPlanLineData(const std::vector<ShipPlanLine> &data)
 {
     m_AllShipPlanLines = data;
 }
 
-void zchxShipPlanDataMgr::setShipPlanLineData(const std::vector<DrawElement::ShipPlanLine> &data)
+void zchxShipPlanDataMgr::setShipPlanLineData(const std::vector<ShipPlanLine> &data)
 {
     m_ShipPlanLine = data;
 #if 0
@@ -25,10 +26,10 @@ void zchxShipPlanDataMgr::setShipPlanLineData(const std::vector<DrawElement::Shi
     int activePlanID = -1;
     if(Settings::Get("ActivePlan", activePlanID))
     {
-        std::vector<DrawElement::ShipPlanLine>::iterator it;
+        std::vector<ShipPlanLine>::iterator it;
         for(it=m_ShipPlanLine.begin(); it != m_ShipPlanLine.end(); ++it)
         {
-            DrawElement::ShipPlanLine *ptr = &(*it);
+            ShipPlanLine *ptr = &(*it);
             if(ptr->data().m_dShipPlanId == activePlanID)
             {
                 ptr->setIsActive(true);
@@ -69,14 +70,14 @@ void zchxShipPlanDataMgr::setShipPlanLineData(const std::vector<DrawElement::Shi
 
     if(!m_ShipPlanLine.empty())
     {
-        DrawElement::ShipPlanLine objLine = data.at(0);
+        ShipPlanLine objLine = data.at(0);
         ZCHX::Data::ShipPlanLine objData = objLine.data();
         m_uCurrentProjectID = objData.m_dProjectID;
     }
-    std::vector<DrawElement::ShipPlanLine>::iterator it;
+    std::vector<ShipPlanLine>::iterator it;
     for(it = m_AllShipPlanLines.begin(); it != m_AllShipPlanLines.end(); ++it)
     {
-        DrawElement::ShipPlanLine ele = (*it);
+        ShipPlanLine ele = (*it);
         ZCHX::Data::ShipPlanLine shipPlanLine = ele.data();
         if(shipPlanLine.m_dProjectID == m_uCurrentProjectID)
         {
@@ -87,7 +88,7 @@ void zchxShipPlanDataMgr::setShipPlanLineData(const std::vector<DrawElement::Shi
     }
     for(int i = 0;i<m_ShipPlanLine.size();i++)
     {
-        DrawElement::ShipPlanLine objLine = data.at(i);
+        ShipPlanLine objLine = data.at(i);
         m_AllShipPlanLines.push_back(objLine);
     }
 }
@@ -95,5 +96,6 @@ void zchxShipPlanDataMgr::setShipPlanLineData(const std::vector<DrawElement::Shi
 void zchxShipPlanDataMgr::setShipPlanProjectID(const int ProjectID)
 {
     m_uCurrentProjectID = ProjectID;
+}
 }
 

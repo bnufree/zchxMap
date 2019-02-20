@@ -6,6 +6,7 @@
 #include <QNetworkReply>
 #include <QTimer>
 
+namespace qt {
 class QHttpGet : public QThread
 {
     Q_OBJECT
@@ -37,5 +38,6 @@ private:
     QByteArray      mHttpContent;
 
 };
+}
 
 #endif // QHTTPGET_H

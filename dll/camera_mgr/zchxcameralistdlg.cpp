@@ -1,6 +1,7 @@
 ﻿#include "zchxcameralistdlg.h"
 #include <QtGui>
 
+namespace qt {
 ZCHXCameraListDlg::ZCHXCameraListDlg(const QList<ZCHX::Data::ITF_CameraDev> &cameraList, QWidget *parent)
     : QDialog(parent),
       m_cameraList(cameraList),
@@ -175,4 +176,5 @@ void ZCHXCameraListDlg::cameraDoubleClicked(QModelIndex idx)
 {
     ZCHX::Data::ITF_CameraDev info = m_cameraList[idx.row()];
     emit cameraDevDoubleClicked(info);
+}
 }

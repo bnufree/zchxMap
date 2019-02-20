@@ -3,7 +3,7 @@
 #include <QTextCodec>
 #include "zchxMapDatautils.h"
 
-namespace zchxEcdis {
+namespace qt {
 
 Profiles* Profiles::minstance = 0;
 Profiles::MGarbage Profiles::Garbage;
@@ -47,6 +47,7 @@ void Profiles::initDefaultValues()
     setDefault(MAP_INDEX, MAP_DEFAULT_ZOOM, 13);
     setDefault(MAP_INDEX, MAP_DEFAULT_TARGET_ZOOM, 15);
     setDefault(MAP_INDEX, MAP_UPDATE_INTERVAL, 100);
+    setDefault(MAP_INDEX, MAP_SOURCE, 0);
     //Ais显示配置
     setDefault(AIS_DISPLAY_SETTING, AIS_FILL_COLOR, QColor(Qt::green).name());
     setDefault(AIS_DISPLAY_SETTING, AIS_TEXT_COLOR, QColor(Qt::black).name());

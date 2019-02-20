@@ -5,11 +5,12 @@
 #include <QPointF>
 #include "zchxMapDataUtils.h"
 
+namespace qt {
 class zchxMapFrameWork : public QObject
 {
     Q_OBJECT
 public:
-    explicit zchxMapFrameWork(double center_lat, double center_lon, int zoom, int width, int height, QObject *parent = 0);
+    explicit zchxMapFrameWork(double center_lat, double center_lon, int zoom, int width, int height, int source, QObject *parent = 0);
     LatLon      Pixel2LatLon(const Point2D& pos);
     Point2D     LatLon2Pixel(const LatLon& ll);
     Point2D     LatLon2Pixel(double lat, double lon);
@@ -55,5 +56,6 @@ private:
     MapStyle            mStyle;
     double              mRotateAngle;
 };
+}
 
 #endif // ZCHXMAPFRAMEWORK_H

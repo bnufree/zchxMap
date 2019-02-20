@@ -9,6 +9,8 @@
 namespace Ui {
 class MainWindow;
 }
+namespace qt {
+
 class ZCHX_ECDIS_EXPORT MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -18,6 +20,7 @@ public:
     ~MainWindow();
     void resizeEvent(QResizeEvent *e);
     void closeEvent(QCloseEvent *);
+    void loadEcdis();
 public slots:
     void updateGridLayout(int x, int y);
     void slotRecvMapData(const QPixmap& data, int x, int y);
@@ -211,7 +214,7 @@ public:
          * \param layer 要添加的图层
          * \param parent 父图层, 默认为空
          */
-    void itfAddLayer(std::shared_ptr<zchxMapLayer> layer, std::shared_ptr<zchxMapLayer> parent = 0);
+    void itfAddLayer(std::shared_ptr<MapLayer> layer, std::shared_ptr<MapLayer> parent = 0);
     /*!
          * \brief 判断地图中是否包含 type 指定的图层
          */
@@ -223,12 +226,12 @@ public:
     /*!
          * \brief 获取 type 指定的图层
          */
-    std::shared_ptr<zchxMapLayer> itfGetLayer(const QString &type);
+    std::shared_ptr<MapLayer> itfGetLayer(const QString &type);
     /*!
          * \brief 获取所有的图层并保持树形结构
          * \see MapLayer::getChildLayers()
          */
-    const std::list<std::shared_ptr<zchxMapLayer> > &itfGetLayerTree();
+    const std::list<std::shared_ptr<MapLayer> > &itfGetLayerTree();
     /*!
          * \brief 更新号角设备列表
          */
@@ -262,7 +265,7 @@ public:
     /*!
          * \brief 获取图层中当前被选中的元素
          */
-    std::shared_ptr<DrawElement::Element> getCurrentSelectedElement();
+    std::shared_ptr<Element> getCurrentSelectedElement();
 
     /*!
          * \brief 通过 uuid   获取航道
@@ -435,7 +438,7 @@ public slots: //定义Recive数据接口
     void itfSetHistoryAisData(const QList<ZCHX::Data::ITF_AIS> &data); //设置历史AIS数据
     void itfSetClearHistoryData(bool states);               //true-清理历史ais/radatr  false-清理历史轨迹
     void itfSetConsAisData(const ZCHX::Data::ITF_AIS &data); //设置施工船舶
-    void itfSetRadarPointData(const QList<ZCHX::Data::ITF_RadarPoint>/*const std::vector<DrawElement::RadarPoint>*/ &data);//设置雷达点数据
+    void itfSetRadarPointData(const QList<ZCHX::Data::ITF_RadarPoint>/*const std::vector<RadarPoint>*/ &data);//设置雷达点数据
     void itfSetHistoryRadarPointData(const QList<ZCHX::Data::ITF_RadarPoint> &data); //设置雷达历史数据
     void itfSetRadarAreaData(const QList<ZCHX::Data::ITF_RadarArea> &data); //设置雷达扫描区域数据
     void itfSetCameraRodData(const QList<ZCHX::Data::ITF_CameraRod> &data); //设置摄像杆接口数据
@@ -539,7 +542,7 @@ public slots: //定义Recive数据接口
     void itfAppendElementItem(const ZCHX::Data::ITF_EleTriangle &item); //设置图元数据
     void itfAppendElementItem(const ZCHX::Data::ITF_EleLine &item);     //设置图元数据
     void itfAppendElementItem(const ZCHX::Data::ITF_EleRect &item);     //设置图元数据
-    void itfRemoveElementItem(DrawElement::Element *pitem);             //删除图元
+    void itfRemoveElementItem(Element *pitem);             //删除图元
     void itfClearElementData(); //清除图元指针数据
     void itfSetPickUpRadarInfo(qint32 tracknumber);
     void itfSetPickUpAisInfo(QString id);
@@ -685,6 +688,8 @@ protected Q_SLOTS:
 private:
     Ui::MainWindow *ui;
     zchxMapWidget *mMapWidget;
+    bool          mStartLoad;
 };
+}
 
 #endif // MAINWINDOW_H

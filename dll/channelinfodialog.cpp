@@ -2,6 +2,7 @@
 #include "ui_channelinfodialog.h"
 #include <QColorDialog>
 
+namespace qt {
 ChannelInfoDialog::ChannelInfoDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::ChannelInfoDialog),
@@ -148,4 +149,5 @@ void ChannelInfoDialog::on_typeComboBox_currentIndexChanged(int index)
     {
         ui->statusComboBox->setEnabled(true);
     }
+}
 }

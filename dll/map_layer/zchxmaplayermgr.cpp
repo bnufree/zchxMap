@@ -2,13 +2,14 @@
 #include "zchxmapwidget.h"
 #include <QDomDocument>
 
-zchxMapLayerMgr::zchxMapLayerMgr(zchxMapWidget* w, QObject *parent) : QObject(parent),
+namespace qt {
+MapLayerMgr::MapLayerMgr(zchxMapWidget* w, QObject *parent) : QObject(parent),
     mDisplayWidget(w)
 {
 
 }
 
-void zchxMapLayerMgr::loadLayers()
+void MapLayerMgr::loadLayers()
 {
     QString xmlPath = QString("%1/mapdata/maplayers.xml").arg(QApplication::applicationDirPath());
     QFile xmlFile(xmlPath);
@@ -34,7 +35,7 @@ void zchxMapLayerMgr::loadLayers()
     return;
 }
 
-void zchxMapLayerMgr::_readMapLayerNode(QDomElement node, std::shared_ptr<zchxMapLayer> parent)
+void MapLayerMgr::_readMapLayerNode(QDomElement node, std::shared_ptr<MapLayer> parent)
 {
     if(node.isNull()) return;
     QString type = node.attribute("type");
@@ -42,7 +43,7 @@ void zchxMapLayerMgr::_readMapLayerNode(QDomElement node, std::shared_ptr<zchxMa
     bool visible = (node.attribute("visible") == "true");
     QString strMode = node.attribute("mode");
 
-    std::shared_ptr<zchxMapLayer> layer(new zchxMapLayer(mDisplayWidget, type, trSource, visible) );
+    std::shared_ptr<MapLayer> layer(new MapLayer(mDisplayWidget, type, trSource, visible) );
     if(strMode.contains("display"))
     {
         layer->setMode(ZCHX::Data::ECDIS_PLUGIN_USE_DISPLAY_MODEL);
@@ -63,7 +64,7 @@ void zchxMapLayerMgr::_readMapLayerNode(QDomElement node, std::shared_ptr<zchxMa
     }
 }
 
-void zchxMapLayerMgr::addLayer(std::shared_ptr<zchxMapLayer> layer, std::shared_ptr<zchxMapLayer> parent)
+void MapLayerMgr::addLayer(std::shared_ptr<MapLayer> layer, std::shared_ptr<MapLayer> parent)
 {
     if(!layer) return;
     if(containsLayer(layer->type()))
@@ -72,7 +73,7 @@ void zchxMapLayerMgr::addLayer(std::shared_ptr<zchxMapLayer> layer, std::shared_
         return;
     }
 
-    //connect(layer.get(), &zchxMapLayer::visibleChanged, this, &DrawWidget::_maplayerVisibleChanged, Qt::UniqueConnection);
+    //connect(layer.get(), &MapLayer::visibleChanged, this, &DrawWidget::_maplayerVisibleChanged, Qt::UniqueConnection);
 
     if(parent)
     {
@@ -84,9 +85,9 @@ void zchxMapLayerMgr::addLayer(std::shared_ptr<zchxMapLayer> layer, std::shared_
     m_layerList.push_back(layer);
 }
 
-bool zchxMapLayerMgr::containsLayer(const QString &type) const
+bool MapLayerMgr::containsLayer(const QString &type) const
 {
-    for(std::shared_ptr<zchxMapLayer> layer : m_layerList)
+    for(std::shared_ptr<MapLayer> layer : m_layerList)
     {
         if(layer->type() == type)
             return true;
@@ -94,20 +95,20 @@ bool zchxMapLayerMgr::containsLayer(const QString &type) const
     return false;
 }
 
-QStringList zchxMapLayerMgr::getLayerList() const
+QStringList MapLayerMgr::getLayerList() const
 {
     QStringList list;
-    for(std::shared_ptr<zchxMapLayer> layer : m_layerList)
+    for(std::shared_ptr<MapLayer> layer : m_layerList)
     {
         list.append(layer->type() );
     }
     return list;
 }
 
-std::shared_ptr<zchxMapLayer> zchxMapLayerMgr::getLayer(const QString &type)
+std::shared_ptr<MapLayer> MapLayerMgr::getLayer(const QString &type)
 {
-    std::shared_ptr<zchxMapLayer> nullLayer;
-    for(std::shared_ptr<zchxMapLayer> layer : m_layerList)
+    std::shared_ptr<MapLayer> nullLayer;
+    for(std::shared_ptr<MapLayer> layer : m_layerList)
     {
         if(layer->type() == type)
             return layer;
@@ -115,23 +116,24 @@ std::shared_ptr<zchxMapLayer> zchxMapLayerMgr::getLayer(const QString &type)
     return nullLayer;
 }
 
-const std::list<std::shared_ptr<zchxMapLayer> > &zchxMapLayerMgr::getLayerTree()
+const std::list<std::shared_ptr<MapLayer> > &MapLayerMgr::getLayerTree()
 {
     return m_layerTree;
 }
 
-bool zchxMapLayerMgr::isLayerVisible(const QString &type)
+bool MapLayerMgr::isLayerVisible(const QString &type)
 {
     if(type.isEmpty()) return true;
 
-    std::shared_ptr<zchxMapLayer> layer = getLayer(type);
+    std::shared_ptr<MapLayer> layer = getLayer(type);
 
     //    qDebug()<<type<<layer.get()<<layer->visible();
 
     return (layer && layer->visible());
 }
 
-bool zchxMapLayerMgr::isAnyLayerVisible(const QString &type1, const QString &type2, const QString &type3, const QString &type4, const QString &type5)
+bool MapLayerMgr::isAnyLayerVisible(const QString &type1, const QString &type2, const QString &type3, const QString &type4, const QString &type5)
 {
     return (isLayerVisible(type1) || isLayerVisible(type2) || isLayerVisible(type3) || isLayerVisible(type4) || isLayerVisible(type5));
+}
 }

@@ -2,6 +2,7 @@
 #include "zchxmapdownloadrunfunction.h"
 #include <QThreadPool>
 
+namespace qt {
 zchxMapDownloadThread::zchxMapDownloadThread(QObject *parent) : QThread(parent)
 {
 
@@ -19,4 +20,5 @@ void zchxMapDownloadThread::run()
         pool.start(fun);
     }
     pool.waitForDone();
+}
 }

@@ -1,5 +1,6 @@
 #include "zchxecdisdatamgr.h"
 
+namespace qt {
 zchxEcdisDataMgr::zchxEcdisDataMgr(zchxMapWidget* w, int type, QObject *parent) : QObject(parent)
   ,mDisplayWidget(w)
   ,mType(type)
@@ -91,6 +92,7 @@ void zchxEcdisDataMgr::setDataDisplayMode(int mode)
 int zchxEcdisDataMgr::getDataDisplayMode() const
 {
     return mDataDisplayMode;
+}
 }
 
 

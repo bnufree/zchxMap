@@ -18,15 +18,18 @@
 typedef     std::vector<std::pair<double, double> >     POLYLINE;
 typedef     QList<POLYLINE>                             POLYLINES;
 
+
+class QDomElement;
+class QScaleSlider;
+
+namespace qt {
 class ZCHXDrawMultibeam;
 class ZCHXDrawRadarVideo;
-class QDomElement;
 class zchxMapFrameWork;
 class zchxMapLoadThread;
-class QScaleSlider;
-class zchxMapLayerMgr;
+class MapLayerMgr;
 class zchxCameraDatasMgr;
-class zchxMapLayerMgr;
+class MapLayerMgr;
 class zchxDataMgrFactory;
 class zchxUserDefinesDataMgr;
 class zchxRouteDataMgr;
@@ -63,7 +66,7 @@ public:
     int    getWarnColorAlphaStep();
 
     //数据控制
-    zchxMapLayerMgr* getMapLayerMgr();
+    MapLayerMgr* getMapLayerMgr();
     //数据显示管理
     zchxDataMgrFactory* getDataMgrFactory() {return mDataMgrFactory;}
     zchxEcdisDataMgr* getManager(int type);
@@ -93,8 +96,8 @@ public:
     ZCHX::Data::ECDIS_PICKUP_TYPE getCurPickupType() const;
     void setCurPickupType(const ZCHX::Data::ECDIS_PICKUP_TYPE &curPickupType);
     // 获取图层中当前被选中的元素
-    std::shared_ptr<DrawElement::Element> getCurrentSelectedElement();    
-    void setCurrentSelectedItem(std::shared_ptr<DrawElement::Element> item);
+    std::shared_ptr<Element> getCurrentSelectedElement();
+    void setCurrentSelectedItem(std::shared_ptr<Element> item);
 
 
     //海图显示隐藏控制
@@ -309,30 +312,30 @@ public Q_SLOTS:
 //    void setETool2DrawLocalMark();
 
     //set data
-    //    void setAisData(const std::vector<DrawElement::AisElement> &data);//设置<ais>轨迹数据
-    //    void setAisDataFromCopy(const std::vector<DrawElement::AisElement> &data); //通过数据copy设置<AIS>数据
+    //    void setAisData(const std::vector<AisElement> &data);//设置<ais>轨迹数据
+    //    void setAisDataFromCopy(const std::vector<AisElement> &data); //通过数据copy设置<AIS>数据
 //    bool setSingleAisData(QString id, const QList<ZCHX::Data::ITF_AIS> &data);          //设置船<ais>轨迹数
 //    void removeAisHistoryData(QString id);
 //    void setAisData(const QList<ZCHX::Data::ITF_AIS> &data);                //设置<ais>轨迹数据
 //    void setHistoryAisData(const QList<ZCHX::Data::ITF_AIS> &data);         //设置历史回放<ais>轨迹数据
 //    void setConsAisData(const ZCHX::Data::ITF_AIS &aisdata);
 //    void setClearHistoryData(bool states);
-//    DrawElement::AisElement *getCurrentAis();
-//    DrawElement::AisElement *getHistoryCurrentAis();
+//    AisElement *getCurrentAis();
+//    AisElement *getHistoryCurrentAis();
 //    void updateAisElement(const QList<ZCHX::Data::ITF_AIS> &data);
-//    void setRadarPointData(const std::vector<DrawElement::RadarPointElement> &data);//设置雷达点数据
+//    void setRadarPointData(const std::vector<RadarPointElement> &data);//设置雷达点数据
 //    bool getPreRadarData(ZCHX::Data::ITF_RadarPoint& data, int trackNum);
-//    void setHistoryRadarPointData(const std::vector<DrawElement::RadarPointElement> &data);//设置历史回放雷达点数据
-//    void setRadarAreaData(const std::vector<DrawElement::RadarAreaElement> & data); //设置雷达扫描区域数据
-//    void setCameraRodData(const std::vector<DrawElement::CameraRodElement> & data); //设置摄像杆数据
-//    void setCameraDevData(const std::vector<DrawElement::CameraElement> & data); //设置相机设备数据
-//    void setCameraGdyDevData(const std::vector<DrawElement::CameraElement> & data);    //设置光电仪设备数据
-//    void setCameraPlanDevData(const std::vector<DrawElement::CameraElement> & data);   //设置无人机设备数据
+//    void setHistoryRadarPointData(const std::vector<RadarPointElement> &data);//设置历史回放雷达点数据
+//    void setRadarAreaData(const std::vector<RadarAreaElement> & data); //设置雷达扫描区域数据
+//    void setCameraRodData(const std::vector<CameraRodElement> & data); //设置摄像杆数据
+//    void setCameraDevData(const std::vector<CameraElement> & data); //设置相机设备数据
+//    void setCameraGdyDevData(const std::vector<CameraElement> & data);    //设置光电仪设备数据
+//    void setCameraPlanDevData(const std::vector<CameraElement> & data);   //设置无人机设备数据
     //设置船上的相机.相机初始化设定时设定相机的站点名对应的是船舶Ais的MMSI.站点的经纬度设定为(0,0);
-//    void setAisCameraDevData(const std::vector<DrawElement::CameraElement> & data);         //设置船上的相机
+//    void setAisCameraDevData(const std::vector<CameraElement> & data);         //设置船上的相机
 
-//    void setPastrolStation(const std::vector<DrawElement::PastrolStation> & data);      //设置巡逻站
-//    void setWarringZONEData(const std::vector<DrawElement::WarringZONE> & data);        //设置告警区域数据
+//    void setPastrolStation(const std::vector<PastrolStation> & data);      //设置巡逻站
+//    void setWarringZONEData(const std::vector<WarringZONE> & data);        //设置告警区域数据
 
 //    void setShipSiumtionData(const std::vector<std::pair<double,double> > &data);          //设置船舶航线模拟数据
 //    void setAisDataToSiumtion(const QList<ZCHX::Data::ITF_AIS> &data);
@@ -348,21 +351,21 @@ public Q_SLOTS:
 
     // 设置预警追溯
 //    void setShipAlarmAscendMap(const QMap<QString, ZCHX::Data::ITF_ShipAlarmAscend> &shipAlarmAscendMap);
-//    void setRadarFeatureZoneData(const std::vector<DrawElement::RadarFeatureZone> &data);
-//    void setCameraObservationZoneData(const std::vector<DrawElement::CameraObservationZone> &data);
+//    void setRadarFeatureZoneData(const std::vector<RadarFeatureZone> &data);
+//    void setCameraObservationZoneData(const std::vector<CameraObservationZone> &data);
 //    void setRadarEchoData(const QMap<QDateTime,ZCHX::Data::ITF_RadarEchoMap> &data);    //设置雷达回波数据
 
     //设置回波数据，uDisplayType==1回波显示，uDisplayType==2余辉显示
 //    void setRadarVideoData(double dCentreLon, double dCentreLat, double dDistance, int uDisplayType, int uLoopNum);
 //    void setMultibeamDataByImg(int iRouteID, const QPixmap &samplePixmap, const QPixmap &objPixmap, double dMinLon, double dMinLat, double dMaxLon, double dMaxLat); //设置多波束数据
 
-//    void setAllProjectRouteLineData(const std::vector<DrawElement::RouteLine> &data); //设置所有项目路由数据
-//    void setRouteLineData(const std::vector<DrawElement::RouteLine> &data);         //设置路由数据(当前项目)
-//    void setALLSpecialRouteLineData(const std::vector<DrawElement::SpecialRouteLine> &data); //设置(所有)特殊路由数据(南方电网)
-//    void setSpacilRouteLineData(const std::vector<DrawElement::SpecialRouteLine> &data);    //设置(当前项目)特殊路由数据(南方电网)
+//    void setAllProjectRouteLineData(const std::vector<RouteLine> &data); //设置所有项目路由数据
+//    void setRouteLineData(const std::vector<RouteLine> &data);         //设置路由数据(当前项目)
+//    void setALLSpecialRouteLineData(const std::vector<SpecialRouteLine> &data); //设置(所有)特殊路由数据(南方电网)
+//    void setSpacilRouteLineData(const std::vector<SpecialRouteLine> &data);    //设置(当前项目)特殊路由数据(南方电网)
 //    void setPickUpSpacilRoutePoint(const ZCHX::Data::SpecialRoutePoint &data);
-//    void setRouteCrossData(const std::vector<DrawElement::RouteCross> &data);         //设置交越路由数据（全工程）
-//    void setHistoryRouteLineData(const std::vector<DrawElement::RouteLine> &data);  //设置历史路由线数据接口(一条路由每个阶段的历史路由)
+//    void setRouteCrossData(const std::vector<RouteCross> &data);         //设置交越路由数据（全工程）
+//    void setHistoryRouteLineData(const std::vector<RouteLine> &data);  //设置历史路由线数据接口(一条路由每个阶段的历史路由)
 //    void setRouteDefaultCableData(const ZCHX::Data::CableAssembly &data, int uSlack);
 //    void setRouteConfigDisplay(int uRouteID, bool bShowPoint,bool bShowType,bool bShowLine,bool bShowCable, bool bShowIndex);//设置该条路由的点、类型、线、海缆是否显示
 //    void setRouteDisplayFlag(int uRouteID,int uDisplayFlag);//设置路由显示设计路由还是记录路由或者同时显示
@@ -370,8 +373,8 @@ public Q_SLOTS:
 //    void deleteRouteLineDataFromProjectID(const int uProjectID);//删除项目ID为uProjectID的路由数据
 //    void changeCurrentRouteLine(const ZCHX::Data::RouteLine &data,int uRouteID);//改变当前路由线数据接口
 //    void changeRoutePathAssessStatus(int uAssessStatus,int uRouteID);//改变路由的审批状态;0.未审批 1.已审批
-//    void setAllProjecrShipPlanLineData(const std::vector<DrawElement::ShipPlanLine> &data);
-//    void setShipPlanLineData(const std::vector<DrawElement::ShipPlanLine> &data);
+//    void setAllProjecrShipPlanLineData(const std::vector<ShipPlanLine> &data);
+//    void setShipPlanLineData(const std::vector<ShipPlanLine> &data);
 //    void setShipPlanProjectID(const int ProjectID);
 //    void setRouteLinePickupLocation(const int uRouteID,const double dLat,const double dLon);//设置路由显示被拾取的点
 //    void setRouteLinePickupInfor(const double dKp, bool bShowLength, const double dLength,
@@ -383,7 +386,7 @@ public Q_SLOTS:
 //    void appendElementItem(const ZCHX::Data::ITF_EleTriangle &item);//设置图元数据
 //    void appendElementItem(const ZCHX::Data::ITF_EleLine &item);    //设置图元数据
 //    void appendElementItem(const ZCHX::Data::ITF_EleRect &item);    //设置图元数据
-//    void removeElementItem(DrawElement::Element *pitem);            //删除图元
+//    void removeElementItem(Element *pitem);            //删除图元
 //    void clearElementData();                                        //清除图元指针数据
 
     /**
@@ -466,22 +469,22 @@ public Q_SLOTS:
 //    void routeLineEditAddCtrlPoint(const QPointF &objCusP);     //从后面添加一个路由线控制点
 //    void routeLineEditInsertCtrlPoint(const QPointF &objCusP);  //插入一个路由线控制点
 //    void routeLineEditDelCtrlPoint(const Point2D &pt);       //删除一个路由线控制点
-//    void addRoutePoint(const QPointF &objCusP,DrawElement::RouteLine &objCurrentLine);  //加路由
-//    void addRoutePointLL(const LatLon& pnt, DrawElement::RouteLine &objCurrentLine);
-//    void addKPPoint(const QPointF &objCusP,DrawElement::RouteLine &objCurrentLine);     //加pk
-//    void delRoutePointKPPoint(int uIndex,DrawElement::RouteLine &objCurrentLine);       //删除点
-//    void moveRoutePointKPPoint(int uIndex,const double dLon,const double dLat,DrawElement::RouteLine &objCurrentLine);//移动点
+//    void addRoutePoint(const QPointF &objCusP,RouteLine &objCurrentLine);  //加路由
+//    void addRoutePointLL(const LatLon& pnt, RouteLine &objCurrentLine);
+//    void addKPPoint(const QPointF &objCusP,RouteLine &objCurrentLine);     //加pk
+//    void delRoutePointKPPoint(int uIndex,RouteLine &objCurrentLine);       //删除点
+//    void moveRoutePointKPPoint(int uIndex,const double dLon,const double dLat,RouteLine &objCurrentLine);//移动点
 //    //船舶计划相关操作
 //    void shipPlanEditSelect(const Point2D &pt);                  //激活一个船舶计划
 //    bool shipPlanEditSelectCtrlPoint(const Point2D &pt);         //选择活动船舶计划线内的一个点为控制点
 //    void shipPlanLineEditAddCtrlPoint(const QPointF &objCusP);      //从最后面追加一个船舶计划线控制点
 //    void shipPlanLineEditInsertCtrlPoint(const QPointF &objCusP);   //插入一个路由线控制点
 //    void shipPlanLineEditDelCtrlPoint(const Point2D &pt);        //删除一个船舶计划线控制点
-//    void addShipPlanPoint(const QPointF &objCusP,DrawElement::ShipPlanLine &objCurrentLine);  //最后追加点
-//    void addShipPlanPointLL(const LatLon& pnt, DrawElement::ShipPlanLine &objCurrentLine);
-//    void addSKPPoint(const QPointF &objCusP,DrawElement::ShipPlanLine &objCurrentLine);       //插入skp点
-//    void delShipPlanPointKPPoint(int uIndex,DrawElement::ShipPlanLine &objCurrentLine);       //删除点
-//    void moveShipPlanPointKPPoint(int uIndex,const double dLon,const double dLat,DrawElement::ShipPlanLine &objCurrentLine);//移动点
+//    void addShipPlanPoint(const QPointF &objCusP,ShipPlanLine &objCurrentLine);  //最后追加点
+//    void addShipPlanPointLL(const LatLon& pnt, ShipPlanLine &objCurrentLine);
+//    void addSKPPoint(const QPointF &objCusP,ShipPlanLine &objCurrentLine);       //插入skp点
+//    void delShipPlanPointKPPoint(int uIndex,ShipPlanLine &objCurrentLine);       //删除点
+//    void moveShipPlanPointKPPoint(int uIndex,const double dLon,const double dLat,ShipPlanLine &objCurrentLine);//移动点
 
 //    //环岛线相关编辑操作
 //    void islandLineEditSelect(const Point2D &pt);            //激活一个环岛线成为当前防区
@@ -539,8 +542,8 @@ public Q_SLOTS:
     //    void setMultibeamPixmap(const QPixmap &objPixmap);
 //    void setRadarVideoPixmap(int uIndex,const QPixmap &objPixmap,const QPixmap &prePixmap);
 //    void setCurrentRadarVideoPixmap(const QPixmap &objPixmap); //只接收当前的图片
-//    //    void addElement(DrawElement::Element *item);
-//    //    const QList<DrawElement::Element*>& getAllElement() const;
+//    //    void addElement(Element *item);
+//    //    const QList<Element*>& getAllElement() const;
 //    //设定当前的项目ID
 //    void setCurrentProjectID(int id);
     //路由显示控制
@@ -595,8 +598,8 @@ private:
 //    void zchxDrawMoveShipPlanLinePoint(QPainter *painter);
 //    void zchxDrawTrafficStatistic(QPainter *painter);
 //    void zchxDrawRealTimeFlowStatistic(QPainter *painter);
-//    void drawRouteTrafficHistogram(QPainter *painter, const DrawElement::RouteLine &ele);
-//    void drawSpacialRouteTrafficHistogram(QPainter *painter, const DrawElement::SpecialRouteLine &ele);
+//    void drawRouteTrafficHistogram(QPainter *painter, const RouteLine &ele);
+//    void drawSpacialRouteTrafficHistogram(QPainter *painter, const SpecialRouteLine &ele);
 //    void zchxShowAllProjectRouteLine(QPainter *painter);//显示所有项目路由
 //    void zchxShowRouteLine(QPainter *painter);          //显示路由
 //    void zchxShowALLProjectSpecialRouteLine(QPainter *painter);
@@ -615,19 +618,19 @@ private:
 //    void zchxShowRadarVideo(QPainter *painter);           //显示雷达回波
 //    void zchxShowAfterglow(QPainter *painter);           //显示余辉
 
-//    void drawOneDesignRouteLine(QPainter *painter, const DrawElement::RouteLine &ele, bool bCurrentProject);
-//    void drawOneRecondRouteLine(QPainter *painter, const DrawElement::RouteLine &ele, bool bCurrentProject);
-//    void drawOneRouteLine(QPainter *painter, const DrawElement::RouteLine &ele, bool bCurrentProject);
-//    void drawOneRepateRouteLine(QPainter *painter, const DrawElement::RouteLine &ele,QStringList latlon, bool bCurrentProject);
+//    void drawOneDesignRouteLine(QPainter *painter, const RouteLine &ele, bool bCurrentProject);
+//    void drawOneRecondRouteLine(QPainter *painter, const RouteLine &ele, bool bCurrentProject);
+//    void drawOneRouteLine(QPainter *painter, const RouteLine &ele, bool bCurrentProject);
+//    void drawOneRepateRouteLine(QPainter *painter, const RouteLine &ele,QStringList latlon, bool bCurrentProject);
 
 //    void zchxShowDangerousCircle(QPainter *painter);    //显示危险圈
 //    void zchxShowRadarFeatureZone(QPainter * painter);  //显示雷达特征区域
 //    void zchxShowSimulateShip(QPainter *painter);       //显示模拟船
 //    void zchxShowShipPlanLine(QPainter *painter);       //显示船舶航线
 //    void zchxShowAllProjectShipPlanLine(QPainter *painter);     //显示所有船舶计划
-//    void drawShipPlanLine(QPainter *painter, const DrawElement::ShipPlanLine &ele, bool bCurrentProject);
-//    void drawShipDesignLine(QPainter *painter, const DrawElement::ShipPlanLine &ele, bool bCurrentProject);
-//    void drawShipRecondLine(QPainter *painter, const DrawElement::ShipPlanLine &ele, bool bCurrentProject);
+//    void drawShipPlanLine(QPainter *painter, const ShipPlanLine &ele, bool bCurrentProject);
+//    void drawShipDesignLine(QPainter *painter, const ShipPlanLine &ele, bool bCurrentProject);
+//    void drawShipRecondLine(QPainter *painter, const ShipPlanLine &ele, bool bCurrentProject);
 
 //    void zchxShowRadarEcho(QPainter *painter);                  //雷达回波显示
 //    void zchxShowCameraObservationZone(QPainter * painter);     //相机视场显示
@@ -668,10 +671,10 @@ private:
 //    void zchxShowShipAlarmAscend(QPainter *painter);  //draw预警追溯轨迹线
 
 //    void zchxShowEleData(QPainter *painter); //显示自定义图元
-//    void zchxShowEleEllipseItem(QPainter *painter,const DrawElement::EllipseElement *item);
-//    void zchxShowEleTriangleItem(QPainter *painter,const DrawElement::TriangleElement *item);
-//    void zchxShowEleLineItem(QPainter *painter,const DrawElement::LineElement *item);
-//    void zchxShowEleRectItem(QPainter *painter,const DrawElement::RectElement *item);
+//    void zchxShowEleEllipseItem(QPainter *painter,const EllipseElement *item);
+//    void zchxShowEleTriangleItem(QPainter *painter,const TriangleElement *item);
+//    void zchxShowEleLineItem(QPainter *painter,const LineElement *item);
+//    void zchxShowEleRectItem(QPainter *painter,const RectElement *item);
 
 //    //施工高层图
 //    void zchxShowHighLevelPixmap(QPainter *painter);
@@ -862,7 +865,7 @@ public:
 //    void setIsAtiAdaptor(bool isAtiAdaptor);
 private:
 //    //路由显示综合
-//    void   drawRouteLineItem(QPainter *painter, const DrawElement::RouteLine &ele, const QStringList& lonlat = QStringList());
+//    void   drawRouteLineItem(QPainter *painter, const RouteLine &ele, const QStringList& lonlat = QStringList());
 //    bool   isCurrentPointDraw(int index, int size, bool ac);
 //    void   zchxDrawRoutePoint(const QPointF& pnt, int type, const QString& name, bool isActive, QPainter* painter);
 //    void   zchxDrawRouteLine(const QLineF &line, const QColor& color,Qt::PenStyle style, int width, QPainter *painter);
@@ -870,13 +873,13 @@ private:
 //    void   zchxDrawLonLatText(const QPointF& pos, double lon, double lat, const QColor& color, QPainter* painter);
 //    void   zchxDrawOverlapLine(const POLYLINES& polylines,QPainter* painter);
 //    POLYLINES  parseRouteWarnOverlapSegments(const QStringList& lonlat);
-//    void   zchxDrawRoutePickUpInfo(const DrawElement::RouteLine &ele);
+//    void   zchxDrawRoutePickUpInfo(const RouteLine &ele);
 //    void   zchxRoutePickupInfo(QString& text, int& width, int& height, const ZCHX::Data::RoutePoint& point, const QFont& font);
 //    int    widthOfTextList(const QStringList& list, const QFont& font);
 //    //绘制备份路由
 //    void   zchxDrawBackUpRoutePoints(const std::vector<ZCHX::Data::RoutePoint>& pnts, bool active, QPainter* painter);
 //    void   zchxDrawRoutePoints(const std::vector<ZCHX::Data::RoutePoint>& pnts, const QString& routeName, const QColor& nameColor, int stage, bool active, QPainter* painter);
-//    void   zchxDrawRouteLinkedInfo(const DrawElement::RouteLine &ele, QPainter* painter);
+//    void   zchxDrawRouteLinkedInfo(const RouteLine &ele, QPainter* painter);
 private:
     TileImageList               mDataList;
     zchxMapFrameWork*           mFrameWork;
@@ -898,9 +901,9 @@ private:
     int                         mDy;
     ZCHX::Data::ECDIS_PLUGIN_USE_MODEL  mCurPluginUserModel;
     ZCHX::Data::ECDIS_PICKUP_TYPE       mCurPickupType;
-    std::shared_ptr<DrawElement::Element> mCurrentSelectElement;
+    std::shared_ptr<Element> mCurrentSelectElement;
 
-    zchxMapLayerMgr             *mLayerMgr;                     //地图图层管理
+    MapLayerMgr             *mLayerMgr;                     //地图图层管理
     zchxCameraDatasMgr          *mCameraDataMgr;                //相机相关的数据管理
     zchxUserDefinesDataMgr      *mUseDataMgr;                   //用户在地图上绘制的数据管理
     zchxRouteDataMgr            *mRouteDataMgr;                 //路由数据管理
@@ -927,4 +930,5 @@ private:
     MapUnit                         mUnit;
 
 };
+}
 #endif // ZCHXMAPWIDGET_H

@@ -21,6 +21,7 @@
 #define         MPS2KTS(val)            (KPH2KTS((val) * 3.6))
 #define         TIMEOFDAY2UTC(val)      (QDateTime(QDate::currentDate()).toMSecsSinceEpoch() + (val*1000))
 
+namespace qt {
 struct Mercator{
 public:
     Mercator() {mX = 0.0; mY = 0.0;}
@@ -103,8 +104,9 @@ enum    TILE_ORIGIN_POS{
 };
 
 enum    TILE_SOURCE{
-    TILE_GOOGLE = 0,
-    TILE_TMS,
+    TILE_TMS = 0,
+    TILE_GOOGLE = 1,
+
 };
 
 //每次加载瓦片地图的参数设定,主要是视窗的墨卡托范围,视窗屏幕坐标大小
@@ -140,10 +142,6 @@ class TileImageList:public QList<TileImage>
 public:
     TileImageList():QList<TileImage>() {}
 };
-
-Q_DECLARE_METATYPE(TileImage)
-Q_DECLARE_METATYPE(TileImageList)
-
 
 class zchxMapDataUtils
 {
@@ -301,6 +299,10 @@ enum MapUnit{
     MapUnitKm,  //千米
     MapUnitNmi, //海里
 };
+}
+
+Q_DECLARE_METATYPE(qt::TileImage)
+Q_DECLARE_METATYPE(qt::TileImageList)
 
 //地图配置文件相关的设定
 #define             MAP_INDEX                       "Map_0"
@@ -317,6 +319,7 @@ enum MapUnit{
 #define             MAP_DEFAULT_ZOOM                    "Zoom"
 #define             MAP_DEFAULT_TARGET_ZOOM             "TargetZoom"            //目标居中放大时的倍数
 #define             MAP_UPDATE_INTERVAL             "UpdateInterval"            //刷新时间间隔毫秒
+#define             MAP_SOURCE                      "MapSource"                 //地图数据来源
 
 //Ais显示配置
 #define             AIS_DISPLAY_SETTING             "AIS"

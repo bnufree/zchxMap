@@ -2,6 +2,7 @@
 #include "ui_defenceinfodialog.h"
 #include <QColorDialog>
 
+namespace qt {
 DefenceInfoDialog::DefenceInfoDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::DefenceInfoDialog)
@@ -74,4 +75,5 @@ void DefenceInfoDialog::on_comfirmButton_clicked()
 void DefenceInfoDialog::on_cancelButton_clicked()
 {
     reject();
+}
 }

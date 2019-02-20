@@ -2,6 +2,8 @@
 #include <QDebug>
 #include <math.h>
 #include "zchxutils.hpp"
+
+namespace qt {
 const double PI = 3.1415926;
 ZCHXDrawRadarVideo::ZCHXDrawRadarVideo(QObject *parent) : QObject(parent)
 {
@@ -24,7 +26,7 @@ ZCHXDrawRadarVideo::~ZCHXDrawRadarVideo()
     }
 }
 
-//void ZCHXDrawRadarVideo::setRadarVideoData(int uMsgIndex, const std::vector<DrawElement::RadarVideo> &dataVec)
+//void ZCHXDrawRadarVideo::setRadarVideoData(int uMsgIndex, const std::vector<RadarVideo> &dataVec)
 //{
 //    m_uMsgIndex = uMsgIndex;
 //    m_RadarVideo = dataVec;
@@ -48,7 +50,7 @@ void ZCHXDrawRadarVideo::slotDrawRadarVideo(const Afterglow &dataAfterglow)
     QMutex mutex;
     mutex.lock();
     //qDebug()<<"slotDrawRadarVideo--------------------------";
-    std::vector<DrawElement::RadarVideo> RadarVideo = dataAfterglow.m_RadarVideo;
+    std::vector<RadarVideoElement> RadarVideo = dataAfterglow.m_RadarVideo;
 
     int uMultibeamPixmapWidth = RadarVideoPixmapWidth;
     int uMultibeamPixmapHeight = RadarVideoPixmapHeight;
@@ -60,12 +62,12 @@ void ZCHXDrawRadarVideo::slotDrawRadarVideo(const Afterglow &dataAfterglow)
     //objPainter.resetTransform();   // 重设画笔
     objPainter.save();
     objPainter.translate(QPoint(uMultibeamPixmapWidth / 2, uMultibeamPixmapHeight / 2));    // 中心点
-    std::vector<DrawElement::RadarVideo>::iterator it;
+    std::vector<RadarVideoElement>::iterator it;
 
     for(it=RadarVideo.begin(); it != RadarVideo.end(); ++it)
     {
 
-        DrawElement::RadarVideo ele = (*it);
+        RadarVideoElement ele = (*it);
         ZCHX::Data::ITF_RadarVideo data = ele.data();
 
         double dAzimuth = data.dAzimuth;
@@ -145,7 +147,7 @@ void ZCHXDrawRadarVideo::slotDrawAfterglow(const Afterglow &dataAfterglow)
 {
     QMutex mutex;
     mutex.lock();
-    std::vector<DrawElement::RadarVideo> RadarVideo = dataAfterglow.m_RadarVideo;
+    std::vector<RadarVideoElement> RadarVideo = dataAfterglow.m_RadarVideo;
     //qDebug()<<"slotProcessData--------------------------";
     int uMultibeamPixmapWidth = RadarVideoPixmapWidth;
     int uMultibeamPixmapHeight = RadarVideoPixmapHeight;
@@ -157,12 +159,12 @@ void ZCHXDrawRadarVideo::slotDrawAfterglow(const Afterglow &dataAfterglow)
     //objPainter.resetTransform();   // 重设画笔
     objPainter.save();
     objPainter.translate(QPoint(uMultibeamPixmapWidth / 2, uMultibeamPixmapHeight / 2));    // 中心点
-    std::vector<DrawElement::RadarVideo>::iterator it;
+    std::vector<RadarVideoElement>::iterator it;
 
     for(it=RadarVideo.begin(); it != RadarVideo.end(); ++it)
     {
 
-        DrawElement::RadarVideo ele = (*it);
+        RadarVideoElement ele = (*it);
         ZCHX::Data::ITF_RadarVideo data = ele.data();
 
         double dAzimuth = data.dAzimuth;
@@ -337,4 +339,5 @@ bool ZCHXDrawRadarVideo::isInRadarPointRange(const double dLat, const double dLo
         }
     }
     return false;
+}
 }

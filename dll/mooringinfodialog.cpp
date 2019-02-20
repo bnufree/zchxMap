@@ -2,6 +2,7 @@
 #include "ui_mooringinfodialog.h"
 #include <QColorDialog>
 
+namespace qt {
 MooringInfoDialog::MooringInfoDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::MooringInfoDialog),
@@ -75,4 +76,5 @@ void MooringInfoDialog::on_colorPushButton_clicked()
     palette.setColor(QPalette::Background, color);
     ui->colorLabel->setAutoFillBackground(true);  //一定要这句，否则不行
     ui->colorLabel->setPalette(palette);
+}
 }

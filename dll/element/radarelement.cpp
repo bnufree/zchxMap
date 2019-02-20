@@ -3,7 +3,7 @@
 #include "profiles.h"
 
 
-namespace DrawElement
+namespace qt
 {
 RadarAreaElement::RadarAreaElement(double radarY, double radarX, int centerLineAngel, int radius, int maxScanRangeANgle, int numberofChannele, int maxWakePointsNumber)
     :Element(radarY,radarX)
@@ -206,7 +206,7 @@ RadarPointElement::RadarPointElement(const ZCHX::Data::ITF_RadarPoint &ele)
     initFromSettings();
 }
 
-RadarPointElement::RadarPointElement(const DrawElement::RadarPointElement &pt)
+RadarPointElement::RadarPointElement(const RadarPointElement &pt)
     : Element(pt)
     , m_path(pt.m_path)
     , m_radar_type(pt.m_radar_type)
@@ -295,12 +295,12 @@ void RadarPointElement::setNeedDrawBox(bool needDrawBox)
 void RadarPointElement::initFromSettings()
 {
     //初始化雷达颜色设定
-    mFillingColor.setNamedColor(zchxEcdis::Profiles::instance()->value(RADAR_DISPLAY_SETTING, RADAR_FILL_COLOR, QColor(Qt::green).name()).toString());
-    mTextColor.setNamedColor(zchxEcdis::Profiles::instance()->value(RADAR_DISPLAY_SETTING, RADAR_TEXT_COLOR, QColor(Qt::black).name()).toString());
-    mConcernColor.setNamedColor(zchxEcdis::Profiles::instance()->value(RADAR_DISPLAY_SETTING, RADAR_CONCERN_COLOR, QColor(Qt::red).name()).toString());;
-    mBorderColor.setNamedColor(zchxEcdis::Profiles::instance()->value(RADAR_DISPLAY_SETTING, RADAR_BORDER_COLOR, QColor(Qt::black).name()).toString());
-    mRadarShapeAsRect = zchxEcdis::Profiles::instance()->value(RADAR_DISPLAY_SETTING, RADAR_SHAPE_RECT, true).toBool();
-    mDrawAsAis = zchxEcdis::Profiles::instance()->value(RADAR_DISPLAY_SETTING, RADAR_FORCED_AIS, false).toBool();
+    mFillingColor.setNamedColor(Profiles::instance()->value(RADAR_DISPLAY_SETTING, RADAR_FILL_COLOR, QColor(Qt::green).name()).toString());
+    mTextColor.setNamedColor(Profiles::instance()->value(RADAR_DISPLAY_SETTING, RADAR_TEXT_COLOR, QColor(Qt::black).name()).toString());
+    mConcernColor.setNamedColor(Profiles::instance()->value(RADAR_DISPLAY_SETTING, RADAR_CONCERN_COLOR, QColor(Qt::red).name()).toString());;
+    mBorderColor.setNamedColor(Profiles::instance()->value(RADAR_DISPLAY_SETTING, RADAR_BORDER_COLOR, QColor(Qt::black).name()).toString());
+    mRadarShapeAsRect = Profiles::instance()->value(RADAR_DISPLAY_SETTING, RADAR_SHAPE_RECT, true).toBool();
+    mDrawAsAis = Profiles::instance()->value(RADAR_DISPLAY_SETTING, RADAR_FORCED_AIS, false).toBool();
 
     Element::initFromSettings();
     //qDebug()<<"radar ini seetings."<<mDrawAsAis<<mRadarShape<<mFillingColor.name()<<mTextColor.name()<<mConcernColor.name()<<mBorderColor.name();
@@ -338,7 +338,7 @@ void RadarPointElement::drawElement(QPainter *painter)
     //开始处理雷达点具体画法
     QRect elementRect; //目标盒子
     //这个RADARPLAN是什么类型,暂时未知
-    if(getRadarType() == DrawElement::RADARPLAN)
+    if(getRadarType() == RADARPLAN)
     {
         PainterPair chk(painter);
         if(getIsActive())
@@ -354,7 +354,7 @@ void RadarPointElement::drawElement(QPainter *painter)
         QRectF rect(pos.x() - curScale, pos.y() - curScale, curScale, curScale);
         painter->drawRect(rect);
     }
-    else if(getRadarType() == DrawElement::RADARSHIP)
+    else if(getRadarType() == RADARSHIP)
     {
         QRect shipRect(0,0,sideLen,sideLen);
         shipRect.moveCenter(QPoint(pos.x(), pos.y()) );

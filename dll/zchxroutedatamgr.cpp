@@ -3,28 +3,29 @@
 #include "zchxmapwidget.h"
 #include "map_layer/zchxmaplayermgr.h"
 
+namespace qt {
 zchxRouteDataMgr::zchxRouteDataMgr(zchxMapWidget* w, QObject *parent) : QObject(parent),mDisplayWidget(w)
 {
 }
 
-void zchxRouteDataMgr::setALLSpecialRouteLineData(const std::vector<DrawElement::SpecialRouteLine> &data)
+void zchxRouteDataMgr::setALLSpecialRouteLineData(const std::vector<SpecialRouteLine> &data)
 {
     m_AllProjectSpecialRoute = data;
 }
 
-void zchxRouteDataMgr::setSpacilRouteLineData(const std::vector<DrawElement::SpecialRouteLine> &data)
+void zchxRouteDataMgr::setSpacilRouteLineData(const std::vector<SpecialRouteLine> &data)
 {
     m_SpecialRouteLine.clear();
     for(int i =0; i< data.size();++i)
     {
-        DrawElement::SpecialRouteLine TempData = data.at(i);
+        SpecialRouteLine TempData = data.at(i);
         TempData.setActivePathPoint(-1);
         TempData.setIsActive(false);
         m_SpecialRouteLine.push_back(TempData);
     }
     if(!m_SpecialRouteLine.empty())
     {
-        DrawElement::SpecialRouteLine objLine = data.at(0);
+        SpecialRouteLine objLine = data.at(0);
         ZCHX::Data::SpecialRouteLine objData = objLine.data();
         m_uCurrentProjectID = objData.m_iProjectId;
     }
@@ -34,7 +35,7 @@ void zchxRouteDataMgr::setPickUpSpacilRoutePoint(const ZCHX::Data::SpecialRouteP
 {
     if(m_SpecialRouteLine.size()>0)
     {
-        std::vector<DrawElement::SpecialRouteLine>::iterator it;
+        std::vector<SpecialRouteLine>::iterator it;
         bool hasSelectedOne = false;
         for(it = m_SpecialRouteLine.begin(); it != m_SpecialRouteLine.end(); ++it)
         {
@@ -71,17 +72,17 @@ void zchxRouteDataMgr::setPickUpSpacilRoutePoint(const ZCHX::Data::SpecialRouteP
     }
 }
 
-void zchxRouteDataMgr::setRouteCrossData(const std::vector<DrawElement::RouteCross> &data)
+void zchxRouteDataMgr::setRouteCrossData(const std::vector<RouteCross> &data)
 {
     m_RouteCross = data;
 }
 
-void zchxRouteDataMgr::setAllProjectRouteLineData(const std::vector<DrawElement::RouteLine> &data)
+void zchxRouteDataMgr::setAllProjectRouteLineData(const std::vector<RouteLine> &data)
 {
     m_AllProjectRouteLine = data;
 }
 
-void zchxRouteDataMgr::setRouteLineData(const std::vector<DrawElement::RouteLine> &data)
+void zchxRouteDataMgr::setRouteLineData(const std::vector<RouteLine> &data)
 {
     //qDebug()<<__FUNCTION__<<__LINE__;
     m_RouteLine = data;
@@ -91,10 +92,10 @@ void zchxRouteDataMgr::setRouteLineData(const std::vector<DrawElement::RouteLine
     if(Settings::Get("ActiveRoute", activeRouteID))
     {
         //qDebug()<<__FUNCTION__<<__LINE__<<" activeRoute:"<<activeRouteID;
-        std::vector<DrawElement::RouteLine>::iterator it;
+        std::vector<RouteLine>::iterator it;
         for(it=m_RouteLine.begin(); it != m_RouteLine.end(); ++it)
         {
-            DrawElement::RouteLine *ptr = &(*it);
+            RouteLine *ptr = &(*it);
             if(ptr->data().routeID == activeRouteID)
             {
                 //qDebug()<<__FUNCTION__<<__LINE__<<" route found break";
@@ -131,21 +132,21 @@ void zchxRouteDataMgr::setRouteLineData(const std::vector<DrawElement::RouteLine
             }
         }
 
-        foreach (DrawElement::RouteLine line, m_RouteLine) {
+        foreach (RouteLine line, m_RouteLine) {
             //qDebug()<<"id:"<<line.data().routeID<<" active:"<<line.getIsActive()<<endl;
         }
     }
 #endif
     if(!m_RouteLine.empty())
     {
-        DrawElement::RouteLine objLine = data.at(0);
+        RouteLine objLine = data.at(0);
         ZCHX::Data::RouteLine objData = objLine.data();
         m_uCurrentProjectID = objData.projectID;
     }
-    std::vector<DrawElement::RouteLine>::iterator it;
+    std::vector<RouteLine>::iterator it;
     for(it=m_AllProjectRouteLine.begin(); it != m_AllProjectRouteLine.end(); ++it)
     {
-        DrawElement::RouteLine ele = (*it);
+        RouteLine ele = (*it);
         ZCHX::Data::RouteLine routeLine = ele.data();
         if(routeLine.projectID == m_uCurrentProjectID)
         {
@@ -156,13 +157,13 @@ void zchxRouteDataMgr::setRouteLineData(const std::vector<DrawElement::RouteLine
     }
     for(int i = 0;i<m_RouteLine.size();i++)
     {
-        DrawElement::RouteLine objLine = data.at(i);
+        RouteLine objLine = data.at(i);
         m_AllProjectRouteLine.push_back(objLine);
     }
 
 }
 
-void zchxRouteDataMgr::setHistoryRouteLineData(const std::vector<DrawElement::RouteLine> &data)
+void zchxRouteDataMgr::setHistoryRouteLineData(const std::vector<RouteLine> &data)
 {
     m_historyRouteLine = data;
 }
@@ -171,5 +172,6 @@ void zchxRouteDataMgr::setRouteDefaultCableData(const ZCHX::Data::CableAssembly 
 {
     m_CableAssembly = data;
     m_uSlack = uSlack;
+}
 }
 

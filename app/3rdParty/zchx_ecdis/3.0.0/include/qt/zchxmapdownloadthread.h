@@ -3,6 +3,7 @@
 
 #include <QThread>
 
+namespace qt {
 class zchxMapDownloadThread : public QThread
 {
     Q_OBJECT
@@ -15,5 +16,6 @@ signals:
     void signalDownloadFinished(int zoom);
 public slots:
 };
+}
 
 #endif // ZCHXMAPDOWNLOADTHREAD_H

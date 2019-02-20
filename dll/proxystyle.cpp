@@ -2,7 +2,7 @@
 
 #include "proxystyle.hpp"
 
-
+namespace qt {
 ProxyStyle::ProxyStyle(QStyle * p)
 	: QStyle(), style(p)
 {
@@ -123,4 +123,5 @@ int ProxyStyle::layoutSpacing(QSizePolicy::ControlType control1,
                               const QStyleOption *option, const QWidget *widget) const
 {
   return style->layoutSpacing(control1, control2, orientation, option, widget);
+}
 }
