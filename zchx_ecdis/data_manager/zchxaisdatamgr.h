@@ -58,6 +58,7 @@ public slots:
     void setWhiteList();
     void invokeLinkageSpot();
     void setCPATrack();
+    void setConcern();
 
 
 

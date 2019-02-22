@@ -358,37 +358,6 @@ void zchxAisDataMgr::setAisData(const QList<ZCHX::Data::ITF_AIS> &data, bool che
         } else {
             item->setData(aisdata);
         }
-//        if(isConcern(aisdata.id)){
-//            item->setIsConcern(true);
-//        } else {
-//            item->setIsConcern(false);
-//        }
-//        if(isRealtimeTailTrack(aisdata.id)){
-//            item->setIsRealtimeTailTrack(true);
-//        } else {
-//            item->setIsRealtimeTailTrack(false);
-//        }
-//        if(isHistoryTrack(aisdata.id)){
-//            item->setIsHistoryTrack(true);
-//        } else {
-//            item->setIsHistoryTrack(false);
-//        }
-//        if(item == getCurrentAis()) {
-//            item->setIsActive(true);
-//        } else {
-//            item->setIsActive(false);
-//        }
-//        if(isExtrapolation(aisdata.id)){
-//            item->setIsExtrapolate(true);
-//            item->setExtrapolateTime(getExtrapolationTime(aisdata.id));
-//        } else {
-//            item->setIsExtrapolate(false);
-//        }
-//        if(aisdata.is_construction_ship)
-//        {
-//            item->setForceImage(true);
-//            item->setDrawTargetInfo(false);
-//        }
         item->setUpdateUTC(QDateTime::currentMSecsSinceEpoch());
     }
 #if 0
@@ -466,6 +435,7 @@ QList<QAction*> zchxAisDataMgr::getRightMenuActions(const QPoint &pt)
                 list.append(addAction(tr("黑名单"),this, SLOT(setBlackList()), (void*) ele));
                 list.append(addAction(tr("白名单"),this, SLOT(setWhiteList()), (void*) ele));
                 list.append(addAction(tr("CPA跟踪"),this, SLOT(setCPATrack()), (void*) ele));
+                list.append(addAction(tr("关注"),this, SLOT(setConcern()), (void*) ele));
                 list.append(addAction(tr("联动"),this, SLOT(invokeLinkageSpot()), (void*) ele));
             }
         }
@@ -573,6 +543,14 @@ void zchxAisDataMgr::invokeLinkageSpot()
     data.targetLon = ele->getData().lon;
     data.targetLat = ele->getData().lat;
     emit signalInvokeHotSpot(data);
+}
+
+void zchxAisDataMgr::setConcern()
+{
+    AisElement* ele = static_cast<AisElement*>(getElementOfSender());
+    if(!ele) return;
+    QString id = ele->getData().id;
+    appendConcernList(QStringList()<<id, true);
 }
 
 

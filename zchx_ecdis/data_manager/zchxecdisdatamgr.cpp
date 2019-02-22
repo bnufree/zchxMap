@@ -302,6 +302,8 @@ void zchxEcdisDataMgr::invokeLinkageSpot()
 {
 
 }
+
+void zchxEcdisDataMgr::setConcern(){}
 }
 
 

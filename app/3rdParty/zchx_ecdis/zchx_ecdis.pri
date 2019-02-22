@@ -16,7 +16,6 @@ exists( $${ZCHX_ECDIS_PATH} ) {
     ZCHX_ECDIS_LIBS      = $${ZCHX_ECDIS_PATH}/lib
 
     INCLUDEPATH += $${ZCHX_ECDIS_HEADERS}
-#Debug 和 Release都使用Release的文件  现在不做区别
     CONFIG(release, debug|release) {
         LIBS +=-L$${ZCHX_ECDIS_LIBS} \
                      -llibzchx_ecdis
@@ -30,7 +29,7 @@ exists( $${ZCHX_ECDIS_PATH} ) {
     }
 
     ZCHX_ECDIS_install.path = $${IDE_APP_PATH}/
-    INSTALLS += ZCHX_ECDIS_install ZCHX_ECDIS_translation ZCHX_ECDIS_resource
+    INSTALLS += ZCHX_ECDIS_install
 
     warning("app path:" + $${IDE_APP_PATH})
 }

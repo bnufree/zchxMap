@@ -90,12 +90,15 @@ signals:
     void signalSendHistoryTrail(const QString& id, bool add);
     //实时轨迹
     void signalSendRealTimeTrail(const QString& id, bool add);
+    //关注
+    void signalSetConcern(const int type, const QString& id);
 public slots:
     virtual void setPictureInPicture();
     virtual void setSimulationExtrapolation();
     virtual void setHistoryTraces();
     virtual void setRealTimeTraces();
     virtual void invokeLinkageSpot();
+    virtual void setConcern();
 protected:
     int                 mMaxConcernNum;                             //最大关注列表数
     int                 mMaxRealtimeTailTrackNum;                   //最大尾迹数据数
