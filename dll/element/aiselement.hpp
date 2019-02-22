@@ -44,9 +44,14 @@ public:
     void drawCPA(QPainter *painter);
     void drawShipImage(QPainter *painter);
     void drawShipTriangle(QPainter *painter, const QColor& fillColor);
-    void drawTailTrack(QPainter* painter);
-    void drawTailTrackPolyLine(std::vector<QPointF>& pts, QPainter* painter);
-    void drawTailTrackPoint(QPainter* painter);
+    //历史轨迹
+    void drawHistoryTrack(QPainter* painter);
+    void drawHistoryTrackPolyLine(std::vector<QPointF>& pts, QPainter* painter);
+    void drawHistoryTrackPoint(QPainter* painter);
+    //画实时船舶轨迹
+    void drawRealtimeTailTrack(QPainter* painter);
+    //模拟外推
+    void drawExtrapolation(QPainter* painter);
 
     bool isEmpty() const;
     void updateGeometry(QPointF pos, int size);
@@ -59,14 +64,25 @@ public:
     bool needDrawImage() const;
     void setDrawTargetInfo(bool val);
     virtual void initFromSettings();
-    void setTrackList(const QList<ZCHX::Data::ITF_AIS>& list) {mTrackList = list; mBigDisplayTrackIndex = -1;}
-    void clearTrackList() {mTrackList.clear(); mBigDisplayTrackIndex = -1;}
-    void setBigDisplayTrackIndex(int index) {mBigDisplayTrackIndex = index;}
-    int  getBigDisplayTrackIndex() {return mBigDisplayTrackIndex;}
-    QList<ZCHX::Data::ITF_AIS> getTrackList() const {return mTrackList;}
+
+    void setRealtimeTailTrackList(const QList<ZCHX::Data::ITF_AIS>& list) {mRealtimeTailTrackList = list;}
+    void clearRealtimeTailTrackList() {mRealtimeTailTrackList.clear();}
+    QList<ZCHX::Data::ITF_AIS> getRealtimeTailTrackList() const {return mRealtimeTailTrackList;}
+
+    void setHistoryTrackList(const QList<ZCHX::Data::ITF_AIS>& list) {mHistoryTrackList = list; mBigDisplayHistoryIndex = -1;}
+    void clearHistoryTrackList() {mHistoryTrackList.clear(); mBigDisplayHistoryIndex = -1;}
+    QList<ZCHX::Data::ITF_AIS> getHistoryTrackList() const {return mHistoryTrackList;}
+    void setBigDisplayHistoryTrackIndex(int index) {mBigDisplayHistoryIndex  = index;}
+    int  getBigDisplayHistoryTrackIndex() {return mBigDisplayHistoryIndex;}
+
+    void setIsExtrapolate(bool val) {m_isExtrapolate = val;}
+    bool getIsExtrapolate() const {return m_isExtrapolate;}
+    void setExtrapolateTime(double val) {m_ExtrapolateTime = val;}
+    double getExtrapolate() const {return m_ExtrapolateTime;}
 
     void setHistoryTrackStyle(const QString &color, const int lineWidth);
     void setPrepushTrackStyle(const QString &color, const int lineWidth);
+    //bool contains(QPointF pos) const;
 
 //    bool getFleet();
 //    void setFleet(bool val);
@@ -80,8 +96,13 @@ private:
     QPixmap m_cameraImage;
     QPointF m_cameraPos;
     bool    m_drawTargetInfo;
-    QList<ZCHX::Data::ITF_AIS> mTrackList;          //船舶的尾迹点
-    int    mBigDisplayTrackIndex;                        //当前放大显示的尾迹点
+    QList<ZCHX::Data::ITF_AIS> mRealtimeTailTrackList;          //船舶的尾迹点
+    int    mBigDisplayHistoryIndex;                        //当前放大显示的历史迹点
+    QList<ZCHX::Data::ITF_AIS> mHistoryTrackList;          //船舶的历史轨迹点
+
+    //模拟外推
+    bool    m_isExtrapolate;
+    double  m_ExtrapolateTime;
     QString                                                     m_sHistoryTrackStyle;
     int                                                         m_iHistoryTrackWidth;
     QString                                                     m_sPrepushTrackStyle;

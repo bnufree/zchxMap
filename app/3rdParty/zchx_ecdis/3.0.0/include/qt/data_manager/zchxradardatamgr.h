@@ -12,8 +12,6 @@ public:
     explicit zchxRadarDataMgr(zchxMapWidget* w, QObject *parent = 0);
     void    show(QPainter* painter);
     bool    updateActiveItem(const QPoint& pt);
-    void    removeTrack(const QString& id);
-    void    removeConcern(const QString& id);
 
     void    setRadarPointData(const QList<ZCHX::Data::ITF_RadarPoint> &data);
     void    setHistoryRadarPointData(const std::vector<RadarPointElement> &data);

@@ -73,8 +73,10 @@ public:
      */
     bool getIsConcern() const;
     void setIsConcern(bool value);
-    bool getIsTailTrack() const;
-    void setIsTailTrack(bool value);
+    bool getIsRealtimeTailTrack() const;
+    void setIsRealtimeTailTrack(bool value);
+    bool getIsHistoryTrack() const;
+    void setIsHistoryTrack(bool value);
 
     //图元的颜色更新
     QColor getBorderColor() const;
@@ -116,7 +118,7 @@ public:
      * \param y 坐标点
      * \return 如果在矩形内则返回true, 否则返回false
      */
-    bool contains(zchxMapFrameWork *framework, int range, double x, double y) const;
+    bool contains(int range, double x, double y) const;
     virtual bool contains(QPointF pos) const;
     virtual bool contains(const QGeoCoordinate &geoPos) const;
     virtual bool isEmpty() const;
@@ -210,7 +212,8 @@ protected://TODO: 添加私有类, 实现成员变量对外隐藏, 且防止依�
     bool   isHover;
     bool   isFocus;
     bool   isConcern;           //用户是否关注
-    bool   isTailTrack;         //是否显示尾迹点
+    bool   isRealtimeTailTrack;         //是否显示尾迹点
+    bool   isHistroyTrack;              //是否显示历史轨迹
     bool   isOpenMeet;          //是否开启会遇显示
     int    uuid;
     QString m_strID;

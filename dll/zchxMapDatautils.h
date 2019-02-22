@@ -86,6 +86,12 @@ struct Point2D{
         return QPointF(x, y);
     }
 
+    QPoint toPoint() const
+    {
+        return QPoint(qRound(x), qRound(y));
+    }
+
+
 };
 
 //struct strLatLon{
@@ -320,27 +326,37 @@ Q_DECLARE_METATYPE(qt::TileImageList)
 #define             MAP_DEFAULT_TARGET_ZOOM             "TargetZoom"            //目标居中放大时的倍数
 #define             MAP_UPDATE_INTERVAL             "UpdateInterval"            //刷新时间间隔毫秒
 #define             MAP_SOURCE                      "MapSource"                 //地图数据来源
+#define             MAP_DISPLAY_MENU                "DisplayRightMouseMenu"     //是狗显示右键菜单
 
 //Ais显示配置
-#define             AIS_DISPLAY_SETTING             "AIS"
-#define             AIS_FILL_COLOR                  "FillColor"
-#define             AIS_CONCERN_COLOR               "ConcernColor"
-#define             AIS_TEXT_COLOR                  "TextColor"
-#define             AIS_BORDER_COLOR                "BorderColor"
-#define             AIS_FORCED_IMAGE                "ForcedImageDisplay"
-#define             AIS_CONCERN_NUM                 "ConcernNum"
-#define             AIS_TAILTRACK_NUM               "TailTrackNum"
-#define             AIS_REPLACE_TRACK               "AutoReplaceTrack"
+#define             AIS_DISPLAY_SETTING                         "AIS"
+#define             AIS_FILL_COLOR                              "FillColor"
+#define             AIS_CONCERN_COLOR                           "ConcernColor"
+#define             AIS_TEXT_COLOR                              "TextColor"
+#define             AIS_BORDER_COLOR                            "BorderColor"
+#define             AIS_FORCED_IMAGE                            "ForcedImageDisplay"
+#define             AIS_CONCERN_NUM                             "ConcernNum"
+#define             AIS_REPLACE_CONCERN                         "AutoReplaceConcern"
+#define             AIS_TAIL_TRACK_NUM                          "TailTrackNum"
+#define             AIS_REPLACE_TAIL_TRACK                      "AutoReplaceTailTrack"
+#define             AIS_HISTORY_TRACK_NUM                       "HistoryTrackNum"
+#define             AIS_REPLACE_HISTORY_TRACK                   "AutoReplaceHistoryTrack"
+#define             AIS_EXTRAPOLATE_NUM                         "ExtrapolateNum"
+#define             AIS_REPLACE_EXTRAPOLATE                       "AutoReplaceExtrapolate"
 
 //雷达显示配置
-#define             RADAR_DISPLAY_SETTING             "Radar"
-#define             RADAR_FILL_COLOR                  "FillColor"
-#define             RADAR_CONCERN_COLOR               "ConcernColor"
-#define             RADAR_TEXT_COLOR                  "TextColor"
-#define             RADAR_BORDER_COLOR                "BorderColor"
-#define             RADAR_SHAPE_RECT                  "ShapeAsRect"
-#define             RADAR_FORCED_AIS                  "DrawAsAis"
-#define             RADAR_CONCERN_NUM                 "ConcernNum"
-#define             RADAR_TAILTRACK_NUM               "TailTrackNum"
+#define             RADAR_DISPLAY_SETTING                       "Radar"
+#define             RADAR_FILL_COLOR                            "FillColor"
+#define             RADAR_CONCERN_COLOR                         "ConcernColor"
+#define             RADAR_TEXT_COLOR                            "TextColor"
+#define             RADAR_BORDER_COLOR                          "BorderColor"
+#define             RADAR_SHAPE_RECT                            "ShapeAsRect"
+#define             RADAR_FORCED_AIS                            "DrawAsAis"
+#define             RADAR_CONCERN_NUM                             "ConcernNum"
+#define             RADAR_REPLACE_CONCERN                         "AutoReplaceConcern"
+#define             RADAR_TAIL_TRACK_NUM                          "TailTrackNum"
+#define             RADAR_REPLACE_TAIL_TRACK                      "AutoReplaceTailTrack"
+#define             RADAR_HISTORY_TRACK_NUM                       "HistoryTrackNum"
+#define             RADAR_REPLACE_HISTORY_TRACK                   "AutoReplaceHistoryTrack"
 
 #endif // ZCHXECDISUTILS_H

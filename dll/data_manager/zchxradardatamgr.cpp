@@ -5,24 +5,11 @@ namespace qt {
 zchxRadarDataMgr::zchxRadarDataMgr(zchxMapWidget* w, QObject *parent) : zchxEcdisDataMgr(w, ZCHX_DATA_MGR_RADAR, parent)
 {
     mMaxConcernNum = Profiles::instance()->value(RADAR_DISPLAY_SETTING, RADAR_CONCERN_NUM, 10).toInt();
-    mMaxTailTrackNum = Profiles::instance()->value(RADAR_DISPLAY_SETTING, RADAR_TAILTRACK_NUM, 10).toInt();
-}
-
-void zchxRadarDataMgr::removeTrack(const QString &id)
-{
-    if(isTrack(id))
-    {
-        zchxEcdisDataMgr::removeTrack(id);
-        //emit mDisplayWidget->signalSendHistoryTrail(id, false);
-    }
-}
-
-void zchxRadarDataMgr::removeConcern(const QString &id)
-{
-    if(isConcern(id))
-    {
-        zchxEcdisDataMgr::removeConcern(id);
-    }
+    mReplaceConcernWhenOver = Profiles::instance()->value(RADAR_DISPLAY_SETTING, RADAR_REPLACE_CONCERN, true).toBool();
+    mMaxRealtimeTailTrackNum = Profiles::instance()->value(RADAR_DISPLAY_SETTING, RADAR_TAIL_TRACK_NUM, 10).toInt();
+    mReplaceRealtimeTailTrackWhenOver = Profiles::instance()->value(RADAR_DISPLAY_SETTING, RADAR_REPLACE_TAIL_TRACK, true).toBool();
+    mMaxHistoryTrackNum = Profiles::instance()->value(RADAR_DISPLAY_SETTING, RADAR_HISTORY_TRACK_NUM, 10).toInt();
+    mReplaceHistoryTrackWhenOver = Profiles::instance()->value(RADAR_DISPLAY_SETTING, RADAR_REPLACE_HISTORY_TRACK, true).toBool();
 }
 
 void zchxRadarDataMgr::show(QPainter *painter)
@@ -46,7 +33,7 @@ void zchxRadarDataMgr::show(QPainter *painter)
             }
             item->drawElement(painter);
         }
-        if(mDisplayWidget->getMapLayerMgr()->isLayerVisible(ZCHX::LAYER_RADAR_TRACK) && item->getIsTailTrack())
+        if(mDisplayWidget->getMapLayerMgr()->isLayerVisible(ZCHX::LAYER_RADAR_TRACK) && item->getIsRealtimeTailTrack())
         {
             item->drawTrack(painter);
         }
@@ -70,7 +57,8 @@ void zchxRadarDataMgr::setRadarPointData(const QList<ZCHX::Data::ITF_RadarPoint>
         {
             //取消原来数据的关注和尾迹
             removeConcern(trackID);
-            removeTrack(trackID);
+            removeRealtimeTailTrack(trackID);
+            removeHistoryTrack(trackID);
             std::shared_ptr<RadarPointElement> item = m_RadarPoint.value(trackID, 0);
             if(item) item.reset();
             //删除对应的实时数据
@@ -87,6 +75,7 @@ void zchxRadarDataMgr::setRadarPointData(const QList<ZCHX::Data::ITF_RadarPoint>
         if(!item) {
             item = std::shared_ptr<RadarPointElement>(new RadarPointElement(aisdata));
             item->setFrameWork(mDisplayWidget->framework());
+            m_RadarPoint[id] = item;
         } else {
             item->setData(aisdata);
         }
@@ -95,12 +84,19 @@ void zchxRadarDataMgr::setRadarPointData(const QList<ZCHX::Data::ITF_RadarPoint>
         } else {
             item->setIsConcern(false);
         }
-        if(isTrack(id)){
-            item->setIsTailTrack(true);
+        if(isRealtimeTailTrack(id)){
+            item->setIsRealtimeTailTrack(true);
         } else {
-            item->setIsTailTrack(false);
+            item->setIsRealtimeTailTrack(false);
         }
-        if(item == mDisplayWidget->getCurrentSelectedElement()) {
+
+        if(isHistoryTrack(id)){
+            item->setIsHistoryTrack(true);
+        } else {
+            item->setIsHistoryTrack(false);
+        }
+
+        if(item.get() == mDisplayWidget->getCurrentSelectedElement()) {
             item->setIsActive(true);
         } else {
             item->setIsActive(false);
@@ -132,6 +128,18 @@ void zchxRadarDataMgr::setRadarPointData(const QList<ZCHX::Data::ITF_RadarPoint>
 
 bool zchxRadarDataMgr::updateActiveItem(const QPoint &pt)
 {
+    if(!mDisplayWidget ||
+       !mDisplayWidget->getMapLayerMgr()->isLayerVisible(ZCHX::LAYER_RADAR) ||
+       !mDisplayWidget->getMapLayerMgr()->isLayerVisible(ZCHX::LAYER_RADAR_CURRENT)) return false;
+    int type = mDisplayWidget->getCurPickupType();
+    if(type != ZCHX::Data::ECDIS_PICKUP_RADARORPOINT && type != ZCHX::Data::ECDIS_PICKUP_ALL ) return false;
+
+    foreach (std::shared_ptr<RadarPointElement> item, m_RadarPoint) {
+        if(item->contains(10, pt.x(), pt.y())){
+            mDisplayWidget->setCurrentSelectedItem(item.get());
+            return true;
+        }
+    }
     return false;
 }
 
@@ -225,4 +233,19 @@ void zchxRadarDataMgr::setHistoryRadarPointData(const std::vector<RadarPointElem
     }
 #endif
 }
+
+//void DrawWidget::invokeLinkageSpotForRadar()
+//{
+//    ms::LatLon ll = MercatorBounds::ToLatLon(m_framework->PtoG(m_curPt));
+
+//    ZCHX::Data::ITF_CloudHotSpot data;
+//    data.fllow = ZCHX::Data::ITF_CloudHotSpot::FLLOW_TYPE_LINKAGE_TRACKING;
+//    data.mode = ZCHX::Data::ITF_CloudHotSpot::MODE_HANDLE;
+//    data.targetNumber = m_curActivShip;
+//    data.targetType = 2;
+//    data.targetLon = ll.lon;
+//    data.targetLat = ll.lat;
+//    emit signalInvokeHotSpot(data);
+//}
+
 }

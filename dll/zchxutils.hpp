@@ -569,6 +569,24 @@ enum SHIP_ONLINE_STATUS{
 //    AIS_WARN_STATUS_CHANNEL_MOORING    // 锚泊预警
 //};
 
+enum SHIP_BLACK_WHITE{
+    SHPT_BW_UNKNOWN = 0,
+    SHIP_BW_BLACK = 1,
+    SHIP_BW_WHITE,
+};
+
+struct ExtrapolateParam{
+    QString mID;
+    double  mVal;
+    ExtrapolateParam() {mID = ""; mVal = 0.0;}
+    ExtrapolateParam(const QString& id, double val = 0.0) {mID = id; mVal = val;}
+    bool operator ==(const ExtrapolateParam& other) const{
+        return mID == other.mID;
+    }
+};
+
+typedef QList<ExtrapolateParam> ExtrapolateList;
+
 class ZCHX_ECDIS_EXPORT ITF_AIS
 {
     std::vector<std::pair<double, double> > _path;

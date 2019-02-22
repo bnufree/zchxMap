@@ -48,6 +48,7 @@ void Profiles::initDefaultValues()
     setDefault(MAP_INDEX, MAP_DEFAULT_TARGET_ZOOM, 15);
     setDefault(MAP_INDEX, MAP_UPDATE_INTERVAL, 100);
     setDefault(MAP_INDEX, MAP_SOURCE, 0);
+    setDefault(MAP_INDEX, MAP_DISPLAY_MENU, true);
     //Ais显示配置
     setDefault(AIS_DISPLAY_SETTING, AIS_FILL_COLOR, QColor(Qt::green).name());
     setDefault(AIS_DISPLAY_SETTING, AIS_TEXT_COLOR, QColor(Qt::black).name());
@@ -55,8 +56,13 @@ void Profiles::initDefaultValues()
     setDefault(AIS_DISPLAY_SETTING, AIS_CONCERN_COLOR, QColor(Qt::red).name());
     setDefault(AIS_DISPLAY_SETTING, AIS_FORCED_IMAGE, false);
     setDefault(AIS_DISPLAY_SETTING, AIS_CONCERN_NUM, 10);
-    setDefault(AIS_DISPLAY_SETTING, AIS_TAILTRACK_NUM, 10);
-    setDefault(AIS_DISPLAY_SETTING, AIS_REPLACE_TRACK, true);
+    setDefault(AIS_DISPLAY_SETTING, AIS_REPLACE_CONCERN, true);
+    setDefault(AIS_DISPLAY_SETTING, AIS_TAIL_TRACK_NUM, 10);
+    setDefault(AIS_DISPLAY_SETTING, AIS_REPLACE_TAIL_TRACK, true);
+    setDefault(AIS_DISPLAY_SETTING, AIS_HISTORY_TRACK_NUM, 10);
+    setDefault(AIS_DISPLAY_SETTING, AIS_REPLACE_HISTORY_TRACK, true);
+    setDefault(AIS_DISPLAY_SETTING, AIS_EXTRAPOLATE_NUM, 10);
+    setDefault(AIS_DISPLAY_SETTING, AIS_REPLACE_EXTRAPOLATE, true);
 
     //雷达显示配置
     setDefault(RADAR_DISPLAY_SETTING, RADAR_FILL_COLOR, QColor(Qt::green).name());
@@ -66,7 +72,12 @@ void Profiles::initDefaultValues()
     setDefault(RADAR_DISPLAY_SETTING, RADAR_SHAPE_RECT, true);
     setDefault(RADAR_DISPLAY_SETTING, RADAR_FORCED_AIS, false);
     setDefault(RADAR_DISPLAY_SETTING, RADAR_CONCERN_NUM, 10);
-    setDefault(RADAR_DISPLAY_SETTING, RADAR_TAILTRACK_NUM, 10);
+    setDefault(RADAR_DISPLAY_SETTING, RADAR_REPLACE_CONCERN, true);
+    setDefault(RADAR_DISPLAY_SETTING, RADAR_TAIL_TRACK_NUM, 10);
+    setDefault(RADAR_DISPLAY_SETTING, RADAR_REPLACE_TAIL_TRACK, true);
+    setDefault(RADAR_DISPLAY_SETTING, RADAR_HISTORY_TRACK_NUM, 10);
+    setDefault(RADAR_DISPLAY_SETTING, RADAR_REPLACE_HISTORY_TRACK, true);
+
 }
 
 /*-------------------------------------------

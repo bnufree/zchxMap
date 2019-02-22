@@ -885,20 +885,48 @@ void MainWindow::itfSetPickUpRouteCross(const int id)
     //if(mMapWidget) mMapWidget->SetPickUpRouteCross(id);
 }
 
-void MainWindow::itfSetShipSimulationExtrapolationDatas(const QList<ZCHX::Data::ITF_AIS> &DataList)
+//void MainWindow::itfSetShipSimulationExtrapolationDatas(const QList<ZCHX::Data::ITF_AIS> &DataList)
+//{
+//    //if(mMapWidget) mMapWidget->setShipSimulationExtrapolationDatas(DataList);
+//}
+
+void MainWindow::itfUpdateShipSimulationExtrapolationData(const QString &id, int time)
 {
-    //if(mMapWidget) mMapWidget->setShipSimulationExtrapolationDatas(DataList);
+    if(mMapWidget) mMapWidget->getDataMgrFactory()->getAisDataMgr()->updateExtrapolationTime(id, time);
+}
+
+void MainWindow::itfAppendShipSimulationExtrapolationData(const QString &id, int time)
+{
+    if(!mMapWidget)  return;
+    mMapWidget->getDataMgrFactory()->getAisDataMgr()->appendExtrapolationList(QStringList()<<id, false);
+    mMapWidget->getDataMgrFactory()->getAisDataMgr()->updateExtrapolationTime(id, time);
+}
+
+void MainWindow::itfDeleteShipSimulationExtrapolationData(const QString &id)
+{
+    if(mMapWidget) mMapWidget->getDataMgrFactory()->getAisDataMgr()->removeExtrapolation(id);
+}
+
+ZCHX::Data::ExtrapolateList MainWindow::itfGetShipSimulationExtrapolationData()
+{
+    ZCHX::Data::ExtrapolateList list;
+    if(mMapWidget) list = mMapWidget->getDataMgrFactory()->getAisDataMgr()->getExtrapolationList();
+    return list;
 }
 
 void MainWindow::itfSetRealTimeShipTrailDatas(const QMap<QString, QList<ZCHX::Data::ITF_AIS> > &DataList)
 {
-    //if(mMapWidget) mMapWidget->setRealTimeShipTrailDatas(DataList);
+    if(mMapWidget){
+        QMap<QString, QList<ZCHX::Data::ITF_AIS> >::const_iterator it = DataList.begin();
+        for(; it != DataList.end(); it++)
+        {
+            mMapWidget->getDataMgrFactory()->getAisDataMgr()->setRealtimeTailTrack(it.key(), it.value());
+        }
+    }
+
 }
 
-void MainWindow::itfSetRadarTailTrackList(const QList<int> &numbers)
-{
-    //if(mMapWidget) mMapWidget->setRadarTailTracklist(numbers);
-}
+
 
 void MainWindow::itfSetRouteHistogramData(const int RouteId, const QMap<int, QList<int> > &DataList)
 {
@@ -1029,7 +1057,7 @@ void MainWindow::setIsShowStatusBar(bool bShow)
     statusBar()->setVisible(bShow);
 }
 
-std::shared_ptr<Element> MainWindow::getCurrentSelectedElement()
+Element* MainWindow::getCurrentSelectedElement()
 {
     return mMapWidget->getCurrentSelectedElement();
 }
@@ -1856,22 +1884,41 @@ void MainWindow::itfSetDisplayRouteAc(bool display)
 
 void MainWindow::itfAppendFocusAis(const QStringList &list)
 {
-    //if(mMapWidget) mMapWidget->appendFocusAis(list);
+    if(mMapWidget) mMapWidget->getDataMgrFactory()->getAisDataMgr()->appendConcernList(list, false);
 }
 
 void MainWindow::itfRemoveFocusAis(const QStringList &list)
 {
-    //if(mMapWidget) mMapWidget->removeFocusAis(list);
+    if(mMapWidget) mMapWidget->getDataMgrFactory()->getAisDataMgr()->removeConcernList(list);
 }
 
-void MainWindow::itfAppendFocusRadar(const QList<int>& list)
+void MainWindow::itfAppendFocusRadar(const QStringList& list)
 {
-    //if(mMapWidget) mMapWidget->appendFocusRadarPoint(list);
+    if(mMapWidget) mMapWidget->getDataMgrFactory()->getRadarDataMgr()->appendConcernList(list, false);
 }
 
-void MainWindow::itfRemoveFocusRadar(const QList<int>& list)
+void MainWindow::itfRemoveFocusRadar(const QStringList& list)
 {
-    //if(mMapWidget) mMapWidget->removeFocusRadarPoint(list);
+    if(mMapWidget) mMapWidget->getDataMgrFactory()->getRadarDataMgr()->removeConcernList(list);
+}
+
+void MainWindow::itfAppendRadarTailTrackList(const QStringList &list)
+{
+    if(mMapWidget) mMapWidget->getDataMgrFactory()->getRadarDataMgr()->appendRealtimeTailTrackList(list, false);
+}
+
+void MainWindow::itfRemoveRadarTailTrackList(const QStringList &list)
+{
+    if(mMapWidget) mMapWidget->getDataMgrFactory()->getRadarDataMgr()->removeRealtimeTailTrackList(list);
+}
+void MainWindow::itfAppendAisTailTrackList(const QStringList &list)
+{
+    if(mMapWidget) mMapWidget->getDataMgrFactory()->getAisDataMgr()->appendRealtimeTailTrackList(list, false);
+}
+
+void MainWindow::itfRemoveAisTailTrackList(const QStringList &list)
+{
+    if(mMapWidget) mMapWidget->getDataMgrFactory()->getAisDataMgr()->removeRealtimeTailTrackList(list);
 }
 
 void MainWindow::itfToolBarCameraNetGridAdd(const QSizeF& size, const QString& camera)

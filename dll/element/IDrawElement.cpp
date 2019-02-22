@@ -20,7 +20,8 @@ Element::Element(const double &lat, const double &lon, ZCHX::Data::ELETYPE type,
     , isHover(false)
     , isFocus(false)
     , isConcern(false)
-    , isTailTrack(false)
+    , isRealtimeTailTrack(false)
+    , isHistroyTrack(false)
     , isOpenMeet(false)
     , uuid(-1)
     , m_strID("")
@@ -51,7 +52,8 @@ Element::Element(const Element &element)
     , isHover(element.isHover)
     , isFocus(element.isFocus)
     , isConcern(element.isConcern)
-    , isTailTrack(element.isTailTrack)
+    , isRealtimeTailTrack(element.isRealtimeTailTrack)
+    , isHistroyTrack(element.isHistroyTrack)
     , isOpenMeet(element.isOpenMeet)
     , uuid(element.uuid)
     , m_strID(element.m_strID)
@@ -167,14 +169,24 @@ void Element::setIsConcern(bool value)
     isConcern = value;
 }
 
-bool Element::getIsTailTrack() const
+bool Element::getIsRealtimeTailTrack() const
 {
-    return isTailTrack;
+    return isRealtimeTailTrack;
 }
 
-void Element::setIsTailTrack(bool value)
+void Element::setIsRealtimeTailTrack(bool value)
 {
-    isTailTrack = value;
+    isRealtimeTailTrack = value;
+}
+
+bool Element::getIsHistoryTrack() const
+{
+    return isHistroyTrack;
+}
+
+void Element::setIsHistoryTrack(bool value)
+{
+    isHistroyTrack = value;
 }
 
 double Element::getDisplayLat() const
@@ -207,14 +219,16 @@ void Element::setUseDisplayLatLon(bool value)
     useDisplayLatLon = value;
 }
 
-bool Element::contains(zchxMapFrameWork *framework, int range, double x, double y) const
+bool Element::contains(int range, double x, double y) const
 {
-    if(!framework || range <= 0)
+    if(!m_framework || range <= 0)
         return false;
-    Point2D gpos = framework->LatLon2Pixel(displayLat, displayLon);
+    Point2D gpos = m_framework->LatLon2Pixel(displayLat, displayLon);
     QRectF rect(0, 0, 2*range, 2*range);
     rect.moveCenter(QPointF(gpos.x, gpos.y));
-    return rect.contains(QPointF(x, y));
+    bool sts = rect.contains(QPointF(x, y));
+    qDebug()<<"rect:"<<rect<<" point:"<<x<<y<<" sts:"<<sts;
+    return sts;
 }
 
 bool Element::contains(QPointF pos) const

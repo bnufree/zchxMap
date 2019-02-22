@@ -84,6 +84,7 @@ public:
     //经纬度和屏幕坐标的转换
     bool   zchxUtilToolPoint4CurWindow(double lat, double lon,QPointF &p);//返回经纬度所对应当前窗口的坐标
     bool   zchxUtilToolLL4CurPoint(const QPointF &p, double &lat,double &lon); //返回当前窗口上的某个点对应于海图上的经续度
+    qt::LatLon zchxUtilToolLL4CurPoint(const QPointF &p);
     void   zchxUtilToolGetDis4Point(QPointF star, QPointF end, double &latoff, double &lonoff); //取得两个像素点的坐标移动距离,转化成的经纬度变化范围
     //海图缩放级别显示
     uint   zchxUtilToolCurZoom();          //返回当前海图的缩放级别
@@ -96,8 +97,8 @@ public:
     ZCHX::Data::ECDIS_PICKUP_TYPE getCurPickupType() const;
     void setCurPickupType(const ZCHX::Data::ECDIS_PICKUP_TYPE &curPickupType);
     // 获取图层中当前被选中的元素
-    std::shared_ptr<Element> getCurrentSelectedElement();
-    void setCurrentSelectedItem(std::shared_ptr<Element> item);
+    Element* getCurrentSelectedElement();
+    void setCurrentSelectedItem(Element* item);
 
 
     //海图显示隐藏控制
@@ -127,6 +128,8 @@ public:
     //路由直方图
     void setEnableRouteHistogram(bool b) {mRouteHistogram = b;}
     bool getEnableRouteHistogram() const {return mRouteHistogram;}
+    //图元选择
+    void setActiveDrawElement(const Point2D &pos, bool dbClick = false);       //设置选中元素
 
 
 
@@ -136,7 +139,13 @@ private:
     void updateCurrentPos(const QPoint& p);
     void autoChangeCurrentStyle();
     void zchxShowCameraInfo(QPainter *painter);
-
+    bool IsLeftButton(Qt::MouseButtons buttons);
+    bool IsLeftButton(QMouseEvent * e);
+    bool IsRightButton(Qt::MouseButtons buttons);
+    bool IsRightButton(QMouseEvent * e);
+    bool IsRotation(QMouseEvent * e);
+    bool IsRouting(QMouseEvent * e);
+    bool IsLocationEmulation(QMouseEvent * e);
 protected:
     void paintEvent(QPaintEvent* e);
     void mousePressEvent(QMouseEvent * e) override;
@@ -901,7 +910,7 @@ private:
     int                         mDy;
     ZCHX::Data::ECDIS_PLUGIN_USE_MODEL  mCurPluginUserModel;
     ZCHX::Data::ECDIS_PICKUP_TYPE       mCurPickupType;
-    std::shared_ptr<Element> mCurrentSelectElement;
+    Element*                            mCurrentSelectElement;
 
     MapLayerMgr             *mLayerMgr;                     //地图图层管理
     zchxCameraDatasMgr          *mCameraDataMgr;                //相机相关的数据管理
@@ -920,9 +929,10 @@ private:
     QList<ZCHX::Data::CableBaseData>        mBaseCableDataList;
     QList<ZCHX::Data::CableInterfaceData>        mInterfaceCableDataList;
     //地图的鼠标操作
-    std::vector<LatLon>             m_eToolPoints;          //用户的操作点
-    eTool                           m_eTool;                //用户当前的操作模式
-    bool                            isActiveETool;          //用户操作时是否允许地图移动
+    std::vector<qt::LatLon>             m_eToolPoints;          //用户的操作点
+    eTool                               m_eTool;                //用户当前的操作模式
+    bool                                isActiveETool;          //用户操作时是否允许地图移动
+    QPointF                             m_startPos, m_endPos;
     //GPS数据
     std::list<std::shared_ptr<ZCHX::Data::GPSPoint>> m_gpsTracks;
     QMutex                                           m_gpsTracksMutex;

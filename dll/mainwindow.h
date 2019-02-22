@@ -265,7 +265,7 @@ public:
     /*!
          * \brief 获取图层中当前被选中的元素
          */
-    std::shared_ptr<Element> getCurrentSelectedElement();
+    Element* getCurrentSelectedElement();
 
     /*!
          * \brief 通过 uuid   获取航道
@@ -548,13 +548,16 @@ public slots: //定义Recive数据接口
     void itfSetPickUpAisInfo(QString id);
     void itfSetPickUpPosition(QString id);
     void itfSetPickUpRouteCross(const int id);//设置当前选中的交越点
-    void itfSetShipSimulationExtrapolationDatas(const QList<ZCHX::Data::ITF_AIS> &DataList);
+    //void itfSetShipSimulationExtrapolationDatas(const QList<ZCHX::Data::ITF_AIS> &DataList);
+    void itfUpdateShipSimulationExtrapolationData(const QString& id, int time);
+    void itfAppendShipSimulationExtrapolationData(const QString& id, int time);
+    void itfDeleteShipSimulationExtrapolationData(const QString& id);
+    ZCHX::Data::ExtrapolateList itfGetShipSimulationExtrapolationData();
     void itfSetRealTimeShipTrailDatas(const QMap<QString,QList<ZCHX::Data::ITF_AIS>> &DataList);
     void itfSetRouteHistogramData(const int RouteId, const QMap<int ,QList<int>> &DataList);
     void itfSetRealTimeFlowLineHistogramData(const QMap<int ,QList<int>> &DataList);
     void itfSetInTheAreaOfTrackData(const QList<QList<ZCHX::Data::LatLon>> &data);    //缓存数据实时绘制区域轨迹
     void itfSetRolePrivilegeList(const QList<int> &list);
-    void itfSetRadarTailTrackList(const QList<int>& numbers);
     //定义flag
     void itfSetIsHideMap(bool b);                       //是否隐藏海图
     void itfSetNavigateionging(bool b);                 //是否正在导航
@@ -609,11 +612,16 @@ public slots: //定义Recive数据接口
     //设置是否显示路由编号
     void itfSetDisplayRouteIndex(bool display);
     void itfSetDisplayRouteAc(bool display);
-    //设置雷达和Ais的关注现实
-    void itfAppendFocusRadar(const QList<int>& list);
-    void itfRemoveFocusRadar(const QList<int>& list);
+    //设置雷达和AIS关注
+    void itfAppendFocusRadar(const QStringList& list);
+    void itfRemoveFocusRadar(const QStringList& list);
     void itfAppendFocusAis(const QStringList& list);
     void itfRemoveFocusAis(const QStringList& list);
+    //设置雷达和AIS的历史尾迹显示
+    void itfAppendRadarTailTrackList(const QStringList& list);
+    void itfRemoveRadarTailTrackList(const QStringList& list);
+    void itfAppendAisTailTrackList(const QStringList& list);
+    void itfRemoveAisTailTrackList(const QStringList& list);
     //数据显示管理
     void itfAppendItemDataMgr(std::shared_ptr<zchxEcdisDataMgr> mgr);
     void itfRemoveItemDataMgr(std::shared_ptr<zchxEcdisDataMgr> mgr);

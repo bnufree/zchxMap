@@ -219,7 +219,7 @@ std::shared_ptr<Element> MapLayer::pickUpElement(QPointF pos)
             if(!element)
                 return element;
 
-            if(element->contains(d->m_drawWidget->framework(), 10, pos.x(), pos.y()) )
+            if(element->contains(10, pos.x(), pos.y()) )
             {
                 return element;
             }

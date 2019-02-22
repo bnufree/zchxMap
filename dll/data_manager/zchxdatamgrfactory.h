@@ -14,6 +14,7 @@ public:
     QList<std::shared_ptr<zchxEcdisDataMgr>>    getManagers() const;
     std::shared_ptr<zchxEcdisDataMgr> getManager(int type);
 
+
     bool removeDataMgr(std::shared_ptr<zchxEcdisDataMgr> mgr);
     bool appendDataMgr(std::shared_ptr<zchxEcdisDataMgr> mgr);
     //具体各个数据类型获取

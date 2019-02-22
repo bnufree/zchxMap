@@ -3,10 +3,17 @@
 
 namespace qt {
 zchxAisDataMgr::zchxAisDataMgr(zchxMapWidget* w, QObject *parent) : zchxEcdisDataMgr(w, ZCHX_DATA_MGR_AIS, parent)
+  , mSelHistoryPointIndex(-1)
+  , mSelHistoryTrackID("")
 {
     mMaxConcernNum = Profiles::instance()->value(AIS_DISPLAY_SETTING, AIS_CONCERN_NUM, 10).toInt();
-    mMaxTailTrackNum = Profiles::instance()->value(AIS_DISPLAY_SETTING, AIS_TAILTRACK_NUM, 10).toInt();
-    mReplaceTrackWherOver = Profiles::instance()->value(AIS_DISPLAY_SETTING, AIS_REPLACE_TRACK, true).toBool();
+    mReplaceConcernWhenOver = Profiles::instance()->value(AIS_DISPLAY_SETTING, AIS_REPLACE_CONCERN, true).toBool();
+    mMaxRealtimeTailTrackNum = Profiles::instance()->value(AIS_DISPLAY_SETTING, AIS_TAIL_TRACK_NUM, 10).toInt();
+    mReplaceRealtimeTailTrackWhenOver = Profiles::instance()->value(AIS_DISPLAY_SETTING, AIS_REPLACE_TAIL_TRACK, true).toBool();
+    mMaxHistoryTrackNum = Profiles::instance()->value(AIS_DISPLAY_SETTING, AIS_HISTORY_TRACK_NUM, 10).toInt();
+    mReplaceHistoryTrackWhenOver = Profiles::instance()->value(AIS_DISPLAY_SETTING, AIS_REPLACE_HISTORY_TRACK, true).toBool();
+    mMaxExtrapolationNum = Profiles::instance()->value(AIS_DISPLAY_SETTING, AIS_EXTRAPOLATE_NUM, 10).toInt();
+    mReplaceExtrapolationWhenOver = Profiles::instance()->value(AIS_DISPLAY_SETTING, AIS_REPLACE_EXTRAPOLATE, true).toBool();
     mShipTagDisplayMode = SHIP_ITEM_DEFAULT;
 }
 
@@ -41,6 +48,40 @@ void zchxAisDataMgr::show(QPainter *painter)
     for(; it != m_aisMap.end(); ++it)
     {
         std::shared_ptr<AisElement> item = it.value();
+        //更新状态
+        ZCHX::Data::ITF_AIS aisdata = item->getData();
+        if(isConcern(aisdata.id)){
+            item->setIsConcern(true);
+        } else {
+            item->setIsConcern(false);
+        }
+        if(isRealtimeTailTrack(aisdata.id)){
+            item->setIsRealtimeTailTrack(true);
+        } else {
+            item->setIsRealtimeTailTrack(false);
+        }
+        if(isHistoryTrack(aisdata.id)){
+            item->setIsHistoryTrack(true);
+        } else {
+            item->setIsHistoryTrack(false);
+        }
+        if(item.get() == mDisplayWidget->getCurrentSelectedElement()) {
+            item->setIsActive(true);
+        } else {
+            item->setIsActive(false);
+        }
+        if(isExtrapolation(aisdata.id)){
+            item->setIsExtrapolate(true);
+            item->setExtrapolateTime(getExtrapolationTime(aisdata.id));
+        } else {
+            item->setIsExtrapolate(false);
+        }
+        if(aisdata.is_construction_ship)
+        {
+            item->setForceImage(true);
+            item->setDrawTargetInfo(false);
+        }
+
         if(item->isEmpty()) continue;
         QPointF pos = item->getCurrentPos();
         if(!mDisplayWidget->rect().contains(pos.toPoint())) continue;
@@ -138,19 +179,74 @@ void zchxAisDataMgr::show(QPainter *painter)
 
 }
 
+void zchxAisDataMgr::clearHistoryTrackSel()
+{
+    mSelHistoryPointIndex = -1;
+    mSelHistoryTrackID = "";
+}
+
 bool zchxAisDataMgr::updateActiveItem(const QPoint &pt)
 {
+    if(!mDisplayWidget || !mDisplayWidget->getMapLayerMgr()->isLayerVisible(ZCHX::LAYER_AIS)) return false;
+    int type = mDisplayWidget->getCurPickupType();
+    if(type != ZCHX::Data::ECDIS_PICKUP_AIS && type != ZCHX::Data::ECDIS_PICKUP_ALL ) return false;
+
+    //重置历史轨迹点的显示
+    clearHistoryTrackSel();
+    foreach(std::shared_ptr<AisElement> item, m_aisMap)
+    {
+
+        //检查AIS图元本身是否选中
+        if(item->contains(10, pt.x() * 1.0, pt.y() * 1.0))
+        {
+            mDisplayWidget->setCurrentSelectedItem(item.get());
+            qDebug()<<"id:"<<item->getData().id<<" contains:"<<true;
+            return true;
+        }
+        qDebug()<<"id:"<<item->getData().id<<" contains:"<<false;
+        //检查历史轨迹点是否被选中
+        if(isHistoryTrack(item->getData().id))
+        {
+            int size = item->getHistoryTrackList().size();
+            for(int i = 0; i < size; ++i)
+            {
+                ZCHX::Data::ITF_AIS ais = item->getHistoryTrackList().at(i);
+                std::shared_ptr<AisElement> ele(new AisElement(ais));
+                if(ele->contains(pt)){
+                    mSelHistoryPointIndex = i;
+                    mSelHistoryTrackID = item->getData().id;
+                    qDebug()<<"id:"<<item->getData().id<<" history contains:"<<true;
+                    break;
+                }
+            }
+        }
+        if(mSelHistoryPointIndex >= 0) return true;
+    }
+    return false;
+}
+
+bool zchxAisDataMgr::setRealtimeTailTrack(const QString &id, const QList<ZCHX::Data::ITF_AIS> &data)
+{
+    if(!isRealtimeTailTrack(id)) return false;
+    //更新图元的历史轨迹数据
+    std::shared_ptr<AisElement> item = m_aisMap.value(id, NULL);
+    if(item)
+    {
+        item->setRealtimeTailTrackList(data);
+        return true;
+    }
     return false;
 }
 
 
 bool zchxAisDataMgr::setSingleAisData(QString id, const QList<ZCHX::Data::ITF_AIS> &data)
 {
-    if(!isTrack(id)) return false;
+    if(!isHistoryTrack(id)) return false;
+    //更新图元的历史轨迹数据
     std::shared_ptr<AisElement> item = m_aisMap.value(id, NULL);
     if(item)
     {
-        item->setTrackList(data);
+        item->setHistoryTrackList(data);
         return true;
     }
     return false;
@@ -158,17 +254,28 @@ bool zchxAisDataMgr::setSingleAisData(QString id, const QList<ZCHX::Data::ITF_AI
 
 void zchxAisDataMgr::removeAisHistoryData(QString id)
 {
-    removeTrack(id);
+    removeHistoryTrack(id);
 }
 
-void zchxAisDataMgr::removeTrack(const QString &id)
+void zchxAisDataMgr::removeRealtimeTailTrack(const QString &id)
 {
-    if(isTrack(id))
+    if(isRealtimeTailTrack(id))
     {
         std::shared_ptr<AisElement> item = m_aisMap.value(id, 0);
-        if(item) item->clearTrackList();
-        zchxEcdisDataMgr::removeTrack(id);
-        emit mDisplayWidget->signalSendHistoryTrail(id, false);
+        if(item) item->clearRealtimeTailTrackList();
+        zchxEcdisDataMgr::removeRealtimeTailTrack(id);
+        //emit mDisplayWidget->signalSendHistoryTrail(id, false);
+    }
+}
+
+void zchxAisDataMgr::removeHistoryTrack(const QString &id)
+{
+    if(isHistoryTrack(id))
+    {
+        std::shared_ptr<AisElement> item = m_aisMap.value(id, 0);
+        if(item) item->clearHistoryTrackList();
+        zchxEcdisDataMgr::removeHistoryTrack(id);
+        //emit mDisplayWidget->signalSendHistoryTrail(id, false);
     }
 }
 
@@ -200,7 +307,7 @@ void zchxAisDataMgr::SetPickUpAisInfo(QString id)
     std::pair<double, double> ll = item->getLatLon();
     mDisplayWidget->setCenterAtTargetLL(ll.first, ll.second);
     //更新当前选择的图元目标
-    mDisplayWidget->setCurrentSelectedItem(item);
+    mDisplayWidget->setCurrentSelectedItem(item.get());
 }
 
 void zchxAisDataMgr::setAisData(const QList<ZCHX::Data::ITF_AIS> &data, bool check )
@@ -221,7 +328,9 @@ void zchxAisDataMgr::setAisData(const QList<ZCHX::Data::ITF_AIS> &data, bool che
             {
                 //取消原来数据的关注和尾迹
                 removeConcern(dataShipId);
-                removeTrack(dataShipId);
+                removeRealtimeTailTrack(dataShipId);
+                removeHistoryTrack(dataShipId);
+                removeExtrapolation(dataShipId);
                 std::shared_ptr<AisElement> item = m_aisMap.value(dataShipId, 0);
                 if(item) item.reset();
                 //删除对应的实时数据
@@ -238,29 +347,41 @@ void zchxAisDataMgr::setAisData(const QList<ZCHX::Data::ITF_AIS> &data, bool che
         if(!item) {
             item = std::shared_ptr<AisElement>(new AisElement(aisdata));
             item->setFrameWork(mDisplayWidget->framework());
+            m_aisMap[aisdata.id] = item;
         } else {
             item->setData(aisdata);
         }
-        if(isConcern(aisdata.id)){
-            item->setIsConcern(true);
-        } else {
-            item->setIsConcern(false);
-        }
-        if(isTrack(aisdata.id)){
-            item->setIsTailTrack(true);
-        } else {
-            item->setIsTailTrack(false);
-        }
-        if(item == getCurrentAis()) {
-            item->setIsActive(true);
-        } else {
-            item->setIsActive(false);
-        }
-        if(aisdata.is_construction_ship)
-        {
-            item->setForceImage(true);
-            item->setDrawTargetInfo(false);
-        }
+//        if(isConcern(aisdata.id)){
+//            item->setIsConcern(true);
+//        } else {
+//            item->setIsConcern(false);
+//        }
+//        if(isRealtimeTailTrack(aisdata.id)){
+//            item->setIsRealtimeTailTrack(true);
+//        } else {
+//            item->setIsRealtimeTailTrack(false);
+//        }
+//        if(isHistoryTrack(aisdata.id)){
+//            item->setIsHistoryTrack(true);
+//        } else {
+//            item->setIsHistoryTrack(false);
+//        }
+//        if(item == getCurrentAis()) {
+//            item->setIsActive(true);
+//        } else {
+//            item->setIsActive(false);
+//        }
+//        if(isExtrapolation(aisdata.id)){
+//            item->setIsExtrapolate(true);
+//            item->setExtrapolateTime(getExtrapolationTime(aisdata.id));
+//        } else {
+//            item->setIsExtrapolate(false);
+//        }
+//        if(aisdata.is_construction_ship)
+//        {
+//            item->setForceImage(true);
+//            item->setDrawTargetInfo(false);
+//        }
         item->setUpdateUTC(QDateTime::currentMSecsSinceEpoch());
     }
 #if 0
@@ -297,15 +418,6 @@ void zchxAisDataMgr::setConsAisData(const ZCHX::Data::ITF_AIS &aisdata)
     setAisData(QList<ZCHX::Data::ITF_AIS>() <<aisdata, false);
 }
 
-
-std::shared_ptr<AisElement> zchxAisDataMgr::getCurrentAis()
-{
-    if(!mDisplayWidget || !mDisplayWidget->getCurrentSelectedElement()) return NULL;
-    std::shared_ptr<Element> item = mDisplayWidget->getCurrentSelectedElement();
-    if(item->getElementType() != ZCHX::Data::ELEMENT_AIS) return NULL;
-    return std::shared_ptr<AisElement>(static_cast<AisElement*>(item.get()));
-}
-
 void zchxAisDataMgr::setClearHistoryData(bool states)
 {
     if(states)
@@ -317,10 +429,145 @@ void zchxAisDataMgr::setClearHistoryData(bool states)
     else
     {
         //清空历史尾迹
-        while (mTrackList.size() > 0) {
-            removeTrack(mTrackList.first());
+        while (mHistoryTrackList.size() > 0) {
+            removeHistoryTrack(mHistoryTrackList.first());
         }
     }
 }
+
+QList<QAction*> zchxAisDataMgr::getRightMenuActions(const QPoint &pt)
+{
+    QList<QAction*> list;
+    //获取当前选择的目标对象
+    if(mDisplayWidget)
+    {
+        Element* item = mDisplayWidget->getCurrentSelectedElement();
+        if(item && item->getElementType() == ZCHX::Data::ELEMENT_AIS)
+        {
+            //目标确定为AIS,弹出对应的右键菜单
+            AisElement* ele = static_cast<AisElement*>(item);
+            if(ele){
+                if(ele->hasCamera())
+                {
+                    list.append(addAction(tr("相机列表"),this, SLOT(slotOpenCameraList()), (void*) ele));
+                }
+                list.append(addAction(tr("画中画"),this, SLOT(setPictureInPicture()), (void*) ele));
+                list.append(addAction(tr("船队"),this, SLOT(setFleet()), (void*) ele));
+                list.append(addAction(tr("模拟外推"),this, SLOT(setSimulationExtrapolation()), (void*) ele));
+                list.append(addAction(tr("历史轨迹"),this, SLOT(setHistoryTraces()), (void*) ele));
+                list.append(addAction(tr("实时轨迹"),this, SLOT(setRealTimeTraces()), (void*) ele));
+                list.append(addAction(tr("黑名单"),this, SLOT(setBlackList()), (void*) ele));
+                list.append(addAction(tr("白名单"),this, SLOT(setWhiteList()), (void*) ele));
+                list.append(addAction(tr("CPA跟踪"),this, SLOT(setCPATrack()), (void*) ele));
+                list.append(addAction(tr("联动"),this, SLOT(invokeLinkageSpot()), (void*) ele));
+            }
+        }
+    }
+    return list;
+}
+
+void zchxAisDataMgr::slotOpenCameraList()
+{
+
+}
+
+void zchxAisDataMgr::setPictureInPicture()
+{
+    AisElement* ele = static_cast<AisElement*>(getElementOfSender());
+    if(!ele) return;
+    emit signalSendPictureInPictureTarget(ele->getElementType(), ele->getData().id);
+}
+
+void zchxAisDataMgr::setFleet()
+{
+    AisElement* ele = static_cast<AisElement*>(getElementOfSender());
+    if(!ele) return;
+    emit signalFleet(ele->getData());
+}
+
+void zchxAisDataMgr::setSimulationExtrapolation()
+{
+    AisElement* ele = static_cast<AisElement*>(getElementOfSender());
+    if(!ele) return;
+    QString id = ele->getData().id;
+    if(isExtrapolation(id))
+    {
+        removeExtrapolation(id);
+    } else
+    {
+        appendExtrapolationList(QStringList()<<id, true);
+    }
+    emit signalShipExtrapolation(id, isExtrapolation(id));
+}
+
+void zchxAisDataMgr::setHistoryTraces()
+{
+    AisElement* ele = static_cast<AisElement*>(getElementOfSender());
+    if(!ele) return;
+    QString id = ele->getData().id;
+    if(isHistoryTrack(id))
+    {
+        removeHistoryTrack(id);
+    } else
+    {
+        appendHistoryTrackList(QStringList()<<id, true);
+    }
+    emit signalSendHistoryTrail(id, isHistoryTrack(id));
+}
+
+void zchxAisDataMgr::setRealTimeTraces()
+{
+    AisElement* ele = static_cast<AisElement*>(getElementOfSender());
+    if(!ele) return;
+    QString id = ele->getData().id;
+    if(isRealtimeTailTrack(id))
+    {
+        removeRealtimeTailTrack(id);
+    } else
+    {
+        appendRealtimeTailTrackList(QStringList()<<id, true);
+    }
+    emit signalSendRealTimeTrail(id, isRealtimeTailTrack(id));
+}
+
+void zchxAisDataMgr::setBlackList()
+{
+    AisElement* ele = static_cast<AisElement*>(getElementOfSender());
+    if(!ele) return;
+    QString id = ele->getData().id;
+    emit signalCreateBlackOrWhiteList(id, ZCHX::Data::SHIP_BW_BLACK);
+}
+
+void zchxAisDataMgr::setWhiteList()
+{
+    AisElement* ele = static_cast<AisElement*>(getElementOfSender());
+    if(!ele) return;
+    QString id = ele->getData().id;
+    emit signalCreateBlackOrWhiteList(id, ZCHX::Data::SHIP_BW_WHITE);
+}
+
+void zchxAisDataMgr::setCPATrack()
+{
+    AisElement* ele = static_cast<AisElement*>(getElementOfSender());
+    if(!ele) return;
+    QString id = ele->getData().id;
+    emit signalCreateCPATrack(id);
+}
+
+void zchxAisDataMgr::invokeLinkageSpot()
+{
+    AisElement* ele = static_cast<AisElement*>(getElementOfSender());
+    if(!ele) return;
+    ZCHX::Data::ITF_CloudHotSpot data;
+    data.fllow = ZCHX::Data::ITF_CloudHotSpot::FLLOW_TYPE_LINKAGE_TRACKING;
+    data.mode = ZCHX::Data::ITF_CloudHotSpot::MODE_HANDLE;
+    data.targetNumber = ele->getData().id;
+    data.targetType = 1;
+    data.targetLon = ele->getData().lon;
+    data.targetLat = ele->getData().lat;
+    emit signalInvokeHotSpot(data);
+}
+
+
 }
 

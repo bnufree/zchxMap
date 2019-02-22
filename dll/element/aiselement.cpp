@@ -15,8 +15,11 @@ AisElement::AisElement()
 //    , m_isFleet(false)
 {
     m_drawTargetInfo = true;
-    mTrackList.clear();
-    mBigDisplayTrackIndex = -1;
+    mRealtimeTailTrackList.clear();
+    mBigDisplayHistoryIndex = -1;
+    mHistoryTrackList.clear();
+    m_isExtrapolate = false;
+    m_ExtrapolateTime = 0.0;
     initFromSettings();
 }
 
@@ -26,9 +29,12 @@ AisElement::AisElement(const ZCHX::Data::ITF_AIS &ele)
 //    , m_isFleet(false)
 {
     setStrID(m_data.id);
-    mTrackList.clear();
-    mBigDisplayTrackIndex = -1;
+    mRealtimeTailTrackList.clear();
+    mHistoryTrackList.clear();
+    mBigDisplayHistoryIndex = -1;
     m_drawTargetInfo = true;
+    m_isExtrapolate = false;
+    m_ExtrapolateTime = 0.0;
     initFromSettings();
 }
 
@@ -211,7 +217,7 @@ void AisElement::setPrepushTrackStyle(const QString &color, const int lineWidth)
     m_iPrepushTrackWidth = lineWidth;
 }
 
-void AisElement::drawTailTrackPolyLine(std::vector<QPointF>& pts, QPainter* painter)
+void AisElement::drawHistoryTrackPolyLine(std::vector<QPointF>& pts, QPainter* painter)
 {
     if(pts.size() == 0 || !painter) return;
     //画尾迹线段
@@ -220,9 +226,9 @@ void AisElement::drawTailTrackPolyLine(std::vector<QPointF>& pts, QPainter* pain
     painter->drawPolyline(&pts[0], pts.size());
 }
 
-void AisElement::drawTailTrackPoint(QPainter *painter)
+void AisElement::drawHistoryTrackPoint(QPainter *painter)
 {
-    int size = getTrackList().size();
+    int size = mHistoryTrackList.size();
     if(size == 0 || !painter) return;
     //画尾迹点
     PainterPair chk(painter);
@@ -231,7 +237,7 @@ void AisElement::drawTailTrackPoint(QPainter *painter)
     qint64 PreviousTime = 0;
     for(int i = 0; i < size; i++)
     {
-        ZCHX::Data::ITF_AIS AisData = mTrackList[i];
+        ZCHX::Data::ITF_AIS AisData = mHistoryTrackList[i];
         Point2D meetPos = m_framework->LatLon2Pixel(AisData.lat,AisData.lon);
         if(i == 0)
         {
@@ -240,7 +246,7 @@ void AisElement::drawTailTrackPoint(QPainter *painter)
         }
         else if(i == size - 1 && ((i + 1) % 5 > 0))
         {
-            PreviousTime = mTrackList[i].UTC;
+            PreviousTime = mHistoryTrackList[i].UTC;
             painter->drawEllipse(meetPos.x - 4, meetPos.y - 4, 8, 8);
         }
         else
@@ -266,27 +272,27 @@ void AisElement::drawTailTrackPoint(QPainter *painter)
     }
 }
 
-void AisElement::drawTailTrack(QPainter *painter)
+void AisElement::drawHistoryTrack(QPainter *painter)
 {
-    if(!painter) return;
-    //绘制船舶尾迹
-    int numberSize = getTrackList().size();
+    if(!painter || !getIsHistoryTrack()) return;
+    //绘制船舶轨迹
+    int numberSize = mHistoryTrackList.size();
     if(numberSize == 0) return;
 
-    int aisIndex = getBigDisplayTrackIndex();
+    int aisIndex = mBigDisplayHistoryIndex;
     std::vector<QPointF> pts;
 
 
     //转换所有的点 转换为屏幕坐标点 绘制线段
     for(int i = 0; i < numberSize; i++)
     {
-        ZCHX::Data::ITF_AIS AisData = getTrackList().at(i);
+        ZCHX::Data::ITF_AIS AisData = mHistoryTrackList.at(i);
         Point2D pos =  m_framework->LatLon2Pixel(AisData.lat,AisData.lon);
         pts.push_back(QPointF(pos.x, pos.y));
     }
     //画尾迹线段
-    drawTailTrackPolyLine(pts, painter);
-    drawTailTrackPoint(painter);
+    drawHistoryTrackPolyLine(pts, painter);
+    drawHistoryTrackPoint(painter);
     //绘制拾取的点
     if(pts.size() > aisIndex && aisIndex >= 0)
     {
@@ -316,7 +322,7 @@ void AisElement::drawTailTrack(QPainter *painter)
        {
            PainterPair chk(painter);
            painter->setPen(QPen(Qt::black,1,Qt::SolidLine));
-           ZCHX::Data::ITF_AIS AisData1 = mTrackList.at(aisIndex);
+           ZCHX::Data::ITF_AIS AisData1 = mHistoryTrackList.at(aisIndex);
            QDateTime ArriveTime;
            ArriveTime.setMSecsSinceEpoch(AisData1.UTC);
            QString TimeStr = ArriveTime.toString("yyyy-MM-dd,hh:mm:ss");
@@ -327,6 +333,112 @@ void AisElement::drawTailTrack(QPainter *painter)
            painter->drawText(PickPos.x()+29,PickPos.y()-50,120,20,0,TimeStr);
        }
     }
+}
+
+void AisElement::drawRealtimeTailTrack(QPainter *painter)
+{
+    if(!painter || !getIsRealtimeTailTrack()) return;
+    //绘制船舶尾迹
+    if(mRealtimeTailTrackList.size() == 0) return;
+    qint64 TimeValue=0;
+    int scale = m_framework->GetDrawScale();
+    QPainterPath path;
+    for(int j =0; j <mRealtimeTailTrackList.size(); ++j)
+    {
+        ZCHX::Data::ITF_AIS ItemData = mRealtimeTailTrackList.at(j);
+        qt::Point2D curPos = m_framework->LatLon2Pixel(qt::LatLon(ItemData.lat, ItemData.lon));
+        if(j == 0)
+        {
+            path.moveTo(curPos.x,curPos.y);
+            //第一个点
+            {
+                TimeValue = ItemData.UTC;
+                {
+                    PainterPair chk(painter);
+                    painter->setPen(QPen(Qt::red,2,Qt::DotLine));
+                    painter->drawPoint(curPos.x, curPos.y);
+                }
+                if(scale >13)
+                {
+                    PainterPair chk(painter);;
+                    painter->setPen(QPen(QColor(150,47,54),1,Qt::SolidLine));
+                    painter->drawRect(curPos.x+28, curPos.y-5,124,20);
+                    painter->drawLine(curPos.x, curPos.y, curPos.x+28, curPos.y+9);
+                    QDateTime DateTime;
+                    DateTime.setMSecsSinceEpoch(ItemData.UTC);
+                    QString TimeStr = DateTime.toString("yyyy-MM-dd hh:mm:ss");
+                    QFont objFont = painter->font();
+                    objFont = QFont("微软雅黑",9,QFont::Normal,true);
+                    painter->setFont(objFont);
+                    painter->drawText(curPos.x+30,curPos.y-3,120,20,0,TimeStr);
+                }
+            }
+        } else {
+            path.lineTo(curPos.x,curPos.y);
+            if(ItemData.UTC - TimeValue >= 60000)
+            {
+                TimeValue = ItemData.UTC;
+                {
+                    PainterPair chk(painter);
+                    painter->setPen(QPen(Qt::red,4,Qt::DotLine));
+                    painter->drawPoint(curPos.x, curPos.y);
+                }
+
+                if(scale >13)
+                {
+                    PainterPair chk(painter);
+                    painter->setPen(QPen(QColor(150,47,54),1,Qt::SolidLine));
+                    painter->drawRect(curPos.x+28, curPos.y-5,124,20);
+                    painter->drawLine(curPos.x, curPos.y, curPos.x+28, curPos.y+9);
+                    QDateTime DateTime;
+                    DateTime.setMSecsSinceEpoch(ItemData.UTC);
+                    QString TimeStr = DateTime.toString("yyyy-MM-dd hh:mm:ss");
+                    QFont objFont = painter->font();
+                    objFont = QFont("微软雅黑",9,QFont::Normal,true);
+                    painter->setFont(objFont);
+                    painter->drawText(curPos.x+30,curPos.y-3,120,20,0,TimeStr);
+                }
+            }
+        }
+
+    }
+    PainterPair chk(painter);
+    QPen objPen;
+    if(getIsActive())
+    {
+        objPen.setColor(QColor(255,0,0,100));
+    }
+    else
+    {
+        objPen.setColor(QColor(0,0,0,100));
+    }
+
+    objPen.setWidth(1);
+    painter->setPen(objPen);
+    painter->drawPath(path);
+}
+
+void AisElement::drawExtrapolation(QPainter *painter)
+{
+    if(!painter || !getIsExtrapolate() || getExtrapolate() == 0) return;
+    //绘制外推点
+    qt::Point2D  curPos = m_framework->LatLon2Pixel(getData().lat, getData().lon);
+
+    //第二点
+    double lat = 0.0, lon = 0.0;
+    double Speed = getData().sog * 1852 /3600.0;
+    double Distance = getExtrapolate() * 60 * Speed;
+    ZCHX::Utils::distbear_to_latlon(getData().lat,getData().lon,Distance,getData().cog, lat, lon);
+    qt::Point2D nextPos = m_framework->LatLon2Pixel(lat, lon);
+    PainterPair chk(painter);
+    //画点
+    painter->setPen(QPen(QColor(m_sPrepushTrackStyle),m_iPrepushTrackWidth,Qt::SolidLine));
+    painter->setBrush(Qt::NoBrush);
+    painter->drawEllipse(nextPos.x-3,nextPos.y-3,6,6);
+
+    //线
+    painter->setPen(QPen(QColor(m_sPrepushTrackStyle),m_iPrepushTrackWidth,Qt::DotLine));
+    painter->drawLine(curPos.x, curPos.y, nextPos.x, nextPos.y);
 }
 
 void AisElement::drawElement(QPainter *painter)
@@ -362,8 +474,12 @@ void AisElement::drawElement(QPainter *painter)
     drawShipTriangle(painter, fillColor);
     //画船舶图片显示
     drawShipImage(painter);
-    //画尾迹
-    drawTailTrack(painter);
+    //画历史轨迹
+    drawHistoryTrack(painter);
+    //画实时尾迹
+    drawRealtimeTailTrack(painter);
+    //画预推点
+    drawExtrapolation(painter);
 }
 
 void AisElement::drawShipImage(QPainter *painter)
@@ -599,6 +715,7 @@ void AisElement::updateGeometry(QPointF pos, int size)
     }
 
     Element::updateGeometry(pos, size);
+
 }
 
 bool AisElement::needDrawImage() const
@@ -623,6 +740,13 @@ void AisElement::initFromSettings()
 
     //qDebug()<<"ais ini seetings."<<getForceImage()<<mFillingColor.name()<<mTextColor.name()<<mConcernColor.name()<<mBorderColor.name();
 }
+
+//bool AisElement::contains(QPointF pos) const
+//{
+//    bool sts =  Element::contains(m_framework, 10, pos.x(), pos.y());
+//    qDebug()<<__FUNCTION__<<sts;
+//    return sts;
+//}
 
 //namespace end
 }

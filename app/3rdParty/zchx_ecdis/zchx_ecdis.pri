@@ -24,9 +24,9 @@ exists( $${ZCHX_ECDIS_PATH} ) {
         ZCHX_ECDIS_install.files += $${ZCHX_ECDIS_PATH}/bin/Release/*
     }else{
         LIBS +=-L$${ZCHX_ECDIS_LIBS} \
-                     -llibzchx_ecdis
+                     -llibzchx_ecdisd
 
-        ZCHX_ECDIS_install.files += $${ZCHX_ECDIS_PATH}/bin/Release/*
+        ZCHX_ECDIS_install.files += $${ZCHX_ECDIS_PATH}/bin/Debug/*
     }
 
     ZCHX_ECDIS_install.path = $${IDE_APP_PATH}/
