@@ -21,6 +21,7 @@ zchxMapWidget::zchxMapWidget(QWidget *parent) : QWidget(parent),
     m_eTool(DRAWNULL),
     mLastWheelTime(0),
     mCurrentSelectElement(0),
+    mUseRightKey(true),
     mFrameWork(0),
     mMapThread(0),
     mDrag(0),
@@ -661,6 +662,7 @@ void zchxMapWidget::mousePressEvent(QMouseEvent *e)
                 if(list.size() > 0)
                 {
                     menu.addActions(list);
+                    break;
                 }
             }
 

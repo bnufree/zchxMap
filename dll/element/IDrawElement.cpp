@@ -227,7 +227,7 @@ bool Element::contains(int range, double x, double y) const
     QRectF rect(0, 0, 2*range, 2*range);
     rect.moveCenter(QPointF(gpos.x, gpos.y));
     bool sts = rect.contains(QPointF(x, y));
-    qDebug()<<"rect:"<<rect<<" point:"<<x<<y<<" sts:"<<sts;
+    //qDebug()<<"rect:"<<rect<<" point:"<<x<<y<<" sts:"<<sts;
     return sts;
 }
 

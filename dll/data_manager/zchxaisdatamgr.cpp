@@ -332,7 +332,14 @@ void zchxAisDataMgr::setAisData(const QList<ZCHX::Data::ITF_AIS> &data, bool che
                 removeHistoryTrack(dataShipId);
                 removeExtrapolation(dataShipId);
                 std::shared_ptr<AisElement> item = m_aisMap.value(dataShipId, 0);
-                if(item) item.reset();
+                if(item){
+                    //如果是当前选择的目标,则将目标清空
+                    if(item.get() == mDisplayWidget->getCurrentSelectedElement())
+                    {
+                        mDisplayWidget->setCurrentSelectedItem(0);
+                    }
+                    item.reset();
+                }
                 //删除对应的实时数据
                 m_aisMap.remove(dataShipId);
             }
