@@ -24,18 +24,6 @@ enum    ZCHX_DATA_MGR_TYPE{
     ZCHX_DATA_MGR_USER_DEFINE,
 };
 
-struct ExtrapolateParam{
-    QString mID;
-    double  mVal;
-    ExtrapolateParam() {mID = ""; mVal = 0.0;}
-    ExtrapolateParam(const QString& id, double val = 0.0) {mID = id; mVal = val;}
-    bool operator ==(const ExtrapolateParam& other) const{
-        return mID == other.mID;
-    }
-};
-
-typedef QList<ExtrapolateParam> ExtrapolateList;
-
 class zchxEcdisDataMgr : public QObject
 {
     Q_OBJECT
@@ -69,9 +57,9 @@ public:
     void            removeHistoryTrackList(const QStringList& list);
     //模拟外推操作
     int             getMaxExtrapolationNum() const {return mMaxExtrapolationNum;}
-    virtual void    removeExtrapolation(const QString& id) {mExtrapolationList.removeOne(ExtrapolateParam(id));}
-    bool            isExtrapolation(const QString& id) {return mExtrapolationList.contains(ExtrapolateParam(id));}
-    QStringList     getExtrapolationList() const;
+    virtual void    removeExtrapolation(const QString& id) {mExtrapolationList.removeOne(ZCHX::Data::ExtrapolateParam(id));}
+    bool            isExtrapolation(const QString& id) {return mExtrapolationList.contains(ZCHX::Data::ExtrapolateParam(id));}
+    ZCHX::Data::ExtrapolateList     getExtrapolationList() const;
     double          getExtrapolationTime(const QString& id) const;
     void            appendExtrapolationList(const QStringList& list, bool fromMenu);
     void            removeExtrapolationList(const QStringList& list);
@@ -125,7 +113,7 @@ protected:
     QStringList         mConcernList;               //关注列表
     QStringList         mRealtimeTailTrackList;     //实时尾迹列表
     QStringList         mHistoryTrackList;          //历史轨迹列表
-    ExtrapolateList      mExtrapolationList;         //模拟外推列表            这里注意这里设定有外推时间,默认为0, 用户设定
+    ZCHX::Data::ExtrapolateList      mExtrapolationList;         //模拟外推列表            这里注意这里设定有外推时间,默认为0, 用户设定
 
     int                 mType;                      //数据管理类型
 };

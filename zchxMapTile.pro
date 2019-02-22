@@ -6,4 +6,4 @@
 
 TEMPLATE = subdirs
 CONFIG += ordered
-SUBDIRS = dll app
+SUBDIRS = zchx_ecdis app
