@@ -10,7 +10,8 @@ class CameraElement : public Element
 public:
     explicit CameraElement(const ZCHX::Data::ITF_CameraDev & data, Element* depends = 0);
 
-    const ZCHX::Data::ITF_CameraDev &data() const;
+    const ZCHX::Data::ITF_CameraDev &getData() const;
+    void setData(const ZCHX::Data::ITF_CameraDev& dev);
     int getGanPid() const;
     ZCHX::Data::CAMERATYPE getType() const;
 

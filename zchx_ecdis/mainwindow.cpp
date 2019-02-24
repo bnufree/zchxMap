@@ -3,7 +3,6 @@
 #include "zchxmapthread.h"
 #include "zchxmapdownloadthread.h"
 #include "map_layer/zchxmaplayermgr.h"
-#include "camera_mgr/zchxcameradatasmgr.h"
 #include "data_manager/zchxdatamgrfactory.h"
 #include "zchxuserdefinesdatamgr.h"
 #include "zchxroutedatamgr.h"

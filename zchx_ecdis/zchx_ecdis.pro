@@ -92,7 +92,9 @@ SOURCES += mainwindow.cpp \
     data_manager/zchxecdisdatamgr.cpp \
     data_manager/zchxaisdatamgr.cpp \
     data_manager/zchxradardatamgr.cpp \
-    data_manager/zchxdatamgrfactory.cpp
+    data_manager/zchxdatamgrfactory.cpp \
+    data_manager/zchxcameraroddatamgr.cpp \
+    data_manager/zchxcameradatamgr.cpp
 
 HEADERS  += mainwindow.h \
     zchxmapthread.h \
@@ -139,7 +141,9 @@ HEADERS  += mainwindow.h \
     data_manager/zchxaisdatamgr.h \
     data_manager/zchxradardatamgr.h \
     data_manager/zchxdatamgrfactory.h \
-    data_manager/zchxdatamanagers.h
+    data_manager/zchxdatamanagers.h \
+    data_manager/zchxcameraroddatamgr.h \
+    data_manager/zchxcameradatamgr.h
 
 FORMS    += mainwindow.ui \
     cardmouthinfodialog.ui \
@@ -157,8 +161,8 @@ DISTFILES += \
     res/element/camera2.png
 RESOURCES += $$PWD/opengl/opengl.qrc
 
-#生成安装文件到第三方库
-#1)指定三方库目录
+#生成安装文件到第三方�?
+#1)指定三方库目�?
 DESTDIRRoot = $$TargetRoot/app/3rdParty/zchx_ecdis/3.0.0
 #2)安装翻译文件
 qminstall.files = $$BINARIES_PATH/translations/zchx_ecdis_zh_CN.qm
@@ -168,7 +172,7 @@ INSTALLS += qminstall
 rccinstall.files = $$BINARIES_PATH/resources/zchx_ecdis.rcc
 rccinstall.path = $$DESTDIRRoot/resources/
 INSTALLS += rccinstall
-#4)安装头文件
+#4)安装头文�?
 LibFilesInclude.path = $$DESTDIRRoot/include/qt
 LibFilesInclude.files = $$PWD/*.h $$PWD/*.hpp
 INSTALLS += LibFilesInclude

@@ -10,9 +10,30 @@ CameraRodElement::CameraRodElement(const ZCHX::Data::ITF_CameraRod &data)
     uuid = data.nUUID;
 }
 
-ZCHX::Data::ITF_CameraRod CameraRodElement::data() const
+ZCHX::Data::ITF_CameraRod CameraRodElement::getData() const
 {
     return m_data;
+}
+
+QList<ZCHX::Data::ITF_CameraDev> CameraRodElement::getCameraList() const
+{
+    return m_camera_list;
+}
+
+
+void CameraRodElement::setCameraData(const QList<ZCHX::Data::ITF_CameraDev> &data)
+{
+    m_camera_list = data;
+}
+
+QList<ZCHX::Data::IPCastDevice> CameraRodElement::getIPCList() const
+{
+    return m_ipc_list;
+}
+
+void CameraRodElement::setIPCData(const QList<ZCHX::Data::IPCastDevice> &data)
+{
+    m_ipc_list = data;
 }
 
 void CameraRodElement::setStatus(ZCHX::Data::CAMERAROD_STATUS st)

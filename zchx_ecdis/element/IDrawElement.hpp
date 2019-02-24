@@ -137,7 +137,7 @@ public:
 
     void addChild(std::shared_ptr<Element> child);
     void removeChild(std::shared_ptr<Element> child);
-    std::list<std::shared_ptr<Element> > &getChildren();
+    std::list<std::shared_ptr<Element> > getChildren(ZCHX::Data::ELETYPE type = ZCHX::Data::ELE_NONE);
 
     std::shared_ptr<Element> parent();
     void setParent(std::shared_ptr<Element> ele);

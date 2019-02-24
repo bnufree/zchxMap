@@ -315,9 +315,16 @@ void Element::removeChild(std::shared_ptr<Element> child)
     m_children.remove(child);
 }
 
-std::list<std::shared_ptr<Element> > &Element::getChildren()
+std::list<std::shared_ptr<Element> > Element::getChildren(ZCHX::Data::ELETYPE type)
 {
-    return m_children;
+    if(type == ZCHX::Data::ELE_NONE) return m_children;
+    std::list<std::shared_ptr<Element> > list;
+    foreach (std::shared_ptr<Element> ele, m_children) {
+        if(ele->getElementType() == type){
+            list.push_back(ele);
+        }
+    }
+    return list;
 }
 
 void Element::setParent(std::shared_ptr<Element> ele)

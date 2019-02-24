@@ -11,9 +11,14 @@ CameraElement::CameraElement(const ZCHX::Data::ITF_CameraDev &data, Element* dep
     uuid = data.nUUID;
 }
 
-const ZCHX::Data::ITF_CameraDev &CameraElement::data() const
+const ZCHX::Data::ITF_CameraDev &CameraElement::getData() const
 {
     return m_data;
+}
+
+void CameraElement::setData(const ZCHX::Data::ITF_CameraDev &dev)
+{
+    m_data = dev;
 }
 
 int CameraElement::getGanPid() const
@@ -72,7 +77,6 @@ double CameraElement::getMaxTrackRange() const
 void CameraElement::drawElement(QPainter *painter)
 {
     if(!painter) return;
-    if(!isLayervisible()) return;
     //取得当前的地图层级
     if(!m_framework) return;
 
@@ -82,7 +86,7 @@ void CameraElement::drawElement(QPainter *painter)
 //    {
 //        if(data().szSite.size() > 0 || data.mRod) return;
 //    }
-    if(!mDependElement) return;
+    if(mDependElement) return;
     //开始显示
     int curScale = m_framework->GetDrawScale();
     QPointF pos = m_framework->LatLon2Pixel(lat(),lon()).toPointF();

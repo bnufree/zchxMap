@@ -1354,7 +1354,7 @@ typedef struct tagITF_CameraRod{
     LatLon              nLatLon;
     QString             szID;
     QString             szName;
-    CAMERAROD_STATUS    nStatus;
+    CAMERAROD_STATUS    nStatus;    
 }ITF_CameraRod;
 
 struct IPCastDevice                 // 号角设备
