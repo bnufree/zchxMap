@@ -278,7 +278,7 @@ void MainWindow::itfSetHistoryRadarPointData(const QList<ZCHX::Data::ITF_RadarPo
     std::vector<RadarPointElement> list;
     for(int i=0; i< data.count(); ++i)
     {
-        RadarPointElement item(data.at(i));
+        RadarPointElement item(data.at(i), mMapWidget->framework());
         list.push_back(item);
     }
     if(mMapWidget) mMapWidget->getDataMgrFactory()->getRadarDataMgr()->setHistoryRadarPointData(list);
@@ -298,38 +298,24 @@ void MainWindow::itfSetRadarAreaData(const QList<ZCHX::Data::ITF_RadarArea> &dat
 
 void MainWindow::itfSetCameraRodData(const QList<ZCHX::Data::ITF_CameraRod> &data)
 {
-    std::vector<CameraRodElement> list;
-    for(int i=0; i< data.count(); ++i)
-    {
-        CameraRodElement item(data.at(i));
-        item.setIsFocus(false);
-        list.push_back(item);
-        //        qDebug()<<"mainWindow:"<<data.at(i).ll.lat << data.at(i).ll.lon;
-    }
-    if(mMapWidget) mMapWidget->getCameraMgr()->setCameraRodData(list);
+    if(mMapWidget) mMapWidget->getDataMgrFactory()->getRodDataMgr()->setRodData(data);
 }
 
-void MainWindow::itfSetCameraDevData(const QList<ZCHX::Data::ITF_CameraDev> &data)
+void MainWindow::itfSetCameraDevData(const QList<ZCHX::Data::ITF_CameraDev> &data, ZCHX::Data::ITF_CameraDev::ITF_CAMERA_PARENT parent)
 {
-    std::vector<CameraElement> list;
-    for(int i = 0; i < data.count(); ++i)
-    {
-        CameraElement item(data.at(i));
-        list.push_back(item);
+    if(!mMapWidget) return;
+    if(parent == ZCHX::Data::ITF_CameraDev::PARENT_ROD){
+        mMapWidget->getDataMgrFactory()->getRodDataMgr()->updateCamera(data);
+    } else if(parent == ZCHX::Data::ITF_CameraDev::PARENT_AIS) {
+        mMapWidget->getDataMgrFactory()->getAisDataMgr()->updateCamera(data);
+    } else if(parent == ZCHX::Data::ITF_CameraDev::PARENT_NONE) {
+        mMapWidget->getDataMgrFactory()->getCameraDataMgr()->setCameraDevData(data);
     }
-    if(mMapWidget) mMapWidget->getCameraMgr()->setCameraDevData(list);
 }
 
 void MainWindow::itfSetAisCameraDevData(const QList<ZCHX::Data::ITF_CameraDev> &data)
 {
-    //qDebug()<<__FUNCTION__<<__LINE__;
-    std::vector<CameraElement> list;
-    for(int i = 0; i < data.count(); ++i)
-    {
-        CameraElement item(data.at(i));
-        list.push_back(item);
-    }
-    if(mMapWidget) mMapWidget->getCameraMgr()->setCameraDevData(list);
+    itfSetCameraDevData(data, ZCHX::Data::ITF_CameraDev::PARENT_AIS);
 }
 
 void MainWindow::itfSetPastrolStation(const QList<ZCHX::Data::ITF_PastrolStation> &data)
@@ -547,22 +533,12 @@ void MainWindow::itfSetLocalMarkData(const QList<ZCHX::Data::ITF_LocalMark> &dat
 
 void MainWindow::itfSetCameraGdyData(const QList<ZCHX::Data::ITF_CameraDev> &data)
 {
-    std::vector<CameraElement> list;
-    for(int i = 0; i < data.size(); ++i) {
-        CameraElement item(data.at(i));
-        list.push_back(item);
-    }
-    if(mMapWidget) mMapWidget->getCameraMgr()->setCameraDevData(list);
+    if(mMapWidget) mMapWidget->getDataMgrFactory()->getCameraDataMgr()->setCameraDevData(data);
 }
 
 void MainWindow::itfSetCameraPlanData(const QList<ZCHX::Data::ITF_CameraDev> &data)
 {
-    std::vector<CameraElement> list;
-    for(int i = 0; i < data.size(); ++i) {
-        CameraElement item(data.at(i));
-        list.push_back(item);
-    }
-    if(mMapWidget) mMapWidget->getCameraMgr()->setCameraDevData(list);
+    if(mMapWidget) mMapWidget->getDataMgrFactory()->getCameraDataMgr()->setCameraDevData(data);
 }
 
 void MainWindow::itfSetDangerousCircleData(const QList<ZCHX::Data::ITF_DangerousCircle> &data)
@@ -740,16 +716,9 @@ void MainWindow::itfSetSimulateLocation(float fCurSimulateKP)
     //if(mMapWidget) mMapWidget->setSimulateLocation(fCurSimulateKP);
 }
 
-void MainWindow::itfSetCameraObservationZoneData(const QList<ZCHX::Data::ITF_CameraObservationZone> &data)
+void MainWindow::itfSetCameraObservationZoneData(const QList<ZCHX::Data::ITF_CameraView> &data)
 {
-    std::vector<CameraObservationZone> list;
-    for(int i=0; i< data.size(); ++i)
-    {
-        CameraObservationZone item(data.at(i));
-        list.push_back(item);
-    }
-
-    if(mMapWidget) mMapWidget->getCameraMgr()->setCameraObservationZoneData(list);
+    if(mMapWidget) mMapWidget->getDataMgrFactory()->getCameraViewMgr()->setData(data);
 }
 
 void MainWindow::itfSetRadarVideoData(double dCentreLon, double dCentreLat, double dDistance, int uType, int uLoopNum)
@@ -815,22 +784,9 @@ void MainWindow::itfSetRouteCrossData(const QList<ZCHX::Data::ITF_RouteCross> &d
 
     if(mMapWidget) mMapWidget->getRouteDataMgr()->setRouteCrossData(list);
 }
-void MainWindow::itfSetCameraVideoWarnData(const QList<ZCHX::Data::ITF_CameraVideoWarn> &data)
+void MainWindow::itfSetCameraVideoWarnData(const QList<ZCHX::Data::ITF_VideoTarget> &data)
 {
-
-    std::vector<CameraVideoWarn> list;
-
-    for(int i=0; i< data.size(); ++i)
-    {
-
-        CameraVideoWarn item(data.at(i));
-
-        list.push_back(item);
-
-    }
-
-    if(mMapWidget) mMapWidget->getCameraMgr()->setCameraVideoWarnData(list);
-
+    if(mMapWidget) mMapWidget->getDataMgrFactory()->getVideoDataMgr()->setData(data);
 }
 
 void MainWindow::itfAppendElementItem(const ZCHX::Data::ITF_EleEllipse &item)
@@ -1798,46 +1754,33 @@ void MainWindow::iftSetIsWarningType(bool bWarningType)
 
 void MainWindow::itfAddLayer(std::shared_ptr<MapLayer> layer, std::shared_ptr<MapLayer> parent)
 {
-    MapLayerMgr *mgr = mMapWidget->getMapLayerMgr();
-    if(!mgr) return;
-    mgr->addLayer(layer, parent);
+    MapLayerMgr::instance()->addLayer(layer, parent);
 }
 
 bool MainWindow::itfContainsLayer(const QString &type) const
 {
-    MapLayerMgr *mgr = mMapWidget->getMapLayerMgr();
-    if(!mgr) return false;
-    return mgr->containsLayer(type);
+    return MapLayerMgr::instance()->containsLayer(type);
 }
 
 QStringList MainWindow::itfGetLayerList() const
 {
-    MapLayerMgr *mgr = mMapWidget->getMapLayerMgr();
-    if(!mgr) return QStringList();
-    return mgr->getLayerList();
+    return MapLayerMgr::instance()->getLayerList();
 }
 
 std::shared_ptr<MapLayer> MainWindow::itfGetLayer(const QString &type)
 {
-    MapLayerMgr *mgr = mMapWidget->getMapLayerMgr();
-    if(!mgr) return 0;
-    return mgr->getLayer(type);
+    return MapLayerMgr::instance()->getLayer(type);
 }
 
 const std::list<std::shared_ptr<MapLayer> > &MainWindow::itfGetLayerTree()
 {
-    MapLayerMgr *mgr = mMapWidget->getMapLayerMgr();
-    if(!mgr) return std::list<std::shared_ptr<MapLayer> >();
-    return mgr->getLayerTree();
+    return MapLayerMgr::instance()->getLayerTree();
 }
 
-void MainWindow::itfUpdateIPCastDeviceList(std::list<std::shared_ptr<ZCHX::Data::IPCastDevice> > list)
+void MainWindow::itfUpdateIPCastDeviceList(const QList<ZCHX::Data::IPCastDevice>& list)
 {
-    zchxCameraDatasMgr *mgr = mMapWidget->getCameraMgr();
-    if(mgr)
-    {
-        mgr->updateIPCastDeviceList(list);
-    }
+    if(!mMapWidget) return;
+    mMapWidget->getDataMgrFactory()->getRodDataMgr()->updateIPCastDeviceList(list);
 }
 
 void MainWindow::itfSetGPSDataList(std::list<std::shared_ptr<ZCHX::Data::GPSPoint> > list)

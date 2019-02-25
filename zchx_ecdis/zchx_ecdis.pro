@@ -80,10 +80,8 @@ SOURCES += mainwindow.cpp \
     element/drawelement.cpp \
     map_layer/zchxmaplayermgr.cpp \
     map_layer/zchxMapLayer.cpp \
-    camera_mgr/zchxcameradatasmgr.cpp \
-    camera_mgr/zchxcameralistdlg.cpp \
+    dialog/zchxcameralistdlg.cpp \
     element/aiselement.cpp \
-    element/camerarodelement.cpp \
     element/cameraelement.cpp \
     element/radarelement.cpp \
     zchxuserdefinesdatamgr.cpp \
@@ -93,8 +91,17 @@ SOURCES += mainwindow.cpp \
     data_manager/zchxaisdatamgr.cpp \
     data_manager/zchxradardatamgr.cpp \
     data_manager/zchxdatamgrfactory.cpp \
-    data_manager/zchxcameraroddatamgr.cpp \
-    data_manager/zchxcameradatamgr.cpp
+    data_manager/zchxcameradatamgr.cpp \
+    data_manager/zchxroddatamgr.cpp \
+    element/rodelement.cpp \
+    element/ipcelement.cpp \
+    dialog/zchxecdisdlgmgr.cpp \
+    element/cameraviewelement.cpp \
+    element/videotargetelement.cpp \
+    data_manager/zchxvideotargetdatamgr.cpp \
+    data_manager/zchxcameraviewdatamgr.cpp \
+    data_manager/zchxuserdefinesdatamgr.cpp \
+    element/warningzoneelement.cpp
 
 HEADERS  += mainwindow.h \
     zchxmapthread.h \
@@ -128,10 +135,8 @@ HEADERS  += mainwindow.h \
     map_layer/zchxmaplayermgr.h \
     map_layer/zchxmaplayer_p.h \
     map_layer/zchxMapLayer.h \
-    camera_mgr/zchxcameradatasmgr.h \
-    camera_mgr/zchxcameralistdlg.h \
+    dialog/zchxcameralistdlg.h \
     element/aiselement.hpp \
-    element/camerarodelement.h \
     element/cameraelement.h \
     element/radarelement.h \
     zchxuserdefinesdatamgr.h \
@@ -142,8 +147,17 @@ HEADERS  += mainwindow.h \
     data_manager/zchxradardatamgr.h \
     data_manager/zchxdatamgrfactory.h \
     data_manager/zchxdatamanagers.h \
-    data_manager/zchxcameraroddatamgr.h \
-    data_manager/zchxcameradatamgr.h
+    data_manager/zchxcameradatamgr.h \
+    data_manager/zchxroddatamgr.h \
+    element/rodelement.h \
+    element/ipcelement.h \
+    dialog/zchxecdisdlgmgr.h \
+    element/cameraviewelement.h \
+    element/videotargetelement.h \
+    data_manager/zchxcameraviewdatamgr.h \
+    data_manager/zchxvideotargetdatamgr.h \
+    data_manager/zchxuserdefinesdatamgr.h \
+    element/warningzoneelement.h
 
 FORMS    += mainwindow.ui \
     cardmouthinfodialog.ui \

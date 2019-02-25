@@ -14,14 +14,13 @@ zchxRadarDataMgr::zchxRadarDataMgr(zchxMapWidget* w, QObject *parent) : zchxEcdi
 
 void zchxRadarDataMgr::show(QPainter *painter)
 {
-    if(!mDisplayWidget || !mDisplayWidget->getMapLayerMgr()) return;
-    if(!mDisplayWidget->getMapLayerMgr()->isLayerVisible(ZCHX::LAYER_RADAR)) return;
+    if(!MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_RADAR)) return;
     QMutexLocker locker(&mDataMutex);
     QMap<QString, std::shared_ptr<RadarPointElement>>::iterator it = m_RadarPoint.begin();
     for(; it != m_RadarPoint.end(); ++it)
     {
         std::shared_ptr<RadarPointElement> item = it.value();
-        if(mDisplayWidget->getMapLayerMgr()->isLayerVisible(ZCHX::LAYER_RADAR_CURRENT))
+        if(MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_RADAR_CURRENT))
         {
             item->setIsOpenMeet(mDisplayWidget->getIsOpenMeet());
             //检查当前点是否在矩形区域内
@@ -33,7 +32,7 @@ void zchxRadarDataMgr::show(QPainter *painter)
             }
             item->drawElement(painter);
         }
-        if(mDisplayWidget->getMapLayerMgr()->isLayerVisible(ZCHX::LAYER_RADAR_TRACK) && item->getIsRealtimeTailTrack())
+        if(MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_RADAR_TRACK) && item->getIsRealtimeTailTrack())
         {
             item->drawTrack(painter);
         }
@@ -73,8 +72,7 @@ void zchxRadarDataMgr::setRadarPointData(const QList<ZCHX::Data::ITF_RadarPoint>
         QString id = QString::number(aisdata.trackNumber);
         std::shared_ptr<RadarPointElement> item = m_RadarPoint.value(id, 0);
         if(!item) {
-            item = std::shared_ptr<RadarPointElement>(new RadarPointElement(aisdata));
-            item->setFrameWork(mDisplayWidget->framework());
+            item = std::shared_ptr<RadarPointElement>(new RadarPointElement(aisdata, mDisplayWidget->framework()));
             m_RadarPoint[id] = item;
         } else {
             item->setData(aisdata);
@@ -129,8 +127,8 @@ void zchxRadarDataMgr::setRadarPointData(const QList<ZCHX::Data::ITF_RadarPoint>
 bool zchxRadarDataMgr::updateActiveItem(const QPoint &pt)
 {
     if(!mDisplayWidget ||
-       !mDisplayWidget->getMapLayerMgr()->isLayerVisible(ZCHX::LAYER_RADAR) ||
-       !mDisplayWidget->getMapLayerMgr()->isLayerVisible(ZCHX::LAYER_RADAR_CURRENT)) return false;
+       !MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_RADAR) ||
+       !MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_RADAR_CURRENT)) return false;
     int type = mDisplayWidget->getCurPickupType();
     if(type != ZCHX::Data::ECDIS_PICKUP_RADARORPOINT && type != ZCHX::Data::ECDIS_PICKUP_ALL ) return false;
 

@@ -23,7 +23,7 @@ void zchxCameraDataMgr::setCameraDevData(const QList<ZCHX::Data::ITF_CameraDev> 
 
 void zchxCameraDataMgr::show(QPainter *painter)
 {
-    if(!mDisplayWidget || !mDisplayWidget->getMapLayerMgr()->isLayerVisible(ZCHX::LAYER_CAMERA)) return;
+    if(!MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_CAMERA)) return;
     QMap<QString, std::shared_ptr<CameraElement>>::iterator it = m_CameraDev.begin();
     for(; it != m_CameraDev.end(); ++it)
     {
@@ -39,7 +39,7 @@ bool zchxCameraDataMgr::updateActiveItem(const QPoint &pt)
 
 void zchxCameraDataMgr::updateCameraStatus(const QString &id, int sts)
 {
-    std::shared_ptr<CameraElement> ele = m_CameraDev[cam.szCamName];
+    std::shared_ptr<CameraElement> ele = m_CameraDev[id];
     if(ele){
         ele->setStatus(sts);
     }

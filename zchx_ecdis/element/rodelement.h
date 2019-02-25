@@ -1,5 +1,5 @@
-#ifndef CAMERARODELEMENT_H
-#define CAMERARODELEMENT_H
+#ifndef RODELEMENT_H
+#define RODELEMENT_H
 
 #include "IDrawElement.hpp"
 #include <QtCore>
@@ -7,28 +7,27 @@
 namespace qt
 {
 
-class  CameraRodElement : public Element
+class  RodElement : public Element
 {
 public:
-    explicit CameraRodElement(const ZCHX::Data::ITF_CameraRod &data);
+    explicit RodElement(const ZCHX::Data::ITF_CameraRod &data, zchxMapFrameWork* f);
     ZCHX::Data::ITF_CameraRod getData() const;
     void setData(const ZCHX::Data::ITF_CameraRod &data);
 
     QList<ZCHX::Data::ITF_CameraDev> getCameraList() const;
-    void setCameraData(const QList<ZCHX::Data::ITF_CameraDev> &data);
-
     QList<ZCHX::Data::IPCastDevice> getIPCList() const;
-    void setIPCData(const QList<ZCHX::Data::IPCastDevice> &data);
 
     void setStatus(ZCHX::Data::CAMERAROD_STATUS st);
     ZCHX::Data::CAMERAROD_STATUS status() const;
     virtual void drawElement(QPainter *painter);
     void updateGeometry(QPointF, int){}
+    void updateElementStatus(qint64 ele, bool sts);
 private:
     ZCHX::Data::ITF_CameraRod m_data;
-    QList<ZCHX::Data::ITF_CameraDev> m_camera_list;
-    QList<ZCHX::Data::IPCastDevice> m_ipc_list;
+    //保存当前各个子项的状态.子项全部OK则杆位OK,否则就是异常
+    QList<qint64>           mOKEleList;
+    QList<qint64>           mErrEleList;
 };
 }
 
-#endif // CAMERARODELEMENT_H
+#endif // RODELEMENT_H

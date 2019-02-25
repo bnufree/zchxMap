@@ -56,6 +56,27 @@ zchxRadarDataMgr* zchxDataMgrFactory::getRadarDataMgr()
 {
     return static_cast<zchxRadarDataMgr*>(getManager(ZCHX_DATA_MGR_RADAR).get());
 }
+
+zchxCameraDataMgr* zchxDataMgrFactory::getCameraDataMgr()
+{
+    return static_cast<zchxCameraDataMgr*>(getManager(ZCHX_DATA_MGR_CAMERA).get());
+}
+
+zchxRodDataMgr* zchxDataMgrFactory::getRodDataMgr()
+{
+    return static_cast<zchxRodDataMgr*>(getManager(ZCHX_DATA_MGR_ROD).get());
+}
+
+zchxCameraViewDataMgr* zchxDataMgrFactory::getCameraViewMgr()
+{
+    return static_cast<zchxCameraViewDataMgr*>(getManager(ZCHX_DATA_MGR_CANMERA_VIEW).get());
+}
+
+zchxVideoTargetDataMgr* zchxDataMgrFactory::getVideoDataMgr()
+{
+    return static_cast<zchxVideoTargetDataMgr*>(getManager(ZCHX_DATA_MGR_VIDEO_TARGET).get());
+}
+
 }
 
 

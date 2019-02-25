@@ -6,7 +6,7 @@
 namespace qt
 {
 RadarAreaElement::RadarAreaElement(double radarY, double radarX, int centerLineAngel, int radius, int maxScanRangeANgle, int numberofChannele, int maxWakePointsNumber)
-    :Element(radarY,radarX)
+    :Element(radarY,radarX, 0, ZCHX::Data::ELEMENT_RADAR_AREA)
 {
     setRadarX(radarX);
     setRadarY(radarY);
@@ -27,7 +27,7 @@ RadarAreaElement::RadarAreaElement(double radarY, double radarX, int centerLineA
 }
 
 RadarAreaElement::RadarAreaElement(const ZCHX::Data::ITF_RadarArea &ele)
-    :Element(ele.radarY,ele.radarX)
+    :Element(ele.radarY,ele.radarX,0, ZCHX::Data::ELEMENT_RADAR_AREA)
 {
     setRadarX(ele.radarY);
     setRadarY(ele.radarX);
@@ -183,14 +183,14 @@ bool RadarAreaElement::contains(zchxMapFrameWork *framework, double angleFromNor
 }
 
 //雷达点
-RadarPointElement::RadarPointElement(const double &lat, const double &lon)
-    :Element(lat,lon,ZCHX::Data::ELEMENT_RADAR_POINT),m_radar_type(RADARSHIP)
+RadarPointElement::RadarPointElement(const double &lat, const double &lon, zchxMapFrameWork* f)
+    :Element(lat,lon, f, ZCHX::Data::ELEMENT_RADAR_POINT),m_radar_type(RADARSHIP)
 {
         initFromSettings();
 }
 
-RadarPointElement::RadarPointElement(const ZCHX::Data::ITF_RadarPoint &ele)
-    :Element(ele.lat,ele.lon, ZCHX::Data::ELEMENT_RADAR_POINT, ele.warnStatusColor),m_path(ele.path),m_radar_type((RADARSHIP))
+RadarPointElement::RadarPointElement(const ZCHX::Data::ITF_RadarPoint &ele, zchxMapFrameWork* f)
+    :Element(ele.lat,ele.lon, f, ZCHX::Data::ELEMENT_RADAR_POINT, ele.warnStatusColor),m_path(ele.path),m_radar_type((RADARSHIP))
 {
     if(!ele.path.empty())
     {

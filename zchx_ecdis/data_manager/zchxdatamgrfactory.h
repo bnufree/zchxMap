@@ -20,6 +20,10 @@ public:
     //具体各个数据类型获取
     zchxAisDataMgr* getAisDataMgr();
     zchxRadarDataMgr* getRadarDataMgr();
+    zchxRodDataMgr* getRodDataMgr();
+    zchxCameraDataMgr* getCameraDataMgr();
+    zchxCameraViewDataMgr* getCameraViewMgr();
+    zchxVideoTargetDataMgr* getVideoDataMgr();
 
 private:
     zchxMapWidget*      mWidget;

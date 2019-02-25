@@ -4,6 +4,8 @@
 #include "zchxaisdatamgr.h"
 #include "zchxradardatamgr.h"
 #include "zchxcameradatamgr.h"
-#include "zchxcameraroddatamgr.h"
+#include "zchxroddatamgr.h"
+#include "zchxcameraviewdatamgr.h"
+#include "zchxvideotargetdatamgr.h"
 
 #endif // ZCHXDATAMANAGERS_H

@@ -9,7 +9,7 @@
 namespace qt{
 
 MoveElement::MoveElement()
-    :Element(0,0)
+    :Element(0,0,0)
 {
     setData();
 }
@@ -94,139 +94,9 @@ bool MoveElement::contains(zchxMapFrameWork *framework, int range, double x, dou
 }
 
 
-WarringZONE::WarringZONE(const ZCHX::Data::ITF_WarringZone &ele)
-    :Element(0,0)
-{
-    setData(ele);
-}
-
-void WarringZONE::setData(const ZCHX::Data::ITF_WarringZone &ele)
-{
-    m_path = ele.path;
-//    m_type = (RADARTYPE)ele.type;
-    if(!ele.path.empty())
-    {
-        elelat = ele.path.front().first;
-        elelon = ele.path.front().second;
-    }
-    m_data = ele;
-//    uuid = ele.uuid;
-    m_name = ele.name.toStdString();
-}
-
-std::vector<std::pair<double, double> > WarringZONE::path() const
-{
-    return m_data.path;
-}
-
-void WarringZONE::setPath(const std::vector<std::pair<double, double> > &path)
-{
-    m_data.path = path;
-}
-
-int WarringZONE::id() const
-{
-    return uuid;
-}
-
-void WarringZONE::setId(int id)
-{
-    uuid = id;
-}
-
-std::string WarringZONE::name() const
-{
-    return m_name;
-}
-
-void WarringZONE::setName(const std::string &name)
-{
-    m_name = name;
-}
-
-ZCHX::Data::ITF_WarringZone WarringZONE::data() const
-{
-    return m_data;
-}
-
-void WarringZONE::changePathPoint(double lat, double lon)
-{
-    if(0 <= m_activePathPoint  && m_activePathPoint < m_data.path.size())
-    {
-        m_data.path[m_activePathPoint].first = lat;
-        m_data.path[m_activePathPoint].second = lon;
-    }
-}
-
-void WarringZONE::moveTo(double lat, double lon)
-{
-    for(int i= 0; i< m_data.path.size(); ++i)
-    {
-        m_data.path[i].first  = m_path[i].first  + lat;
-        m_data.path[i].second = m_path[i].second + lon;
-    }
-}
-
-void WarringZONE::updateOldPath()
-{
-    m_path = m_data.path;
-}
-
-int WarringZONE::activePathPoint() const
-{
-    return m_activePathPoint;
-}
-
-void WarringZONE::setActivePathPoint(int activePathPoint)
-{
-    m_activePathPoint = activePathPoint;
-}
-
-void WarringZONE::delPathPoint(int idx)
-{
-    if(m_data.path.size() > idx)
-    {
-        m_data.path.erase(m_data.path.begin()+idx);
-        m_path = m_data.path;
-        m_activePathPoint = -1;
-    }
-}
-
-void WarringZONE::addCtrlPoint(std::pair<double, double> ps)
-{
-    m_data.path.push_back(ps);
-    m_path = m_data.path;
-    m_activePathPoint = -1;
-}
-
-bool WarringZONE::contains(zchxMapFrameWork *framework, int range, double x, double y) const
-{
-    if(!framework) return false;
-
-    std::vector<std::pair<double,double>> tmp_path = path();
-    for(int i=0; i<tmp_path.size()-1;++i)
-    {
-        std::pair<double, double> p1 = tmp_path[i];
-        std::pair<double, double> p2 = tmp_path[i+1];
-        Point2D start = framework->LatLon2Pixel(p1.first, p1.second);
-        Point2D end = framework->LatLon2Pixel(p2.first, p2.second);
-
-        //检查3点是否共线
-        int p1x = start.x, p1y = start.y;
-        int p2x = end.x, p2y = end.y;
-        int check = (p1x - x) *(p2y - y) - (p2x - x) * (p1y - y);
-        //qDebug()<<"start:"<<p1x<<" "<<p1y<<" end:"<<p2x<<" "<<p2y<<" cur:"<<x<<" "<<y<<" area:"<<check;
-        if(abs(check) < range)
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
 
 CoastData::CoastData(const ZCHX::Data::ITF_CoastData &ele)
-    :Element(0,0)
+    :Element(0,0,0)
 {
     setData(ele);
 }
@@ -280,7 +150,7 @@ ZCHX::Data::ITF_CoastData CoastData::data() const
 }
 
 SeabedPipeLine::SeabedPipeLine(const ZCHX::Data::ITF_SeabedPipeLine &ele)
-    :Element(0,0)
+    :Element(0,0,0)
 {
     setData(ele);
 }
@@ -334,7 +204,7 @@ ZCHX::Data::ITF_SeabedPipeLine SeabedPipeLine::data() const
 }
 
 Structure::Structure(const ZCHX::Data::ITF_Structure &ele)
-    :Element(0,0)
+    :Element(0,0,0)
 {
     setData(ele);
 }
@@ -385,7 +255,7 @@ ZCHX::Data::ITF_Structure Structure::data() const
 }
 
 AreaNet::AreaNet(const ZCHX::Data::ITF_AreaNet &ele)
-    :Element(0,0)
+    :Element(0,0,0)
 {
     setData(ele);
 }
@@ -662,7 +532,7 @@ ZCHX::Data::ITF_ShipAlarmAscend ShipAlarmAscend::data() const
 ////////////////////
 /// \brief 环岛线
 IslandLine::IslandLine(const ZCHX::Data::ITF_IslandLine &ele)
-    : Element(0,0)
+    : Element(0,0,0)
     , m_path(ele.path)
     , m_type((RADARTYPE)ele.type)
 {
@@ -790,7 +660,7 @@ void IslandLine::setColor(QString color)
 ///
 
 EllipseElement::EllipseElement(const ZCHX::Data::ITF_EleEllipse &ele)
-    :Element(ele.ll.lat,ele.ll.lon, ZCHX::Data::ELEELLIPSE)
+    :Element(ele.ll.lat,ele.ll.lon, 0, ZCHX::Data::ELEELLIPSE)
 {
     setEle(ele);
 }
@@ -806,7 +676,7 @@ void EllipseElement::setEle(const ZCHX::Data::ITF_EleEllipse &ele)
 }
 
 TriangleElement::TriangleElement(const ZCHX::Data::ITF_EleTriangle &ele)
-    :Element(ele.ll.lat,ele.ll.lon,ZCHX::Data::ELETRIANGLE)
+    :Element(ele.ll.lat,ele.ll.lon, 0, ZCHX::Data::ELETRIANGLE)
 {
     setEle(ele);
 }
@@ -822,7 +692,7 @@ void TriangleElement::setEle(const ZCHX::Data::ITF_EleTriangle &ele)
 }
 
 LineElement::LineElement(const ZCHX::Data::ITF_EleLine &ele)
-    :Element(ele.ll1.lat,ele.ll1.lon,ZCHX::Data::ELELINE)
+    :Element(ele.ll1.lat,ele.ll1.lon, 0, ZCHX::Data::ELELINE)
 {
     setEle(ele);
 }
@@ -838,7 +708,7 @@ void LineElement::setEle(const ZCHX::Data::ITF_EleLine &ele)
 }
 
 RectElement::RectElement(const ZCHX::Data::ITF_EleRect &ele)
-    :Element(ele.ll.lat,ele.ll.lon,ZCHX::Data::ELERECT)
+    :Element(ele.ll.lat,ele.ll.lon, 0, ZCHX::Data::ELERECT)
 {
     setEle(ele);
 }
@@ -855,7 +725,7 @@ void RectElement::setEle(const ZCHX::Data::ITF_EleRect &ele)
 
 
 PastrolStation::PastrolStation(const ZCHX::Data::ITF_PastrolStation &data)
-    :Element(data.ll.lat,data.ll.lon)
+    :Element(data.ll.lat,data.ll.lon, 0)
 {
     m_data = data;
     uuid = data.uuid;
@@ -871,7 +741,7 @@ ZCHX::Data::ITF_PastrolStation PastrolStation::data() const
 
 
 LocalMark::LocalMark(const ZCHX::Data::ITF_LocalMark &data)
-    :Element(data.ll.lat, data.ll.lon)
+    :Element(data.ll.lat, data.ll.lon, 0)
 {
     m_data = data;
     uuid = data.uuid;
@@ -882,45 +752,9 @@ ZCHX::Data::ITF_LocalMark LocalMark::data() const
     return m_data;
 }
 
-CameraVideoWarn::CameraVideoWarn(const ZCHX::Data::ITF_CameraVideoWarn &data)
-    :Element(data.objectMapPosY, data.objectMapPosX)
-{
-    m_data = data;
-    uuid = data.uuid;
-}
-
-const ZCHX::Data::ITF_CameraVideoWarn &CameraVideoWarn::data() const
-{
-    return m_data;
-}
-
-uint CameraVideoWarn::getTargetStatus() const
-{
-    return m_data.objectState;
-}
-
-uint CameraVideoWarn::getTargetType() const
-{
-    return m_data.objectType;
-}
-
-uint CameraVideoWarn::getAlarmType() const
-{
-    return m_data.alarmType;
-}
-
-QString CameraVideoWarn::getObjId() const
-{
-    return m_data.objectID;
-}
-
-QString CameraVideoWarn::getAlarmColor() const
-{
-    return m_data.warn_color;
-}
 
 Navigation::Navigation(const ZCHX::Data::ITF_Navigation &data)
-    :Element(data.lat,data.lon)
+    :Element(data.lat,data.lon, 0)
 {
 
     m_data = data;
@@ -938,7 +772,7 @@ void Navigation::setData(const ZCHX::Data::ITF_Navigation &data)
 }
 
 DangerousCircle::DangerousCircle(const ZCHX::Data::ITF_DangerousCircle &data)
-    :Element(data.lat, data.lon)
+    :Element(data.lat, data.lon, 0)
 {
     m_data = data;
 }
@@ -959,7 +793,7 @@ void DangerousCircle::setDangerousCircleRange(int range)
 }
 
 RadarFeatureZone::RadarFeatureZone(const ZCHX::Data::ITF_RadarFeaturesZone &data)
-    :Element(0, 0)
+    :Element(0, 0, 0)
 {
     m_data = data;
 }
@@ -974,24 +808,8 @@ void RadarFeatureZone::setRadarFeatureZoneData(const ZCHX::Data::ITF_RadarFeatur
     m_data = data;
 }
 
-CameraObservationZone::CameraObservationZone(const ZCHX::Data::ITF_CameraObservationZone &data)
-    :Element(data.lat, data.lon)
-{
-    m_data = data;
-}
-
-ZCHX::Data::ITF_CameraObservationZone CameraObservationZone::data() const
-{
-    return m_data;
-}
-
-void CameraObservationZone::setRadarFeatureZoneData(const ZCHX::Data::ITF_CameraObservationZone &data)
-{
-    m_data = data;
-}
-
 RouteLine::RouteLine(const ZCHX::Data::RouteLine &ele)
-    :Element(0,0)
+    :Element(0,0, 0)
 {
     m_data = ele;
     m_backData = ele;
@@ -1226,7 +1044,7 @@ void RouteLine::delPathPoint(int idx)
 }
 
 ShipPlanLine::ShipPlanLine(const ZCHX::Data::ShipPlanLine &ele)
-    :Element(0, 0)
+    :Element(0, 0, 0)
 {
     m_data = ele;
     m_backData = ele;
@@ -1333,7 +1151,7 @@ void ShipPlanLine::delPathPoint(int idx)
 }
 
 RouteCross::RouteCross(const ZCHX::Data::ITF_RouteCross &ele)
-    :Element(ele.m_fCrossLat, ele.m_fCrossLon)
+    :Element(ele.m_fCrossLat, ele.m_fCrossLon, 0)
 {
     m_data = ele;
     uuid = ele.m_uKeyID;
@@ -1345,7 +1163,7 @@ ZCHX::Data::ITF_RouteCross RouteCross::data() const
 }
 
 Multibeam::Multibeam(const ZCHX::Data::ITF_Multibeam &ele)
-    :Element(ele.m_dLat,ele.m_dLon)
+    :Element(ele.m_dLat,ele.m_dLon, 0)
 {
     m_data = ele;
 }
@@ -1361,7 +1179,7 @@ void Multibeam::setData(const ZCHX::Data::ITF_Multibeam &data)
 }
 
 RadarVideoElement::RadarVideoElement(const ZCHX::Data::ITF_RadarVideo &ele, int uIndex)
-    :Element(ele.dCentreLat,ele.dCentreLon),m_uMsgIndex(uIndex)
+    :Element(ele.dCentreLat,ele.dCentreLon, 0),m_uMsgIndex(uIndex)
 {
     m_data = ele;
 }
@@ -1388,7 +1206,7 @@ int RadarVideoElement::getMsgIndex()
 }
 
 SpecialRouteLine::SpecialRouteLine(const ZCHX::Data::SpecialRouteLine &ele)
-    :Element(0, 0)
+    :Element(0, 0, 0)
 {
     m_data = ele;
     uuid = ele.m_iId;

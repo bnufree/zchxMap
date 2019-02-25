@@ -36,8 +36,7 @@ void zchxAisDataMgr::setPrepushTrackStyle(const QString &color, const int lineWi
 
 void zchxAisDataMgr::show(QPainter *painter)
 {
-    if(!mDisplayWidget || !mDisplayWidget->getMapLayerMgr()) return;
-    if(!mDisplayWidget->getMapLayerMgr()->isLayerVisible(ZCHX::LAYER_AIS)) return;
+    if(!MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_AIS)) return;
     if(m_aisMap.size() == 0) return;
 
     PainterPair chk(painter);
@@ -89,7 +88,7 @@ void zchxAisDataMgr::show(QPainter *painter)
         item->setHistoryTrackStyle(m_sHistoryTrackStyle, m_iHistoryTrackWidth);
 
         //一般船舶显示
-        if(mDisplayWidget->getMapLayerMgr()->isLayerVisible(ZCHX::LAYER_AIS_CURRENT) && item->getData().cargoType != 55)
+        if(MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_AIS_CURRENT) && item->getData().cargoType != 55)
         {
             item->drawFlashRegion(painter, pos, item->getData().warn_status, item->getData().warnStatusColor);
             if(item->getType() == RADARPLAN)
@@ -148,7 +147,7 @@ void zchxAisDataMgr::show(QPainter *painter)
             }
         }
         //执法船显示
-        if(mDisplayWidget->getMapLayerMgr()->isLayerVisible(ZCHX::LAYER_AIS_LAW) && item->getData().cargoType == 55)
+        if(MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_AIS_LAW) && item->getData().cargoType == 55)
         {
             item->drawFlashRegion(painter, pos, item->getData().warn_status, item->getData().warnStatusColor);
             item->drawElement(painter);
@@ -157,7 +156,7 @@ void zchxAisDataMgr::show(QPainter *painter)
             item->drawFocus(painter);
         }
         //绘制船舶轨迹点  横琴项目
-        if(mDisplayWidget->getMapLayerMgr()->isLayerVisible(ZCHX::LAYER_AIS_TRACK))
+        if(MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_AIS_TRACK))
         {
             std::vector<QPointF> pts = item->getTrack();
             PainterPair chk2(painter);
@@ -165,7 +164,7 @@ void zchxAisDataMgr::show(QPainter *painter)
             painter->drawPolyline(&pts[0],pts.size());
         }
         //显示海缆的触地点
-        if(mDisplayWidget->getMapLayerMgr()->isLayerVisible(ZCHX::LAYER_AIS_CABLE_TOUCHDOWN))
+        if(MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_AIS_CABLE_TOUCHDOWN))
         {
             std::vector<QPointF> pts = item->getTouchdown();
             if(pts.size() > 0)
@@ -187,7 +186,7 @@ void zchxAisDataMgr::clearHistoryTrackSel()
 
 bool zchxAisDataMgr::updateActiveItem(const QPoint &pt)
 {
-    if(!mDisplayWidget || !mDisplayWidget->getMapLayerMgr()->isLayerVisible(ZCHX::LAYER_AIS)) return false;
+    if(!MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_AIS)) return false;
     int type = mDisplayWidget->getCurPickupType();
     if(type != ZCHX::Data::ECDIS_PICKUP_AIS && type != ZCHX::Data::ECDIS_PICKUP_ALL ) return false;
 
@@ -551,6 +550,17 @@ void zchxAisDataMgr::setConcern()
     if(!ele) return;
     QString id = ele->getData().id;
     appendConcernList(QStringList()<<id, true);
+}
+
+void zchxAisDataMgr::updateCamera(const QList<ZCHX::Data::ITF_CameraDev> &list)
+{
+    //更新item对应的数据
+    foreach (ZCHX::Data::ITF_CameraDev data, list) {
+        std::shared_ptr<AisElement> item = m_aisMap.value(data.mParentEleID, 0);
+        if(item) {
+            item->appendCamera(data);
+        }
+    }
 }
 
 

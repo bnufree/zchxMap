@@ -63,6 +63,8 @@ public:
     void   setWarnColorAlphaStep(int val);
     int    getWarnColorAlphaStep();
 
+    //数据控制
+    MapLayerMgr* getMapLayerMgr();
     //数据显示管理
     zchxDataMgrFactory* getDataMgrFactory() {return mDataMgrFactory;}
     zchxEcdisDataMgr* getManager(int type);
@@ -133,6 +135,7 @@ public:
 private:
     void updateCurrentPos(const QPoint& p);
     void autoChangeCurrentStyle();
+    void zchxShowCameraInfo(QPainter *painter);
     bool IsLeftButton(Qt::MouseButtons buttons);
     bool IsLeftButton(QMouseEvent * e);
     bool IsRightButton(Qt::MouseButtons buttons);
@@ -774,7 +777,7 @@ signals: //发送外部信号
     void signalIsSelected4PastrolStation(const ZCHX::Data::ITF_PastrolStation &info);
     void signalIsSelected4LocalMark(const ZCHX::Data::ITF_LocalMark &info);
     void signalIsSelected4IslandLine(const ZCHX::Data::ITF_IslandLine &info); //选中的环岛线
-    void signalIsSelected4CameraVideoWarn(const ZCHX::Data::ITF_VideoTarget &info); //选中了视频分析目标
+    void signalIsSelected4CameraVideoWarn(const ZCHX::Data::ITF_CameraVideoWarn &info); //选中了视频分析目标
     void signalIsSelected4CameraDev(const ZCHX::Data::ITF_CameraDev &info);//相机点击
     void signalIsDoubleClicked4CameraDev(const ZCHX::Data::ITF_CameraDev &info);//相机双击
     //定义当前被双击的图元的信息
@@ -786,7 +789,7 @@ signals: //发送外部信号
     void signalIsDoubleClicked4PastrolStation(const ZCHX::Data::ITF_PastrolStation &info);//巡逻站双击
     void signalIsDoubleClicked4LocalMark(const ZCHX::Data::ITF_LocalMark &info);    //关注点双击
     void signalIsDoubleClicked4IslandLine(const ZCHX::Data::ITF_IslandLine &info); //环岛线双击
-    void signalIsDoubleClicked4CameraVideoWarn(const ZCHX::Data::ITF_VideoTarget &info); //双击了视频分析目标
+    void signalIsDoubleClicked4CameraVideoWarn(const ZCHX::Data::ITF_CameraVideoWarn &info); //双击了视频分析目标
     void signalIsDoubleClicked4ChannelZone(const ZCHX::Data::ITF_Channel &info);//双击航道
     void signalIsDoubleClicked4MooringZone(const ZCHX::Data::ITF_Mooring &info);//双击锚泊
     void signalIsDoubleClicked4CardMouthZone(const ZCHX::Data::ITF_CardMouth &info);//双击卡口
@@ -906,6 +909,8 @@ private:
     ZCHX::Data::ECDIS_PICKUP_TYPE       mCurPickupType;
     Element*                            mCurrentSelectElement;
 
+    MapLayerMgr             *mLayerMgr;                     //地图图层管理
+    zchxCameraDatasMgr          *mCameraDataMgr;                //相机相关的数据管理
     zchxUserDefinesDataMgr      *mUseDataMgr;                   //用户在地图上绘制的数据管理
     zchxRouteDataMgr            *mRouteDataMgr;                 //路由数据管理
     zchxShipPlanDataMgr         *mShipPlanDataMgr;              //船舶计划数据管理

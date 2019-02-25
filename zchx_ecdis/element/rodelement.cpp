@@ -1,52 +1,66 @@
-#include "camerarodelement.h"
+#include "rodelement.h"
 #include "zchxmapframe.h"
+#include "cameraelement.h"
+#include "ipcelement.h"
 
 namespace qt
 {
-CameraRodElement::CameraRodElement(const ZCHX::Data::ITF_CameraRod &data)
-    :Element(data.nLatLon.lat,data.nLatLon.lon)
+RodElement::RodElement(const ZCHX::Data::ITF_CameraRod &data,zchxMapFrameWork* f)
+    :Element(data.nLatLon.lat,data.nLatLon.lon, f, ZCHX::Data::ELEMENT_ROD)
 {
     m_data = data;
     uuid = data.nUUID;
 }
 
-ZCHX::Data::ITF_CameraRod CameraRodElement::getData() const
+ZCHX::Data::ITF_CameraRod RodElement::getData() const
 {
     return m_data;
 }
 
-QList<ZCHX::Data::ITF_CameraDev> CameraRodElement::getCameraList() const
+void RodElement::setData(const ZCHX::Data::ITF_CameraRod &data)
 {
-    return m_camera_list;
+    m_data = data;
+}
+
+QList<ZCHX::Data::ITF_CameraDev> RodElement::getCameraList() const
+{
+    QList<ZCHX::Data::ITF_CameraDev> list;
+    std::list<std::shared_ptr<Element>> wklist = getChildren(ZCHX::Data::ELEMENT_CAMERA);
+    foreach (std::shared_ptr<Element> ele, wklist) {
+        CameraElement *cam = static_cast<CameraElement*>(ele.get());
+        if(cam) {
+            list.append(cam->getData());
+        }
+    }
+    return list;
 }
 
 
-void CameraRodElement::setCameraData(const QList<ZCHX::Data::ITF_CameraDev> &data)
+QList<ZCHX::Data::IPCastDevice> RodElement::getIPCList() const
 {
-    m_camera_list = data;
+    QList<ZCHX::Data::IPCastDevice> list;
+    std::list<std::shared_ptr<Element>> wklist = getChildren(ZCHX::Data::ELEMENT_IPC);
+    foreach (std::shared_ptr<Element> ele, wklist) {
+        IPCElement *ipc = static_cast<IPCElement*>(ele.get());
+        if(ipc) {
+            list.append(ipc->getData());
+        }
+    }
+    return list;
 }
 
-QList<ZCHX::Data::IPCastDevice> CameraRodElement::getIPCList() const
-{
-    return m_ipc_list;
-}
 
-void CameraRodElement::setIPCData(const QList<ZCHX::Data::IPCastDevice> &data)
-{
-    m_ipc_list = data;
-}
-
-void CameraRodElement::setStatus(ZCHX::Data::CAMERAROD_STATUS st)
+void RodElement::setStatus(ZCHX::Data::CAMERAROD_STATUS st)
 {
     m_data.nStatus = st;
 }
 
-ZCHX::Data::CAMERAROD_STATUS CameraRodElement::status() const
+ZCHX::Data::CAMERAROD_STATUS RodElement::status() const
 {
     return m_data.nStatus;
 }
 
-void CameraRodElement::drawElement(QPainter *painter)
+void RodElement::drawElement(QPainter *painter)
 {
     if(!painter) return;
     if(!isLayervisible()) return;
@@ -57,7 +71,7 @@ void CameraRodElement::drawElement(QPainter *painter)
     QPixmap cameraRodErrImg     = ZCHX::Utils::getImage(":/element/gan_error.png", Qt::red, curScale);
     QPixmap cameraRodFocus      = ZCHX::Utils::getImage(":/element/gan_bg.png", Qt::yellow, curScale);
 
-    ZCHX::Data::ITF_CameraRod data =  this->data();
+    ZCHX::Data::ITF_CameraRod data =  this->getData();
     Point2D pos = m_framework->LatLon2Pixel(data.nLatLon.lat,data.nLatLon.lon);
     QRect rect(pos.x - cameraRadImg.width() / 2, pos.y - cameraRadImg.height() / 2, cameraRadImg.width(),cameraRadImg.height());
     if(getIsActive())
@@ -96,6 +110,22 @@ void CameraRodElement::drawElement(QPainter *painter)
     else
     {
         painter->drawPixmap(rect, cameraRadImg);
+    }
+}
+
+void RodElement::updateElementStatus(qint64 ele, bool sts)
+{
+    if(sts) {
+        if(mErrEleList.contains(ele)) mErrEleList.removeOne(ele);
+        if(!mOKEleList.contains(ele)) mOKEleList.append(ele);
+    } else {
+        if(!mErrEleList.contains(ele)) mErrEleList.append(ele);
+        if(mOKEleList.contains(ele)) mOKEleList.removeOne(ele);
+    }
+    if(mErrEleList.size() == 0) {
+        setStatus(ZCHX::Data::CAMERAROD_OK);
+    } else {
+        setStatus(ZCHX::Data::CAMERAROD_ERROR);
     }
 }
 }

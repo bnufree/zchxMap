@@ -20,8 +20,8 @@ enum SHIP_ITEM {
 class  AisElement: public Element
 {
 public:
-    AisElement();
-    AisElement(const ZCHX::Data::ITF_AIS &ele);
+    AisElement(zchxMapFrameWork* frame = 0);
+    AisElement(const ZCHX::Data::ITF_AIS &ele, zchxMapFrameWork* frame = 0);
 
     const std::vector<std::pair<double, double> > &getPath() const;
     void setPath(const std::vector<std::pair<double, double> > &path);
@@ -37,6 +37,7 @@ public:
     bool hasCamera() const;
     std::vector<ZCHX::Data::ITF_CameraDev> getCameraData() const;
     void setCameraData(const std::vector<ZCHX::Data::ITF_CameraDev> &camera);
+    void appendCamera(const ZCHX::Data::ITF_CameraDev& data);
 
     void drawElement(QPainter *painter);
     void drawTargetInformation(int mode, QPainter *painter);

@@ -2,7 +2,6 @@
 #include "zchxmapframe.h"
 #include "zchxmaploadthread.h"
 #include "map_layer/zchxmaplayermgr.h"
-#include "camera_mgr/zchxcameradatasmgr.h"
 #include "data_manager/zchxdatamgrfactory.h"
 #include "zchxuserdefinesdatamgr.h"
 #include "zchxroutedatamgr.h"
@@ -36,8 +35,6 @@ zchxMapWidget::zchxMapWidget(QWidget *parent) : QWidget(parent),
     mIsCameraDisplayWithoutRod(true),
     mCurPluginUserModel(ZCHX::Data::ECDIS_PLUGIN_USE_DISPLAY_MODEL),
     mCurPickupType(ZCHX::Data::ECDIS_PICKUP_TYPE::ECDIS_PICKUP_ALL),
-    mLayerMgr(new MapLayerMgr(this)),
-    mCameraDataMgr(new zchxCameraDatasMgr(this)),
     mDataMgrFactory(new zchxDataMgrFactory(this)),
     mUseDataMgr(new zchxUserDefinesDataMgr(this)),
     mRouteDataMgr(new zchxRouteDataMgr(this)),
@@ -51,6 +48,10 @@ zchxMapWidget::zchxMapWidget(QWidget *parent) : QWidget(parent),
     //创建数据管理容器
     mDataMgrFactory->createManager(qt::ZCHX_DATA_MGR_AIS);
     mDataMgrFactory->createManager(qt::ZCHX_DATA_MGR_RADAR);
+    mDataMgrFactory->createManager(qt::ZCHX_DATA_MGR_CAMERA);
+    mDataMgrFactory->createManager(qt::ZCHX_DATA_MGR_ROD);
+    mDataMgrFactory->createManager(qt::ZCHX_DATA_MGR_CANMERA_VIEW);
+    mDataMgrFactory->createManager(qt::ZCHX_DATA_MGR_VIDEO_TARGET);
 
 }
 
@@ -1010,18 +1011,6 @@ int zchxMapWidget::getWarnColorAlphaStep()
     return Profiles::instance()->value(MAP_INDEX, WARN_FLAH_COLOR_ALPHA).toInt();
 }
 
-MapLayerMgr * zchxMapWidget::getMapLayerMgr()
-{
-    return mLayerMgr;
-}
-
-zchxCameraDatasMgr* zchxMapWidget::getCameraMgr()
-{
-    return mCameraDataMgr;
-}
-
-
-
 zchxUserDefinesDataMgr* zchxMapWidget::getUserDefinesDataMgr()
 {
     return mUseDataMgr;
@@ -1123,12 +1112,6 @@ void zchxMapWidget::setETool2DrawPickup()
     m_eTool = DRAWPICKUP;
     isActiveETool = true; //拾取时是否允许移动海图 true 不允许，false 允许
     setCursor(Qt::ArrowCursor);
-}
-
-void zchxMapWidget::zchxShowCameraInfo(QPainter *painter)
-{
-    mCameraDataMgr->showCameraRod(painter);
-    mCameraDataMgr->showCamera(painter);
 }
 
 //GPS数据接口

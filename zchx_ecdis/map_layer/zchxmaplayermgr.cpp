@@ -3,10 +3,26 @@
 #include <QDomDocument>
 
 namespace qt {
-MapLayerMgr::MapLayerMgr(zchxMapWidget* w, QObject *parent) : QObject(parent),
-    mDisplayWidget(w)
+MapLayerMgr* MapLayerMgr::minstance = 0;
+MapLayerMgr::MGarbage MapLayerMgr::Garbage;
+
+MapLayerMgr::MapLayerMgr(QObject *parent) : QObject(parent)
 {
 
+}
+
+MapLayerMgr::~MapLayerMgr()
+{
+
+}
+
+MapLayerMgr* MapLayerMgr::instance()
+{
+    if(minstance == 0)
+    {
+        minstance = new MapLayerMgr;
+    }
+    return minstance;
 }
 
 void MapLayerMgr::loadLayers()
@@ -43,7 +59,7 @@ void MapLayerMgr::_readMapLayerNode(QDomElement node, std::shared_ptr<MapLayer> 
     bool visible = (node.attribute("visible") == "true");
     QString strMode = node.attribute("mode");
 
-    std::shared_ptr<MapLayer> layer(new MapLayer(mDisplayWidget, type, trSource, visible) );
+    std::shared_ptr<MapLayer> layer(new MapLayer(type, trSource, visible) );
     if(strMode.contains("display"))
     {
         layer->setMode(ZCHX::Data::ECDIS_PLUGIN_USE_DISPLAY_MODEL);

@@ -11,7 +11,9 @@ class MapLayerMgr : public QObject
 {
     Q_OBJECT
 public:
-    explicit MapLayerMgr(zchxMapWidget* w, QObject *parent = 0);
+    ~MapLayerMgr();
+    static MapLayerMgr *instance();
+
     //地图图层管理
     //从配置文件加载地图图层配置文件,图层的顺序按照从上到下的顺序, 最上面为最顶层
     void loadLayers();
@@ -34,6 +36,18 @@ public:
                            const QString &type5 = QString());
 private:
     void _readMapLayerNode(QDomElement node, std::shared_ptr<MapLayer> parent = 0);
+    explicit MapLayerMgr(QObject *parent = 0);
+    static MapLayerMgr     *minstance;
+
+    class MGarbage // 它的唯一工作就是在析构函数中删除CSingleton的实例
+    {
+    public:
+        ~MGarbage()
+        {
+            if (MapLayerMgr::minstance) delete MapLayerMgr::minstance;
+        }
+    };
+    static MGarbage Garbage; // 定义一个静态成员，在程序结束时，系统会调用它的析构函数
 
 signals:
 
@@ -41,7 +55,6 @@ public slots:
 private:
     std::list<std::shared_ptr<MapLayer> > m_layerList;
     std::list<std::shared_ptr<MapLayer> > m_layerTree;
-    zchxMapWidget                         *mDisplayWidget;
 };
 }
 

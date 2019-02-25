@@ -8,14 +8,25 @@
 #include "mooringinfodialog.h"
 
 namespace qt {
-zchxUserDefinesDataMgr::zchxUserDefinesDataMgr(zchxMapWidget* w, QObject *parent) : QObject(parent),mDisplayWidget(w)
+zchxWarningZoneDataMgr::zchxWarningZoneDataMgr(zchxMapWidget* w, QObject *parent) :
+    zchxEcdisDataMgr(w, ZCHX_DATA_MGR_WARNING_ZONE, parent)
 {
 }
 
-bool zchxUserDefinesDataMgr::zchxWarringZoneData4id(int uuid, ZCHX::Data::ITF_WarringZone &info)
+void zchxWarningZoneDataMgr::show(QPainter *painter)
 {
-    std::vector<WarringZONE>::iterator it;
-    for(it = m_WarringZone.begin(); it != m_WarringZone.end(); ++it)
+
+}
+
+bool zchxWarningZoneDataMgr::updateActiveItem(const QPoint &pt)
+{
+    return false;
+}
+
+bool zchxWarningZoneDataMgr::data4id(int uuid, ZCHX::Data::ITF_WarringZone &info)
+{
+    std::vector<WarningZoneElement>::iterator it;
+    for(it = mData.begin(); it != mData.end(); ++it)
     {
         int myid = (*it).data().id;
         if(uuid == myid)
@@ -27,17 +38,17 @@ bool zchxUserDefinesDataMgr::zchxWarringZoneData4id(int uuid, ZCHX::Data::ITF_Wa
     return false;
 }
 
-bool zchxUserDefinesDataMgr::zchxWarringZoneDataByName(const QString &name, ZCHX::Data::ITF_WarringZone &info)
+bool zchxWarningZoneDataMgr::dataByName(const QString &name, ZCHX::Data::ITF_WarringZone &info)
 {
-    return zchxWarringZoneDataByName(name.toStdString(), info);
+    return dataByName(name.toStdString(), info);
 }
 
-bool zchxUserDefinesDataMgr::zchxWarringZoneDataByName(const std::string &name, ZCHX::Data::ITF_WarringZone &info)
+bool zchxWarningZoneDataMgr::dataByName(const std::string &name, ZCHX::Data::ITF_WarringZone &info)
 {
-    std::vector<WarringZONE>::iterator it;
-    for(it=m_WarringZone.begin(); it != m_WarringZone.end(); ++it)
+    std::vector<WarningZoneElement>::iterator it;
+    for(it=mData.begin(); it != mData.end(); ++it)
     {
-        const WarringZONE &zone = (*it);
+        const WarningZoneElement &zone = (*it);
         if(zone.name().compare(name) == 0)
         {
             info = zone.data();
@@ -48,29 +59,29 @@ bool zchxUserDefinesDataMgr::zchxWarringZoneDataByName(const std::string &name, 
 }
 
 
-WarringZONE* zchxUserDefinesDataMgr::zchxWarringZoneItem(const std::string &name)
+WarningZoneElement* zchxWarningZoneDataMgr::item(const std::string &name)
 {
-    for(int i = 0; i < m_WarringZone.size(); ++i)
+    for(int i = 0; i < mData.size(); ++i)
     {
-        if(m_WarringZone[i].name().compare(name) == 0)
+        if(mData[i].name().compare(name) == 0)
         {
-            return &m_WarringZone[i];
+            return &mData[i];
         }
     }
     return NULL;
 }
 
-void zchxUserDefinesDataMgr::updateWarrningZone(const QList<ZCHX::Data::ITF_WarringZone> &zonelist)
+void zchxWarningZoneDataMgr::updateData(const QList<ZCHX::Data::ITF_WarringZone> &zonelist)
 {
     for(const ZCHX::Data::ITF_WarringZone &zone : zonelist)
     {
-        updateWarrningZone(zone);
+        updateData(zone);
     }
 }
 
-void zchxUserDefinesDataMgr::updateWarrningZone(const ZCHX::Data::ITF_WarringZone &zone)
+void zchxWarningZoneDataMgr::updateData(const ZCHX::Data::ITF_WarringZone &zone)
 {
-    WarringZONE *zoneItem = zchxWarringZoneItem(zone.name.toStdString());
+    WarningZoneElement *zoneItem = item(zone.name.toStdString());
     //更新已有的
     if(zoneItem)
     {
@@ -78,32 +89,26 @@ void zchxUserDefinesDataMgr::updateWarrningZone(const ZCHX::Data::ITF_WarringZon
     }
     else
     {
-        //没有就添加
-        WarringZONE newitem(zone);
-        {
-            m_WarringZone.push_back(newitem);
-        }
+        mData.push_back(WarningZoneElement(zone, mDisplayWidget->framework()));
     }
 }
 
-void zchxUserDefinesDataMgr::setWarringZONEData(const std::vector<WarringZONE> &data)
+void zchxWarningZoneDataMgr::setData(const QList<ZCHX::Data::ITF_WarringZone> &list)
 {
-    m_WarringZone = data;
+    updateData(list);
 }
 
-void zchxUserDefinesDataMgr::removeWarrningZone(const ZCHX::Data::ITF_WarringZone &zone)
+void zchxWarningZoneDataMgr::removeData(const ZCHX::Data::ITF_WarringZone &zone)
 {
-    std::vector<WarringZONE>::iterator it;
+    std::vector<WarningZoneElement>::iterator it = mData.begin();
+    for(; it != mData.end(); ++it)
     {
-        for(it = m_WarringZone.begin(); it != m_WarringZone.end(); ++it)
+        const WarningZoneElement &one = (*it);
+        if(zone.name == QString::fromStdString(one.name())
+                || zone.id == one.id())
         {
-            const WarringZONE &one = (*it);
-            if(zone.name == QString::fromStdString(one.name())
-                    || zone.id == one.id())
-            {
-                m_WarringZone.erase(it);
-                break;
-            }
+            m_WarringZone.erase(it);
+            break;
         }
     }
 }

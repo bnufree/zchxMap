@@ -11,7 +11,7 @@ Q_LOGGING_CATEGORY(ecdis, "zchx.Ecdis")
 namespace qt {
 int Element::g_maxLineLength = 100;
 
-Element::Element(const double &lat, const double &lon, ZCHX::Data::ELETYPE type,const QColor& flashColor)
+Element::Element(const double &lat, const double &lon, zchxMapFrameWork* frame, ZCHX::Data::ELETYPE type,const QColor& flashColor)
     : elelat(lat)
     , elelon(lon)
     , displayLat(lat)
@@ -29,7 +29,7 @@ Element::Element(const double &lat, const double &lon, ZCHX::Data::ELETYPE type,
     , m_pos(QPointF(-1, -1))
     , m_forceImage(false)
     , m_layer(0)
-    , m_framework(0)
+    , m_framework(frame)
     , m_uuid(QUuid::createUuid())
     , m_updateUTC(QDateTime::currentMSecsSinceEpoch())
     , m_geometryChanged(false)
@@ -315,7 +315,7 @@ void Element::removeChild(std::shared_ptr<Element> child)
     m_children.remove(child);
 }
 
-std::list<std::shared_ptr<Element> > Element::getChildren(ZCHX::Data::ELETYPE type)
+std::list<std::shared_ptr<Element> > Element::getChildren(ZCHX::Data::ELETYPE type) const
 {
     if(type == ZCHX::Data::ELE_NONE) return m_children;
     std::list<std::shared_ptr<Element> > list;

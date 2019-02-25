@@ -1,34 +1,20 @@
-#ifndef ZCHXCAMERARODDATAMGR_H
-#define ZCHXCAMERARODDATAMGR_H
+#ifndef ZCHXECDISDLGMGR_H
+#define ZCHXECDISDLGMGR_H
 
-#include "zchxecdisdatamgr.h"
+#include <QObject>
+#include "zchxutils.hpp"
+
 namespace qt {
-class zchxCameraDatasMgr : public zchxEcdisDataMgr
+class zchxMapWidget;
+class RodElement;
+class AisElement;
+class zchxCameraDatasMgr : public QObject
 {
     Q_OBJECT
 public:
     explicit zchxCameraDatasMgr(zchxMapWidget* w, QObject *parent = 0);
-
-    //摄像杆信息
-    //更新摄像杆的信息
-    void setCameraRodData(const std::vector<CameraRodElement> &data);
-    //检查指定摄像杆的状态
-    ZCHX::Data::CAMERAROD_STATUS checkCameraRodStatus(CameraRodElement *item);
-    void zchxUpdateCameraRodStatus(uint uuid);
-    //获取指定的摄像杆
-    CameraRodElement *getCameraRod(uint uuid);
-    void    showCameraRod(QPainter* painter);
-
-    //号角设备
-    std::shared_ptr<ZCHX::Data::IPCastDevice> getIPCastDevice(const QString &rodID);  //通过杆ID查询对应的号角设备
-    void updateIPCastDeviceList(std::list<std::shared_ptr<ZCHX::Data::IPCastDevice> > list);
-
-    //所有相机（枪机球机光电仪全景相机无人机船载相机）
-    void setCameraDevData(const std::vector<CameraElement> &data);
-    void showCamera(QPainter* painter);
-
     //调用相机列表对话框
-    void zchxOpenCameraListDlg(CameraRodElement *item);
+    void zchxOpenCameraListDlg(RodElement *item);
     void zchxOpenCameraListDlg(AisElement *item);
     void zchxOpenCameraListDlg(QList<ZCHX::Data::ITF_CameraDev>& list, const LatLon& ll = LatLon());
 
@@ -59,4 +45,4 @@ private:
 };
 }
 
-#endif // ZCHXCAMERARODDATAMGR_H
+#endif // ZCHXECDISDLGMGR_H

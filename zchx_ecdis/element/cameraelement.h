@@ -8,11 +8,12 @@ namespace qt {
 class CameraElement : public Element
 {
 public:
-    explicit CameraElement(const ZCHX::Data::ITF_CameraDev & data, Element* depends = 0);
+    explicit CameraElement(const ZCHX::Data::ITF_CameraDev & data, zchxMapFrameWork* frame = 0);
 
     const ZCHX::Data::ITF_CameraDev &getData() const;
     void setData(const ZCHX::Data::ITF_CameraDev& dev);
-    int getGanPid() const;
+    int getParentID() const;
+
     ZCHX::Data::CAMERATYPE getType() const;
 
     uint getStatus() const;
@@ -27,10 +28,12 @@ public:
 
     void updateGeometry(QPointF, int){}
     void drawElement(QPainter *painter);
+    void setParent(Element* ele);
+    Element* getParent();
 
 private:
     ZCHX::Data::ITF_CameraDev m_data;
-    Element*        mDependElement;             //相机所依附的第三方图元　　比如杆　　船等
+    Element     *mParent;               //相机悬挂的目标
 };
 
 }

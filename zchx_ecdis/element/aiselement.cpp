@@ -10,8 +10,8 @@
 
 namespace qt{
 
-AisElement::AisElement()
-    : Element(0,0,ZCHX::Data::ELEMENT_AIS)
+AisElement::AisElement(zchxMapFrameWork* frame)
+    : Element(0,0,frame,ZCHX::Data::ELEMENT_AIS)
 //    , m_isFleet(false)
 {
     m_drawTargetInfo = true;
@@ -23,8 +23,8 @@ AisElement::AisElement()
     initFromSettings();
 }
 
-AisElement::AisElement(const ZCHX::Data::ITF_AIS &ele)
-    : Element(ele.lat,ele.lon, ZCHX::Data::ELEMENT_AIS, ele.warnStatusColor)
+AisElement::AisElement(const ZCHX::Data::ITF_AIS &ele, zchxMapFrameWork* frame)
+    : Element(ele.lat,ele.lon, frame, ZCHX::Data::ELEMENT_AIS, ele.warnStatusColor)
     , m_data(ele)
 //    , m_isFleet(false)
 {
@@ -91,6 +91,11 @@ bool AisElement::hasCamera() const
 void AisElement::setCameraData(const std::vector<ZCHX::Data::ITF_CameraDev> &camera)
 {
     m_cameraDev = camera;
+}
+
+void AisElement::appendCamera(const ZCHX::Data::ITF_CameraDev &data)
+{
+    m_cameraDev.push_back(data);
 }
 
 void AisElement::drawCPA(QPainter *painter)

@@ -20,7 +20,7 @@ class ZCHX_ECDIS_EXPORT Element// : public QObject
 protected:
     ElementPrivate *d;
 public:
-    Element(const double &lat, const double &lon, ZCHX::Data::ELETYPE type = ZCHX::Data::ELE_NONE, const QColor& flashColor = QColor());
+    Element(const double &lat, const double &lon, zchxMapFrameWork* frame, ZCHX::Data::ELETYPE type = ZCHX::Data::ELE_NONE, const QColor& flashColor = QColor());
     Element(const Element &element);
     virtual ~Element();
 
@@ -118,7 +118,7 @@ public:
      * \param y 坐标点
      * \return 如果在矩形内则返回true, 否则返回false
      */
-    bool contains(int range, double x, double y) const;
+    virtual bool contains(int range, double x, double y) const;
     virtual bool contains(QPointF pos) const;
     virtual bool contains(const QGeoCoordinate &geoPos) const;
     virtual bool isEmpty() const;
@@ -137,7 +137,7 @@ public:
 
     void addChild(std::shared_ptr<Element> child);
     void removeChild(std::shared_ptr<Element> child);
-    std::list<std::shared_ptr<Element> > getChildren(ZCHX::Data::ELETYPE type = ZCHX::Data::ELE_NONE);
+    std::list<std::shared_ptr<Element> > getChildren(ZCHX::Data::ELETYPE type = ZCHX::Data::ELE_NONE) const;
 
     std::shared_ptr<Element> parent();
     void setParent(std::shared_ptr<Element> ele);

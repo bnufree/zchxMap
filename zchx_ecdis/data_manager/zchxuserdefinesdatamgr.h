@@ -1,31 +1,30 @@
 #ifndef ZCHXUSERDEFINESDATAMGR_H
 #define ZCHXUSERDEFINESDATAMGR_H
 
-#include <QObject>
-#include "element/drawelement.hpp"
-#include "zchxutils.hpp"
-#include "zchxMapDatautils.h"
-#include <QPainter>
-#include <QMutex>
+#include "zchxecdisdatamgr.h"
 
 namespace qt {
-class zchxMapWidget;
 
-class zchxUserDefinesDataMgr : public QObject
+class zchxWarningZoneDataMgr : public zchxEcdisDataMgr
 {
     Q_OBJECT
 public:
-    explicit zchxUserDefinesDataMgr(zchxMapWidget* w, QObject *parent = 0);
+    explicit zchxWarningZoneDataMgr(zchxMapWidget* w, QObject *parent = 0);
     //防区数据
-    QList<ZCHX::Data::ITF_WarringZone> getAllWarrningZone() const;
-    void setWarringZONEData(const std::vector<WarringZONE> &data);
-    void updateWarrningZone(const QList<ZCHX::Data::ITF_WarringZone> &zonelist);
-    void updateWarrningZone(const ZCHX::Data::ITF_WarringZone &zone);
-    void removeWarrningZone(const ZCHX::Data::ITF_WarringZone &zone);
-    WarringZONE* zchxWarringZoneItem(const std::string &name);
-    bool zchxWarringZoneData4id(int uuid, ZCHX::Data::ITF_WarringZone &info); //id获取防区信息
-    bool zchxWarringZoneDataByName(const QString &name, ZCHX::Data::ITF_WarringZone &info); //名称获取防区信息
-    bool zchxWarringZoneDataByName(const std::string &name, ZCHX::Data::ITF_WarringZone &info);
+    QList<ZCHX::Data::ITF_WarringZone> getData() const;
+    void setData(const QList<ZCHX::Data::ITF_WarringZone> &list);
+    void updateData(const QList<ZCHX::Data::ITF_WarringZone> &list);
+    void updateData(const ZCHX::Data::ITF_WarringZone &zone);
+    void removeData(const ZCHX::Data::ITF_WarringZone &zone);
+    WarningZoneElement* item(const std::string &name);
+    bool data4id(int uuid, ZCHX::Data::ITF_WarringZone &info); //id获取防区信息
+    bool dataByName(const QString &name, ZCHX::Data::ITF_WarringZone &info); //名称获取防区信息
+    bool dataByName(const std::string &name, ZCHX::Data::ITF_WarringZone &info);
+    //
+    void show(QPainter *painter);
+    bool updateActiveItem(const QPoint &pt);
+private:
+    QList<WarningZoneElement> mData;        //告警区域数据也叫防区
 
     //海岸数据
     void updateCoastDataZone(const QList<ZCHX::Data::ITF_CoastData> &zonelist);
@@ -97,8 +96,7 @@ public slots:
 
 
 private:
-    zchxMapWidget       *mDisplayWidget;
-    std::vector<WarringZONE> m_WarringZone;        //告警区域数据也叫防区
+
     std::vector<IslandLine> m_IslandLine;          //环岛线
     std::vector<CoastData> m_coastDataLine;           //海岸数据
     std::vector<SeabedPipeLine> m_seabedPipeLineLine; //海底管线
