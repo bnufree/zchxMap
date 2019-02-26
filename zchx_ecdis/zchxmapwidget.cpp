@@ -46,13 +46,25 @@ zchxMapWidget::zchxMapWidget(QWidget *parent) : QWidget(parent),
     connect(timer, SIGNAL(timeout()), this, SLOT(update()));
     timer->start();
     //创建数据管理容器
-    mDataMgrFactory->createManager(qt::ZCHX_DATA_MGR_AIS);
-    mDataMgrFactory->createManager(qt::ZCHX_DATA_MGR_RADAR);
-    mDataMgrFactory->createManager(qt::ZCHX_DATA_MGR_CAMERA);
-    mDataMgrFactory->createManager(qt::ZCHX_DATA_MGR_ROD);
-    mDataMgrFactory->createManager(qt::ZCHX_DATA_MGR_CANMERA_VIEW);
-    mDataMgrFactory->createManager(qt::ZCHX_DATA_MGR_VIDEO_TARGET);
-
+    mDataMgrFactory->createManager(ZCHX_DATA_MGR_AIS);
+    mDataMgrFactory->createManager(ZCHX_DATA_MGR_RADAR);
+    mDataMgrFactory->createManager(ZCHX_DATA_MGR_CAMERA);
+    mDataMgrFactory->createManager(ZCHX_DATA_MGR_CANMERA_VIEW);
+    mDataMgrFactory->createManager(ZCHX_DATA_MGR_VIDEO_TARGET);
+    mDataMgrFactory->createManager(ZCHX_DATA_MGR_ROD);
+    mDataMgrFactory->createManager(ZCHX_DATA_MGR_IPC);
+    mDataMgrFactory->createManager(ZCHX_DATA_MGR_WARNING_ZONE);
+    mDataMgrFactory->createManager(ZCHX_DATA_MGR_COAST);
+    mDataMgrFactory->createManager(ZCHX_DATA_MGR_SEABEDIPLINE);
+    mDataMgrFactory->createManager(ZCHX_DATA_MGR_CHANNEL);
+    mDataMgrFactory->createManager(ZCHX_DATA_MGR_CAMERA_NET_GRID);
+    mDataMgrFactory->createManager(ZCHX_DATA_MGR_STRUCTURE);
+    mDataMgrFactory->createManager(ZCHX_DATA_MGR_AREANET);
+    mDataMgrFactory->createManager(ZCHX_DATA_MGR_MOOR);
+    mDataMgrFactory->createManager(ZCHX_DATA_MGR_CARDMOUTH);
+    mDataMgrFactory->createManager(ZCHX_DATA_MGR_LOCAL_MARK);
+    mDataMgrFactory->createManager(ZCHX_DATA_MGR_DANGEROUS);
+    mDataMgrFactory->createManager(ZCHX_DATA_MGR_PASTROLSTATION);
 }
 
 zchxMapWidget::~zchxMapWidget()

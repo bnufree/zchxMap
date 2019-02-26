@@ -8,80 +8,107 @@
 #include "mooringinfodialog.h"
 
 namespace qt {
-zchxWarningZoneDataMgr::zchxWarningZoneDataMgr(zchxMapWidget* w, QObject *parent) :
-    zchxEcdisDataMgr(w, ZCHX_DATA_MGR_WARNING_ZONE, parent)
+
+template<typename K, typename T>
+zchxUserDefinesDataMgr::zchxUserDefinesDataMgr(zchxMapWidget* w, int type, const QString& layer, QObject *parent) :
+    zchxEcdisDataMgr(w, type, parent), mLayerName(layer)
 {
 }
 
-void zchxWarningZoneDataMgr::show(QPainter *painter)
+template<typename K, typename T>
+void zchxUserDefinesDataMgr::show(QPainter *painter)
 {
-
+    if( !painter || !MapLayerMgr::instance()->isLayerVisible(layer) || mData.empty()) return;
+    for(std::shared_ptr<WarningZoneElement> ele : mData)
+    {
+        if(ele.get() == mDisplayWidget->getCurrentSelectedElement()){
+            ele->setIsActive(true);
+        } else {
+            ele->setIsActive(false);
+        }
+        ele->drawElement(painter);
+    }
 }
 
-bool zchxWarningZoneDataMgr::updateActiveItem(const QPoint &pt)
+template<typename K, typename T>
+bool zchxUserDefinesDataMgr::updateActiveItem(const QPoint &pt)
 {
     return false;
 }
 
-bool zchxWarningZoneDataMgr::data4id(int uuid, ZCHX::Data::ITF_WarringZone &info)
+template<typename K, typename T>
+bool zchxUserDefinesDataMgr::data4id(int uuid, T &info)
 {
-    std::vector<WarningZoneElement>::iterator it;
-    for(it = mData.begin(); it != mData.end(); ++it)
+    for(std::shared_ptr<K> ele : mData)
     {
-        int myid = (*it).data().id;
-        if(uuid == myid)
+        if(ele->data().id == uuid)
         {
-            info = (*it).data();
+            info = ele->data();
             return true;
         }
     }
     return false;
 }
 
-bool zchxWarningZoneDataMgr::dataByName(const QString &name, ZCHX::Data::ITF_WarringZone &info)
+template<typename K, typename T>
+bool zchxUserDefinesDataMgr::dataByName(const QString &name, T &info)
 {
     return dataByName(name.toStdString(), info);
 }
 
-bool zchxWarningZoneDataMgr::dataByName(const std::string &name, ZCHX::Data::ITF_WarringZone &info)
+template<typename K, typename T>
+bool zchxUserDefinesDataMgr::dataByName(const std::string &name, T &info)
 {
-    std::vector<WarningZoneElement>::iterator it;
-    for(it=mData.begin(); it != mData.end(); ++it)
+    for(std::shared_ptr<K> ele : mData)
     {
-        const WarningZoneElement &zone = (*it);
-        if(zone.name().compare(name) == 0)
+        if(ele->name().compare(name) == 0)
         {
-            info = zone.data();
+            info = ele->data();
             return true;
         }
     }
     return false;
 }
 
-
-WarningZoneElement* zchxWarningZoneDataMgr::item(const std::string &name)
+template<typename K, typename T>
+K* zchxUserDefinesDataMgr::item(const std::string &name)
 {
-    for(int i = 0; i < mData.size(); ++i)
+    for(std::shared_ptr<K> ele : mData)
     {
-        if(mData[i].name().compare(name) == 0)
+        if(ele->name().compare(name) == 0)
         {
-            return &mData[i];
+            return ele.get();
         }
     }
     return NULL;
 }
 
-void zchxWarningZoneDataMgr::updateData(const QList<ZCHX::Data::ITF_WarringZone> &zonelist)
+template<typename K, typename T>
+K* zchxUserDefinesDataMgr::item(int id)
 {
-    for(const ZCHX::Data::ITF_WarringZone &zone : zonelist)
+    for(std::shared_ptr<K> ele : mData)
+    {
+        if(ele->data().id == id)
+        {
+            return ele.get();
+        }
+    }
+    return NULL;
+}
+
+template<typename K, typename T>
+void zchxUserDefinesDataMgr::updateData(const QList<T> &list)
+{
+    for(const T &zone : list)
     {
         updateData(zone);
     }
 }
 
-void zchxWarningZoneDataMgr::updateData(const ZCHX::Data::ITF_WarringZone &zone)
+template<typename K, typename T>
+void zchxUserDefinesDataMgr::updateData(const T &zone)
 {
-    WarningZoneElement *zoneItem = item(zone.name.toStdString());
+    K *zoneItem = item(zone.name.toStdString());
     //更新已有的
     if(zoneItem)
     {
@@ -89,353 +116,56 @@ void zchxWarningZoneDataMgr::updateData(const ZCHX::Data::ITF_WarringZone &zone)
     }
     else
     {
-        mData.push_back(WarningZoneElement(zone, mDisplayWidget->framework()));
+        mData.push_back(std::shared_ptr<K>(new K(zone, mDisplayWidget->framework())));
     }
 }
 
-void zchxWarningZoneDataMgr::setData(const QList<ZCHX::Data::ITF_WarringZone> &list)
+template<typename K, typename T>
+void zchxUserDefinesDataMgr::setData(const QList<T> &list)
 {
+    //不能直接clear,主要是防止当前图元正处于选择状态
+    for(std::shared_ptr<K> ele : mData){
+        ele->setIsUpdate(false);
+    }
     updateData(list);
+    //删除已经过时的图元
+    for(std::shared_ptr<K> ele : mData){
+        if(!ele->getIsUpdate())
+        {
+            if(ele.get() == mDisplayWidget->getCurrentSelectedElement())
+            {
+                mDisplayWidget->setCurrentSelectedItem(0);
+            }
+            mData.removeOne(ele);
+        }
+    }
 }
 
-void zchxWarningZoneDataMgr::removeData(const ZCHX::Data::ITF_WarringZone &zone)
+template<typename K, typename T>
+void zchxUserDefinesDataMgr::removeData(const T &zone)
 {
-    std::vector<WarningZoneElement>::iterator it = mData.begin();
+    QList<std::shared_ptr<K>>::iterator it = mData.begin();
     for(; it != mData.end(); ++it)
     {
-        const WarningZoneElement &one = (*it);
-        if(zone.name == QString::fromStdString(one.name())
-                || zone.id == one.id())
+        if(zone.name == QString::fromStdString(it->name()) || zone.id == it->id())
         {
-            m_WarringZone.erase(it);
+            mData.erase(it);
             break;
         }
     }
 }
 
-QList<ZCHX::Data::ITF_WarringZone> zchxUserDefinesDataMgr::getAllWarrningZone() const
+template<typename K, typename T>
+QList<T> zchxUserDefinesDataMgr::getData() const
 {
-    QList<ZCHX::Data::ITF_WarringZone> list;
-    for(const WarringZONE &zone : m_WarringZone)
-        list.push_back(zone.data());
+    QList<T> list;
+    for(std::shared_ptr<K> ele : mData){
+        list.push_back(ele->data());
+    }
     return list;
 }
 
-
-void zchxUserDefinesDataMgr::updateCoastDataZone(const QList<ZCHX::Data::ITF_CoastData> &zonelist)
-{
-    for(const ZCHX::Data::ITF_CoastData &zone : zonelist)
-    {
-        updateCoastDataZone(zone);
-    }
-}
-
-
-
-
-
-CoastData* zchxUserDefinesDataMgr::zchxCoastDataZoneItem(const std::string &name)
-{
-    for(int i = 0; i < m_coastDataLine.size(); ++i)
-    {
-        if(m_coastDataLine[i].name().compare(name) == 0)
-        {
-            return &m_coastDataLine[i];
-        }
-    }
-
-    return NULL;
-}
-
-SeabedPipeLine *zchxUserDefinesDataMgr::zchxSeabedPipeLineZoneItem(const std::string &name)
-{
-    for(int i = 0; i < m_seabedPipeLineLine.size(); ++i)
-    {
-        if(m_seabedPipeLineLine[i].name().compare(name) == 0)
-        {
-            return &m_seabedPipeLineLine[i];
-        }
-    }
-
-    return NULL;
-}
-
-Structure *zchxUserDefinesDataMgr::zchxStructureZoneItem(const std::string &name)
-{
-    for(int i = 0; i < m_structurePoint.size(); ++i)
-    {
-        if(m_structurePoint[i].name().compare(name) == 0)
-        {
-            return &m_structurePoint[i];
-        }
-    }
-
-    return NULL;
-}
-
-AreaNet *zchxUserDefinesDataMgr::zchxAreaNetZoneItem(const std::string &name)
-{
-    for(int i = 0; i < m_areaNetZone.size(); ++i)
-    {
-        if(m_areaNetZone[i].name().compare(name) == 0)
-        {
-            return &m_areaNetZone[i];
-        }
-    }
-
-    return NULL;
-}
-
-
-void zchxUserDefinesDataMgr::updateCoastDataZone(const ZCHX::Data::ITF_CoastData &zone)
-{
-    CoastData *zoneItem = zchxCoastDataZoneItem(zone.name.toStdString());
-    //更新已有的
-    if(zoneItem)
-    {
-        zoneItem->setData(zone);
-    }
-    else
-    {
-        //没有就添加
-        CoastData newitem(zone);
-        //if(zone.defenceShape == 2) //防线
-            m_coastDataLine.push_back(newitem);
-//        else
-//            m_CoastDataZone.push_back(newitem);
-    }
-}
-
-void zchxUserDefinesDataMgr::updateSeabedPipeLineZone(const QList<ZCHX::Data::ITF_SeabedPipeLine> &zonelist)
-{
-    for(const ZCHX::Data::ITF_SeabedPipeLine &zone : zonelist)
-    {
-        updateSeabedPipeLineZone(zone);
-    }
-}
-
-void zchxUserDefinesDataMgr::updateSeabedPipeLineZone(const ZCHX::Data::ITF_SeabedPipeLine &zone)
-{
-    SeabedPipeLine *zoneItem = zchxSeabedPipeLineZoneItem(zone.name.toStdString());
-    //更新已有的
-    if(zoneItem)
-    {
-        zoneItem->setData(zone);
-    }
-    else
-    {
-        //没有就添加
-        SeabedPipeLine newitem(zone);
-        m_seabedPipeLineLine.push_back(newitem);
-    }
-}
-
-void zchxUserDefinesDataMgr::updateStructureZone(const QList<ZCHX::Data::ITF_Structure> &zonelist)
-{
-    for(const ZCHX::Data::ITF_Structure &zone : zonelist)
-    {
-        updateStructureZone(zone);
-    }
-}
-
-void zchxUserDefinesDataMgr::updateStructureZone(const ZCHX::Data::ITF_Structure &zone)
-{
-    Structure *zoneItem = zchxStructureZoneItem(zone.name.toStdString());
-    //更新已有的
-    if(zoneItem)
-    {
-        zoneItem->setData(zone);
-    }
-    else
-    {
-        //没有就添加
-        Structure newitem(zone);
-        m_structurePoint.push_back(newitem);
-    }
-}
-
-void zchxUserDefinesDataMgr::updateAreaNetZone(const QList<ZCHX::Data::ITF_AreaNet> &zonelist)
-{
-    for(const ZCHX::Data::ITF_AreaNet &zone : zonelist)
-    {
-        updateAreaNetZone(zone);
-    }
-}
-
-void zchxUserDefinesDataMgr::updateAreaNetZone(const ZCHX::Data::ITF_AreaNet &zone)
-{
-    AreaNet *zoneItem = zchxAreaNetZoneItem(zone.name.toStdString());
-    //更新已有的
-    if(zoneItem)
-    {
-        zoneItem->setData(zone);
-    }
-    else
-    {
-        //没有就添加
-        AreaNet newitem(zone);
-        m_areaNetZone.push_back(newitem);
-    }
-}
-
-void zchxUserDefinesDataMgr::updateChannelZone(const QList<ZCHX::Data::ITF_Channel> &zonelist)
-{
-    for(const ZCHX::Data::ITF_Channel &zone : zonelist)
-    {
-        updateChannelZone(zone);
-    }
-}
-
-Channel *zchxUserDefinesDataMgr::zchxChannelZoneItem(const std::string &name)
-{
-    for(int i = 0; i < m_channelZone.size(); ++i)
-    {
-        if(m_channelZone[i].name().compare(name) == 0)
-        {
-            return &m_channelZone[i];
-        }
-    }
-
-    return NULL;
-}
-
-bool zchxUserDefinesDataMgr::zchxChannelZoneData4id(int uuid, ZCHX::Data::tagITF_Channel &info)
-{
-    std::vector<Channel>::iterator it;
-    for(it = m_channelZone.begin(); it != m_channelZone.end(); ++it)
-    {
-        int myid = (*it).data().id;
-        if(uuid == myid)
-        {
-            info = (*it).data();
-            return true;
-        }
-    }
-    return false;
-}
-
-void zchxUserDefinesDataMgr::updateChannelZone(const ZCHX::Data::ITF_Channel &zone)
-{
-    Channel *zoneItem = zchxChannelZoneItem(zone.name.toStdString());
-    //更新已有的
-    if(zoneItem)
-    {
-        zoneItem->setData(zone);
-    }
-    else
-    {
-        //没有就添加
-        Channel newitem(zone);
-        m_channelZone.push_back(newitem);
-    }
-}
-
-void zchxUserDefinesDataMgr::updateMooringZone(const QList<ZCHX::Data::ITF_Mooring> &zonelist)
-{
-    for(const ZCHX::Data::ITF_Mooring &zone : zonelist)
-    {
-        updateMooringZone(zone);
-    }
-}
-
-bool zchxUserDefinesDataMgr::zchxMooringZoneData4id(int uuid, ZCHX::Data::tagITF_Mooring &info)
-{
-    std::vector<Mooring>::iterator it;
-    for(it = m_mooringZone.begin(); it != m_mooringZone.end(); ++it)
-    {
-        int myid = (*it).data().id;
-        if(uuid == myid)
-        {
-            info = (*it).data();
-            return true;
-        }
-    }
-    return false;
-}
-
-Mooring *zchxUserDefinesDataMgr::zchxMooringZoneItem(const std::string &name)
-{
-    for(int i = 0; i < m_mooringZone.size(); ++i)
-    {
-        if(m_mooringZone[i].name().compare(name) == 0)
-        {
-            return &m_mooringZone[i];
-        }
-    }
-
-    return NULL;
-}
-
-void zchxUserDefinesDataMgr::updateMooringZone(const ZCHX::Data::ITF_Mooring &zone)
-{
-    Mooring *zoneItem = zchxMooringZoneItem(zone.name.toStdString());
-    //更新已有的
-    if(zoneItem)
-    {
-        zoneItem->setData(zone);
-    }
-    else
-    {
-        //没有就添加
-        Mooring newitem(zone);
-        m_mooringZone.push_back(newitem);
-    }
-}
-
-void zchxUserDefinesDataMgr::updateCardMouthZone(const QList<ZCHX::Data::ITF_CardMouth> &zonelist)
-{
-    for(const ZCHX::Data::ITF_CardMouth &zone : zonelist)
-    {
-        updateCardMouthZone(zone);
-    }
-}
-
-void zchxUserDefinesDataMgr::updateCardMouthZone(const ZCHX::Data::ITF_CardMouth &zone)
-{
-    CardMouth *zoneItem = zchxCardMouthZoneItem(zone.name.toStdString());
-    //更新已有的
-    if(zoneItem)
-    {
-        zoneItem->setData(zone);
-    }
-    else
-    {
-        //没有就添加
-        CardMouth newitem(zone);
-        m_cardMouthZone.push_back(newitem);
-    }
-}
-
-void zchxUserDefinesDataMgr::setIslandLineData(const std::vector<IslandLine> &data)
-{
-    m_IslandLine = data;
-}
-
-bool zchxUserDefinesDataMgr::zchxIslandData4id(int uuid, ZCHX::Data::ITF_IslandLine &info)
-{
-    std::vector<IslandLine>::iterator it;
-    for(it =m_IslandLine.begin(); it != m_IslandLine.end(); ++it)
-    {
-        if(uuid == (*it).id())
-        {
-            info = (*it).data();
-            return true;
-        }
-    }
-    return false;
-}
-
-void zchxUserDefinesDataMgr::setLocalMarkData(const std::vector<LocalMark> &data)
-{
-    m_LocalMark = data;
-}
-
-void zchxUserDefinesDataMgr::setCoastData(const std::vector<CoastData> &data)
-{
-    m_coastDataLine = data;
-}
-
-void zchxUserDefinesDataMgr::importCoastData(const std::vector<std::pair<double, double> > & path)
+void zchxCoastDataMgr::importData(const std::vector<std::pair<double, double> > & path)
 {
     ZCHX::Data::ITF_CoastData zone;
     zone.path = path;
@@ -453,18 +183,13 @@ void zchxUserDefinesDataMgr::importCoastData(const std::vector<std::pair<double,
         if(!zone.name.isEmpty())
         {
             //先添加进去, 确保显示
-            updateCoastDataZone(zone);
+            updateData(zone);
             emit mDisplayWidget->signalCreateCoastDataLINE(zone);
         }
     }
 }
 
-void zchxUserDefinesDataMgr::setSeabedPipeLine(const std::vector<SeabedPipeLine> &data)
-{
-    m_seabedPipeLineLine = data;
-}
-
-void zchxUserDefinesDataMgr::importSeabedPipeLine(const std::vector<std::pair<double, double> > &path)
+void zchxSeabedPipLineDataMgr::importData(const std::vector<std::pair<double, double> > &path)
 {
     ZCHX::Data::ITF_SeabedPipeLine zone;
     zone.path = path;
@@ -482,53 +207,13 @@ void zchxUserDefinesDataMgr::importSeabedPipeLine(const std::vector<std::pair<do
         if(!zone.name.isEmpty())
         {
             //先添加进去, 确保显示
-            updateSeabedPipeLineZone(zone);
+            updateData(zone);
             emit mDisplayWidget->signalCreateSeabedPipeLineLINE(zone);
         }
     }
 }
 
-void zchxUserDefinesDataMgr::setStructure(const std::vector<Structure> & data)
-{
-    m_structurePoint = data;
-}
-
-void zchxUserDefinesDataMgr::setAreaNet(const std::vector<AreaNet> &data)
-{
-    m_areaNetZone = data;
-}
-
-void zchxUserDefinesDataMgr::importAreaNet(const std::vector<std::pair<double, double> > &path)
-{
-    ZCHX::Data::ITF_AreaNet zone;
-    zone.path = path;
-    zone.id = 0;
-    zone.area = zchxMapDataUtils::getTotalArea(path);
-
-    QInputDialog input_dialog;
-    input_dialog.setCancelButtonText(tr("Cancel"));
-    input_dialog.setOkButtonText(tr("OK"));
-    input_dialog.setWindowTitle(tr("WARRING ZONE"));
-    input_dialog.setLabelText(tr("(Default 5 minute warning)Name:"));
-    if (input_dialog.exec())
-    {
-        zone.name = input_dialog.textValue();
-    }
-
-    if(!zone.name.isEmpty())
-    {
-        //先添加进去, 确保显示
-        updateAreaNetZone(zone);
-        emit mDisplayWidget->signalCreateAreaNetZone(zone);
-    }
-}
-
-void zchxUserDefinesDataMgr::setChannel(const std::vector<Channel> &data)
-{
-    m_channelZone = data;
-}
-
-void zchxUserDefinesDataMgr::importChannel(const std::vector<std::pair<double, double> > &path)
+void zchxChannelDataMgr::importData(const std::vector<std::pair<double, double> > &path)
 {
     ZCHX::Data::ITF_Channel zone;
     zone.path = path;
@@ -559,60 +244,68 @@ void zchxUserDefinesDataMgr::importChannel(const std::vector<std::pair<double, d
     if(!zone.name.isEmpty())
     {
         //先添加进去, 确保显示
-        updateChannelZone(zone);
+        updateData(zone);
         emit mDisplayWidget->signalCreateChannelZone(zone);
     }
 }
 
-void zchxUserDefinesDataMgr::selectChannelLine(int channelId, const ZCHX::Data::ITF_ChannelLine & line)
+void zchxChannelDataMgr::selectChannelLine(int channelId, const ZCHX::Data::ITF_ChannelLine & line)
 {
-    for (int i = 0; i < m_channelZone.size(); i++)
+    ChannelElement *ele = item(channelId);
+    if(!ele) return;
+    ZCHX::Data::ITF_Channel item = ele->data();
+    for (int j = 0; j < item.lineList.size(); j++)
     {
-        ZCHX::Data::ITF_Channel item = m_channelZone[i].data();
-
-        if (item.id == channelId)
+        if (item.lineList[j] == line)
         {
-            for (int j = 0; j < item.lineList.size(); j++)
-            {
-                if (item.lineList[j] == line)
-                {
-                    m_channelZone[i].setLineSelected(j, true);
-                }
-                else
-                {
-                    m_channelZone[i].setLineSelected(j, false);
-                }
-            }
-
-            break;
+            ele->setLineSelected(j, true);
         }
+        else
+        {
+            ele->setLineSelected(j, false);
+        }
+    }
+
+}
+
+void zchxChannelDataMgr::cancelChannelLine(int channelId)
+{
+    ChannelElement *ele = item(channelId);
+    if(!ele) return;
+
+    ZCHX::Data::ITF_Channel item = ele->data();
+    for (int j = 0; j < item.lineList.size(); j++)
+    {
+        ele->setLineSelected(j, false);
     }
 }
 
-void zchxUserDefinesDataMgr::cancelChannelLine(int channelId)
+void zchxMooringDataMgr::importData(const std::vector<std::pair<double, double> > &path)
 {
-    for (int i = 0; i < m_channelZone.size(); i++)
+    ZCHX::Data::ITF_AreaNet zone;
+    zone.path = path;
+    zone.id = 0;
+    zone.area = zchxMapDataUtils::getTotalArea(path);
+
+    QInputDialog input_dialog;
+    input_dialog.setCancelButtonText(tr("Cancel"));
+    input_dialog.setOkButtonText(tr("OK"));
+    input_dialog.setWindowTitle(tr("WARRING ZONE"));
+    input_dialog.setLabelText(tr("(Default 5 minute warning)Name:"));
+    if (input_dialog.exec())
     {
-        ZCHX::Data::ITF_Channel item = m_channelZone[i].data();
+        zone.name = input_dialog.textValue();
+    }
 
-        if (item.id == channelId)
-        {
-            for (int j = 0; j < item.lineList.size(); j++)
-            {
-                m_channelZone[i].setLineSelected(j, false);
-            }
-
-            break;
-        }
+    if(!zone.name.isEmpty())
+    {
+        //先添加进去, 确保显示
+        updateData(zone);
+        emit mDisplayWidget->signalCreateAreaNetZone(zone);
     }
 }
 
-void zchxUserDefinesDataMgr::setMooring(const std::vector<Mooring> &data)
-{
-    m_mooringZone = data;
-}
-
-void zchxUserDefinesDataMgr::importMooring(const std::vector<std::pair<double, double> > &path)
+void zchxMooringDataMgr::importData(const std::vector<std::pair<double, double> > &path)
 {
     ZCHX::Data::ITF_Mooring zone;
     zone.path = path;
@@ -633,51 +326,16 @@ void zchxUserDefinesDataMgr::importMooring(const std::vector<std::pair<double, d
     if(!zone.name.isEmpty())
     {
         //先添加进去, 确保显示
-        updateMooringZone(zone);
+        updateData(zone);
         emit mDisplayWidget->signalCreateMooringZone(zone);
     }
 }
 
-void zchxUserDefinesDataMgr::setCardMouth(const std::vector<CardMouth> &data)
-{
-    m_cardMouthZone = data;
-}
-
-bool zchxUserDefinesDataMgr::zchxCardMouthZoneData4id(int uuid, ZCHX::Data::tagITF_CardMouth &info)
-{
-    std::vector<CardMouth>::iterator it;
-    for(it = m_cardMouthZone.begin(); it != m_cardMouthZone.end(); ++it)
-    {
-        int myid = (*it).data().id;
-        if(uuid == myid)
-        {
-            info = (*it).data();
-            return true;
-        }
-    }
-    return false;
-}
-
-
-CardMouth *zchxUserDefinesDataMgr::zchxCardMouthZoneItem(const std::string &name)
-{
-    for(int i = 0; i < m_cardMouthZone.size(); ++i)
-    {
-        if(m_cardMouthZone[i].name().compare(name) == 0)
-        {
-            return &m_cardMouthZone[i];
-        }
-    }
-
-    return NULL;
-}
-
-void zchxUserDefinesDataMgr::importCardMouth(const std::vector<std::pair<double, double> > &path)
+void zchxCardMouthDataMgr::importData(const std::vector<std::pair<double, double> > &path)
 {
     ZCHX::Data::ITF_CardMouth zone;
     zone.path = path;
     zone.id = 0;
-//    zone.area = getArea(path);
 
     CardMouthInfoDialog dlg;
     if (dlg.exec() == QDialog::Accepted)
@@ -693,19 +351,8 @@ void zchxUserDefinesDataMgr::importCardMouth(const std::vector<std::pair<double,
     if(!zone.name.isEmpty())
     {
         //先添加进去, 确保显示
-        updateCardMouthZone(zone);
+        updateData(zone);
         emit mDisplayWidget->signalCreateCardMouthZone(zone);
     }
-}
-
-
-void zchxUserDefinesDataMgr::setDangerousCircleData(const std::vector<DangerousCircle> &data)
-{
-    m_DangerousCircle = data;
-}
-
-void zchxUserDefinesDataMgr::setPastrolStation(const std::vector<PastrolStation> &data)
-{
-    m_PastrolStation = data;
 }
 }

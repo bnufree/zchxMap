@@ -4,7 +4,6 @@
 #include "zchxmapdownloadthread.h"
 #include "map_layer/zchxmaplayermgr.h"
 #include "data_manager/zchxdatamgrfactory.h"
-#include "zchxuserdefinesdatamgr.h"
 #include "zchxroutedatamgr.h"
 #include "zchxshipplandatamgr.h"
 #include <QDebug>

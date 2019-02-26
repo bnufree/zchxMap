@@ -91,6 +91,10 @@ public:
     void   setIsOpenMeet(bool sts) {isOpenMeet = sts;}
     bool   getIsOpenMeet() const {return isOpenMeet;}
 
+    //设置更新标记
+    void   setIsUpdate(bool sts) {isUpdate = sts;}
+    bool   getIsUpdate() const {return isUpdate;}
+
     /*!
      * \brief 用于显示的经纬度
      */
@@ -215,6 +219,7 @@ protected://TODO: 添加私有类, 实现成员变量对外隐藏, 且防止依�
     bool   isRealtimeTailTrack;         //是否显示尾迹点
     bool   isHistroyTrack;              //是否显示历史轨迹
     bool   isOpenMeet;          //是否开启会遇显示
+    bool   isUpdate;            //是否更新过
     int    uuid;
     QString m_strID;
     ZCHX::Data::ELETYPE  m_element_type;

@@ -15,6 +15,23 @@ std::shared_ptr<zchxEcdisDataMgr> zchxDataMgrFactory::createManager(int type)
     case ZCHX_DATA_MGR_RADAR:
         mMgrList[type] = std::shared_ptr<zchxRadarDataMgr>(new zchxRadarDataMgr(mWidget));
         break;
+    case ZCHX_DATA_MGR_CAMERA:
+        mMgrList[type] = std::shared_ptr<zchxCameraDataMgr>(new zchxCameraDataMgr(mWidget));
+        break;
+    case ZCHX_DATA_MGR_CAMERA_VIEW:
+        mMgrList[type] = std::shared_ptr<zchxCameraViewDataMgr>(new zchxCameraViewDataMgr(mWidget));
+        break;
+    case ZCHX_DATA_MGR_VIDEO_TARGET:
+        mMgrList[type] = std::shared_ptr<zchxVideoTargetDataMgr>(new zchxVideoTargetDataMgr(mWidget));
+        break;
+    case ZCHX_DATA_MGR_ROD:
+        mMgrList[type] = std::shared_ptr<zchxRodDataMgr>(new zchxRodDataMgr(mWidget));
+        break;
+    case ZCHX_DATA_MGR_WARNING_ZONE:
+        mMgrList[type] = std::shared_ptr<zchxUsetDefinesDataMgr<WarningZoneElement, ZCHX::Data::ITF_WarringZone>>(new zchxUsetDefinesDataMgr<WarningZoneElement, ZCHX::Data::ITF_WarringZone>(mWidget, type, ZCHX::LAYER_DEFENCE));
+        break;
+    case ZCHX_DATA_MGR_IPC:
+        break;
     default:
         break;
     }

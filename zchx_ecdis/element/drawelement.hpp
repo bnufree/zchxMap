@@ -9,74 +9,21 @@
 #include "videotargetelement.h"
 #include "cameraviewelement.h"
 #include "warningzoneelement.h"
+#include "coastelement.h"
+#include "seabedpiplineelement.h"
+#include "islandlineelement.h"
+#include "areanetelement.h"
+#include "cardmouthelement.h"
+#include "channelelement.h"
+#include "mooringelement.h"
+#include "shipalarmascendelement.h"
+#include "structureelement.h"
+#include "patrolstationelement.h"
 #include <QtCore>
 
 namespace qt
 {
-//环岛线
-class  IslandLine : public Element
-{
-public:
-    explicit IslandLine(const ZCHX::Data::ITF_IslandLine &ele/*const std::vector<std::pair<double, double> > &path, const RADARTYPE &t*/);
 
-    std::vector<std::pair<double, double> > path() const;
-    void setPath(const std::vector<std::pair<double, double> > &path);
-
-    int id() const;
-    void setId(int id);
-
-    std::string name() const;
-    void setName(const std::string &name);
-
-    std::string content() const;
-    void setContent(const std::string &content);
-
-    ZCHX::Data::ITF_IslandLine data() const;
-
-    /**
-     * @brief 改变第几个点的位置
-     * @param idx
-     * @param lat
-     * @param lon
-     */
-    void changePathPoint(double lat, double lon);
-
-    /**
-     * @brief 整体平移
-     * @param lat
-     * @param lon
-     */
-    void moveTo(double lat, double lon);
-
-    /**
-     * @brief updateOldPath
-     * 更新初始路径
-     */
-    void updateOldPath();
-
-    /**
-     * @brief activePathPoint
-     * @return
-     */
-    int activePathPoint() const;
-    void setActivePathPoint(int activePathPoint);
-    void delPathPoint(int idx);
-    void addCtrlPoint(std::pair<double, double> ps);
-
-    QString color() const;
-    void setColor(QString color);
-
-    void updateGeometry(QPointF, int){}
-private:
-    std::vector<std::pair<double, double>> m_path; //初始路径
-    RADARTYPE        m_type;
-    std::string      m_name;
-    int              m_id;
-    std::string      m_content;
-    ZCHX::Data::ITF_IslandLine m_data;
-    int              m_activePathPoint; //当前处于活动的路径点的索引
-    QString          m_color;
-};
 //路由线
 class RouteLine:public Element
 {
@@ -275,268 +222,20 @@ private:
     int m_activePathPoint;                      //当前处于活动的路径点的索引
 };
 
-class MoveElement : public Element
-{
-public:
-    explicit MoveElement();
-    void setData();
 
-    virtual std::vector<std::pair<double, double> > path() const = 0;
-    virtual void setPath(const std::vector<std::pair<double, double> > &path) = 0;
 
-    virtual std::vector<std::pair<double, double> > & getPath() = 0;
 
-    /**
-     * @brief 改变第几个点的位置
-     * @param idx
-     * @param lat
-     * @param lon
-     */
-    void changePathPoint(double lat, double lon);
 
-    /**
-     * @brief 整体平移
-     * @param lat
-     * @param lon
-     */
-    void moveTo(double lat, double lon);
 
-    /**
-     * @brief activePathPoint
-     * @return
-     */
-    int activePathPoint() const;
-    void setActivePathPoint(int activePathPoint);
-    void delPathPoint(int idx);
-    void addCtrlPoint(std::pair<double, double> ps);
 
-    //指定点是否在区域线上
-    bool contains(zchxMapFrameWork *framework, int range, double x, double y) const;
 
-    void updateGeometry(QPointF, int){}
-protected:
-    int              m_activePathPoint; //当前处于活动的路径点的索引
-};
 
 
 
-//海岸数据
-class CoastData : public Element
-{
-public:
-    explicit CoastData(const ZCHX::Data::ITF_CoastData &ele);
 
-    void setData(const ZCHX::Data::ITF_CoastData &ele);
 
-    std::vector<std::pair<double, double> > path() const;
-    void setPath(const std::vector<std::pair<double, double> > &path);
 
-    int id() const;
-    void setId(int id);
 
-    std::string name() const;
-    void setName(const std::string &name);
-
-    ZCHX::Data::ITF_CoastData data() const;
-
-    void updateGeometry(QPointF, int){}
-private:
-    std::vector<std::pair<double, double>> m_path; //初始路径
-    //RADARTYPE        m_type;
-    std::string      m_name;
-    ZCHX::Data::ITF_CoastData m_data;
-};
-
-//海底管线
-class SeabedPipeLine : public Element
-{
-public:
-    explicit SeabedPipeLine(const ZCHX::Data::ITF_SeabedPipeLine &ele);
-
-    void setData(const ZCHX::Data::ITF_SeabedPipeLine &ele);
-
-    std::vector<std::pair<double, double> > path() const;
-    void setPath(const std::vector<std::pair<double, double> > &path);
-
-    int id() const;
-    void setId(int id);
-
-    std::string name() const;
-    void setName(const std::string &name);
-
-    ZCHX::Data::ITF_SeabedPipeLine data() const;
-
-    void updateGeometry(QPointF, int){}
-private:
-    std::vector<std::pair<double, double>> m_path; //初始路径
-    //RADARTYPE        m_type;
-    std::string      m_name;
-    ZCHX::Data::ITF_SeabedPipeLine m_data;
-};
-
-//结构物
-class Structure : public Element
-{
-public:
-    explicit Structure(const ZCHX::Data::ITF_Structure &ele);
-
-    void setData(const ZCHX::Data::ITF_Structure &ele);
-
-    std::pair<double, double> point() const;
-    void setPoint(const std::pair<double, double> &point);
-
-    int id() const;
-    void setId(int id);
-
-    std::string name() const;
-    void setName(const std::string &name);
-
-    ZCHX::Data::ITF_Structure data() const;
-
-    void updateGeometry(QPointF, int){}
-private:
-    std::pair<double, double> m_point; //初始路径
-    //RADARTYPE        m_type;
-    std::string      m_name;
-    ZCHX::Data::ITF_Structure m_data;
-};
-
-//地理区域网络
-class AreaNet : public Element
-{
-public:
-    explicit AreaNet(const ZCHX::Data::ITF_AreaNet &ele);
-
-    void setData(const ZCHX::Data::ITF_AreaNet &ele);
-
-    std::vector<std::pair<double, double> > path() const;
-    void setPath(const std::vector<std::pair<double, double> > &path);
-
-    int id() const;
-    void setId(int id);
-
-    std::string name() const;
-    void setName(const std::string &name);
-
-    ZCHX::Data::ITF_AreaNet data() const;
-
-    void updateGeometry(QPointF, int){}
-private:
-    std::vector<std::pair<double, double>> m_path; //初始路径
-    //RADARTYPE        m_type;
-    std::string      m_name;
-    ZCHX::Data::ITF_AreaNet m_data;
-};
-
-//航道
-class Channel : public MoveElement
-{
-public:
-    explicit Channel(const ZCHX::Data::ITF_Channel &ele);
-
-    void setData(const ZCHX::Data::ITF_Channel &ele);
-
-    virtual std::vector<std::pair<double, double> > path() const;
-    virtual void setPath(const std::vector<std::pair<double, double> > &path);
-
-    int id() const;
-    void setId(int id);
-
-    std::string name() const;
-    void setName(const std::string &name);
-
-    ZCHX::Data::ITF_Channel data() const;
-
-    void setLineSelected(int i, bool selectStatus);
-
-    virtual std::vector<std::pair<double, double> > & getPath();
-
-    void updateOldPath();
-
-    void updateGeometry(QPointF, int){}
-private:
-    std::vector<std::pair<double, double>> m_path; //初始路径
-    //RADARTYPE        m_type;
-    std::string      m_name;
-    ZCHX::Data::ITF_Channel m_data;
-};
-
-//锚泊
-class Mooring : public MoveElement
-{
-public:
-    explicit Mooring(const ZCHX::Data::ITF_Mooring &ele);
-
-    void setData(const ZCHX::Data::ITF_Mooring &ele);
-
-    virtual std::vector<std::pair<double, double> > path() const;
-    virtual void setPath(const std::vector<std::pair<double, double> > &path);
-
-    int id() const;
-    void setId(int id);
-
-    std::string name() const;
-    void setName(const std::string &name);
-
-    ZCHX::Data::ITF_Mooring data() const;
-
-    virtual std::vector<std::pair<double, double> > & getPath();
-
-    void updateOldPath();
-
-    void updateGeometry(QPointF, int){}
-private:
-    std::vector<std::pair<double, double>> m_path; //初始路径
-    //RADARTYPE        m_type;
-    std::string      m_name;
-    ZCHX::Data::ITF_Mooring m_data;
-};
-
-//卡口
-class CardMouth : public MoveElement
-{
-public:
-    explicit CardMouth(const ZCHX::Data::ITF_CardMouth &ele);
-
-    void setData(const ZCHX::Data::ITF_CardMouth &ele);
-
-    virtual std::vector<std::pair<double, double> > path() const;
-    virtual void setPath(const std::vector<std::pair<double, double> > &path);
-
-    int id() const;
-    void setId(int id);
-
-    std::string name() const;
-    void setName(const std::string &name);
-
-    ZCHX::Data::ITF_CardMouth data() const;
-
-    virtual std::vector<std::pair<double, double> > & getPath();
-
-    void updateOldPath();
-
-    void updateGeometry(QPointF, int){}
-private:
-    std::vector<std::pair<double, double>> m_path; //初始路径
-    //RADARTYPE        m_type;
-    std::string      m_name;
-    ZCHX::Data::ITF_CardMouth m_data;
-};
-
-// 预警追溯
-class ShipAlarmAscend : public MoveElement
-{
-public:
-    explicit ShipAlarmAscend(const ZCHX::Data::ITF_ShipAlarmAscend &ele);
-
-    void setData(const ZCHX::Data::ITF_ShipAlarmAscend &ele);
-
-    ZCHX::Data::ITF_ShipAlarmAscend data() const;
-
-    void updateGeometry(QPointF, int){}
-private:
-    ZCHX::Data::ITF_ShipAlarmAscend m_data;
-};
 
 //回波数据
 class RadarVideoElement:public Element

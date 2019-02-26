@@ -7,6 +7,7 @@ WarningZoneElement::WarningZoneElement(const ZCHX::Data::ITF_WarningZoneElement 
     :Element(0,0,f,ZCHX::Data::ELEMENT_WARNING_ZONE)
 {
     setData(ele);
+    setIsUpdate(true);
 }
 
 void WarningZoneElement::setData(const ZCHX::Data::ITF_WarringZone &ele)
@@ -19,6 +20,7 @@ void WarningZoneElement::setData(const ZCHX::Data::ITF_WarringZone &ele)
     }
     m_data = ele;
     m_name = ele.name.toStdString();
+    setIsUpdate(true);
 }
 
 std::vector<std::pair<double, double> > WarningZoneElement::path() const

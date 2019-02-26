@@ -101,7 +101,18 @@ SOURCES += mainwindow.cpp \
     data_manager/zchxvideotargetdatamgr.cpp \
     data_manager/zchxcameraviewdatamgr.cpp \
     data_manager/zchxuserdefinesdatamgr.cpp \
-    element/warningzoneelement.cpp
+    element/warningzoneelement.cpp \
+    element/coastelement.cpp \
+    element/seabedpiplineelement.cpp \
+    element/islandlineelement.cpp \
+    element/areanetelement.cpp \
+    element/cardmouthelement.cpp \
+    element/channelelement.cpp \
+    element/mooringelement.cpp \
+    element/shipalarmascendelement.cpp \
+    element/structureelement.cpp \
+    element/moveelement.cpp \
+    element/patrolstationelement.cpp
 
 HEADERS  += mainwindow.h \
     zchxmapthread.h \
@@ -157,7 +168,18 @@ HEADERS  += mainwindow.h \
     data_manager/zchxcameraviewdatamgr.h \
     data_manager/zchxvideotargetdatamgr.h \
     data_manager/zchxuserdefinesdatamgr.h \
-    element/warningzoneelement.h
+    element/warningzoneelement.h \
+    element/coastelement.h \
+    element/seabedpiplineelement.h \
+    element/islandlineelement.h \
+    element/areanetelement.h \
+    element/cardmouthelement.h \
+    element/channelelement.h \
+    element/mooringelement.h \
+    element/shipalarmascendelement.h \
+    element/structureelement.h \
+    element/moveelement.h \
+    element/patrolstationelement.h
 
 FORMS    += mainwindow.ui \
     cardmouthinfodialog.ui \

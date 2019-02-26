@@ -29,7 +29,6 @@ class zchxMapFrameWork;
 class zchxMapLoadThread;
 class MapLayerMgr;
 class zchxDataMgrFactory;
-class zchxUserDefinesDataMgr;
 class zchxRouteDataMgr;
 class zchxShipPlanDataMgr;
 class zchxEcdisDataMgr;
@@ -66,7 +65,6 @@ public:
     //数据显示管理
     zchxDataMgrFactory* getDataMgrFactory() {return mDataMgrFactory;}
     zchxEcdisDataMgr* getManager(int type);
-    zchxUserDefinesDataMgr* getUserDefinesDataMgr();
     zchxRouteDataMgr*   getRouteDataMgr();
     zchxShipPlanDataMgr*    getShipPlanDataMgr();
 
@@ -905,8 +903,6 @@ private:
     ZCHX::Data::ECDIS_PLUGIN_USE_MODEL  mCurPluginUserModel;
     ZCHX::Data::ECDIS_PICKUP_TYPE       mCurPickupType;
     Element*                            mCurrentSelectElement;
-
-    zchxUserDefinesDataMgr      *mUseDataMgr;                   //用户在地图上绘制的数据管理
     zchxRouteDataMgr            *mRouteDataMgr;                 //路由数据管理
     zchxShipPlanDataMgr         *mShipPlanDataMgr;              //船舶计划数据管理
     zchxDataMgrFactory          *mDataMgrFactory;
