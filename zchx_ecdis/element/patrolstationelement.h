@@ -16,6 +16,7 @@ public:
     void updateGeometry(QPointF, int){}
     bool contains(int range, double x, double y) const;
     void drawElement(QPainter *painter);
+    std::string name() const {return m_data.name.toStdString();}
 
 private:
     ZCHX::Data::ITF_PastrolStation m_data;

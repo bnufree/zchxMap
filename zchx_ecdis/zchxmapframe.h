@@ -19,6 +19,8 @@ public:
     void        SetZoom(int zoom) ;
     void        SetMinZoom(int zoom);
     void        SetMaxZoom(int zoom);
+    int         GetMinZoom() const {return mMinZoom;}
+    void        Zoom2Min() {SetZoom(mMinZoom);}
     void        SetViewSize(int width, int height);
     void        UpdateCenterAndZoom(const LatLon& ll, int zoom);
     void        UpdateCenter(double lon, double lat);

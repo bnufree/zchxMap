@@ -104,16 +104,22 @@ void RectElement::setEle(const ZCHX::Data::ITF_EleRect &ele)
 
 
 
-LocalMark::LocalMark(const ZCHX::Data::ITF_LocalMark &data)
-    :Element(data.ll.lat, data.ll.lon, 0)
+LocalMark::LocalMark(const ZCHX::Data::ITF_LocalMark &data, zchxMapFrameWork* f)
+    :Element(data.ll.lat, data.ll.lon, f, ZCHX::Data::ELEMENT_LOCALMARK)
 {
-    m_data = data;
+    setData(data);
     uuid = data.uuid;
 }
 
 ZCHX::Data::ITF_LocalMark LocalMark::data() const
 {
     return m_data;
+}
+
+void LocalMark::setData(const ZCHX::Data::ITF_LocalMark &data)
+{
+    m_data = data;
+    setIsUpdate(true);
 }
 
 
@@ -135,10 +141,10 @@ void Navigation::setData(const ZCHX::Data::ITF_Navigation &data)
     m_data = data;
 }
 
-DangerousCircle::DangerousCircle(const ZCHX::Data::ITF_DangerousCircle &data)
-    :Element(data.lat, data.lon, 0)
+DangerousCircle::DangerousCircle(const ZCHX::Data::ITF_DangerousCircle &data, zchxMapFrameWork* f)
+    :Element(data.lat, data.lon, f, ZCHX::Data::ELEMENT_DANGREOUS)
 {
-    m_data = data;
+    setData(data);
 }
 
 ZCHX::Data::ITF_DangerousCircle DangerousCircle::data() const
@@ -146,14 +152,10 @@ ZCHX::Data::ITF_DangerousCircle DangerousCircle::data() const
     return m_data;
 }
 
-void DangerousCircle::setDangerousCircleData(const ZCHX::Data::ITF_DangerousCircle &data)
+void DangerousCircle::setData(const ZCHX::Data::ITF_DangerousCircle &data)
 {
     m_data = data;
-}
-
-void DangerousCircle::setDangerousCircleRange(int range)
-{
-    m_range = range;
+    setIsUpdate(true);
 }
 
 RadarFeatureZone::RadarFeatureZone(const ZCHX::Data::ITF_RadarFeaturesZone &data)

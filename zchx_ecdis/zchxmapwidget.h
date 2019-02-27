@@ -175,7 +175,7 @@ public:
     /*!
         * \brief 设置创建的防区是否有报警类型
         */
-    //void  setIsWarningType(bool bWarningType);
+    void  setIsWarningType(bool bWarningType);
 
     /*!
         * \brief 设置地图单位
@@ -211,12 +211,12 @@ public:
     //ZCHX::Data::CableInterfaceData getInterfaceByName(const QString& name);
 
 public Q_SLOTS:
-    //void ScalePlus();
-    //void ScaleMinus();
+    void ScalePlus();
+    void ScaleMinus();
     //void ScalePlusLight();
     //void ScaleMinusLight();
 
-//    void ShowAll();
+    void ShowAll();
 //    void ScaleChanged(int action);
 //    void SliderPressed();
 //    void SliderReleased();
@@ -228,86 +228,80 @@ public Q_SLOTS:
 //    void SetPickUpPosition(const QString &id);
 //    void SetPickUpRouteCross(const int id);//设置当前选中的交越点
 
-//    void setETool2DrawNull();
-//    void setETool2DrawArea();
-//    void setETool2DrawDirAngle();
-//    void setETool2DrawDistance();
+    void setETool2DrawNull();
+    void setETool2DrawArea();
+    void setETool2DrawDirAngle();
+    void setETool2DrawDistance();
     void setETool2DrawPickup();
 //    void setETool2DrawTrackTarget();
 //    void setETool2DrawCameraTrackTarget();
-//    void setETool2DrawGps();
+    void setETool2DrawGps();
 //    void setETool2DrawRouteOrCross();//拾取路由或者交越点
-//    //雷达特征区域
-//    void setETool2DrawRadarZONE();
+    //雷达特征区域
+    void setETool2DrawRadarZONE();
 //    //以下两项操作属于海图编辑
-//    void setETool2SelectCommonZONE();
+    void setETool2SelectCommonZONE();
 //    //防区操作
-//    void setETool2DrawZONE();
-//    void setETool2SelectZONE();                 //选取当前防区
-//    void setETool2moveZONE();                   //移动选中的防区
-//    void setETool2ctrlZONE();                   //微调控制点
-//    void setETool2addCtrlZONE();                //添加控制点
-//    void setETool2delCtrlZONE();                //删除控制点
+    void setETool2DrawZONE();
+    void setETool2SelectZONE();                 //选取当前防区
+    void setETool2moveZONE();                   //移动选中的防区
+    void setETool2ctrlZONE();                   //微调控制点
+    void setETool2addCtrlZONE();                //添加控制点
+    void setETool2delCtrlZONE();                //删除控制点
 
-//    //海岸数据
-//    void setETool2Draw4CoastDataLine();
+    //海岸数据
+    void setETool2Draw4CoastDataLine();
+    //海底管线
+    void setETool2Draw4SeabedPipeLineLine();
+    //结构物
+    void setETool2Draw4StructurePoint();
+    //地理区域网络
+    void setETool2Draw4AreaNetZone();
+    //航道
+    void setETool2Draw4ChannelArea();
+    void setETool2SelectChannel();                 //选取当前航道
+    void setETool2moveChannel();                   //移动选中的航道
+    void setETool2ctrlChannel();                   //微调控制点
+    void setETool2addCtrlChannel();                //添加控制点
+    void setETool2delCtrlChannel();                //删除控制点
+    //锚泊
+    void setETool2Draw4MooringArea();
+    void setETool2SelectMooring();                 //选取当前锚泊
+    void setETool2moveMooring();                   //移动选中的锚泊
+    void setETool2ctrlMooring();                   //微调控制点
+    void setETool2addCtrlMooring();                //添加控制点
+    void setETool2delCtrlMooring();                //删除控制点
+    //卡口
+    void setETool2Draw4CardMouthArea();
+    void setETool2SelectCardMouth();                 //选取当前卡口
+    void setETool2moveCardMouth();                   //移动选中的卡口
+    void setETool2ctrlCardMouth();                   //微调控制点
+    void setETool2addCtrlCardMouth();                //添加控制点
+    void setETool2delCtrlCardMouth();                //删除控制点
 
-//    //海底管线
-//    void setETool2Draw4SeabedPipeLineLine();
-
-//    //结构物
-//    void setETool2Draw4StructurePoint();
-
-//    //地理区域网络
-//    void setETool2Draw4AreaNetZone();
-
-//    //航道
-//    void setETool2Draw4ChannelArea();
-//    void setETool2SelectChannel();                 //选取当前航道
-//    void setETool2moveChannel();                   //移动选中的航道
-//    void setETool2ctrlChannel();                   //微调控制点
-//    void setETool2addCtrlChannel();                //添加控制点
-//    void setETool2delCtrlChannel();                //删除控制点
-
-//    //锚泊
-//    void setETool2Draw4MooringArea();
-//    void setETool2SelectMooring();                 //选取当前锚泊
-//    void setETool2moveMooring();                   //移动选中的锚泊
-//    void setETool2ctrlMooring();                   //微调控制点
-//    void setETool2addCtrlMooring();                //添加控制点
-//    void setETool2delCtrlMooring();                //删除控制点
-
-//    //卡口
-//    void setETool2Draw4CardMouthArea();
-//    void setETool2SelectCardMouth();                 //选取当前卡口
-//    void setETool2moveCardMouth();                   //移动选中的卡口
-//    void setETool2ctrlCardMouth();                   //微调控制点
-//    void setETool2addCtrlCardMouth();                //添加控制点
-//    void setETool2delCtrlCardMouth();                //删除控制点
-
-//    //船舶计划航线
-//    void setETool2DrawShipPlanLine();
-//    void setETool2SelectShipPlanLine();         //选取当前船舶计划线
-//    void setETool2insertCtrlPointShipPlanLine();//插入船舶计划控制点
-//    void setETool2moveCtrlPointShipPlanLine();  //微调船舶计划控制点
-//    void setETool2addCtrlPointShipPlanLine();   //添加船舶计划控制点
-//    void setETool2delCtrlPointShipPlanLine();   //删除船舶计划控制点
+    //船舶计划航线
+    void setETool2DrawShipPlanLine();
+    void setETool2SelectShipPlanLine();         //选取当前船舶计划线
+    void setETool2insertCtrlPointShipPlanLine();//插入船舶计划控制点
+    void setETool2moveCtrlPointShipPlanLine();  //微调船舶计划控制点
+    void setETool2addCtrlPointShipPlanLine();   //添加船舶计划控制点
+    void setETool2delCtrlPointShipPlanLine();   //删除船舶计划控制点
 //    void setShipPlanWaterDepth(QList<ZCHX::Data::ITF_WaterDepth> &WaterData);
 
 //    //设置显示样式
 //    void setHistoryTrackStyle(const QString &color, const int lineWidth);
 //    void setPrepushTrackStyle(const QString &color, const int lineWidth);
 //    void SetEnableShipTag(const QList<bool> &bList);
-//    //环岛线操作
-//    void setETool2Draw4IslandLine();
-//    void setETool2Select4IslandLine();          //选取当前环岛线
-//    void setETool2move4IslandLine();            //移动选中的环岛线
-//    void setETool2moveCtrlPoint4IslandLine();   //微调环岛线控制点
-//    void setETool2addCtrlPoint4IslandLine();    //添加环岛线控制点
-//    void setETool2delCtrlPoint4IslandLine();    //删除环岛线控制点
+    //环岛线操作
+    void setETool2Draw4IslandLine();
+    void setETool2Select4IslandLine();          //选取当前环岛线
+    void setETool2move4IslandLine();            //移动选中的环岛线
+    void setETool2moveCtrlPoint4IslandLine();   //微调环岛线控制点
+    void setETool2addCtrlPoint4IslandLine();    //添加环岛线控制点
+    void setETool2delCtrlPoint4IslandLine();    //删除环岛线控制点
 
-//    //位置标注 Add by yej
-//    void setETool2DrawLocalMark();
+    //位置标注 Add by yej
+    void setETool2DrawLocalMark();
 
     //set data
     //    void setAisData(const std::vector<AisElement> &data);//设置<ais>轨迹数据
@@ -408,11 +402,11 @@ public Q_SLOTS:
 //    void getPointNealyCamera(const Point2D &pos);        //设置手动跟踪
 //    void routeLineRightKeyOKSlot();                         //路由操作右键菜单确认槽
 //    void routeLineRightKeyCancelSlot();                     //路由操作右键菜单取消槽
-//    void releaseDrawStatus();                               //释放绘制状态
-//    void selectAnRegion();                                  //框选一片区域,统计ais数量
+    void releaseDrawStatus();                               //释放绘制状态
+    void selectAnRegion();                                  //框选一片区域,统计ais数量
 //    void setShipSimulation();                               //船舶模拟
-//    void setLocationMark();                                 //本地标记
-//    void setFixedReferencePoint();                          //固定参考点
+    void setLocationMark();                                 //本地标记
+    void setFixedReferencePoint();                          //固定参考点
 //    void invokeHotSpot();                                   //热点
 //    void invokeLinkageSpot();                               //联动
 //    void invokeLinkageSpotForRadar();                       //联动
@@ -542,8 +536,8 @@ public Q_SLOTS:
 //    void setCurrentRadarVideoPixmap(const QPixmap &objPixmap); //只接收当前的图片
 //    //    void addElement(Element *item);
 //    //    const QList<Element*>& getAllElement() const;
-//    //设定当前的项目ID
-//    void setCurrentProjectID(int id);
+    //设定当前的项目ID
+    void setCurrentProjectID(int id);
     //路由显示控制
     void setDisplayRoutePoint(bool display){mShowRoutePoint = display;}
     void setDisplayRouteIndex(bool display){mShowRouteIndex = display;}
@@ -556,8 +550,7 @@ public Q_SLOTS:
     bool displayRouteCable()const {return mShowRouteLine;}
     bool displayRouteAc() const {return mShowAcFlag;}
     //相机网格
-    //void setETool2DrawCameraNetGrid(const QSizeF& size, const QString& camera);
-    //void setCameraNetGridList(const QList<ZCHX::Data::ITF_CameraNetGrid> & list);
+    void setETool2DrawCameraNetGrid(const QSizeF& size, const QString& camera);
     //void slotSetRadarTailTrack();
 
 
@@ -897,6 +890,7 @@ private:
     bool                        mUseRightKey;//是否使用右键
     int                         mDx;
     int                         mDy;
+    bool                        m_bHaveWarningType;//创建的防区是否有报警类型
     ZCHX::Data::ECDIS_PLUGIN_USE_MODEL  mCurPluginUserModel;
     ZCHX::Data::ECDIS_PICKUP_TYPE       mCurPickupType;
     Element*                            mCurrentSelectElement;
@@ -922,6 +916,8 @@ private:
     QMutex                                           m_gpsTracksMutex;
     //地图单位
     MapUnit                         mUnit;
+    //当前打开的项目ID
+    int                             mCurrentProjectID;
 
 };
 }

@@ -80,6 +80,10 @@ enum ELETYPE{
     ELEMENT_SHIP_ALARM_ASCEND,
     ELEMENT_STRUCTURE,
     ELEMENT_PATROL_STATION,
+    ELEMENT_LOCALMARK,
+    ELEMENT_DANGREOUS,
+    ELEMENT_SHIP_PLAN,
+    ELEMENT_CAMERA_GRID,
 
 
 };
@@ -711,7 +715,8 @@ typedef struct DangerousCircleITF
     double  lat;                //經度
     double  lon;                //緯度
     double  direction;          //方向角
-    double  dangerCircleRadius; //危险圈半径单位：米（M）
+    double  range; //危险圈半径单位：米（M）
+    QString name;
 
 }ITF_DangerousCircle;
 
@@ -1452,7 +1457,7 @@ typedef struct tagITF_PatrolStation
 typedef struct tagITF_LocalMark{
     int uuid; //唯一索引
     LatLon ll;         //位置标注坐标(WGS84)
-    QString localName; //位置标注名称
+    QString name; //位置标注名称
     QString localMark; //简介
 }ITF_LocalMark;
 
@@ -1504,17 +1509,18 @@ typedef struct tagITF_CameraTrackTarget
     double lon;
 
 }ITF_CameraTrackTarget;
+
 typedef struct  tagITF_NetGrid{
-    long gridId;        //	网格编号	long	否
-    QString gridName;	//网格名称	String	否
-    double leftTopLon;	//左上角经度	Double	否
-    double leftTopLat;	//左上角纬度	Double	否
-    double leftLowerLon;	//左下角经度	Double	否
-    double leftLowerLat;	//左下角纬度	Double	否
-    double rightTopLon;	//右上角经度	Double	否
-    double rightTopLat;	//右上角纬度	Double	否
-    double rightLowerLon;	//右下角经度	Double	否
-    double rightLowerLat;	//右下角纬度	Double	否
+    long            id;                 //	网格编号	long	否
+    QString         name;               //网格名称	String	否       //相机ID_网格编号ID
+    double          leftTopLon;         //左上角经度	Double	否
+    double          leftTopLat;         //左上角纬度	Double	否
+    double          leftLowerLon;	//左下角经度	Double	否
+    double          leftLowerLat;	//左下角纬度	Double	否
+    double          rightTopLon;	//右上角经度	Double	否
+    double          rightTopLat;	//右上角纬度	Double	否
+    double          rightLowerLon;	//右下角经度	Double	否
+    double          rightLowerLat;	//右下角纬度	Double	否
 }ITF_NetGrid;
 
 typedef struct tagITF_CameraNetGrid{

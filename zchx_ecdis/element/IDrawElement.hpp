@@ -123,7 +123,7 @@ public:
      * \return 如果在矩形内则返回true, 否则返回false
      */
     virtual bool contains(int range, double x, double y) const;
-    virtual bool contains(QPointF pos) const;
+    virtual bool contains(const QPoint& pos) const;
     virtual bool contains(const QGeoCoordinate &geoPos) const;
     virtual bool isEmpty() const;
 

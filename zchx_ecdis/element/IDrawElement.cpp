@@ -233,7 +233,7 @@ bool Element::contains(int range, double x, double y) const
     return sts;
 }
 
-bool Element::contains(QPointF pos) const
+bool Element::contains(const QPoint& pos) const
 {
     return false;
 }

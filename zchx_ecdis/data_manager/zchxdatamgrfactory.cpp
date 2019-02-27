@@ -61,9 +61,6 @@ std::shared_ptr<zchxEcdisDataMgr> zchxDataMgrFactory::createManager(int type)
     case DATA_MGR_CHANNEL:
         mMgrList[type] = std::shared_ptr<zchxChannelDataMgr>(new zchxChannelDataMgr(mWidget));
         break;
-    case DATA_MGR_CAMERA_NET_GRID:
-        //mMgrList[type] = std::shared_ptr<zchxWarningZoneDataMgr>(new zchxWarningZoneDataMgr(mWidget));
-        break;
     case DATA_MGR_STRUCTURE:
         mMgrList[type] = std::shared_ptr<zchxStructureDataMgr>(new zchxStructureDataMgr(mWidget));
         break;
@@ -89,6 +86,9 @@ std::shared_ptr<zchxEcdisDataMgr> zchxDataMgrFactory::createManager(int type)
         break;
     case DATA_MGR_ISLANDLINE:
         mMgrList[type] = std::shared_ptr<zchxIslandLineDataMgr>(new zchxIslandLineDataMgr(mWidget));
+        break;
+    case DATA_MGR_CAMERA_NET_GRID:
+        mMgrList[type] = std::shared_ptr<zchxCameraGridDataMgr>(new zchxCameraGridDataMgr(mWidget));
         break;
     default:
         break;
@@ -210,6 +210,11 @@ zchxDangerousDataMgr*   zchxDataMgrFactory::getDangerousMgr()
 zchxIslandLineDataMgr*   zchxDataMgrFactory::getIslandlineMgr()
 {
     return static_cast<zchxIslandLineDataMgr*>(getManager(DATA_MGR_ISLANDLINE).get());
+}
+
+zchxCameraGridDataMgr*   zchxDataMgrFactory::getCameraGridMgr()
+{
+    return static_cast<zchxCameraGridDataMgr*>(getManager(DATA_MGR_CAMERA_NET_GRID).get());
 }
 
 }

@@ -111,7 +111,9 @@ SOURCES += mainwindow.cpp \
     element/shipalarmascendelement.cpp \
     element/structureelement.cpp \
     element/moveelement.cpp \
-    element/patrolstationelement.cpp
+    element/patrolstationelement.cpp \
+    element/cameragridelement.cpp \
+    data_manager/zchxcameragridmgr.cpp
 
 HEADERS  += mainwindow.h \
     zchxmapthread.h \
@@ -177,7 +179,10 @@ HEADERS  += mainwindow.h \
     element/shipalarmascendelement.h \
     element/structureelement.h \
     element/moveelement.h \
-    element/patrolstationelement.h
+    element/patrolstationelement.h \
+    data_manager/zchxtemplatedatamgr.h \
+    element/cameragridelement.h \
+    data_manager/zchxcameragridmgr.h
 
 FORMS    += mainwindow.ui \
     cardmouthinfodialog.ui \

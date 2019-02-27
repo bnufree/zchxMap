@@ -19,6 +19,7 @@
 #include "shipalarmascendelement.h"
 #include "structureelement.h"
 #include "patrolstationelement.h"
+#include "cameragridelement.h"
 #include <QtCore>
 
 namespace qt
@@ -323,9 +324,11 @@ private:
 class LocalMark :public Element
 {
 public:
-    explicit LocalMark(const ZCHX::Data::ITF_LocalMark & data);
+    explicit LocalMark(const ZCHX::Data::ITF_LocalMark & data, zchxMapFrameWork* f);
 
     ZCHX::Data::ITF_LocalMark data() const;
+    void setData(const ZCHX::Data::ITF_LocalMark & data);
+    std::string name() const {return m_data.name.toStdString();}
 
     void updateGeometry(QPointF, int){}
 private:
@@ -350,15 +353,14 @@ private:
 class DangerousCircle : public Element
 {
 public:
-    explicit DangerousCircle(const ZCHX::Data::ITF_DangerousCircle &data);
+    explicit DangerousCircle(const ZCHX::Data::ITF_DangerousCircle &data, zchxMapFrameWork* f);
     ZCHX::Data::ITF_DangerousCircle data() const;
-    void setDangerousCircleData(const ZCHX::Data::ITF_DangerousCircle &data);
-    void setDangerousCircleRange(int range);
+    void setData(const ZCHX::Data::ITF_DangerousCircle &data);
+    std::string name() const {return m_data.name.toStdString();}
 
     void updateGeometry(QPointF, int){}
 private:
     ZCHX::Data::ITF_DangerousCircle  m_data;
-    int m_range;
 };
 
 class RadarFeatureZone : public Element

@@ -63,6 +63,7 @@ zchxMapWidget::zchxMapWidget(QWidget *parent) : QWidget(parent),
     ZCHX_DATA_FACTORY->createManager(DATA_MGR_LOCAL_MARK);
     ZCHX_DATA_FACTORY->createManager(DATA_MGR_DANGEROUS);
     ZCHX_DATA_FACTORY->createManager(DATA_MGR_PASTROLSTATION);
+    ZCHX_DATA_FACTORY->createManager(DATA_MGR_CAMERA_NET_GRID);
 }
 
 zchxMapWidget::~zchxMapWidget()
@@ -1110,15 +1111,6 @@ void zchxMapWidget::setCurrentSelectedItem(Element* item)
     mCurrentSelectElement = item;
 }
 
-//地图工作模式
-void zchxMapWidget::setETool2DrawPickup()
-{
-    m_eToolPoints.clear();
-    m_eTool = DRAWPICKUP;
-    isActiveETool = true; //拾取时是否允许移动海图 true 不允许，false 允许
-    setCursor(Qt::ArrowCursor);
-}
-
 //GPS数据接口
 void zchxMapWidget::setGPSDataList(std::list<std::shared_ptr<ZCHX::Data::GPSPoint> > list)
 {
@@ -1154,6 +1146,11 @@ void zchxMapWidget::clearGPSData()
     m_gpsTracks.clear();
 }
 
+void zchxMapWidget::setIsWarningType(bool bWarningType)
+{
+    m_bHaveWarningType = bWarningType;
+}
+
 void zchxMapWidget::setFleet(const QMap<QString, ZCHX::Data::ITF_Fleet> &fleetMap)
 {
     QList<ZCHX::Data::ITF_DangerousCircle> list;
@@ -1170,6 +1167,544 @@ void zchxMapWidget::setFleet(const QMap<QString, ZCHX::Data::ITF_Fleet> &fleetMa
     }
     ZCHX_DATA_FACTORY->getDangerousMgr()->setData(list);
 }
+
+void zchxMapWidget::ScalePlus()
+{
+    if(mFrameWork) mFrameWork->ZoomIn();
+}
+
+void zchxMapWidget::ScaleMinus()
+{
+    if(mFrameWork) mFrameWork->ZoomOut();
+}
+
+void zchxMapWidget::ShowAll()
+{
+    //设置地图的最小模式
+    if(mFrameWork) mFrameWork->Zoom2Min();
+}
+
+//地图工作模式
+//平移
+void zchxMapWidget::releaseDrawStatus()
+{
+    //地图重新进入平移状态
+    isActiveETool = false;
+    m_eTool = DRAWNULL;
+    m_eToolPoints.clear();
+    setCursor(Qt::OpenHandCursor);
+    mCurPluginUserModel = ZCHX::Data::ECDIS_PLUGIN_USE_DISPLAY_MODEL;
+    //当前没有活动的图元
+    setCurrentSelectedItem(0);
+    emit signalMapIsRoaming();
+}
+
+void zchxMapWidget::selectAnRegion()
+{
+    m_eToolPoints.clear();
+    m_eTool = ARESELECTD;
+    isActiveETool = true;
+    setCursor(Qt::ArrowCursor);
+}
+
+void zchxMapWidget::setLocationMark()
+{
+    m_eToolPoints.clear();
+    m_eTool = LOCALMARKPOSTION;
+    isActiveETool = true;
+    setCursor(Qt::ArrowCursor);
+    emit signalShowLocationMarkOrReferencePos(true);
+}
+
+void zchxMapWidget::setFixedReferencePoint()
+{
+    m_eToolPoints.clear();
+    m_eTool = FIXEFREFERENCEPOINT;
+    isActiveETool = true;
+    setCursor(Qt::ArrowCursor);
+    emit signalShowLocationMarkOrReferencePos(false);
+}
+
+void zchxMapWidget::setETool2DrawPickup()
+{
+    m_eToolPoints.clear();
+    m_eTool = DRAWPICKUP;
+    isActiveETool = true; //拾取时是否允许移动海图 true 不允许，false 允许
+    setCursor(Qt::ArrowCursor);
+}
+
+void zchxMapWidget::setETool2DrawGps()
+{
+    m_eToolPoints.clear();
+    m_eTool = DRAWGPS;
+    isActiveETool = true; //是否允许移动海图 true 不允许，false 允许
+    setCursor(Qt::ArrowCursor);
+}
+
+void zchxMapWidget::setETool2DrawDistance()
+{
+    m_eToolPoints.clear();
+    m_eTool = DRAWDISTANCE;
+    isActiveETool =true;
+    setCursor(Qt::CrossCursor);
+}
+
+void zchxMapWidget::setETool2DrawDirAngle()
+{
+    m_eToolPoints.clear();
+    m_eTool = DRAWDIRANGLE;
+    isActiveETool = true;
+    setCursor(Qt::CrossCursor);
+}
+
+void zchxMapWidget::setETool2DrawNull()
+{
+    m_eTool = DRAWNULL;
+    m_eToolPoints.clear();
+}
+
+void zchxMapWidget::setETool2DrawArea()
+{
+    m_eToolPoints.clear();
+    m_eTool = DRAWMEASUREAREA;
+    isActiveETool = true;
+    setCursor(Qt::CrossCursor);
+}
+
+void zchxMapWidget::setETool2SelectCommonZONE()
+{
+    if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
+    m_eToolPoints.clear();
+    m_eTool = COMMONZONESELECT;
+    isActiveETool = true;
+    setCurPickupType(ZCHX::Data::ECDIS_PICKUP_TYPE::ECDIS_PICKUP_COMMONZONE);
+    setCursor(Qt::ArrowCursor);
+}
+
+void zchxMapWidget::setETool2DrawRadarZONE()
+{
+    if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
+    m_eToolPoints.clear();
+    m_eTool = ZONEDRAWRADAR;
+    isActiveETool = true;
+    setCursor(Qt::CrossCursor);
+}
+
+void zchxMapWidget::setETool2DrawZONE()
+{
+    //在编辑模式下使用
+    if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
+    m_eToolPoints.clear();
+    m_eTool = ZONEDRAW;
+    isActiveETool = true;
+    setCursor(Qt::CrossCursor);
+}
+
+void zchxMapWidget::setETool2SelectZONE()
+{
+    if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
+    m_eToolPoints.clear();
+    m_eTool = ZONESELECT;
+    isActiveETool = true;
+    setCurPickupType(ZCHX::Data::ECDIS_PICKUP_TYPE::ECDIS_PICKUP_WARRINGZONE);
+    setCursor(Qt::ArrowCursor);
+}
+
+void zchxMapWidget::setETool2moveZONE()
+{
+    if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
+    m_eToolPoints.clear();
+    m_eTool = ZONEMOVE;
+    isActiveETool = true;
+    setCursor(Qt::SizeAllCursor);
+}
+
+void zchxMapWidget::setETool2ctrlZONE()
+{
+    if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
+    m_eToolPoints.clear();
+    m_eTool = ZONEMOVECTRL;
+    isActiveETool = true;
+    setCursor(Qt::CrossCursor);
+}
+
+void zchxMapWidget::setETool2addCtrlZONE()
+{
+    if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
+    m_eToolPoints.clear();
+    m_eTool = ZONEADDCTRL;
+    isActiveETool = true;
+    setCursor(Qt::PointingHandCursor);
+}
+
+void zchxMapWidget::setETool2delCtrlZONE()
+{
+    if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
+    m_eToolPoints.clear();
+    m_eTool = ZONEDELCTRL;
+    isActiveETool = true;
+    setCursor(Qt::ForbiddenCursor);
+}
+
+
+void zchxMapWidget::setETool2Draw4CoastDataLine()
+{
+    //在编辑模式下使用
+    if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
+    m_eToolPoints.clear();
+    m_eTool = COASTDATALINEDRAW;
+    isActiveETool = true;
+    setCursor(Qt::CrossCursor);
+}
+
+void zchxMapWidget::setETool2Draw4SeabedPipeLineLine()
+{
+    //在编辑模式下使用
+    if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
+    m_eToolPoints.clear();
+    m_eTool = SEABEDPIPELINEDRAW;
+    isActiveETool = true;
+    setCursor(Qt::CrossCursor);
+}
+
+void zchxMapWidget::setETool2Draw4StructurePoint()
+{
+    //在编辑模式下使用
+    if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
+    //m_eToolPoint.setLatLon(0.0, 0.0);
+    m_eToolPoints.clear();
+    m_eTool = STRUCTUREPOINTDRAW;
+    isActiveETool = true;
+    setCursor(Qt::CrossCursor);
+}
+
+void zchxMapWidget::setETool2Draw4AreaNetZone()
+{
+    //在编辑模式下使用
+    if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
+    m_eToolPoints.clear();
+    m_eTool = AREANETZONEDRAW;
+    isActiveETool = true;
+    setCursor(Qt::CrossCursor);
+}
+
+void zchxMapWidget::setETool2Draw4ChannelArea()
+{
+    //在编辑模式下使用
+    if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
+    m_eToolPoints.clear();
+    m_eTool = CHANNELMANAGER;
+    isActiveETool = true;
+    setCursor(Qt::CrossCursor);
+}
+
+void zchxMapWidget::setETool2SelectChannel()
+{
+    if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
+    m_eToolPoints.clear();
+    m_eTool = CHANNELSELECT;
+    isActiveETool = true;
+    setCurPickupType(ZCHX::Data::ECDIS_PICKUP_TYPE::ECDIS_PICKUP_CHANNELZONE);
+    setCursor(Qt::ArrowCursor);
+}
+
+void zchxMapWidget::setETool2moveChannel()
+{
+    if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
+    m_eToolPoints.clear();
+    m_eTool = CHANNELMOVE;
+    isActiveETool = true;
+    setCursor(Qt::SizeAllCursor);
+}
+
+void zchxMapWidget::setETool2ctrlChannel()
+{
+    if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
+    m_eToolPoints.clear();
+    m_eTool = CHANNELMOVECTRL;
+    isActiveETool = true;
+    setCursor(Qt::CrossCursor);
+}
+
+void zchxMapWidget::setETool2addCtrlChannel()
+{
+    if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
+    m_eToolPoints.clear();
+    m_eTool = CHANNELADDCTRL;
+    isActiveETool = true;
+    setCursor(Qt::PointingHandCursor);
+}
+
+void zchxMapWidget::setETool2delCtrlChannel()
+{
+    if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
+    m_eToolPoints.clear();
+    m_eTool = CHANNELDELCTRL;
+    isActiveETool = true;
+    setCursor(Qt::ForbiddenCursor);
+}
+
+void zchxMapWidget::setETool2Draw4MooringArea()
+{
+    //在编辑模式下使用
+    if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
+    m_eToolPoints.clear();
+    m_eTool = MOORINGMANAGER;
+    isActiveETool = true;
+    setCursor(Qt::CrossCursor);
+}
+
+void zchxMapWidget::setETool2SelectMooring()
+{
+    if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
+    m_eToolPoints.clear();
+    m_eTool = MOORINGSELECT;
+    isActiveETool = true;
+    setCurPickupType(ZCHX::Data::ECDIS_PICKUP_TYPE::ECDIS_PICKUP_MOORINGZONE);
+    setCursor(Qt::ArrowCursor);
+}
+
+void zchxMapWidget::setETool2moveMooring()
+{
+    if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
+    m_eToolPoints.clear();
+    m_eTool = MOORINGMOVE;
+    isActiveETool = true;
+    setCursor(Qt::SizeAllCursor);
+}
+
+void zchxMapWidget::setETool2ctrlMooring()
+{
+    if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
+    m_eToolPoints.clear();
+    m_eTool = MOORINGMOVECTRL;
+    isActiveETool = true;
+    setCursor(Qt::CrossCursor);
+}
+
+void zchxMapWidget::setETool2addCtrlMooring()
+{
+    if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
+    m_eToolPoints.clear();
+    m_eTool = MOORINGADDCTRL;
+    isActiveETool = true;
+    setCursor(Qt::PointingHandCursor);
+}
+
+void zchxMapWidget::setETool2delCtrlMooring()
+{
+    if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
+    m_eToolPoints.clear();
+    m_eTool = MOORINGDELCTRL;
+    isActiveETool = true;
+    setCursor(Qt::ForbiddenCursor);
+}
+
+void zchxMapWidget::setETool2Draw4CardMouthArea()
+{
+    //在编辑模式下使用
+    if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
+    m_eToolPoints.clear();
+    m_eTool = CARDMOUTHMANAGER;
+    isActiveETool = true;
+    setCursor(Qt::CrossCursor);
+}
+
+void zchxMapWidget::setETool2SelectCardMouth()
+{
+    if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
+    m_eToolPoints.clear();
+    m_eTool = CARDMOUTHSELECT;
+    isActiveETool = true;
+    setCurPickupType(ZCHX::Data::ECDIS_PICKUP_TYPE::ECDIS_PICKUP_CARDMOUTHZONE);
+    setCursor(Qt::ArrowCursor);
+}
+
+void zchxMapWidget::setETool2moveCardMouth()
+{
+    if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
+    m_eToolPoints.clear();
+    m_eTool = CARDMOUTHMOVE;
+    isActiveETool = true;
+    setCursor(Qt::SizeAllCursor);
+}
+
+void zchxMapWidget::setETool2ctrlCardMouth()
+{
+    if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
+    m_eToolPoints.clear();
+    m_eTool = CARDMOUTHMOVECTRL;
+    isActiveETool = true;
+    setCursor(Qt::CrossCursor);
+}
+
+void zchxMapWidget::setETool2addCtrlCardMouth()
+{
+    if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
+    m_eToolPoints.clear();
+    m_eTool = CARDMOUTHADDCTRL;
+    isActiveETool = true;
+    setCursor(Qt::PointingHandCursor);
+}
+
+void zchxMapWidget::setETool2delCtrlCardMouth()
+{
+    if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
+    m_eToolPoints.clear();
+    m_eTool = CARDMOUTHDELCTRL;
+    isActiveETool = true;
+    setCursor(Qt::ForbiddenCursor);
+}
+
+void zchxMapWidget::setETool2Draw4IslandLine()
+{
+    if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
+    m_eToolPoints.clear();
+    m_eTool = ISLANDLINEDRAW;
+    isActiveETool = true;
+    setCursor(Qt::CrossCursor);
+    //    update();
+}
+
+void zchxMapWidget::setETool2Select4IslandLine()
+{
+    if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
+    m_eToolPoints.clear();
+    m_eTool = ISLANDLINESELECT;
+    isActiveETool = true;
+    setCursor(Qt::ArrowCursor);
+    //    update();
+}
+
+void zchxMapWidget::setETool2move4IslandLine()
+{
+    if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
+    m_eToolPoints.clear();
+    m_eTool =  ISLANDLINEMOVE;
+    isActiveETool = true;
+    setCursor(Qt::SizeAllCursor);
+    //    update();
+}
+
+void zchxMapWidget::setETool2moveCtrlPoint4IslandLine()
+{
+    if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
+    m_eToolPoints.clear();
+    m_eTool = ISLANDLINEMOVECTRL;
+    isActiveETool = true;
+    setCursor(Qt::CrossCursor);
+    //    update();
+}
+
+void zchxMapWidget::setETool2addCtrlPoint4IslandLine()
+{
+    if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
+    m_eToolPoints.clear();
+    m_eTool = ISLANDLINEADDCTRL;
+    isActiveETool = true;
+    setCursor(Qt::PointingHandCursor);
+    //    update();
+}
+
+void zchxMapWidget::setETool2delCtrlPoint4IslandLine()
+{
+    if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
+    m_eToolPoints.clear();
+    m_eTool = ISLANDLINEDELCTRL;
+    isActiveETool = true;
+    setCursor(Qt::ForbiddenCursor);
+    //    update();
+}
+
+void zchxMapWidget::setETool2DrawShipPlanLine()
+{
+    //强制进入编辑状态
+    mCurPluginUserModel = ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL;
+    m_eToolPoints.clear();
+
+    //将所有船舶的选择清空
+    if(mCurrentSelectElement->getElementType() == ZCHX::Data::ELEMENT_SHIP_PLAN)
+    {
+        setCurrentSelectedItem(0);
+    }
+    emit signalNoShipPlanSelected();
+    m_eTool = SHIPPLANDRAW;// ROUTELINEDRAW
+    isActiveETool = true;
+    setCursor(Qt::CrossCursor);
+}
+
+void zchxMapWidget::setETool2SelectShipPlanLine()
+{
+    mCurPluginUserModel = ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL;
+    m_eToolPoints.clear();
+    m_eTool = SHIPPLANSELECT;
+    isActiveETool = true;
+    setCursor(Qt::ArrowCursor);
+}
+
+void zchxMapWidget::setETool2insertCtrlPointShipPlanLine()
+{
+    if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
+    m_eToolPoints.clear();
+    m_eTool =  SHIPPLANINSERTCTRL;
+    isActiveETool = true;
+    setCursor(Qt::PointingHandCursor);
+}
+
+void zchxMapWidget::setETool2moveCtrlPointShipPlanLine()
+{
+    if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
+    m_eToolPoints.clear();
+    m_eTool = SHIPPLANMOVECTRL;
+    isActiveETool = true;
+    setCursor(Qt::CrossCursor);
+}
+
+void zchxMapWidget::setETool2addCtrlPointShipPlanLine()
+{
+    if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
+    m_eToolPoints.clear();
+    m_eTool = SHIPPLANADDCTRL;
+    isActiveETool = true;
+    setCursor(Qt::PointingHandCursor);
+}
+
+void zchxMapWidget::setETool2delCtrlPointShipPlanLine()
+{
+    if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
+    m_eToolPoints.clear();
+    m_eTool = SHIPPLANEDELCTRL;
+    isActiveETool = true;
+    setCursor(Qt::ForbiddenCursor);
+}
+
+void zchxMapWidget::setETool2DrawLocalMark()
+{
+    //在编辑模式下使用
+    if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
+    m_eToolPoints.clear();
+    m_eTool = DRAWLOCALMARK;
+    isActiveETool = true;
+    QCursor cursor(QPixmap(":/mouseCursor/mousecursor/positionMark.svg"),-1,-1);
+    setCursor(cursor);
+}
+
+void zchxMapWidget::setCurrentProjectID(int id)
+{
+    mCurrentProjectID = id;
+}
+
+void zchxMapWidget::setETool2DrawCameraNetGrid(const QSizeF& size, const QString& camera)
+{
+    //在编辑模式下使用
+    if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
+    m_eToolPoints.clear();
+    m_eTool = DRAWCAMERANETGRID;
+    isActiveETool = true;
+    setCursor(Qt::CrossCursor);
+    ZCHX_DATA_FACTORY->getCameraGridMgr()->setCameraGridParam(camera, size);
+}
+
 
 }
 

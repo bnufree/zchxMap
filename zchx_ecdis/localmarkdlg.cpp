@@ -45,7 +45,7 @@ void LocalMarkDlg::onSetApplyBtnClicked()
     }
 
     localMarkData.uuid = 0;
-    localMarkData.localName = localMarkName;
+    localMarkData.name = localMarkName;
     localMarkData.ll = {ui->latLedt->text().trimmed().toDouble(),ui->lonLedt->text().trimmed().toDouble()};
     accept();
 }

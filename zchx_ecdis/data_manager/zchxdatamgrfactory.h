@@ -41,6 +41,7 @@ public:
     zchxLocalMarkDataMgr*   getLocalmarkMgr();
     zchxDangerousDataMgr*   getDangerousMgr();
     zchxIslandLineDataMgr*  getIslandlineMgr();
+    zchxCameraGridDataMgr*  getCameraGridMgr();
 
 
 private:

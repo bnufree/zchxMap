@@ -186,7 +186,7 @@ std::shared_ptr<Element> MapLayer::pickUpElement(QPointF pos, const QGeoCoordina
         }
         else
         {
-            if(element->contains(pos))
+            if(element->contains(QPoint(pos.x(), pos.y())))
                 return element;
         }
     }
