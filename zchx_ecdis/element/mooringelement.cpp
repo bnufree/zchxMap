@@ -71,7 +71,7 @@ void MooringElement::drawElement(QPainter *painter)
 {
     if(!painter ||!MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_MOORING)) return;
     std::vector<std::pair<double,double>> tmp_path = path();
-    QString name = QString::fromStdString(name());
+    QString name = QString::fromStdString(this->name());
     QString color = data().fillColor;
     QPolygonF polygon;
     for(int i = 0; i < tmp_path.size(); ++i)

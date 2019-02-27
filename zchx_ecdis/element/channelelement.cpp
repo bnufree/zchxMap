@@ -83,7 +83,7 @@ void ChannelElement::drawElement(QPainter *painter)
     std::vector<std::pair<double,double>> tmp_path = path();
     QString color = data().fillColor;
     int courseType = data().courseType;
-    QString name = QString::fromStdString(name());
+    QString name = QString::fromStdString(this->name());
     QPolygonF polygon;
 
     for(int i = 0; i < tmp_path.size(); ++i)

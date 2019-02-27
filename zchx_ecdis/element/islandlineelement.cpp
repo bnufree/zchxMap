@@ -153,7 +153,7 @@ void IslandLineElement::drawElement(QPainter *painter)
         {
             polygon.lineTo(pos);
         }
-        if(ele.getIsActive())
+        if(getIsActive())
         {
             PainterPair chk(painter);
             painter->setPen(QPen(Qt::red,1,Qt::SolidLine));
@@ -164,7 +164,7 @@ void IslandLineElement::drawElement(QPainter *painter)
     polygon.closeSubpath(); //闭合路径
     PainterPair chk(painter);
     painter->setBrush(Qt::NoBrush);
-    painter->setPen(QPen(QColor(ele.color()),3));
+    painter->setPen(QPen(QColor(color()),3));
     painter->drawPath(polygon);
 }
 }

@@ -90,7 +90,7 @@ void CoastElement::drawElement(QPainter *painter)
     PainterPair chk(painter);
     std::vector<std::pair<double,double>> tmp_path = path();
     QPainterPath polygon;
-    QString name = QString::fromStdString(name());
+    QString name = QString::fromStdString(this->name());
 
     painter->setPen(QPen(Qt::red,1,Qt::SolidLine));
     painter->setBrush(Qt::white);

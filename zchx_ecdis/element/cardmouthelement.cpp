@@ -71,7 +71,7 @@ void CardMouthElement::drawElement(QPainter *painter)
 {
     if(!painter ||!MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_CARDMOUTH)) return;
     std::vector<std::pair<double,double>> tmp_path = path();
-    QString name = QString::fromStdString(name());
+    QString name = QString::fromStdString(this->name());
     QString color = data().fillColor;
     QPainterPath polygon;
     for(int i = 0; i < tmp_path.size(); ++i)
@@ -86,7 +86,7 @@ void CardMouthElement::drawElement(QPainter *painter)
         {
             polygon.lineTo(pos);
         }
-        if(ele.getIsActive())
+        if(getIsActive())
         {
             PainterPair chk(painter);
             painter->setPen(QPen(Qt::red,1,Qt::SolidLine));

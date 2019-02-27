@@ -6,20 +6,21 @@
 #include "cardmouthinfodialog.h"
 #include "channelinfodialog.h"
 #include "mooringinfodialog.h"
+#include "zchxmapframe.h"
 
 namespace qt {
 
 template<typename K, typename T>
-zchxUserDefinesDataMgr::zchxUserDefinesDataMgr(zchxMapWidget* w, int type, const QString& layer, QObject *parent) :
+zchxUserDefinesDataMgr<K, T>::zchxUserDefinesDataMgr(zchxMapWidget* w, int type, const QString& layer, QObject *parent) :
     zchxEcdisDataMgr(w, type, parent), mLayerName(layer)
 {
 }
 
 template<typename K, typename T>
-void zchxUserDefinesDataMgr::show(QPainter *painter)
+void zchxUserDefinesDataMgr<K, T>::show(QPainter *painter)
 {
-    if( !painter || !MapLayerMgr::instance()->isLayerVisible(layer) || mData.empty()) return;
-    for(std::shared_ptr<WarningZoneElement> ele : mData)
+    if( !painter || !MapLayerMgr::instance()->isLayerVisible(mLayerName) || mData.empty()) return;
+    for(std::shared_ptr<K> ele : mData)
     {
         if(ele.get() == mDisplayWidget->getCurrentSelectedElement()){
             ele->setIsActive(true);
@@ -31,13 +32,13 @@ void zchxUserDefinesDataMgr::show(QPainter *painter)
 }
 
 template<typename K, typename T>
-bool zchxUserDefinesDataMgr::updateActiveItem(const QPoint &pt)
+bool zchxUserDefinesDataMgr<K, T>::updateActiveItem(const QPoint &pt)
 {
     return false;
 }
 
 template<typename K, typename T>
-bool zchxUserDefinesDataMgr::data4id(int uuid, T &info)
+bool zchxUserDefinesDataMgr<K, T>::data4id(int uuid, T &info)
 {
     for(std::shared_ptr<K> ele : mData)
     {
@@ -51,13 +52,13 @@ bool zchxUserDefinesDataMgr::data4id(int uuid, T &info)
 }
 
 template<typename K, typename T>
-bool zchxUserDefinesDataMgr::dataByName(const QString &name, T &info)
+bool zchxUserDefinesDataMgr<K, T>::dataByName(const QString &name, T &info)
 {
     return dataByName(name.toStdString(), info);
 }
 
 template<typename K, typename T>
-bool zchxUserDefinesDataMgr::dataByName(const std::string &name, T &info)
+bool zchxUserDefinesDataMgr<K, T>::dataByName(const std::string &name, T &info)
 {
     for(std::shared_ptr<K> ele : mData)
     {
@@ -71,7 +72,7 @@ bool zchxUserDefinesDataMgr::dataByName(const std::string &name, T &info)
 }
 
 template<typename K, typename T>
-K* zchxUserDefinesDataMgr::item(const std::string &name)
+K* zchxUserDefinesDataMgr<K, T>::item(const std::string &name)
 {
     for(std::shared_ptr<K> ele : mData)
     {
@@ -84,7 +85,7 @@ K* zchxUserDefinesDataMgr::item(const std::string &name)
 }
 
 template<typename K, typename T>
-K* zchxUserDefinesDataMgr::item(int id)
+K* zchxUserDefinesDataMgr<K, T>::item(int id)
 {
     for(std::shared_ptr<K> ele : mData)
     {
@@ -97,7 +98,7 @@ K* zchxUserDefinesDataMgr::item(int id)
 }
 
 template<typename K, typename T>
-void zchxUserDefinesDataMgr::updateData(const QList<T> &list)
+void zchxUserDefinesDataMgr<K, T>::updateData(const QList<T> &list)
 {
     for(const T &zone : list)
     {
@@ -106,7 +107,7 @@ void zchxUserDefinesDataMgr::updateData(const QList<T> &list)
 }
 
 template<typename K, typename T>
-void zchxUserDefinesDataMgr::updateData(const T &zone)
+void zchxUserDefinesDataMgr<K, T>::updateData(const T &zone)
 {
     K *zoneItem = item(zone.name.toStdString());
     //更新已有的
@@ -121,7 +122,7 @@ void zchxUserDefinesDataMgr::updateData(const T &zone)
 }
 
 template<typename K, typename T>
-void zchxUserDefinesDataMgr::setData(const QList<T> &list)
+void zchxUserDefinesDataMgr<K, T>::setData(const QList<T> &list)
 {
     //不能直接clear,主要是防止当前图元正处于选择状态
     for(std::shared_ptr<K> ele : mData){
@@ -142,21 +143,19 @@ void zchxUserDefinesDataMgr::setData(const QList<T> &list)
 }
 
 template<typename K, typename T>
-void zchxUserDefinesDataMgr::removeData(const T &zone)
+void zchxUserDefinesDataMgr<K, T>::removeData(const T &zone)
 {
-    QList<std::shared_ptr<K>>::iterator it = mData.begin();
-    for(; it != mData.end(); ++it)
-    {
-        if(zone.name == QString::fromStdString(it->name()) || zone.id == it->id())
+    for(std::shared_ptr<K> ele : mData){
+        if(zone.name == QString::fromStdString(ele->name()) || zone.id == ele->id())
         {
-            mData.erase(it);
+            mData.removeOne(ele);
             break;
         }
     }
 }
 
 template<typename K, typename T>
-QList<T> zchxUserDefinesDataMgr::getData() const
+QList<T> zchxUserDefinesDataMgr<K, T>::getData() const
 {
     QList<T> list;
     for(std::shared_ptr<K> ele : mData){
@@ -280,7 +279,7 @@ void zchxChannelDataMgr::cancelChannelLine(int channelId)
     }
 }
 
-void zchxMooringDataMgr::importData(const std::vector<std::pair<double, double> > &path)
+void zchxAreaNetDataMgr::importData(const std::vector<std::pair<double, double> > &path)
 {
     ZCHX::Data::ITF_AreaNet zone;
     zone.path = path;
@@ -354,5 +353,25 @@ void zchxCardMouthDataMgr::importData(const std::vector<std::pair<double, double
         updateData(zone);
         emit mDisplayWidget->signalCreateCardMouthZone(zone);
     }
+}
+
+void zchxShipAlarmAscendDataMgr::show(QPainter *painter)
+{
+    if( !painter || !MapLayerMgr::instance()->isLayerVisible(mLayerName) || mData.empty()) return;
+    //追溯线
+    QPolygonF points;
+    for(std::shared_ptr<ShipAlarmAscendElement> ele : mData)
+    {
+        ZCHX::Data::ITF_ShipAlarmAscend data = ele->data();
+        points.append(mDisplayWidget->framework()->LatLon2Pixel(data.lat, data.lon).toPointF());
+    }
+    if(points.size() >= 2)
+    {
+        PainterPair chk(painter);
+        painter->setPen(QPen(Qt::black, 1, Qt::SolidLine));
+        painter->drawPolyline(points);
+    }
+
+    zchxUserDefinesDataMgr::show(painter);
 }
 }

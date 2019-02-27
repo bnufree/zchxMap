@@ -28,7 +28,6 @@ class ZCHXDrawRadarVideo;
 class zchxMapFrameWork;
 class zchxMapLoadThread;
 class MapLayerMgr;
-class zchxDataMgrFactory;
 class zchxRouteDataMgr;
 class zchxShipPlanDataMgr;
 class zchxEcdisDataMgr;
@@ -63,8 +62,6 @@ public:
     int    getWarnColorAlphaStep();
 
     //数据显示管理
-    zchxDataMgrFactory* getDataMgrFactory() {return mDataMgrFactory;}
-    zchxEcdisDataMgr* getManager(int type);
     zchxRouteDataMgr*   getRouteDataMgr();
     zchxShipPlanDataMgr*    getShipPlanDataMgr();
 
@@ -905,7 +902,6 @@ private:
     Element*                            mCurrentSelectElement;
     zchxRouteDataMgr            *mRouteDataMgr;                 //路由数据管理
     zchxShipPlanDataMgr         *mShipPlanDataMgr;              //船舶计划数据管理
-    zchxDataMgrFactory          *mDataMgrFactory;
     //路由信息控制显示
     bool mShowRoutePoint;  //0 隐藏点  1 显示点
     bool mShowRouteType;  //0隐藏类型  1显示类型

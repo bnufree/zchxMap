@@ -3,7 +3,7 @@
 #include "zchxmapframe.h"
 
 namespace qt {
-MoveElement::MoveElement(zchxMapFrameWork* f, int type)
+MoveElement::MoveElement(zchxMapFrameWork* f, ZCHX::Data::ELETYPE type)
     :Element(0,0,f,type)
 {
     setData();

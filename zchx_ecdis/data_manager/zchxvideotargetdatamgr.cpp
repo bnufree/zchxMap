@@ -3,7 +3,7 @@
 #include <QDebug>
 
 namespace qt {
-zchxVideoTargetDataMgr::zchxVideoTargetDataMgr(zchxMapWidget* w,  QObject *parent) : zchxEcdisDataMgr(w, ZCHX_DATA_MGR_VIDEO_TARGET, parent)
+zchxVideoTargetDataMgr::zchxVideoTargetDataMgr(zchxMapWidget* w,  QObject *parent) : zchxEcdisDataMgr(w, DATA_MGR_VIDEO_TARGET, parent)
 {
 
 }

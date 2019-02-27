@@ -84,7 +84,6 @@ SOURCES += mainwindow.cpp \
     element/aiselement.cpp \
     element/cameraelement.cpp \
     element/radarelement.cpp \
-    zchxuserdefinesdatamgr.cpp \
     zchxroutedatamgr.cpp \
     zchxshipplandatamgr.cpp \
     data_manager/zchxecdisdatamgr.cpp \
@@ -150,7 +149,6 @@ HEADERS  += mainwindow.h \
     element/aiselement.hpp \
     element/cameraelement.h \
     element/radarelement.h \
-    zchxuserdefinesdatamgr.h \
     zchxroutedatamgr.h \
     zchxshipplandatamgr.h \
     data_manager/zchxecdisdatamgr.h \

@@ -457,7 +457,7 @@ public slots: //定义Recive数据接口
     void itfImportSeabedPipeLine(const std::vector<std::pair<double, double> > &data); // 导入海底管线
 
     void itfSetStructure(const QList<ZCHX::Data::ITF_Structure> &data);  //设置结构物
-    void itfImportStructure(const std::pair<double, double> &data); // 导入结构物
+    void itfImportStructure(const std::vector<std::pair<double, double> > &data); // 导入结构物
 
     void itfSetAreaNet(const QList<ZCHX::Data::ITF_AreaNet> &data);  //设置地理区域网络
     void itfImportAreaNet(const std::vector<std::pair<double, double> > &data); // 导入地理区域网络

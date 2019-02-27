@@ -200,7 +200,7 @@ public:
     QPointF getCurrentPos();
     //
     std::shared_ptr<MapLayer> layer() {return m_layer;}
-    zchxMapFrameWork* framework() {return m_framework;}
+    zchxMapFrameWork* framework() const {return m_framework;}
     void setFrameWork(zchxMapFrameWork* f) {m_framework = f;}
 
     //检查层设定是否显示

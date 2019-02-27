@@ -3,7 +3,6 @@
 #include "zchxmaploadthread.h"
 #include "map_layer/zchxmaplayermgr.h"
 #include "data_manager/zchxdatamgrfactory.h"
-#include "zchxuserdefinesdatamgr.h"
 #include "zchxroutedatamgr.h"
 #include "zchxshipplandatamgr.h"
 #include <QPainter>
@@ -35,8 +34,6 @@ zchxMapWidget::zchxMapWidget(QWidget *parent) : QWidget(parent),
     mIsCameraDisplayWithoutRod(true),
     mCurPluginUserModel(ZCHX::Data::ECDIS_PLUGIN_USE_DISPLAY_MODEL),
     mCurPickupType(ZCHX::Data::ECDIS_PICKUP_TYPE::ECDIS_PICKUP_ALL),
-    mDataMgrFactory(new zchxDataMgrFactory(this)),
-    mUseDataMgr(new zchxUserDefinesDataMgr(this)),
     mRouteDataMgr(new zchxRouteDataMgr(this)),
     mShipPlanDataMgr(new zchxShipPlanDataMgr(this))
 {
@@ -46,25 +43,26 @@ zchxMapWidget::zchxMapWidget(QWidget *parent) : QWidget(parent),
     connect(timer, SIGNAL(timeout()), this, SLOT(update()));
     timer->start();
     //创建数据管理容器
-    mDataMgrFactory->createManager(ZCHX_DATA_MGR_AIS);
-    mDataMgrFactory->createManager(ZCHX_DATA_MGR_RADAR);
-    mDataMgrFactory->createManager(ZCHX_DATA_MGR_CAMERA);
-    mDataMgrFactory->createManager(ZCHX_DATA_MGR_CANMERA_VIEW);
-    mDataMgrFactory->createManager(ZCHX_DATA_MGR_VIDEO_TARGET);
-    mDataMgrFactory->createManager(ZCHX_DATA_MGR_ROD);
-    mDataMgrFactory->createManager(ZCHX_DATA_MGR_IPC);
-    mDataMgrFactory->createManager(ZCHX_DATA_MGR_WARNING_ZONE);
-    mDataMgrFactory->createManager(ZCHX_DATA_MGR_COAST);
-    mDataMgrFactory->createManager(ZCHX_DATA_MGR_SEABEDIPLINE);
-    mDataMgrFactory->createManager(ZCHX_DATA_MGR_CHANNEL);
-    mDataMgrFactory->createManager(ZCHX_DATA_MGR_CAMERA_NET_GRID);
-    mDataMgrFactory->createManager(ZCHX_DATA_MGR_STRUCTURE);
-    mDataMgrFactory->createManager(ZCHX_DATA_MGR_AREANET);
-    mDataMgrFactory->createManager(ZCHX_DATA_MGR_MOOR);
-    mDataMgrFactory->createManager(ZCHX_DATA_MGR_CARDMOUTH);
-    mDataMgrFactory->createManager(ZCHX_DATA_MGR_LOCAL_MARK);
-    mDataMgrFactory->createManager(ZCHX_DATA_MGR_DANGEROUS);
-    mDataMgrFactory->createManager(ZCHX_DATA_MGR_PASTROLSTATION);
+    ZCHX_DATA_FACTORY->setDisplayWidget(this);
+    ZCHX_DATA_FACTORY->createManager(DATA_MGR_AIS);
+    ZCHX_DATA_FACTORY->createManager(DATA_MGR_RADAR);
+    ZCHX_DATA_FACTORY->createManager(DATA_MGR_CAMERA);
+    ZCHX_DATA_FACTORY->createManager(DATA_MGR_CAMERA_VIEW);
+    ZCHX_DATA_FACTORY->createManager(DATA_MGR_VIDEO_TARGET);
+    ZCHX_DATA_FACTORY->createManager(DATA_MGR_ROD);
+    ZCHX_DATA_FACTORY->createManager(DATA_MGR_IPC);
+    ZCHX_DATA_FACTORY->createManager(DATA_MGR_WARNING_ZONE);
+    ZCHX_DATA_FACTORY->createManager(DATA_MGR_COAST);
+    ZCHX_DATA_FACTORY->createManager(DATA_MGR_SEABEDIPLINE);
+    ZCHX_DATA_FACTORY->createManager(DATA_MGR_CHANNEL);
+    ZCHX_DATA_FACTORY->createManager(DATA_MGR_CAMERA_NET_GRID);
+    ZCHX_DATA_FACTORY->createManager(DATA_MGR_STRUCTURE);
+    ZCHX_DATA_FACTORY->createManager(DATA_MGR_AREANET);
+    ZCHX_DATA_FACTORY->createManager(DATA_MGR_MOOR);
+    ZCHX_DATA_FACTORY->createManager(DATA_MGR_CARDMOUTH);
+    ZCHX_DATA_FACTORY->createManager(DATA_MGR_LOCAL_MARK);
+    ZCHX_DATA_FACTORY->createManager(DATA_MGR_DANGEROUS);
+    ZCHX_DATA_FACTORY->createManager(DATA_MGR_PASTROLSTATION);
 }
 
 zchxMapWidget::~zchxMapWidget()
@@ -139,7 +137,7 @@ void zchxMapWidget::paintEvent(QPaintEvent *e)
         if(mDisplayImageNum)painter.drawText(data.mPosX-mDx, data.mPosY-mDy, data.mName);
     }
     //显示图元
-    foreach (std::shared_ptr<zchxEcdisDataMgr> mgr, mDataMgrFactory->getManagers()) {
+    foreach (std::shared_ptr<zchxEcdisDataMgr> mgr, ZCHX_DATA_FACTORY->getManagers()) {
         mgr->show(&painter);
     }
 
@@ -193,7 +191,7 @@ void zchxMapWidget::setActiveDrawElement(const Point2D &pos, bool dbClick)
     setCurrentSelectedItem(0);
 
     //检查各个数据管理类,获取当前选择的目标
-    foreach (std::shared_ptr<zchxEcdisDataMgr> mgr, mDataMgrFactory->getManagers()) {
+    foreach (std::shared_ptr<zchxEcdisDataMgr> mgr, ZCHX_DATA_FACTORY->getManagers()) {
         if(mgr->updateActiveItem(pos.toPoint())){
             break;
         }
@@ -670,7 +668,7 @@ void zchxMapWidget::mousePressEvent(QMouseEvent *e)
         {
             menu.addAction(tr("Scroll     "),this,SLOT(releaseDrawStatus()));
             //处于显示模式时.对各个数据对象进行检查,如果当前选择了目标,且当前鼠标位置在对应的目标范围内,则弹出目标对应的菜单,否则只显示基本的右键菜单
-            foreach (std::shared_ptr<zchxEcdisDataMgr> mgr, mDataMgrFactory->getManagers()) {
+            foreach (std::shared_ptr<zchxEcdisDataMgr> mgr, ZCHX_DATA_FACTORY->getManagers()) {
                 QList<QAction*> list =  mgr->getRightMenuActions(e->pos());
                 if(list.size() > 0)
                 {
@@ -1023,11 +1021,6 @@ int zchxMapWidget::getWarnColorAlphaStep()
     return Profiles::instance()->value(MAP_INDEX, WARN_FLAH_COLOR_ALPHA).toInt();
 }
 
-zchxUserDefinesDataMgr* zchxMapWidget::getUserDefinesDataMgr()
-{
-    return mUseDataMgr;
-}
-
 zchxRouteDataMgr* zchxMapWidget::getRouteDataMgr()
 {
     return mRouteDataMgr;
@@ -1163,7 +1156,7 @@ void zchxMapWidget::clearGPSData()
 
 void zchxMapWidget::setFleet(const QMap<QString, ZCHX::Data::ITF_Fleet> &fleetMap)
 {
-    std::vector<DangerousCircle> list;
+    QList<ZCHX::Data::ITF_DangerousCircle> list;
     // 设置危险圈
     QMap<QString, ZCHX::Data::ITF_Fleet>::const_iterator fleetIt = fleetMap.begin();
     for (; fleetIt != fleetMap.end(); ++fleetIt)
@@ -1172,18 +1165,12 @@ void zchxMapWidget::setFleet(const QMap<QString, ZCHX::Data::ITF_Fleet> &fleetMa
         if (fleetInfo.dangerCircleRadius > 0)
         {
             ZCHX::Data::ITF_DangerousCircle circle = {fleetIt.key(), 0, 0, 0, fleetInfo.dangerCircleRadius};
-            list.push_back(DangerousCircle(circle));
+            list.push_back(circle);
         }
     }
-    if(mUseDataMgr) mUseDataMgr->setDangerousCircleData(list);
+    ZCHX_DATA_FACTORY->getDangerousMgr()->setData(list);
 }
 
-zchxEcdisDataMgr* zchxMapWidget::getManager(int type)
-{
-    std::shared_ptr<zchxEcdisDataMgr> mgr = mDataMgrFactory->getManager(type);
-    if(mgr) return mgr.get();
-    return 0;
-}
 }
 
 

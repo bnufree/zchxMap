@@ -2,7 +2,7 @@
 #include "zchxmapframe.h"
 
 namespace qt {
-zchxAisDataMgr::zchxAisDataMgr(zchxMapWidget* w, QObject *parent) : zchxEcdisDataMgr(w, ZCHX_DATA_MGR_AIS, parent)
+zchxAisDataMgr::zchxAisDataMgr(zchxMapWidget* w, QObject *parent) : zchxEcdisDataMgr(w, DATA_MGR_AIS, parent)
   , mSelHistoryPointIndex(-1)
   , mSelHistoryTrackID("")
 {

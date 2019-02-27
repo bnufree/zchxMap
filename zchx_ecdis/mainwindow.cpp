@@ -228,33 +228,33 @@ void MainWindow::initSignalConnect()
 
 void MainWindow::itfSetAisData(const QList<ZCHX::Data::ITF_AIS> &data)
 {
-    if(mMapWidget) mMapWidget->getDataMgrFactory()->getAisDataMgr()->setAisData(data);
+    ZCHX_DATA_FACTORY->getAisDataMgr()->setAisData(data);
 }
 
 bool MainWindow::itfSetSingleAisData(QString id, const QList<ZCHX::Data::ITF_AIS> &data)
 {
-    return mMapWidget->getDataMgrFactory()->getAisDataMgr()->setSingleAisData(id, data);
+    return ZCHX_DATA_FACTORY->getAisDataMgr()->setSingleAisData(id, data);
 }
 
 void MainWindow::itfRemoveAisHistoryData(QString id)
 {
-    if(mMapWidget) mMapWidget->getDataMgrFactory()->getAisDataMgr()->removeAisHistoryData(id);
+    ZCHX_DATA_FACTORY->getAisDataMgr()->removeAisHistoryData(id);
 }
 
 void MainWindow::itfSetHistoryAisData(const QList<ZCHX::Data::ITF_AIS> &data)
 {
-    if(mMapWidget) mMapWidget->getDataMgrFactory()->getAisDataMgr()->setHistoryAisData(data);
+    ZCHX_DATA_FACTORY->getAisDataMgr()->setHistoryAisData(data);
 }
 
 void MainWindow::itfSetClearHistoryData(bool states)
 {
-    if(mMapWidget) mMapWidget->getDataMgrFactory()->getAisDataMgr()->setClearHistoryData(states);
+    ZCHX_DATA_FACTORY->getAisDataMgr()->setClearHistoryData(states);
     //if(mMapWidget) mMapWidget->getRadarDataMgr()->setClearHistoryData(states);
 }
 
 void MainWindow::itfSetConsAisData(const ZCHX::Data::ITF_AIS &data)
 {
-    if(mMapWidget) mMapWidget->getDataMgrFactory()->getAisDataMgr()->setConsAisData(data);
+    ZCHX_DATA_FACTORY->getAisDataMgr()->setConsAisData(data);
 }
 
 void MainWindow::itfSetRadarEchoData(const QMap<QDateTime, ZCHX::Data::ITF_RadarEchoMap> &data)
@@ -263,24 +263,12 @@ void MainWindow::itfSetRadarEchoData(const QMap<QDateTime, ZCHX::Data::ITF_Radar
 }
 void MainWindow::itfSetRadarPointData(const QList<ZCHX::Data::ITF_RadarPoint> &data)
 {
-//    std::vector<RadarPointElement> list;
-//    for(int i=0; i< data.count(); ++i)
-//    {
-//        RadarPointElement item(data.at(i));
-//        list.push_back(item);
-//    }
-    if(mMapWidget) mMapWidget->getDataMgrFactory()->getRadarDataMgr()->setRadarPointData(data);
+    ZCHX_DATA_FACTORY->getRadarDataMgr()->setRadarPointData(data);
 }
 
 void MainWindow::itfSetHistoryRadarPointData(const QList<ZCHX::Data::ITF_RadarPoint> &data)
 {
-    std::vector<RadarPointElement> list;
-    for(int i=0; i< data.count(); ++i)
-    {
-        RadarPointElement item(data.at(i), mMapWidget->framework());
-        list.push_back(item);
-    }
-    if(mMapWidget) mMapWidget->getDataMgrFactory()->getRadarDataMgr()->setHistoryRadarPointData(list);
+    //ZCHX_DATA_FACTORY->getRadarDataMgr()->setHistoryRadarPointData(list);
 }
 
 
@@ -292,23 +280,23 @@ void MainWindow::itfSetRadarAreaData(const QList<ZCHX::Data::ITF_RadarArea> &dat
         RadarAreaElement item(data.at(i));
         list.push_back(item);
     }
-    if(mMapWidget) mMapWidget->getDataMgrFactory()->getRadarDataMgr()->setRadarAreaData(list);
+    ZCHX_DATA_FACTORY->getRadarDataMgr()->setRadarAreaData(list);
 }
 
 void MainWindow::itfSetCameraRodData(const QList<ZCHX::Data::ITF_CameraRod> &data)
 {
-    if(mMapWidget) mMapWidget->getDataMgrFactory()->getRodDataMgr()->setRodData(data);
+    ZCHX_DATA_FACTORY->getRodDataMgr()->setRodData(data);
 }
 
 void MainWindow::itfSetCameraDevData(const QList<ZCHX::Data::ITF_CameraDev> &data, ZCHX::Data::ITF_CameraDev::ITF_CAMERA_PARENT parent)
 {
     if(!mMapWidget) return;
     if(parent == ZCHX::Data::ITF_CameraDev::PARENT_ROD){
-        mMapWidget->getDataMgrFactory()->getRodDataMgr()->updateCamera(data);
+        ZCHX_DATA_FACTORY->getRodDataMgr()->updateCamera(data);
     } else if(parent == ZCHX::Data::ITF_CameraDev::PARENT_AIS) {
-        mMapWidget->getDataMgrFactory()->getAisDataMgr()->updateCamera(data);
+        ZCHX_DATA_FACTORY->getAisDataMgr()->updateCamera(data);
     } else if(parent == ZCHX::Data::ITF_CameraDev::PARENT_NONE) {
-        mMapWidget->getDataMgrFactory()->getCameraDataMgr()->setCameraDevData(data);
+        ZCHX_DATA_FACTORY->getCameraDataMgr()->setCameraDevData(data);
     }
 }
 
@@ -319,25 +307,12 @@ void MainWindow::itfSetAisCameraDevData(const QList<ZCHX::Data::ITF_CameraDev> &
 
 void MainWindow::itfSetPastrolStation(const QList<ZCHX::Data::ITF_PastrolStation> &data)
 {
-    std::vector<PastrolStation> list;
-    for(int i=0; i< data.count(); ++i)
-    {
-        PastrolStation item(data.at(i));
-        list.push_back(item);
-        //        qDebug()<<"mainWindow:"<<data.at(i).ll.lat << data.at(i).ll.lon;
-    }
-    if(mMapWidget) mMapWidget->getUserDefinesDataMgr()->setPastrolStation(list);
+    ZCHX_DATA_FACTORY->getPastrolStationMgr()->setData(data);
 }
 
 void MainWindow::itfSetWarringZoneData(const QList<ZCHX::Data::ITF_WarringZone> &data)
 {
-    std::vector<WarringZONE> list;
-    for(int i=0; i< data.count(); ++i)
-    {
-        WarringZONE item(data.at(i));
-        list.push_back(item);
-    }
-    if(mMapWidget) mMapWidget->getUserDefinesDataMgr()->setWarringZONEData(list);
+    ZCHX_DATA_FACTORY->getWarningZoneMgr()->setData(data);
 }
 
 void MainWindow::itfSetShipSiumtionData(const std::vector<std::pair<double, double> > &data)
@@ -352,124 +327,82 @@ void MainWindow::itfSetAISDataToSiumtion(const QList<ZCHX::Data::ITF_AIS> &data)
 
 void MainWindow::itfSetCoastData(const QList<ZCHX::Data::ITF_CoastData> &data)
 {
-    std::vector<CoastData> list;
-    for(int i=0; i< data.count(); ++i)
-    {
-        CoastData item(data.at(i));
-        list.push_back(item);
-    }
-    if(mMapWidget) mMapWidget->getUserDefinesDataMgr()->setCoastData(list);
+    ZCHX_DATA_FACTORY->getCoastMgr()->setData(data);
 }
 
 void MainWindow::itfImportCoastData(const std::vector<std::pair<double, double> > & data)
 {
-    if(mMapWidget) mMapWidget->getUserDefinesDataMgr()->importCoastData(data);
+    ZCHX_DATA_FACTORY->getCoastMgr()->importData(data);
 }
 
 void MainWindow::itfSetSeabedPipeLine(const QList<ZCHX::Data::ITF_SeabedPipeLine> &data)
 {
-    std::vector<SeabedPipeLine> list;
-    for(int i=0; i< data.count(); ++i)
-    {
-        SeabedPipeLine item(data.at(i));
-        list.push_back(item);
-    }
-    if(mMapWidget) mMapWidget->getUserDefinesDataMgr()->setSeabedPipeLine(list);
+    ZCHX_DATA_FACTORY->getSeabedPiplineMgr()->setData(data);
 }
 
 void MainWindow::itfImportSeabedPipeLine(const std::vector<std::pair<double, double> > & data)
 {
-    if(mMapWidget) mMapWidget->getUserDefinesDataMgr()->importSeabedPipeLine(data);
+    ZCHX_DATA_FACTORY->getSeabedPiplineMgr()->importData(data);
 }
 
 void MainWindow::itfSetStructure(const QList<ZCHX::Data::ITF_Structure> &data)
 {
-    std::vector<Structure> list;
-    for(int i=0; i< data.count(); ++i)
-    {
-        Structure item(data.at(i));
-        list.push_back(item);
-    }
-    if(mMapWidget) mMapWidget->getUserDefinesDataMgr()->setStructure(list);
+    ZCHX_DATA_FACTORY->getStructureMgr()->setData(data);
 }
 
-void MainWindow::itfImportStructure(const std::pair<double, double> &data)
+void MainWindow::itfImportStructure(const std::vector<std::pair<double, double> > &data)
 {
-    //if(mMapWidget) mMapWidget->importStructure(data);
+    ZCHX_DATA_FACTORY->getStructureMgr()->importData(data);
 }
 
 void MainWindow::itfSetAreaNet(const QList<ZCHX::Data::ITF_AreaNet> &data)
 {
-    std::vector<AreaNet> list;
-    for(int i=0; i< data.count(); ++i)
-    {
-        AreaNet item(data.at(i));
-        list.push_back(item);
-    }
-    if(mMapWidget) mMapWidget->getUserDefinesDataMgr()->setAreaNet(list);
+    ZCHX_DATA_FACTORY->getAreanetMgr()->setData(data);
 }
 
 void MainWindow::itfImportAreaNet(const std::vector<std::pair<double, double> > &data)
 {
-    if(mMapWidget) mMapWidget->getUserDefinesDataMgr()->importAreaNet(data);
+    ZCHX_DATA_FACTORY->getAreanetMgr()->importData(data);
 }
 
 void MainWindow::itfSetChannel(const QList<ZCHX::Data::ITF_Channel> &data)
 {
-    std::vector<Channel> list;
-    for(int i=0; i< data.count(); ++i)
-    {
-        Channel item(data.at(i));
-        list.push_back(item);
-    }
-    if(mMapWidget) mMapWidget->getUserDefinesDataMgr()->setChannel(list);
+    ZCHX_DATA_FACTORY->getChannelMgr()->setData(data);
 }
 
 void MainWindow::itfImportChannel(const std::vector<std::pair<double, double> > &data)
 {
-    if(mMapWidget) mMapWidget->getUserDefinesDataMgr()->importChannel(data);
+    ZCHX_DATA_FACTORY->getChannelMgr()->importData(data);
 }
 
 void MainWindow::itfSelectChannelLine(int channelId, const ZCHX::Data::ITF_ChannelLine & line)
 {
-    if(mMapWidget) mMapWidget->getUserDefinesDataMgr()->selectChannelLine(channelId, line);
+    ZCHX_DATA_FACTORY->getChannelMgr()->selectChannelLine(channelId, line);
 }
 
 void MainWindow::itfCancelChannelLine(int channelId)
 {
-    if(mMapWidget) mMapWidget->getUserDefinesDataMgr()->cancelChannelLine(channelId);
+    ZCHX_DATA_FACTORY->getChannelMgr()->cancelChannelLine(channelId);
 }
 
 void MainWindow::itfSetMooring(const QList<ZCHX::Data::ITF_Mooring> &data)
 {
-    std::vector<Mooring> list;
-    for(int i=0; i< data.count(); ++i)
-    {
-        Mooring item(data.at(i));
-        list.push_back(item);
-    }
-    if(mMapWidget) mMapWidget->getUserDefinesDataMgr()->setMooring(list);
+    ZCHX_DATA_FACTORY->getMooringMgr()->setData(data);
 }
 
 void MainWindow::itfImportMooring(const std::vector<std::pair<double, double> > &data)
 {
-    if(mMapWidget) mMapWidget->getUserDefinesDataMgr()->importMooring(data);
+    ZCHX_DATA_FACTORY->getMooringMgr()->importData(data);
 }
 
 void MainWindow::itfSetCardMouth(const QList<ZCHX::Data::ITF_CardMouth> &data)
 {
-    std::vector<CardMouth> list;
-    for(int i=0; i< data.count(); ++i)
-    {
-        CardMouth item(data.at(i));
-        list.push_back(item);
-    }
-    if(mMapWidget) mMapWidget->getUserDefinesDataMgr()->setCardMouth(list);
+    ZCHX_DATA_FACTORY->getCardmouthMgr()->setData(data);
 }
 
 void MainWindow::itfImportCardMouth(const std::vector<std::pair<double, double> > &data)
 {
-    if(mMapWidget) mMapWidget->getUserDefinesDataMgr()->importCardMouth(data);
+    ZCHX_DATA_FACTORY->getCardmouthMgr()->importData(data);
 }
 
 void MainWindow::itfSetFleet(const QList<ZCHX::Data::ITF_Fleet> &data)
@@ -489,68 +422,47 @@ void MainWindow::itfSetShipAlarmAscendMap(const QMap<QString, ZCHX::Data::ITF_Sh
 
 void MainWindow::itfUpdateWarringZone(const QList<ZCHX::Data::ITF_WarringZone> &data)
 {
-    if(mMapWidget) mMapWidget->getUserDefinesDataMgr()->updateWarrningZone(data);
+    ZCHX_DATA_FACTORY->getWarningZoneMgr()->updateData(data);
 }
 
 void MainWindow::itfUpdateWarringZone(const ZCHX::Data::ITF_WarringZone &zone)
 {
-    if(mMapWidget) mMapWidget->getUserDefinesDataMgr()->updateWarrningZone(zone);
+    ZCHX_DATA_FACTORY->getWarningZoneMgr()->updateData(zone);
 }
 
 void MainWindow::removeWarrningZone(const ZCHX::Data::ITF_WarringZone &zone)
 {
-    if(mMapWidget) mMapWidget->getUserDefinesDataMgr()->removeWarrningZone(zone);
+    ZCHX_DATA_FACTORY->getWarningZoneMgr()->removeData(zone);
 }
 
 QList<ZCHX::Data::ITF_WarringZone> MainWindow::getAllWarrningZone() const
 {
-    return mMapWidget->getUserDefinesDataMgr()->getAllWarrningZone();
+    return ZCHX_DATA_FACTORY->getWarningZoneMgr()->getData();
 }
 
 void MainWindow::itfSetIslandLineData(const QList<ZCHX::Data::ITF_IslandLine> &data)
 {
-//    qDebug()<<"接收到环岛线:"<<data.size();
-    std::vector<IslandLine> list;
-    for(int i=0; i< data.count(); ++i)
-    {
-        IslandLine item(data[i]);
-        list.push_back(item);
-    }
-    if(mMapWidget) mMapWidget->getUserDefinesDataMgr()->setIslandLineData(list);
+    ZCHX_DATA_FACTORY->getIslandlineMgr()->setData(data);
 }
 
 void MainWindow::itfSetLocalMarkData(const QList<ZCHX::Data::ITF_LocalMark> &data)
 {
-    std::vector<LocalMark> list;
-    for(int i=0; i< data.count(); ++i)
-    {
-        LocalMark item(data.at(i));
-        list.push_back(item);
-    }
-    if(mMapWidget) mMapWidget->getUserDefinesDataMgr()->setLocalMarkData(list);
+    ZCHX_DATA_FACTORY->getLocalmarkMgr()->setData(data);
 }
 
 void MainWindow::itfSetCameraGdyData(const QList<ZCHX::Data::ITF_CameraDev> &data)
 {
-    if(mMapWidget) mMapWidget->getDataMgrFactory()->getCameraDataMgr()->setCameraDevData(data);
+    ZCHX_DATA_FACTORY->getCameraDataMgr()->setCameraDevData(data);
 }
 
 void MainWindow::itfSetCameraPlanData(const QList<ZCHX::Data::ITF_CameraDev> &data)
 {
-    if(mMapWidget) mMapWidget->getDataMgrFactory()->getCameraDataMgr()->setCameraDevData(data);
+    ZCHX_DATA_FACTORY->getCameraDataMgr()->setCameraDevData(data);
 }
 
 void MainWindow::itfSetDangerousCircleData(const QList<ZCHX::Data::ITF_DangerousCircle> &data)
 {
-    std::vector<DangerousCircle> list;
-    uint uZoom = itfzchxUtilToolCurZoom();
-    for(int i = 0; i < data.size(); ++i)
-    {
-        DangerousCircle item(data.at(i));
-        list.push_back(item);
-    }
-
-    if(mMapWidget) mMapWidget->getUserDefinesDataMgr()->setDangerousCircleData(list);
+    ZCHX_DATA_FACTORY->getDangerousMgr()->setData(data);
 }
 
 void MainWindow::itfSetDangerousCircleRange(const double range)
@@ -569,7 +481,7 @@ void MainWindow::itfSetRadarFeatureZoneDagta(const QList<ZCHX::Data::ITF_RadarFe
 
     }
 
-    if(mMapWidget) mMapWidget->getDataMgrFactory()->getRadarDataMgr()->setRadarFeatureZoneData(list);
+    ZCHX_DATA_FACTORY->getRadarDataMgr()->setRadarFeatureZoneData(list);
 }
 
 void MainWindow::itfSetRouteLineData(const QList<ZCHX::Data::RouteLine> &data)
@@ -717,7 +629,7 @@ void MainWindow::itfSetSimulateLocation(float fCurSimulateKP)
 
 void MainWindow::itfSetCameraObservationZoneData(const QList<ZCHX::Data::ITF_CameraView> &data)
 {
-    if(mMapWidget) mMapWidget->getDataMgrFactory()->getCameraViewMgr()->setData(data);
+    ZCHX_DATA_FACTORY->getCameraViewMgr()->setData(data);
 }
 
 void MainWindow::itfSetRadarVideoData(double dCentreLon, double dCentreLat, double dDistance, int uType, int uLoopNum)
@@ -785,7 +697,7 @@ void MainWindow::itfSetRouteCrossData(const QList<ZCHX::Data::ITF_RouteCross> &d
 }
 void MainWindow::itfSetCameraVideoWarnData(const QList<ZCHX::Data::ITF_VideoTarget> &data)
 {
-    if(mMapWidget) mMapWidget->getDataMgrFactory()->getVideoDataMgr()->setData(data);
+    ZCHX_DATA_FACTORY->getVideoDataMgr()->setData(data);
 }
 
 void MainWindow::itfAppendElementItem(const ZCHX::Data::ITF_EleEllipse &item)
@@ -826,7 +738,7 @@ void MainWindow::itfSetPickUpRadarInfo(qint32 tracknumber)
 
 void MainWindow::itfSetPickUpAisInfo(QString id)
 {
-    if(mMapWidget) mMapWidget->getDataMgrFactory()->getAisDataMgr()->SetPickUpAisInfo(id);
+    ZCHX_DATA_FACTORY->getAisDataMgr()->SetPickUpAisInfo(id);
 }
 
 void MainWindow::itfSetPickUpPosition(QString id)
@@ -846,36 +758,31 @@ void MainWindow::itfSetPickUpRouteCross(const int id)
 
 void MainWindow::itfUpdateShipSimulationExtrapolationData(const QString &id, int time)
 {
-    if(mMapWidget) mMapWidget->getDataMgrFactory()->getAisDataMgr()->updateExtrapolationTime(id, time);
+    ZCHX_DATA_FACTORY->getAisDataMgr()->updateExtrapolationTime(id, time);
 }
 
 void MainWindow::itfAppendShipSimulationExtrapolationData(const QString &id, int time)
 {
-    if(!mMapWidget)  return;
-    mMapWidget->getDataMgrFactory()->getAisDataMgr()->appendExtrapolationList(QStringList()<<id, false);
-    mMapWidget->getDataMgrFactory()->getAisDataMgr()->updateExtrapolationTime(id, time);
+    ZCHX_DATA_FACTORY->getAisDataMgr()->appendExtrapolationList(QStringList()<<id, false);
+    ZCHX_DATA_FACTORY->getAisDataMgr()->updateExtrapolationTime(id, time);
 }
 
 void MainWindow::itfDeleteShipSimulationExtrapolationData(const QString &id)
 {
-    if(mMapWidget) mMapWidget->getDataMgrFactory()->getAisDataMgr()->removeExtrapolation(id);
+    ZCHX_DATA_FACTORY->getAisDataMgr()->removeExtrapolation(id);
 }
 
 ZCHX::Data::ExtrapolateList MainWindow::itfGetShipSimulationExtrapolationData()
 {
-    ZCHX::Data::ExtrapolateList list;
-    if(mMapWidget) list = mMapWidget->getDataMgrFactory()->getAisDataMgr()->getExtrapolationList();
-    return list;
+    return ZCHX_DATA_FACTORY->getAisDataMgr()->getExtrapolationList();
 }
 
 void MainWindow::itfSetRealTimeShipTrailDatas(const QMap<QString, QList<ZCHX::Data::ITF_AIS> > &DataList)
 {
-    if(mMapWidget){
-        QMap<QString, QList<ZCHX::Data::ITF_AIS> >::const_iterator it = DataList.begin();
-        for(; it != DataList.end(); it++)
-        {
-            mMapWidget->getDataMgrFactory()->getAisDataMgr()->setRealtimeTailTrack(it.key(), it.value());
-        }
+    QMap<QString, QList<ZCHX::Data::ITF_AIS> >::const_iterator it = DataList.begin();
+    for(; it != DataList.end(); it++)
+    {
+        ZCHX_DATA_FACTORY->getAisDataMgr()->setRealtimeTailTrack(it.key(), it.value());
     }
 
 }
@@ -1018,17 +925,17 @@ Element* MainWindow::getCurrentSelectedElement()
 
 void MainWindow::itfChannelZoneData4id(int uuid, ZCHX::Data::tagITF_Channel &info, bool &ok)
 {
-    ok = mMapWidget->getUserDefinesDataMgr()->zchxChannelZoneData4id(uuid, info);
+    ok = ZCHX_DATA_FACTORY->getChannelMgr()->data4id(uuid, info);
 }
 
 void MainWindow::itfMooringZoneData4id(int uuid, ZCHX::Data::tagITF_Mooring &info, bool &ok)
 {
-    ok = mMapWidget->getUserDefinesDataMgr()->zchxMooringZoneData4id(uuid, info);
+    ok = ZCHX_DATA_FACTORY->getMooringMgr()->data4id(uuid, info);
 }
 
 void MainWindow::itfCardMouthZoneData4id(int uuid, ZCHX::Data::tagITF_CardMouth &info, bool &ok)
 {
-    ok = mMapWidget->getUserDefinesDataMgr()->zchxCardMouthZoneData4id(uuid, info);
+    ok = ZCHX_DATA_FACTORY->getCardmouthMgr()->data4id(uuid, info);
 }
 
 bool MainWindow::getIsAtiAdaptor() const
@@ -1723,22 +1630,22 @@ void MainWindow::itfToolBarColorModelChanged(ZCHX::Data::ECDISCOLOR mod)
 
 void MainWindow::itfWarringZoneData4id(int uuid, ZCHX::Data::ITF_WarringZone &info, bool &ok)
 {
-    ok = mMapWidget->getUserDefinesDataMgr()->zchxWarringZoneData4id(uuid, info);
+    ok = ZCHX_DATA_FACTORY->getWarningZoneMgr()->data4id(uuid, info);
 }
 
 bool MainWindow::itfWarringZoneDataByName(const QString &name, ZCHX::Data::ITF_WarringZone &info)
 {
-    return mMapWidget->getUserDefinesDataMgr()->zchxWarringZoneDataByName(name, info);
+    return ZCHX_DATA_FACTORY->getWarningZoneMgr()->dataByName(name, info);
 }
 
 bool MainWindow::itfWarringZoneDataByName(const std::string &name, ZCHX::Data::ITF_WarringZone &info)
 {
-    return mMapWidget->getUserDefinesDataMgr()->zchxWarringZoneDataByName(name, info);
+    return ZCHX_DATA_FACTORY->getWarningZoneMgr()->dataByName(name, info);
 }
 
 void MainWindow::itfIslandData4id(int uuid, ZCHX::Data::ITF_IslandLine &info, bool &ok)
 {
-    ok = mMapWidget->getUserDefinesDataMgr()->zchxIslandData4id(uuid, info);
+    ok = ZCHX_DATA_FACTORY->getIslandlineMgr()->data4id(uuid, info);
 }
 
 void MainWindow::iftSetElementFlashStep(int step)
@@ -1778,8 +1685,7 @@ const std::list<std::shared_ptr<MapLayer> > &MainWindow::itfGetLayerTree()
 
 void MainWindow::itfUpdateIPCastDeviceList(const QList<ZCHX::Data::IPCastDevice>& list)
 {
-    if(!mMapWidget) return;
-    mMapWidget->getDataMgrFactory()->getRodDataMgr()->updateIPCastDeviceList(list);
+    ZCHX_DATA_FACTORY->getRodDataMgr()->updateIPCastDeviceList(list);
 }
 
 void MainWindow::itfSetGPSDataList(std::list<std::shared_ptr<ZCHX::Data::GPSPoint> > list)
@@ -1825,41 +1731,41 @@ void MainWindow::itfSetDisplayRouteAc(bool display)
 
 void MainWindow::itfAppendFocusAis(const QStringList &list)
 {
-    if(mMapWidget) mMapWidget->getDataMgrFactory()->getAisDataMgr()->appendConcernList(list, false);
+    ZCHX_DATA_FACTORY->getAisDataMgr()->appendConcernList(list, false);
 }
 
 void MainWindow::itfRemoveFocusAis(const QStringList &list)
 {
-    if(mMapWidget) mMapWidget->getDataMgrFactory()->getAisDataMgr()->removeConcernList(list);
+    ZCHX_DATA_FACTORY->getAisDataMgr()->removeConcernList(list);
 }
 
 void MainWindow::itfAppendFocusRadar(const QStringList& list)
 {
-    if(mMapWidget) mMapWidget->getDataMgrFactory()->getRadarDataMgr()->appendConcernList(list, false);
+    ZCHX_DATA_FACTORY->getRadarDataMgr()->appendConcernList(list, false);
 }
 
 void MainWindow::itfRemoveFocusRadar(const QStringList& list)
 {
-    if(mMapWidget) mMapWidget->getDataMgrFactory()->getRadarDataMgr()->removeConcernList(list);
+    ZCHX_DATA_FACTORY->getRadarDataMgr()->removeConcernList(list);
 }
 
 void MainWindow::itfAppendRadarTailTrackList(const QStringList &list)
 {
-    if(mMapWidget) mMapWidget->getDataMgrFactory()->getRadarDataMgr()->appendRealtimeTailTrackList(list, false);
+    ZCHX_DATA_FACTORY->getRadarDataMgr()->appendRealtimeTailTrackList(list, false);
 }
 
 void MainWindow::itfRemoveRadarTailTrackList(const QStringList &list)
 {
-    if(mMapWidget) mMapWidget->getDataMgrFactory()->getRadarDataMgr()->removeRealtimeTailTrackList(list);
+    ZCHX_DATA_FACTORY->getRadarDataMgr()->removeRealtimeTailTrackList(list);
 }
 void MainWindow::itfAppendAisTailTrackList(const QStringList &list)
 {
-    if(mMapWidget) mMapWidget->getDataMgrFactory()->getAisDataMgr()->appendRealtimeTailTrackList(list, false);
+    ZCHX_DATA_FACTORY->getAisDataMgr()->appendRealtimeTailTrackList(list, false);
 }
 
 void MainWindow::itfRemoveAisTailTrackList(const QStringList &list)
 {
-    if(mMapWidget) mMapWidget->getDataMgrFactory()->getAisDataMgr()->removeRealtimeTailTrackList(list);
+    ZCHX_DATA_FACTORY->getAisDataMgr()->removeRealtimeTailTrackList(list);
 }
 
 void MainWindow::itfToolBarCameraNetGridAdd(const QSizeF& size, const QString& camera)
@@ -1874,12 +1780,12 @@ void MainWindow::itfSetCameraNetGridList(const QList<ZCHX::Data::ITF_CameraNetGr
 
 void MainWindow::itfAppendItemDataMgr(std::shared_ptr<zchxEcdisDataMgr> mgr)
 {
-    if(mMapWidget) mMapWidget->getDataMgrFactory()->appendDataMgr(mgr);
+    ZCHX_DATA_FACTORY->appendDataMgr(mgr);
 }
 
 void MainWindow::itfRemoveItemDataMgr(std::shared_ptr<zchxEcdisDataMgr> mgr)
 {
-    if(mMapWidget) mMapWidget->getDataMgrFactory()->removeDataMgr(mgr);
+    ZCHX_DATA_FACTORY->removeDataMgr(mgr);
 }
 }
 

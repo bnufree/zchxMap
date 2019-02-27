@@ -35,16 +35,16 @@ class zchxWarningZoneDataMgr : public zchxUserDefinesDataMgr<WarningZoneElement,
 {
     Q_OBJECT
 public:
-    explicit zchxWarningZoneDataMgr(zchxMapWidget* w, QObject *parent):
-        zchxUserDefinesDataMgr<WarningZoneElement, ZCHX::Data::ITF_WarringZone>(w, ZCHX_DATA_MGR_WARNING_ZONE, ZCHX::LAYER_DEFENCE, parent) {}
+    explicit zchxWarningZoneDataMgr(zchxMapWidget* w, QObject *parent = 0):
+        zchxUserDefinesDataMgr<WarningZoneElement, ZCHX::Data::ITF_WarringZone>(w, DATA_MGR_WARNING_ZONE, ZCHX::LAYER_DEFENCE, parent) {}
 };
 
 class zchxCoastDataMgr : public zchxUserDefinesDataMgr<CoastElement, ZCHX::Data::ITF_CoastData>
 {
     Q_OBJECT
 public:
-    explicit zchxCoastDataMgr(zchxMapWidget* w, QObject *parent):
-        zchxUserDefinesDataMgr<CoastElement, ZCHX::Data::ITF_CoastData>(w, ZCHX_DATA_MGR_COAST, ZCHX::LAYER_COASTDATA, parent) {}
+    explicit zchxCoastDataMgr(zchxMapWidget* w, QObject *parent = 0):
+        zchxUserDefinesDataMgr<CoastElement, ZCHX::Data::ITF_CoastData>(w, DATA_MGR_COAST, ZCHX::LAYER_COASTDATA, parent) {}
     virtual void importData(const std::vector<std::pair<double, double> > & path);
 };
 
@@ -52,8 +52,8 @@ class zchxSeabedPipLineDataMgr : public zchxUserDefinesDataMgr<SeabedPipeLineEle
 {
     Q_OBJECT
 public:
-    explicit zchxSeabedPipLineDataMgr(zchxMapWidget* w, QObject *parent):
-        zchxUserDefinesDataMgr<SeabedPipeLineElement, ZCHX::Data::ITF_SeabedPipeLine>(w, ZCHX_DATA_MGR_SEABEDIPLINE, ZCHX::LAYER_SEABEDPIPELINE, parent) {}
+    explicit zchxSeabedPipLineDataMgr(zchxMapWidget* w, QObject *parent = 0):
+        zchxUserDefinesDataMgr<SeabedPipeLineElement, ZCHX::Data::ITF_SeabedPipeLine>(w, DATA_MGR_SEABEDIPLINE, ZCHX::LAYER_SEABEDPIPELINE, parent) {}
     virtual void importData(const std::vector<std::pair<double, double> > & path);
 };
 
@@ -61,8 +61,8 @@ class zchxChannelDataMgr : public zchxUserDefinesDataMgr<ChannelElement, ZCHX::D
 {
     Q_OBJECT
 public:
-    explicit zchxChannelDataMgr(zchxMapWidget* w, QObject *parent):
-        zchxUserDefinesDataMgr<ChannelElement, ZCHX::Data::ITF_Channel>(w, ZCHX_DATA_MGR_CHANNEL,  ZCHX::LAYER_CHANNEL, parent){}
+    explicit zchxChannelDataMgr(zchxMapWidget* w, QObject *parent = 0):
+        zchxUserDefinesDataMgr<ChannelElement, ZCHX::Data::ITF_Channel>(w, DATA_MGR_CHANNEL,  ZCHX::LAYER_CHANNEL, parent){}
     void selectChannelLine(int channelId, const ZCHX::Data::ITF_ChannelLine & line); // 选择航道线
     void cancelChannelLine(int channelId); // 取消航道线
     virtual void importData(const std::vector<std::pair<double, double> > & path);
@@ -72,16 +72,16 @@ class zchxStructureDataMgr : public zchxUserDefinesDataMgr<StructureElement, ZCH
 {
     Q_OBJECT
 public:
-    explicit zchxStructureDataMgr(zchxMapWidget* w, QObject *parent) :
-        zchxUserDefinesDataMgr<StructureElement, ZCHX::Data::ITF_Structure>(w, ZCHX_DATA_MGR_STRUCTURE, ZCHX::LAYER_STRUCTURE, parent) {}
+    explicit zchxStructureDataMgr(zchxMapWidget* w, QObject *parent = 0) :
+        zchxUserDefinesDataMgr<StructureElement, ZCHX::Data::ITF_Structure>(w, DATA_MGR_STRUCTURE, ZCHX::LAYER_STRUCTURE, parent) {}
 };
 
 class zchxAreaNetDataMgr : public zchxUserDefinesDataMgr<AreaNetElement, ZCHX::Data::ITF_AreaNet>
 {
     Q_OBJECT
 public:
-    explicit zchxAreaNetDataMgr(zchxMapWidget* w, QObject *parent):
-       zchxUserDefinesDataMgr<AreaNetElement, ZCHX::Data::ITF_AreaNet>(w, ZCHX_DATA_MGR_AREANET, ZCHX::LAYER_AREANET, parent) {}
+    explicit zchxAreaNetDataMgr(zchxMapWidget* w, QObject *parent = 0):
+       zchxUserDefinesDataMgr<AreaNetElement, ZCHX::Data::ITF_AreaNet>(w, DATA_MGR_AREANET, ZCHX::LAYER_AREANET, parent) {}
     virtual void importData(const std::vector<std::pair<double, double> > & path);
 };
 
@@ -89,8 +89,8 @@ class zchxMooringDataMgr : public zchxUserDefinesDataMgr<MooringElement, ZCHX::D
 {
     Q_OBJECT
 public:
-    explicit zchxMooringDataMgr(zchxMapWidget* w, QObject *parent) :
-        zchxUserDefinesDataMgr<MooringElement, ZCHX::Data::ITF_Mooring>(w, ZCHX_DATA_MGR_MOOR, ZCHX::LAYER_MOORING, parent) {}
+    explicit zchxMooringDataMgr(zchxMapWidget* w, QObject *parent = 0) :
+        zchxUserDefinesDataMgr<MooringElement, ZCHX::Data::ITF_Mooring>(w, DATA_MGR_MOOR, ZCHX::LAYER_MOORING, parent) {}
     virtual void importData(const std::vector<std::pair<double, double> > & path);
 };
 
@@ -98,8 +98,8 @@ class zchxCardMouthDataMgr : public zchxUserDefinesDataMgr<CardMouthElement, ZCH
 {
     Q_OBJECT
 public:
-    explicit zchxCardMouthDataMgr(zchxMapWidget* w, QObject *parent):
-        zchxUserDefinesDataMgr<CardMouthElement, ZCHX::Data::ITF_CardMouth>(w, ZCHX_DATA_MGR_CARDMOUTH, ZCHX::LAYER_CARDMOUTH, parent) {}
+    explicit zchxCardMouthDataMgr(zchxMapWidget* w, QObject *parent = 0):
+        zchxUserDefinesDataMgr<CardMouthElement, ZCHX::Data::ITF_CardMouth>(w, DATA_MGR_CARDMOUTH, ZCHX::LAYER_CARDMOUTH, parent) {}
     virtual void importData(const std::vector<std::pair<double, double> > & path);
 };
 
@@ -107,32 +107,41 @@ class zchxPastrolStationDataMgr : public zchxUserDefinesDataMgr<PastrolStationEl
 {
     Q_OBJECT
 public:
-    explicit zchxPastrolStationDataMgr(zchxMapWidget* w, QObject *parent):
-        zchxUserDefinesDataMgr<PastrolStationElement, ZCHX::Data::ITF_PastrolStation>(w, ZCHX_DATA_MGR_PASTROLSTATION, ZCHX::LAYER_PATROL_SITE, parent) {}
+    explicit zchxPastrolStationDataMgr(zchxMapWidget* w, QObject *parent = 0):
+        zchxUserDefinesDataMgr<PastrolStationElement, ZCHX::Data::ITF_PastrolStation>(w, DATA_MGR_PASTROLSTATION, ZCHX::LAYER_PATROL_SITE, parent) {}
 };
 
 class zchxLocalMarkDataMgr : public zchxUserDefinesDataMgr<LocalMark, ZCHX::Data::ITF_LocalMark>
 {
     Q_OBJECT
 public:
-    explicit zchxLocalMarkDataMgr(zchxMapWidget* w, QObject *parent) :
-        zchxUserDefinesDataMgr<LocalMark, ZCHX::Data::ITF_LocalMark>(w, ZCHX_DATA_MGR_LOCAL_MARK, ZCHX::LAYER_LOCALMARK, parent) {}
+    explicit zchxLocalMarkDataMgr(zchxMapWidget* w, QObject *parent = 0) :
+        zchxUserDefinesDataMgr<LocalMark, ZCHX::Data::ITF_LocalMark>(w, DATA_MGR_LOCAL_MARK, ZCHX::LAYER_LOCALMARK, parent) {}
 };
 
 class zchxDangerousDataMgr : public zchxUserDefinesDataMgr<DangerousCircle, ZCHX::Data::ITF_DangerousCircle>
 {
     Q_OBJECT
 public:
-    explicit zchxDangerousDataMgr(zchxMapWidget* w, QObject *parent):
-        zchxUserDefinesDataMgr<DangerousCircle, ZCHX::Data::ITF_DangerousCircle>(w, ZCHX_DATA_MGR_DANGEROUS, ZCHX::LAYER_DANGEROUS_CIRLE, parent) {}
+    explicit zchxDangerousDataMgr(zchxMapWidget* w, QObject *parent = 0):
+        zchxUserDefinesDataMgr<DangerousCircle, ZCHX::Data::ITF_DangerousCircle>(w, DATA_MGR_DANGEROUS, ZCHX::LAYER_DANGEROUS_CIRLE, parent) {}
 };
 
 class zchxIslandLineDataMgr : public zchxUserDefinesDataMgr<IslandLineElement, ZCHX::Data::ITF_IslandLine>
 {
     Q_OBJECT
 public:
-    explicit zchxIslandLineDataMgr(zchxMapWidget* w, QObject *parent):
-        zchxUserDefinesDataMgr<IslandLineElement, ZCHX::Data::ITF_IslandLine>(w, ZCHX_DATA_MGR_ISLANDLINE, ZCHX::LAYER_ISLAND, parent){}
+    explicit zchxIslandLineDataMgr(zchxMapWidget* w, QObject *parent = 0):
+        zchxUserDefinesDataMgr<IslandLineElement, ZCHX::Data::ITF_IslandLine>(w, DATA_MGR_ISLANDLINE, ZCHX::LAYER_ISLAND, parent){}
+};
+
+class zchxShipAlarmAscendDataMgr : public zchxUserDefinesDataMgr<ShipAlarmAscendElement, ZCHX::Data::ITF_ShipAlarmAscend>
+{
+    Q_OBJECT
+public:
+    explicit zchxShipAlarmAscendDataMgr(zchxMapWidget* w, QObject *parent = 0):
+        zchxUserDefinesDataMgr<ShipAlarmAscendElement, ZCHX::Data::ITF_ShipAlarmAscend>(w, DATA_MGR_SHIPALARM_ASCEND, ZCHX::LAYER_ALARMASCEND, parent){}
+    void show(QPainter* painter);
 };
 
 }

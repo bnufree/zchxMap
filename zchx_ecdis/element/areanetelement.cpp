@@ -86,14 +86,14 @@ void AreaNetElement::drawElement(QPainter *painter)
 {
     if(!painter ||!MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_AREANET)) return;
     std::vector<std::pair<double,double>> tmp_path = path();
-    QString name = QString::fromStdString(name());
+    QString name = QString::fromStdString(this->name());
     QPolygonF polygon;
     for(int i = 0; i < tmp_path.size(); ++i)
     {
         std::pair<double, double> ll = tmp_path[i];
         QPointF pos = m_framework->LatLon2Pixel(ll.first, ll.second).toPointF();
         polygon.append(pos);
-        if(ele.getIsActive())
+        if(getIsActive())
         {
             PainterPair chk(painter);
             painter->setPen(QPen(Qt::red,1,Qt::SolidLine));

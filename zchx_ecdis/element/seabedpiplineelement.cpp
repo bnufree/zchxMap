@@ -10,7 +10,7 @@ SeabedPipeLineElement::SeabedPipeLineElement(const ZCHX::Data::ITF_SeabedPipeLin
     setIsUpdate(true);
 }
 
-void SeabedPipeLineElement::setData(const ZCHX::Data::ITF_CoastData &ele)
+void SeabedPipeLineElement::setData(const ZCHX::Data::ITF_SeabedPipeLine &ele)
 {
     m_path = ele.path;
     if(!ele.path.empty())
@@ -89,7 +89,7 @@ void SeabedPipeLineElement::drawElement(QPainter *painter)
     PainterPair chk(painter);
     std::vector<std::pair<double,double>> tmp_path = path();
     QPainterPath polygon;
-    QString name = QString::fromStdString(ele.name());
+    QString name = QString::fromStdString(this->name());
 
     painter->setPen(QPen(Qt::red,1,Qt::SolidLine));
     painter->setBrush(Qt::white);
@@ -107,7 +107,7 @@ void SeabedPipeLineElement::drawElement(QPainter *painter)
             polygon.lineTo(pos);
         }
 
-        if(ele.getIsActive())
+        if(getIsActive())
         {
             painter->drawEllipse(pos,5,5);
         }

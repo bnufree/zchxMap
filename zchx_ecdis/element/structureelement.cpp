@@ -72,7 +72,7 @@ void StructureElement::drawElement(QPainter *painter)
     int posX = curPos.x - devicePix.width() / 2;
     int poxY = curPos.y - devicePix.height() / 2;
     painter->drawPixmap(posX, poxY, devicePix.width(), devicePix.height(), devicePix);
-    QString name = QString::fromStdString(ele.name());
+    QString name = QString::fromStdString(this->name());
     painter->drawText(posX + 30, poxY, name);
 }
 }

@@ -4,7 +4,7 @@
 #include <QDebug>
 
 namespace qt {
-zchxRodDataMgr::zchxRodDataMgr(zchxMapWidget* w,  QObject *parent) : zchxEcdisDataMgr(w, ZCHX_DATA_MGR_ROD, parent)
+zchxRodDataMgr::zchxRodDataMgr(zchxMapWidget* w,  QObject *parent) : zchxEcdisDataMgr(w, DATA_MGR_ROD, parent)
 {
 
 }

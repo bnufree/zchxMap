@@ -3,7 +3,7 @@
 #include "zchxmapframe.h"
 
 namespace qt {
-WarningZoneElement::WarningZoneElement(const ZCHX::Data::ITF_WarningZoneElement &ele, zchxMapFrameWork* f)
+WarningZoneElement::WarningZoneElement(const ZCHX::Data::ITF_WarringZone &ele, zchxMapFrameWork* f)
     :Element(0,0,f,ZCHX::Data::ELEMENT_WARNING_ZONE)
 {
     setData(ele);
@@ -117,7 +117,7 @@ bool WarningZoneElement::contains(int range, double x, double y) const
         std::pair<double, double> p1 = tmp_path[i];
         std::pair<double, double> p2 = tmp_path[i+1];
         Point2D start = framework()->LatLon2Pixel(p1.first, p1.second);
-        Point2D end = framework->LatLon2Pixel(p2.first, p2.second);
+        Point2D end = framework()->LatLon2Pixel(p2.first, p2.second);
 
         //检查3点是否共线
         int p1x = start.x, p1y = start.y;
@@ -163,7 +163,7 @@ void WarningZoneElement::drawElement(QPainter *painter)
     }
     else
     {
-        painter->setPen(QPen(QColor(ele.getDefenceColor()),2,Qt::DashLine));
+        painter->setPen(QPen(QColor(getDefenceColor()),2,Qt::DashLine));
     }
     painter->setBrush(QBrush(Qt::blue, Qt::Dense7Pattern));
     painter->drawPolygon(polygon);

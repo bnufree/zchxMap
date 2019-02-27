@@ -8,7 +8,7 @@ namespace qt {
 class ZCHX_ECDIS_EXPORT MoveElement : public Element
 {
 public:
-    explicit MoveElement(zchxMapFrameWork* f, int type);
+    explicit MoveElement(zchxMapFrameWork* f, ZCHX::Data::ELETYPE type);
     void setData();
 
     virtual std::vector<std::pair<double, double> > path() const = 0;
