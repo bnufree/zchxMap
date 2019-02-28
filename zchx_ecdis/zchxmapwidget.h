@@ -233,10 +233,10 @@ public Q_SLOTS:
     void setETool2DrawDirAngle();
     void setETool2DrawDistance();
     void setETool2DrawPickup();
-//    void setETool2DrawTrackTarget();
-//    void setETool2DrawCameraTrackTarget();
+    void setETool2DrawTrackTarget();
+    void setETool2DrawCameraTrackTarget();
     void setETool2DrawGps();
-//    void setETool2DrawRouteOrCross();//拾取路由或者交越点
+    void setETool2DrawRouteOrCross();//拾取路由或者交越点
     //雷达特征区域
     void setETool2DrawRadarZONE();
 //    //以下两项操作属于海图编辑
@@ -288,10 +288,6 @@ public Q_SLOTS:
     void setETool2delCtrlPointShipPlanLine();   //删除船舶计划控制点
 //    void setShipPlanWaterDepth(QList<ZCHX::Data::ITF_WaterDepth> &WaterData);
 
-//    //设置显示样式
-//    void setHistoryTrackStyle(const QString &color, const int lineWidth);
-//    void setPrepushTrackStyle(const QString &color, const int lineWidth);
-//    void SetEnableShipTag(const QList<bool> &bList);
     //环岛线操作
     void setETool2Draw4IslandLine();
     void setETool2Select4IslandLine();          //选取当前环岛线

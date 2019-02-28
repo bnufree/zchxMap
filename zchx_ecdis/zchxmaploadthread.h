@@ -32,6 +32,7 @@ private:
     TileImageList               mTileImgList;
     QMutex                      mImgMutex;
     bool                        mImgSync;
+    QString                     mImgFilePath;
 };
 }
 

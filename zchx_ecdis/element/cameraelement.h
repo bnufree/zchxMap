@@ -8,7 +8,7 @@ namespace qt {
 class CameraElement : public Element
 {
 public:
-    explicit CameraElement(const ZCHX::Data::ITF_CameraDev & data, zchxMapFrameWork* frame = 0);
+    explicit CameraElement(const ZCHX::Data::ITF_CameraDev & data, zchxMapFrameWork* frame);
 
     const ZCHX::Data::ITF_CameraDev &getData() const;
     void setData(const ZCHX::Data::ITF_CameraDev& dev);

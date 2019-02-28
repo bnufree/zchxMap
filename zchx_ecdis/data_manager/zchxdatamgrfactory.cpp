@@ -28,7 +28,7 @@ void zchxDataMgrFactory::setDisplayWidget(zchxMapWidget *w)
     mWidget = w;
 }
 
-std::shared_ptr<zchxEcdisDataMgr> zchxDataMgrFactory::createManager(int type)
+void zchxDataMgrFactory::createManager(int type)
 {
     switch (type) {
     case DATA_MGR_AIS:
@@ -90,17 +90,23 @@ std::shared_ptr<zchxEcdisDataMgr> zchxDataMgrFactory::createManager(int type)
     case DATA_MGR_CAMERA_NET_GRID:
         mMgrList[type] = std::shared_ptr<zchxCameraGridDataMgr>(new zchxCameraGridDataMgr(mWidget));
         break;
+    case DATA_MGR_SHIPALARM_ASCEND:
+        mMgrList[type] = std::shared_ptr<zchxShipAlarmAscendDataMgr>(new zchxShipAlarmAscendDataMgr(mWidget));
+        break;
     default:
         break;
     }
-
-    return getManager(type);
+    return;
 }
 
 std::shared_ptr<zchxEcdisDataMgr> zchxDataMgrFactory::getManager(int type)
 {
-    if(mMgrList.contains(type)) return mMgrList[type];
-    return 0;
+    if(!mMgrList.contains(type)) {
+        createManager(type);
+    }
+    std::shared_ptr<zchxEcdisDataMgr> mgr = mMgrList.value(type, 0);
+    Q_ASSERT(mgr);
+    return mgr;
 }
 
 QList<std::shared_ptr<zchxEcdisDataMgr>> zchxDataMgrFactory::getManagers() const
@@ -215,6 +221,11 @@ zchxIslandLineDataMgr*   zchxDataMgrFactory::getIslandlineMgr()
 zchxCameraGridDataMgr*   zchxDataMgrFactory::getCameraGridMgr()
 {
     return static_cast<zchxCameraGridDataMgr*>(getManager(DATA_MGR_CAMERA_NET_GRID).get());
+}
+
+zchxShipAlarmAscendDataMgr*   zchxDataMgrFactory::getShipAlarmAscendMgr()
+{
+    return static_cast<zchxShipAlarmAscendDataMgr*>(getManager(DATA_MGR_SHIPALARM_ASCEND).get());
 }
 
 }

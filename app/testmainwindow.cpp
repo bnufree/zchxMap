@@ -112,20 +112,35 @@ void TestMainWindow::slotTimerout()
     //Lat=20.123456780000001
     //Lon=110.12345678
     qsrand(QDateTime::currentDateTime().toTime_t());
-    QList<qt::ZCHX::Data::ITF_AIS> aislist;
+    QList<qt::ZCHX::Data::tagITF_RadarPoint> radarList;
     for(int i=0; i<10; i++)
     {
-        qt::ZCHX::Data::ITF_AIS data;
-        data.mmsi = i*100+1000;
-        data.id = QString("AIS_%1").arg(data.mmsi);
-        data.lat =  20.123456 + qrand() % 1000 * 0.0001;
-        data.lon =  110.12345678 + qrand() % 1000 * 0.0001;
-        data.type = qt::RADARSHIP;
-        std::vector<std::pair<double, double> > path;
-        path.push_back(std::pair<double, double>(data.lat, data.lon));
-        data.setPath(path);
-        aislist.append(data);
+//        qt::ZCHX::Data::ITF_AIS data;
+//        data.mmsi = i*100+1000;
+//        data.id = QString("AIS_%1").arg(data.mmsi);
+//        data.lat =  20.123456 + qrand() % 1000 * 0.0001;
+//        data.lon =  110.12345678 + qrand() % 1000 * 0.0001;
+//        data.type = qt::RADARSHIP;
+//        std::vector<std::pair<double, double> > path;
+//        path.push_back(std::pair<double, double>(data.lat, data.lon));
+//        data.setPath(path);
+//        aislist.append(data);
+        qt::ZCHX::Data::tagITF_RadarPoint item;
+        //构建雷达的尾迹
+//        qDebug()<<"track point size:"<<data.tracks().tracks_size();
+        double lat =  20.123456 + qrand() % 1000 * 0.0001;
+        double lon =  110.12345678 + qrand() % 1000 * 0.0001;
+        item.path.push_back(std::pair<double,double>(lat, lon));
+        item.lat = lat;
+        item.lon = lon;
+        item.trackNumber = i*100+1000;
+        item.cog = 110;
+        item.sog = 1.2;
+        item.status = 1;
+        item.warnStatusColor = Qt::red;
+//        if(item.status>=1)
+        radarList.append(item);
     }
 
-    m_pEcdisWin->itfSetAisData(aislist);
+    m_pEcdisWin->itfSetRadarPointData(radarList);
 }

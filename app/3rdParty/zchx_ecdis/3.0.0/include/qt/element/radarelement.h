@@ -9,8 +9,8 @@ namespace qt
 class  RadarPointElement: public Element
 {
 public:
-    RadarPointElement(const double &lat, const double &lon);
-    RadarPointElement(const ZCHX::Data::ITF_RadarPoint &ele);
+    RadarPointElement(const double &lat, const double &lon, zchxMapFrameWork* frame);
+    RadarPointElement(const ZCHX::Data::ITF_RadarPoint &ele, zchxMapFrameWork* frame);
     RadarPointElement(const RadarPointElement& pt);
 
     enum RADAR_SHARE{

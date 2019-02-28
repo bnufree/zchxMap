@@ -62,9 +62,28 @@ enum ELETYPE{
     ELELINE,     //直线元素
     ELERECT,      //矩形元素
     ELEMENT_AIS,
+    ELEMENT_AREANET,
     ELEMENT_RADAR_POINT,
-    ELEMENT_CAMERA_ROD,//杆
+    ELEMENT_RADAR_AREA,
+    ELEMENT_ROD,//杆
+    ELEMENT_IPC,
     ELEMENT_CAMERA,
+    ELEMENT_VIDEO_TARGET,
+    ELEMENT_CAMERA_VIEW,
+    ELEMENT_WARNING_ZONE,
+    ELEMENT_COAST,
+    ELEMENT_CHANNEL,
+    ELEMENT_SEABEDPIPLINE,
+    ELEMENT_ISLAND_LINE,
+    ELEMENT_CARD_MOUTH,
+    ELEMENT_MOOR,
+    ELEMENT_SHIP_ALARM_ASCEND,
+    ELEMENT_STRUCTURE,
+    ELEMENT_PATROL_STATION,
+    ELEMENT_LOCALMARK,
+    ELEMENT_DANGREOUS,
+    ELEMENT_SHIP_PLAN,
+    ELEMENT_CAMERA_GRID,
 
 
 };
@@ -696,12 +715,13 @@ typedef struct DangerousCircleITF
     double  lat;                //經度
     double  lon;                //緯度
     double  direction;          //方向角
-    double  dangerCircleRadius; //危险圈半径单位：米（M）
+    double  range; //危险圈半径单位：米（M）
+    QString name;
 
 }ITF_DangerousCircle;
 
 //人车船
-typedef struct tagITF_CameraVideoWarn
+typedef struct tagITF_VideoTarget
 {
      int uuid;
      uint cameraId;		    	// 相机id
@@ -718,7 +738,7 @@ typedef struct tagITF_CameraVideoWarn
      double node_num;				//节点数量
      QString warn_color;               //  报警颜色
 
-}ITF_CameraVideoWarn;
+}ITF_VideoTarget;
 
 typedef struct tagITF_RadarArea
 {
@@ -1043,14 +1063,15 @@ typedef struct WaterPoint
 }ITF_WaterDepth;
 
 //相机视场范围
-typedef struct tagITF_CameraObservationZone
+typedef struct tagITF_CameraView
 {
     double lat;
     double lon;
     double center_line; //中心线角度  pan postion
     double zone_length; //长度
     double zone_angle;  //角度宽度      mag
-}ITF_CameraObservationZone;
+    QString id;
+}ITF_CameraView;
 
 typedef struct tagITF_WarringZone
 {
@@ -1073,6 +1094,11 @@ typedef struct tagITF_WarringZone
     QString  remark;                  // 描述
 
     std::vector<std::pair<double, double> > path;
+
+    bool operator ==(const tagITF_WarringZone& other) const
+    {
+        return this->id == other.id || this->name == other.name;
+    }
 
 }ITF_WarringZone;
 
@@ -1223,7 +1249,7 @@ typedef struct tagITF_ShipAlarmAscend
                               //6:越线预警、7:锚泊预警、8:其他预警、9:黑名单预警、10:AIS未开启、
                               //11:超载航行、12:逆行报警、13:超长报警、14:追越报警、15:违规抛锚
     QString  ereaName;        // 区域名称
-    QString  time;            // 时间格式为2018-11-06 11:21:02
+    QString  name;            // time 时间格式为2018-11-06 11:21:02
 }ITF_ShipAlarmAscend;
 
 typedef struct tagITF_Fleet
@@ -1355,6 +1381,10 @@ typedef struct tagITF_CameraRod{
     QString             szID;
     QString             szName;
     CAMERAROD_STATUS    nStatus;
+    tagITF_CameraRod()
+    {
+        nStatus = CAMERAROD_OK;
+    }
 }ITF_CameraRod;
 
 struct IPCastDevice                 // 号角设备
@@ -1367,12 +1397,20 @@ struct IPCastDevice                 // 号角设备
     QString relayIP;                // 中继服务器IP地址
     QString name;                   // 终端名称
     QString rodID;                  // 所在电线杆的ID
+    double  lat;                    //号角设备一般挂在杆上.不设定经纬度值  独立显示时请设定经纬度
+    double  lon;
 };
 
 //光电仪-照相机-球机(一切能绑在电杆上的,光电仪除外)
 struct ITF_CameraDev
 {
-    ITF_CameraDev() : mIpcastDevice(0),mRod(0) {nStatus = 1;}       //默认正常
+    enum ITF_CAMERA_PARENT{
+        PARENT_NONE = 0,
+        PARENT_ROD,
+        PARENT_AIS,
+    };
+
+    ITF_CameraDev():mParentEleID(""), nStatus(1) {}       //默认正常
 
     uint                nUUID;
     uint                nDBID;                      //数据库ID
@@ -1393,7 +1431,7 @@ struct ITF_CameraDev
     uint                nPreViewChan;               //相机直连时的预览通道号
     uint                nLeftViewAngle;             //相机安装时左视角以正北为0 正南为180
     uint                nRightViewAngle;            //右侧视角      //相机视场范围使用
-    QString             szSite;                     //杆的ID 名称
+    //QString             szSite;                     //杆的ID 名称
     uint                nCameraColor;               //红光相机，或者白光相机
     double              nMaxRange;                  //最大跟踪范围
     uint                nStatus;                    //相机状态1：正常（在线）、2：掉线（不在线）、512：异常
@@ -1401,8 +1439,8 @@ struct ITF_CameraDev
     QString             szContactNum;               // 联系电话
     QString             szRemark;                   // 描述
     QList<int>          mMaskList;                  // 相机的掩码 1：视频；2：音频；4：相机控制
-    ITF_CameraRod*      mRod;                       //相机杆的信息
-    IPCastDevice*       mIpcastDevice;              //相机对应的号角设备
+    IPCastDevice        mIpcastDevice;              //相机对应的号角设备
+    QString             mParentEleID;               //相机是否挂在了其他设备上
 };
 
 //巡逻站 和雷达站
@@ -1419,7 +1457,7 @@ typedef struct tagITF_PatrolStation
 typedef struct tagITF_LocalMark{
     int uuid; //唯一索引
     LatLon ll;         //位置标注坐标(WGS84)
-    QString localName; //位置标注名称
+    QString name; //位置标注名称
     QString localMark; //简介
 }ITF_LocalMark;
 
@@ -1471,17 +1509,18 @@ typedef struct tagITF_CameraTrackTarget
     double lon;
 
 }ITF_CameraTrackTarget;
+
 typedef struct  tagITF_NetGrid{
-    long gridId;        //	网格编号	long	否
-    QString gridName;	//网格名称	String	否
-    double leftTopLon;	//左上角经度	Double	否
-    double leftTopLat;	//左上角纬度	Double	否
-    double leftLowerLon;	//左下角经度	Double	否
-    double leftLowerLat;	//左下角纬度	Double	否
-    double rightTopLon;	//右上角经度	Double	否
-    double rightTopLat;	//右上角纬度	Double	否
-    double rightLowerLon;	//右下角经度	Double	否
-    double rightLowerLat;	//右下角纬度	Double	否
+    long            id;                 //	网格编号	long	否
+    QString         name;               //网格名称	String	否       //相机ID_网格编号ID
+    double          leftTopLon;         //左上角经度	Double	否
+    double          leftTopLat;         //左上角纬度	Double	否
+    double          leftLowerLon;	//左下角经度	Double	否
+    double          leftLowerLat;	//左下角纬度	Double	否
+    double          rightTopLon;	//右上角经度	Double	否
+    double          rightTopLat;	//右上角纬度	Double	否
+    double          rightLowerLon;	//右下角经度	Double	否
+    double          rightLowerLat;	//右下角纬度	Double	否
 }ITF_NetGrid;
 
 typedef struct tagITF_CameraNetGrid{

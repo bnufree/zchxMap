@@ -1249,7 +1249,7 @@ typedef struct tagITF_ShipAlarmAscend
                               //6:越线预警、7:锚泊预警、8:其他预警、9:黑名单预警、10:AIS未开启、
                               //11:超载航行、12:逆行报警、13:超长报警、14:追越报警、15:违规抛锚
     QString  ereaName;        // 区域名称
-    QString  time;            // 时间格式为2018-11-06 11:21:02
+    QString  name;            // time 时间格式为2018-11-06 11:21:02
 }ITF_ShipAlarmAscend;
 
 typedef struct tagITF_Fleet

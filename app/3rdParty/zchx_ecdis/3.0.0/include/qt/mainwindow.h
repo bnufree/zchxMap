@@ -235,7 +235,7 @@ public:
     /*!
          * \brief 更新号角设备列表
          */
-    void itfUpdateIPCastDeviceList(std::list<std::shared_ptr<ZCHX::Data::IPCastDevice>> list);
+    void itfUpdateIPCastDeviceList(const QList<ZCHX::Data::IPCastDevice>& list);
 
     /*!
          * \brief 设置GPS列表
@@ -362,7 +362,7 @@ signals: //定义发送信号接口
     void itfSignalIsSelected4PastrolStation(const ZCHX::Data::ITF_PastrolStation &info);
     void itfSignalIsSelected4LocalMark(const ZCHX::Data::ITF_LocalMark &info);
     void itfSignalIsSelected4IslandLine(const ZCHX::Data::ITF_IslandLine &info); //环岛线
-    void itfSignalIsSelected4CameraVideoWarn(const ZCHX::Data::ITF_CameraVideoWarn &info); //选中了视频分析目标
+    void itfSignalIsSelected4CameraVideoWarn(const ZCHX::Data::ITF_VideoTarget &info); //选中了视频分析目标
     void itfSignalIsEcdisResize();                                                      //海图窗口大小改变
     void itfSignalIsEcdisScales(double);
     void itfSignalIsEcdisDoubleClickCoordinate(double lat, double lon);
@@ -391,7 +391,7 @@ signals: //定义发送信号接口
     void signalIsDoubleClicked4PastrolStation(const ZCHX::Data::ITF_PastrolStation &info);//巡逻站双击
     void signalIsDoubleClicked4LocalMark(const ZCHX::Data::ITF_LocalMark &info);    //关注点双击
     void signalIsDoubleClicked4IslandLine(const ZCHX::Data::ITF_IslandLine &info); //环岛线双击
-    void signalIsDoubleClicked4CameraVideoWarn(const ZCHX::Data::ITF_CameraVideoWarn &info); //双击了视频分析目标
+    void signalIsDoubleClicked4CameraVideoWarn(const ZCHX::Data::ITF_VideoTarget &info); //双击了视频分析目标
     void signalIsDoubleClicked4ChannelZone(const ZCHX::Data::ITF_WarringZone &info);//航道双击
     void signalIsDoubleClicked4MooringZone(const ZCHX::Data::ITF_WarringZone &info);//锚泊双击
     void signalIsDoubleClicked4CardMouthZone(const ZCHX::Data::ITF_WarringZone &info);//卡口双击
@@ -442,7 +442,7 @@ public slots: //定义Recive数据接口
     void itfSetHistoryRadarPointData(const QList<ZCHX::Data::ITF_RadarPoint> &data); //设置雷达历史数据
     void itfSetRadarAreaData(const QList<ZCHX::Data::ITF_RadarArea> &data); //设置雷达扫描区域数据
     void itfSetCameraRodData(const QList<ZCHX::Data::ITF_CameraRod> &data); //设置摄像杆接口数据
-    void itfSetCameraDevData(const QList<ZCHX::Data::ITF_CameraDev> &data); //设置相机设备数据接口
+    void itfSetCameraDevData(const QList<ZCHX::Data::ITF_CameraDev> &data, ZCHX::Data::ITF_CameraDev::ITF_CAMERA_PARENT parent = ZCHX::Data::ITF_CameraDev::PARENT_NONE); //设置相机设备数据接口
     void itfSetAisCameraDevData(const QList<ZCHX::Data::ITF_CameraDev> &data);  //设置船载相机的数据接口
     void itfSetPastrolStation(const QList<ZCHX::Data::ITF_PastrolStation> &data); //设置巡逻站数据
 
@@ -457,7 +457,7 @@ public slots: //定义Recive数据接口
     void itfImportSeabedPipeLine(const std::vector<std::pair<double, double> > &data); // 导入海底管线
 
     void itfSetStructure(const QList<ZCHX::Data::ITF_Structure> &data);  //设置结构物
-    void itfImportStructure(const std::pair<double, double> &data); // 导入结构物
+    void itfImportStructure(const std::vector<std::pair<double, double> > &data); // 导入结构物
 
     void itfSetAreaNet(const QList<ZCHX::Data::ITF_AreaNet> &data);  //设置地理区域网络
     void itfImportAreaNet(const std::vector<std::pair<double, double> > &data); // 导入地理区域网络
@@ -499,11 +499,11 @@ public slots: //定义Recive数据接口
     void itfSetLocalMarkData(const QList<ZCHX::Data::ITF_LocalMark> & data);   //设置位置标注接口
     void itfSetCameraGdyData(const QList<ZCHX::Data::ITF_CameraDev> &data);          //设置光电仪数据接口
     void itfSetCameraPlanData(const QList<ZCHX::Data::ITF_CameraDev> &data);          //设置无人机数据接口
-    void itfSetCameraVideoWarnData(const QList<ZCHX::Data::ITF_CameraVideoWarn> &data);//设置人车船告警数据接口
+    void itfSetCameraVideoWarnData(const QList<ZCHX::Data::ITF_VideoTarget> &data);//设置人车船告警数据接口
     void itfSetDangerousCircleData(const QList<ZCHX::Data::ITF_DangerousCircle> &data); //设置危险圈数据
     void itfSetDangerousCircleRange(const double range);                                //设置危险圈数据
     void itfSetRadarFeatureZoneDagta(const QList<ZCHX::Data::ITF_RadarFeaturesZone> &data);
-    void itfSetCameraObservationZoneData(const QList<ZCHX::Data::ITF_CameraObservationZone> &data);
+    void itfSetCameraObservationZoneData(const QList<ZCHX::Data::ITF_CameraView> &data);
 
     //设置回波数据，uType==1回波显示，uType==2余辉显示
     void itfSetRadarVideoData(double dCentreLon,double dCentreLat,double dDistance,int uType,int uLoopNum);
@@ -565,7 +565,7 @@ public slots: //定义Recive数据接口
     void itfSetRadarTrackPoint(bool b);                 //是否启动跟踪雷达
     void itfSetEnableCameraTargerTrack(bool b);         //是否启动相机联动跟踪
     void itfSetEnableRouteHistogram(bool b);            //是否启动路由统计直方图
-    void itfSetEnableShipTag(const QList<bool> &bList); //船舶标签信息显示
+    void itfSetEnableShipTag(int tag); //船舶标签信息显示
     //定义拾取类型接口
     /**
          * @brief itfSetPuickupType

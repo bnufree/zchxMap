@@ -149,6 +149,8 @@ public:
     TileImageList():QList<TileImage>() {}
 };
 
+static double constexpr degreeInMetres = 360.0 / 40008245;
+
 class zchxMapDataUtils
 {
 public:
@@ -196,6 +198,8 @@ public:
 
     static double getTotalDistance(const std::vector<std::pair<double, double> > &pointList);
     static double getTotalArea(const std::vector<std::pair<double, double> > &pointList);
+    LatLon static getSmPoint(const LatLon & pt, double lonMetresR, double latMetresR);
+
 };
 
 enum eTool{
@@ -327,6 +331,7 @@ Q_DECLARE_METATYPE(qt::TileImageList)
 #define             MAP_UPDATE_INTERVAL             "UpdateInterval"            //刷新时间间隔毫秒
 #define             MAP_SOURCE                      "MapSource"                 //地图数据来源
 #define             MAP_DISPLAY_MENU                "DisplayRightMouseMenu"     //是狗显示右键菜单
+#define             MAP_FILE_DIR                    "MapFileDir"
 
 //Ais显示配置
 #define             AIS_DISPLAY_SETTING                         "AIS"

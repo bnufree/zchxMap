@@ -91,10 +91,10 @@ ZCHX::Data::ITF_CameraNetGrid zchxCameraGridDataMgr::makeCameraGrid(const LatLon
         for(int k=0; k<num_x; k++)
         {
             //计算左上角点的经纬度
-            LatLon top_left_ll = MercatorBounds::ToLatLon(MercatorBounds::GetSmPoint(MercatorBounds::FromLatLon(sll), k * lonMeters, i * latMeters));
+            LatLon top_left_ll = zchxMapDataUtils::getSmPoint(sll, k * lonMeters, i * latMeters);
             //qDebug()<<"calc lat lon:"<<top_left_ll.lat<<top_left_ll.lon<<i*latMeters<<i*lonMeters;
             //计算右下角点的经纬度
-            LatLon low_right_ll = MercatorBounds::ToLatLon(MercatorBounds::GetSmPoint(MercatorBounds::FromLatLon(sll), (k + 1) * lonMeters, (i + 1) * latMeters));
+            LatLon low_right_ll = zchxMapDataUtils::getSmPoint(sll, (k + 1) * lonMeters, (i + 1) * latMeters);
             if((low_right_ll.lon > ell.lon && lon_positive == 1) ||
                 (low_right_ll.lon < ell.lon && lon_positive == -1))
             {

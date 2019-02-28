@@ -112,5 +112,20 @@ double zchxMapDataUtils::getTotalArea(const std::vector<std::pair<double, double
 
     return areaNum;
 }
+
+LatLon zchxMapDataUtils::getSmPoint(const LatLon &pt, double lonMetresR, double latMetresR)
+{
+    double const lat = pt.lat;
+    double const lon = pt.lon;
+
+    double const latDegreeOffset = latMetresR * degreeInMetres;
+    double const newLat = fmin(90.0, fmax(-90.0, lat + latDegreeOffset));
+
+    double const cosL = fmax(cos(DegToRad(newLat)), 0.00001);
+    double const lonDegreeOffset = lonMetresR * degreeInMetres / cosL;
+    double const newLon = fmin(180.0, fmax(-180.0, lon + lonDegreeOffset));
+
+    return LatLon(newLat, newLon);
+}
 }
 

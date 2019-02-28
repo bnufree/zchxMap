@@ -417,7 +417,7 @@ void MainWindow::itfSetFleet(const QList<ZCHX::Data::ITF_Fleet> &data)
 
 void MainWindow::itfSetShipAlarmAscendMap(const QMap<QString, ZCHX::Data::ITF_ShipAlarmAscend> &shipAlarmAscendMap)
 {
-    //if(mMapWidget) mMapWidget->setShipAlarmAscendMap(shipAlarmAscendMap);
+    ZCHX_DATA_FACTORY->getShipAlarmAscendMgr()->setData(shipAlarmAscendMap.values());
 }
 
 void MainWindow::itfUpdateWarringZone(const QList<ZCHX::Data::ITF_WarringZone> &data)
@@ -848,9 +848,9 @@ void MainWindow::itfSetEnableRouteHistogram(bool b)
     if(mMapWidget) mMapWidget->setEnableRouteHistogram(b);
 }
 
-void MainWindow::itfSetEnableShipTag(const QList<bool> &bList)
+void MainWindow::itfSetEnableShipTag(int tag)
 {
-    //if(mMapWidget) mMapWidget->SetEnableShipTag(bList);
+    ZCHX_DATA_FACTORY->getAisDataMgr()->SetEnableShipTag(tag);
 }
 
 void MainWindow::itfSetEnableTooBarVisable(bool visible)
@@ -865,17 +865,17 @@ void MainWindow::itfsetPluginUseModel(const ZCHX::Data::ECDIS_PLUGIN_USE_MODEL &
 
 void MainWindow::itfsetSelectedShip()
 {
-    //if(mMapWidget) mMapWidget->setETool2DrawTrackTarget();
+    mMapWidget->setETool2DrawTrackTarget();
 }
 
 void MainWindow::itfsetSelectedAllTrack()
 {
-    //if(mMapWidget) mMapWidget->setETool2DrawCameraTrackTarget();
+    mMapWidget->setETool2DrawCameraTrackTarget();
 }
 
 void MainWindow::itfsetSelectedRouteOrCross()
 {
-    //if(mMapWidget) mMapWidget->setETool2DrawRouteOrCross();
+    mMapWidget->setETool2DrawRouteOrCross();
 }
 
 double MainWindow::itfzchxUtilToolAngle4north()

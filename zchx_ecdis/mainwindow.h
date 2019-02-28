@@ -565,7 +565,7 @@ public slots: //定义Recive数据接口
     void itfSetRadarTrackPoint(bool b);                 //是否启动跟踪雷达
     void itfSetEnableCameraTargerTrack(bool b);         //是否启动相机联动跟踪
     void itfSetEnableRouteHistogram(bool b);            //是否启动路由统计直方图
-    void itfSetEnableShipTag(const QList<bool> &bList); //船舶标签信息显示
+    void itfSetEnableShipTag(int tag); //船舶标签信息显示
     //定义拾取类型接口
     /**
          * @brief itfSetPuickupType

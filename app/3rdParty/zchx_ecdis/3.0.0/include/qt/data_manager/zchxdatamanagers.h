@@ -3,5 +3,11 @@
 
 #include "zchxaisdatamgr.h"
 #include "zchxradardatamgr.h"
+#include "zchxcameradatamgr.h"
+#include "zchxroddatamgr.h"
+#include "zchxcameraviewdatamgr.h"
+#include "zchxvideotargetdatamgr.h"
+#include "zchxuserdefinesdatamgr.h"
+#include "zchxcameragridmgr.h"
 
 #endif // ZCHXDATAMANAGERS_H

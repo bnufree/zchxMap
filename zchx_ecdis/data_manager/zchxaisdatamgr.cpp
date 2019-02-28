@@ -210,7 +210,7 @@ bool zchxAisDataMgr::updateActiveItem(const QPoint &pt)
             for(int i = 0; i < size; ++i)
             {
                 ZCHX::Data::ITF_AIS ais = item->getHistoryTrackList().at(i);
-                std::shared_ptr<AisElement> ele(new AisElement(ais));
+                std::shared_ptr<AisElement> ele(new AisElement(ais, mDisplayWidget->framework()));
                 if(ele->contains(pt)){
                     mSelHistoryPointIndex = i;
                     mSelHistoryTrackID = item->getData().id;
@@ -351,7 +351,7 @@ void zchxAisDataMgr::setAisData(const QList<ZCHX::Data::ITF_AIS> &data, bool che
         //更新item对应的数据
         std::shared_ptr<AisElement> item = m_aisMap.value(aisdata.id, 0);
         if(!item) {
-            item = std::shared_ptr<AisElement>(new AisElement(aisdata));
+            item = std::shared_ptr<AisElement>(new AisElement(aisdata, mDisplayWidget->framework()));
             item->setFrameWork(mDisplayWidget->framework());
             m_aisMap[aisdata.id] = item;
         } else {

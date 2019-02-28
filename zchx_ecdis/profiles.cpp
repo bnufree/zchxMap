@@ -2,6 +2,7 @@
 #include <QSettings>
 #include <QTextCodec>
 #include "zchxMapDatautils.h"
+#include <QApplication>
 
 namespace qt {
 
@@ -49,6 +50,7 @@ void Profiles::initDefaultValues()
     setDefault(MAP_INDEX, MAP_UPDATE_INTERVAL, 100);
     setDefault(MAP_INDEX, MAP_SOURCE, 0);
     setDefault(MAP_INDEX, MAP_DISPLAY_MENU, true);
+    setDefault(MAP_INDEX, MAP_FILE_DIR, QApplication::applicationDirPath() + "/data/");
     //Ais显示配置
     setDefault(AIS_DISPLAY_SETTING, AIS_FILL_COLOR, QColor(Qt::green).name());
     setDefault(AIS_DISPLAY_SETTING, AIS_TEXT_COLOR, QColor(Qt::black).name());

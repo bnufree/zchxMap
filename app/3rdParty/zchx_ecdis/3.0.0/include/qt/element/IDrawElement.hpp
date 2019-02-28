@@ -20,7 +20,7 @@ class ZCHX_ECDIS_EXPORT Element// : public QObject
 protected:
     ElementPrivate *d;
 public:
-    Element(const double &lat, const double &lon, ZCHX::Data::ELETYPE type = ZCHX::Data::ELE_NONE, const QColor& flashColor = QColor());
+    Element(const double &lat, const double &lon, zchxMapFrameWork* frame, ZCHX::Data::ELETYPE type = ZCHX::Data::ELE_NONE, const QColor& flashColor = QColor());
     Element(const Element &element);
     virtual ~Element();
 
@@ -91,6 +91,10 @@ public:
     void   setIsOpenMeet(bool sts) {isOpenMeet = sts;}
     bool   getIsOpenMeet() const {return isOpenMeet;}
 
+    //设置更新标记
+    void   setIsUpdate(bool sts) {isUpdate = sts;}
+    bool   getIsUpdate() const {return isUpdate;}
+
     /*!
      * \brief 用于显示的经纬度
      */
@@ -118,8 +122,8 @@ public:
      * \param y 坐标点
      * \return 如果在矩形内则返回true, 否则返回false
      */
-    bool contains(int range, double x, double y) const;
-    virtual bool contains(QPointF pos) const;
+    virtual bool contains(int range, double x, double y) const;
+    virtual bool contains(const QPoint& pos) const;
     virtual bool contains(const QGeoCoordinate &geoPos) const;
     virtual bool isEmpty() const;
 
@@ -137,7 +141,7 @@ public:
 
     void addChild(std::shared_ptr<Element> child);
     void removeChild(std::shared_ptr<Element> child);
-    std::list<std::shared_ptr<Element> > &getChildren();
+    std::list<std::shared_ptr<Element> > getChildren(ZCHX::Data::ELETYPE type = ZCHX::Data::ELE_NONE) const;
 
     std::shared_ptr<Element> parent();
     void setParent(std::shared_ptr<Element> ele);
@@ -196,7 +200,7 @@ public:
     QPointF getCurrentPos();
     //
     std::shared_ptr<MapLayer> layer() {return m_layer;}
-    zchxMapFrameWork* framework() {return m_framework;}
+    zchxMapFrameWork* framework() const {return m_framework;}
     void setFrameWork(zchxMapFrameWork* f) {m_framework = f;}
 
     //检查层设定是否显示
@@ -215,6 +219,7 @@ protected://TODO: 添加私有类, 实现成员变量对外隐藏, 且防止依�
     bool   isRealtimeTailTrack;         //是否显示尾迹点
     bool   isHistroyTrack;              //是否显示历史轨迹
     bool   isOpenMeet;          //是否开启会遇显示
+    bool   isUpdate;            //是否更新过
     int    uuid;
     QString m_strID;
     ZCHX::Data::ELETYPE  m_element_type;

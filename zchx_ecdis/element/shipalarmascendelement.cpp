@@ -5,7 +5,7 @@
 namespace qt {
 
 ShipAlarmAscendElement::ShipAlarmAscendElement(const ZCHX::Data::ITF_ShipAlarmAscend &ele, zchxMapFrameWork* f)
-    :MoveElement(f, ZCHX::Data::ELEMENT_SHIP_ALARM_ASCEND)
+    :Element(ele.lat, ele.lon, f, ZCHX::Data::ELEMENT_SHIP_ALARM_ASCEND)
 {
     setData(ele);
     setIsUpdate(true);
@@ -22,6 +22,10 @@ ZCHX::Data::ITF_ShipAlarmAscend ShipAlarmAscendElement::data() const
     return m_data;
 }
 
+std::string ShipAlarmAscendElement::name() const
+{
+    return m_data.name.toStdString();
+}
 void ShipAlarmAscendElement::drawElement(QPainter *painter)
 {
     if(!painter || !MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_ALARMASCEND)) return;

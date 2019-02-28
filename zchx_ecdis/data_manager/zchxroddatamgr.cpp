@@ -60,7 +60,7 @@ void zchxRodDataMgr::updateCamera(const QList<ZCHX::Data::ITF_CameraDev>& list)
     foreach (ZCHX::Data::ITF_CameraDev cam, list) {
         std::shared_ptr<RodElement> ele = m_CameraRod[cam.mParentEleID];
         if(ele) {
-            std::shared_ptr<CameraElement> cam_ele(new CameraElement(cam));
+            std::shared_ptr<CameraElement> cam_ele(new CameraElement(cam, mDisplayWidget->framework()));
             ele->addChild(cam_ele);
             ele->updateElementStatus(qint64(cam_ele.get()), cam.nStatus == 1);
         }

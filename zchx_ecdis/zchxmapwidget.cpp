@@ -50,7 +50,7 @@ zchxMapWidget::zchxMapWidget(QWidget *parent) : QWidget(parent),
     ZCHX_DATA_FACTORY->createManager(DATA_MGR_CAMERA_VIEW);
     ZCHX_DATA_FACTORY->createManager(DATA_MGR_VIDEO_TARGET);
     ZCHX_DATA_FACTORY->createManager(DATA_MGR_ROD);
-    ZCHX_DATA_FACTORY->createManager(DATA_MGR_IPC);
+    //ZCHX_DATA_FACTORY->createManager(DATA_MGR_IPC);
     ZCHX_DATA_FACTORY->createManager(DATA_MGR_WARNING_ZONE);
     ZCHX_DATA_FACTORY->createManager(DATA_MGR_COAST);
     ZCHX_DATA_FACTORY->createManager(DATA_MGR_SEABEDIPLINE);
@@ -64,6 +64,7 @@ zchxMapWidget::zchxMapWidget(QWidget *parent) : QWidget(parent),
     ZCHX_DATA_FACTORY->createManager(DATA_MGR_DANGEROUS);
     ZCHX_DATA_FACTORY->createManager(DATA_MGR_PASTROLSTATION);
     ZCHX_DATA_FACTORY->createManager(DATA_MGR_CAMERA_NET_GRID);
+    ZCHX_DATA_FACTORY->createManager(DATA_MGR_SHIPALARM_ASCEND);
 }
 
 zchxMapWidget::~zchxMapWidget()
@@ -1233,11 +1234,40 @@ void zchxMapWidget::setETool2DrawPickup()
     setCursor(Qt::ArrowCursor);
 }
 
+void zchxMapWidget::setETool2DrawTrackTarget()
+{
+    m_eToolPoints.clear();
+    m_eTool = TRACKTARGET;
+    isActiveETool = true; //拾取时是否允许移动海图 true 不允许，false 允许
+    setCurPickupType(ZCHX::Data::ECDIS_PICKUP_TYPE::ECDIS_PICKUP_AIS);
+    setCursor(Qt::ArrowCursor);
+    //    update();
+}
+
+void zchxMapWidget::setETool2DrawCameraTrackTarget()
+{
+    m_eToolPoints.clear();
+    m_eTool = CAMERATEACK;
+    isActiveETool = true;//拾取时是否允许移动海图 true 不允许，false 允许
+    setCurPickupType(ZCHX::Data::ECDIS_PICKUP_TYPE::ECDIS_PICKUP_ALL);
+    setCursor(Qt::ArrowCursor);
+}
+
 void zchxMapWidget::setETool2DrawGps()
 {
     m_eToolPoints.clear();
     m_eTool = DRAWGPS;
     isActiveETool = true; //是否允许移动海图 true 不允许，false 允许
+    setCursor(Qt::ArrowCursor);
+}
+
+void zchxMapWidget::setETool2DrawRouteOrCross()
+{
+    //qDebug()<<"进去路由和交越点拾取";
+    m_eToolPoints.clear();
+    m_eTool = ROUTEORCROSSPICKUP;
+    isActiveETool = true; //拾取时是否允许移动海图 true 不允许，false 允许
+    setCurPickupType(ZCHX::Data::ECDIS_PICKUP_TYPE::ECDIS_PICKUP_ROUTEANDCROSS);
     setCursor(Qt::ArrowCursor);
 }
 

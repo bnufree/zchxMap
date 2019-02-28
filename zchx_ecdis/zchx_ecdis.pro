@@ -203,6 +203,7 @@ RESOURCES += $$PWD/opengl/opengl.qrc
 #生成安装文件到第三方�?
 #1)指定三方库目�?
 DESTDIRRoot = $$TargetRoot/app/3rdParty/zchx_ecdis/3.0.0
+#DESTDIRRoot = H:/workspace/2018_WBS_V2/5.code/trunk/kakou_framework/Tools/3rdParty/zchx_ecdis/3.0.0
 #2)安装翻译文件
 qminstall.files = $$BINARIES_PATH/translations/zchx_ecdis_zh_CN.qm
 qminstall.path = $$DESTDIRRoot/translations/

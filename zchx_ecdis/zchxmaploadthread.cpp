@@ -3,6 +3,7 @@
 #include <QDebug>
 #include <QApplication>
 #include <zchxtileimagethread.h>
+#include "profiles.h"
 
 namespace qt {
 zchxMapLoadThread::zchxMapLoadThread(QObject *parent) : QThread(parent)
@@ -11,6 +12,8 @@ zchxMapLoadThread::zchxMapLoadThread(QObject *parent) : QThread(parent)
     qRegisterMetaType<MapLoadSetting>("const MapLoadSetting&");
     qRegisterMetaType<TileImageList>("const TileImageList&");
     mImgSync = true;
+    mImgFilePath = Profiles::instance()->value(MAP_INDEX, MAP_FILE_DIR).toString().trimmed();
+    if(mImgFilePath.right(1) == "/") mImgFilePath.remove(mImgFilePath.length()-1, 1);
 }
 
 void zchxMapLoadThread::appendTask(const MapLoadSetting &task)
@@ -169,7 +172,7 @@ void zchxMapLoadThread::run()
                     url = QString("http://mt2.google.cn/vt/lyrs=m@167000000&hl=zh-CN&gl=cn&x=%1&y=%2&z=%3&s=Galil").arg(i).arg(k).arg(task.mZoom);
                 } else if(task.mSource == TILE_TMS)
                 {
-                    url = QString("%1/data/%2/%3/%4.png").arg(QApplication::applicationDirPath()).arg(task.mZoom).arg(i).arg(k);
+                    url = QString("%1/%2/%3/%4.png").arg(mImgFilePath).arg(task.mZoom).arg(i).arg(k);
                 }
                 int pos_x = pos.x + (i-tile_start_x) * MAP_IMG_SIZE;
                 int pos_y = pos.y + j * MAP_IMG_SIZE;

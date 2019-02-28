@@ -37,6 +37,8 @@ public:
     void setPrepushTrackStyle(const QString &color, const int lineWidth); //预推轨迹样式
     //鼠标右键菜单
     QList<QAction*> getRightMenuActions(const QPoint &pt);
+    //船舶相机更新
+    void updateCamera(const QList<ZCHX::Data::ITF_CameraDev>& cam);
 signals:
     //船队
     void signalFleet(const ZCHX::Data::ITF_AIS& data);    
