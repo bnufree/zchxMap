@@ -130,6 +130,7 @@ void zchxMapWidget::append(const TileImageList &list)
 
 void zchxMapWidget::paintEvent(QPaintEvent *e)
 {
+    if(!mFrameWork) return;
     QPainter painter(this);
     painter.fillRect(0,0,width(),height(), Qt::white);
     //显示地图
@@ -1070,12 +1071,12 @@ uint zchxMapWidget::zchxUtilToolCurZoom()
 
 void zchxMapWidget::zchxSetMapMinScale(int minVisibleZoom)
 {
-    mFrameWork->SetMinZoom(minVisibleZoom);
+    if(mFrameWork)mFrameWork->SetMinZoom(minVisibleZoom);
 }
 
 void zchxMapWidget::zchxSetMapMaxScale(int maxVisibleZoom)
 {
-    mFrameWork->SetMaxZoom(maxVisibleZoom);
+    if(mFrameWork) mFrameWork->SetMaxZoom(maxVisibleZoom);
 }
 
 ZCHX::Data::ECDIS_PLUGIN_USE_MODEL zchxMapWidget::curUserModel() const
