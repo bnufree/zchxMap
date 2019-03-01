@@ -3,6 +3,7 @@
 #include "zchxmaploadthread.h"
 #include "map_layer/zchxmaplayermgr.h"
 #include "data_manager/zchxdatamgrfactory.h"
+#include "draw_manager/zchxdrawtool.h"
 #include "zchxroutedatamgr.h"
 #include "zchxshipplandatamgr.h"
 #include <QPainter>
@@ -35,7 +36,8 @@ zchxMapWidget::zchxMapWidget(QWidget *parent) : QWidget(parent),
     mCurPluginUserModel(ZCHX::Data::ECDIS_PLUGIN_USE_DISPLAY_MODEL),
     mCurPickupType(ZCHX::Data::ECDIS_PICKUP_TYPE::ECDIS_PICKUP_ALL),
     mRouteDataMgr(new zchxRouteDataMgr(this)),
-    mShipPlanDataMgr(new zchxShipPlanDataMgr(this))
+    mShipPlanDataMgr(new zchxShipPlanDataMgr(this)),
+    mToolPtr(0)
 {
     this->setMouseTracking(true);
     QTimer *timer = new QTimer;
@@ -133,21 +135,25 @@ void zchxMapWidget::paintEvent(QPaintEvent *e)
     QPainter painter(this);
     painter.fillRect(0,0,width(),height(), Qt::white);
     //显示地图
+    double offset_x =  (-1) * mDx;
+    double offset_y =  (-1) * mDy;
     foreach(TileImage data, mDataList)
     {
-        painter.drawPixmap(data.mPosX - mDx, data.mPosY-mDy, data.mImg);
-        if(mDisplayImageNum)painter.drawText(data.mPosX-mDx, data.mPosY-mDy, data.mName);
+        painter.drawPixmap(data.mPosX + offset_x, data.mPosY + offset_y, data.mImg);
+        if(mDisplayImageNum)painter.drawText(data.mPosX + offset_x, data.mPosY + offset_y, data.mName);
     }
     //显示图元
     foreach (std::shared_ptr<zchxEcdisDataMgr> mgr, ZCHX_DATA_FACTORY->getManagers()) {
-        mgr->show(&painter, -mDx, -mDy);
+        mgr->show(&painter, offset_x,  offset_y);
     }
+    //显示用户的鼠标操作
+    if(mToolPtr) mToolPtr->show(&painter, offset_x,  offset_y);
 
-    //显示当前的中心点
-    Point2D pnt = mFrameWork->LatLon2Pixel(mCenter);
-    //qDebug()<<pnt.x<<pnt.y;
-    painter.setBrush(QBrush(Qt::red));
-    painter.drawEllipse(pnt.x, pnt.y, 5, 5);
+//    //显示当前的中心点
+//    Point2D pnt = mFrameWork->LatLon2Pixel(mCenter);
+//    //qDebug()<<pnt.x<<pnt.y;
+//    painter.setBrush(QBrush(Qt::red));
+//    painter.drawEllipse(pnt.x, pnt.y, 5, 5);
 }
 
 bool zchxMapWidget::IsLeftButton(Qt::MouseButtons buttons)
@@ -199,6 +205,65 @@ void zchxMapWidget::setActiveDrawElement(const Point2D &pos, bool dbClick)
         }
     }
 }
+//目标跟踪的情况,横琴使用.雷达,AIS,目标跟踪;空白点:热点视频显示
+void zchxMapWidget::setSelectedCameraTrackTarget(const Point2D &pos)
+{
+    if(ZCHX::Data::ECDIS_PICKUP_NONE == mCurPickupType) return;
+    //检查当前选中的东西
+    Element *ele = 0;
+    foreach (std::shared_ptr<zchxEcdisDataMgr> mgr, ZCHX_DATA_FACTORY->getManagers()) {
+        ele = mgr->selectItem(pos.toPoint());
+        if(ele) break;
+    }
+    ZCHX::Data::ITF_CameraTrackTarget target;
+    double lat,lon;
+    QPointF e_pos = pos.toPointF();
+    zchxUtilToolLL4CurPoint(e_pos,lat,lon);
+    target.id = "";
+    target.type = 3;
+    target.lat = lat;
+    target.lon = lon;
+    if(ele){
+        if(ele->getElementType() == ZCHX::Data::ELEMENT_RADAR_POINT)
+        {
+            //选中雷达点(radar)轨迹元素
+            RadarPointElement *item = static_cast<RadarPointElement*>(ele);
+            if(!item) return;
+            ZCHX::Data::ITF_RadarPoint radar = item->getData();
+            target.id = QString::number(radar.trackNumber);
+            target.lon = radar.lon;
+            target.lat = radar.lat;
+            target.type = 2;
+        } else if(ele->getElementType() == ZCHX::Data::ELEMENT_AIS)
+        {
+            //选中AIS
+            AisElement *item = static_cast<AisElement*>(ele);
+            if(!item) return;
+            ZCHX::Data::ITF_AIS ais = item->getData();
+            target.id = ais.id;
+            target.lon = ais.lon;
+            target.lat = ais.lat;
+            target.type = 1;
+        }
+    }
+
+    emit signalIsEcdisCameraTrackTarget(target);
+}
+
+void zchxMapWidget::setPickUpNavigationTarget(const Point2D &pos)
+{
+    if(ZCHX::Data::ECDIS_PICKUP_AIS !=  mCurPickupType) return;
+    Element *ele = 0;
+    foreach (std::shared_ptr<zchxEcdisDataMgr> mgr, ZCHX_DATA_FACTORY->getManagers()) {
+        if(mgr->getType() != DATA_MGR_AIS) continue;
+        ele = mgr->selectItem(pos.toPoint());
+        if(ele) break;
+    }
+    if(!ele) return;
+    AisElement *item = static_cast<AisElement*>(ele);
+    ZCHX_DATA_FACTORY->getAisDataMgr()->setFocusID(item->getData().id);
+    emit signalIsSelected4TrackRadarOrbit(item->getData(), true);
+}
 
 
 
@@ -217,19 +282,11 @@ void zchxMapWidget::mousePressEvent(QMouseEvent *e)
             qt::LatLon ll =zchxUtilToolLL4CurPoint(e->pos());
             switch (m_eTool) {
             case DRAWMEASUREAREA:
-            {
-                m_eToolPoints.push_back(ll);
-                break;
-            }
-#if 0
             case DRAWDIRANGLE:
-            {
-                isActiveDrawDirAngle = true;
-                break;
-            }
             case DRAWDISTANCE:
             {
-                m_eToolPoints.push_back(ll);
+                mToolPtr->appendPoint(e->pos());
+                break;
             }
             case DRAWPICKUP:
             {
@@ -246,6 +303,7 @@ void zchxMapWidget::mousePressEvent(QMouseEvent *e)
                 setPickUpNavigationTarget(pt);
                 break;
             }
+#if 0
             case DRAWGPS:
             {
                 getPointNealyCamera(pt);

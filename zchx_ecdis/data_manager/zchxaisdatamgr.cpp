@@ -192,18 +192,17 @@ bool zchxAisDataMgr::updateActiveItem(const QPoint &pt)
 
     //重置历史轨迹点的显示
     clearHistoryTrackSel();
+    //检查AIS图元本身是否选中
+    Element* ele = selectItem(pt);
+    if(ele)
+    {
+        mDisplayWidget->setCurrentSelectedItem(item.get());
+        qDebug()<<"id:"<<item->getData().id<<" contains:"<<true;
+        return true;
+    }
+    //检查轨迹是否选中
     foreach(std::shared_ptr<AisElement> item, m_aisMap)
     {
-
-        //检查AIS图元本身是否选中
-        if(item->contains(10, pt.x() * 1.0, pt.y() * 1.0))
-        {
-            mDisplayWidget->setCurrentSelectedItem(item.get());
-            qDebug()<<"id:"<<item->getData().id<<" contains:"<<true;
-            return true;
-        }
-        qDebug()<<"id:"<<item->getData().id<<" contains:"<<false;
-        //检查历史轨迹点是否被选中
         if(isHistoryTrack(item->getData().id))
         {
             int size = item->getHistoryTrackList().size();
@@ -222,6 +221,19 @@ bool zchxAisDataMgr::updateActiveItem(const QPoint &pt)
         if(mSelHistoryPointIndex >= 0) return true;
     }
     return false;
+}
+
+Element* zchxAisDataMgr::selectItem(const QPoint &pt)
+{
+    foreach(std::shared_ptr<AisElement> item, m_aisMap)
+    {
+        //检查AIS图元本身是否选中
+        if(item->contains(10, pt.x() * 1.0, pt.y() * 1.0))
+        {
+            return item.get();
+        }
+    }
+    return 0;
 }
 
 bool zchxAisDataMgr::setRealtimeTailTrack(const QString &id, const QList<ZCHX::Data::ITF_AIS> &data)

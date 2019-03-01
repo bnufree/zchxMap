@@ -28,6 +28,11 @@ bool zchxEcdisDataMgr::updateActiveItem(const QPoint &pt)
     return false;
 }
 
+Element* zchxEcdisDataMgr::selectItem(const QPoint &pt)
+{
+    return 0;
+}
+
 QList<QAction*> zchxEcdisDataMgr::getRightMenuActions(const QPoint &pt)
 {
     return QList<QAction*> ();

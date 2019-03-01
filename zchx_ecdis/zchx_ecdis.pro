@@ -113,7 +113,11 @@ SOURCES += mainwindow.cpp \
     element/moveelement.cpp \
     element/patrolstationelement.cpp \
     element/cameragridelement.cpp \
-    data_manager/zchxcameragridmgr.cpp
+    data_manager/zchxcameragridmgr.cpp \
+    draw_manager/zchxdrawareatool.cpp \
+    draw_manager/zchxdrawtool.cpp \
+    draw_manager/zchxdrawangletool.cpp \
+    draw_manager/zchxdrawdistool.cpp
 
 HEADERS  += mainwindow.h \
     zchxmapthread.h \
@@ -182,7 +186,12 @@ HEADERS  += mainwindow.h \
     element/patrolstationelement.h \
     data_manager/zchxtemplatedatamgr.h \
     element/cameragridelement.h \
-    data_manager/zchxcameragridmgr.h
+    data_manager/zchxcameragridmgr.h \
+    draw_manager/zchxecdismousedefines.h \
+    draw_manager/zchxdrawareatool.h \
+    draw_manager/zchxdrawtool.h \
+    draw_manager/zchxdrawangletool.h \
+    draw_manager/zchxdrawdistool.h
 
 FORMS    += mainwindow.ui \
     cardmouthinfodialog.ui \

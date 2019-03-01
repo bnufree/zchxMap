@@ -127,5 +127,26 @@ LatLon zchxMapDataUtils::getSmPoint(const LatLon &pt, double lonMetresR, double 
 
     return LatLon(newLat, newLon);
 }
+
+double zchxMapDataUtils::getDistancePixel(const Point2D& p1, const Point2D & p2)
+{
+    double dx = p1.x - p2.x;
+    double dy = p1.y - p2.y;
+    return sqrtf(dx*dx + dy*dy);
+}
+
+double zchxMapDataUtils::AngleIn2PI(double a)
+{
+    double res = a;
+    while (res < 0) {
+        res += GLOB_PI;
+    }
+    while (res >= 2 *GLOB_PI) {
+        res -= GLOB_PI;
+    }
+
+    return res;
+}
+
 }
 

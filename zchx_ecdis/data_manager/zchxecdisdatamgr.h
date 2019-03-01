@@ -86,7 +86,8 @@ public:
     void            updateExtrapolationTime(const QString& id, double time);
 
     //鼠标操作
-    virtual bool    updateActiveItem(const QPoint& pt);  //鼠标左键点击选择目标
+    virtual bool        updateActiveItem(const QPoint& pt);  //鼠标左键点击选择目标
+    virtual Element*    selectItem(const QPoint& pt);
     virtual QList<QAction*> getRightMenuActions(const QPoint& pt);
     //创建菜单关联
     QAction *addAction(const QString &text, const QObject *obj, const char* slot, void* userData = 0);
@@ -98,6 +99,8 @@ public:
     void    setDataDisplayMode(int mode);
     int     getDataDisplayMode() const;
     virtual void clearDisplayData() {}
+    //设置聚焦的目标
+    void    setFocusID(const QString& id) {mFocusID = id;}
 
 signals:
     //画中画
@@ -139,6 +142,7 @@ protected:
     ZCHX::Data::ExtrapolateList      mExtrapolationList;         //模拟外推列表            这里注意这里设定有外推时间,默认为0, 用户设定
 
     int                 mType;                      //数据管理类型
+    QString             mFocusID;
 };
 }
 
