@@ -265,6 +265,30 @@ void zchxMapWidget::setPickUpNavigationTarget(const Point2D &pos)
     emit signalIsSelected4TrackRadarOrbit(item->getData(), true);
 }
 
+void zchxMapWidget::getPointNealyCamera(const Point2D &pos)
+{
+    if(ZCHX::Data::ECDIS_PICKUP_RADARORPOINT !=  mCurPickupType) return;
+    Element *ele = 0;
+    foreach (std::shared_ptr<zchxEcdisDataMgr> mgr, ZCHX_DATA_FACTORY->getManagers()) {
+        if(mgr->getType() != DATA_MGR_RADAR) continue;
+        ele = mgr->selectItem(pos.toPoint());
+        if(ele) break;
+    }
+
+    LatLon ll = zchxUtilToolLL4CurPoint(pos);
+    int trackNum = 0;
+    if(ele)
+    {
+        RadarPointElement *item = static_cast<RadarPointElement*>(ele);
+        if(!item) return;
+        trackNum = item->getData().trackNumber;
+        ll.lat = item->getData().lat;
+        ll.lon = item->getData().lon;
+    }
+
+    emit signalSendPointNealyCamera(trackNum, ll.lat,ll.lon);
+}
+
 
 
 void zchxMapWidget::mousePressEvent(QMouseEvent *e)
@@ -303,12 +327,13 @@ void zchxMapWidget::mousePressEvent(QMouseEvent *e)
                 setPickUpNavigationTarget(pt);
                 break;
             }
-#if 0
+
             case DRAWGPS:
             {
                 getPointNealyCamera(pt);
                 break;
             }
+#if 0
             case DRAWNULL:
             {
                 releaseDrawStatus();

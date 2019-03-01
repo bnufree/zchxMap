@@ -126,6 +126,8 @@ public:
     void setSelectedCameraTrackTarget(const Point2D &pos);
     //目标导航
     void setPickUpNavigationTarget(const Point2D &pos);
+    //寻找最近的雷达目标
+    void getPointNealyCamera(const Point2D &pos);
 
 
 
