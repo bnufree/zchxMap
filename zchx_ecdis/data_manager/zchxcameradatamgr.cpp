@@ -21,7 +21,7 @@ void zchxCameraDataMgr::setCameraDevData(const QList<ZCHX::Data::ITF_CameraDev> 
     }
 }
 
-void zchxCameraDataMgr::show(QPainter *painter)
+void zchxCameraDataMgr::show(QPainter* painter, double offset_x, double offset_y)
 {
     if(!MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_CAMERA)) return;
     QMap<QString, std::shared_ptr<CameraElement>>::iterator it = m_CameraDev.begin();

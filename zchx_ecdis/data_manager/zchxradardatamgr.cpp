@@ -12,7 +12,7 @@ zchxRadarDataMgr::zchxRadarDataMgr(zchxMapWidget* w, QObject *parent) : zchxEcdi
     mReplaceHistoryTrackWhenOver = Profiles::instance()->value(RADAR_DISPLAY_SETTING, RADAR_REPLACE_HISTORY_TRACK, true).toBool();
 }
 
-void zchxRadarDataMgr::show(QPainter *painter)
+void zchxRadarDataMgr::show(QPainter* painter, double offset_x, double offset_y)
 {
     if(!MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_RADAR)) return;
     QMutexLocker locker(&mDataMutex);

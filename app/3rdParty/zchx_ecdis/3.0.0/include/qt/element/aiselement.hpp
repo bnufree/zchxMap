@@ -20,8 +20,8 @@ enum SHIP_ITEM {
 class  AisElement: public Element
 {
 public:
-    AisElement(zchxMapFrameWork* frame = 0);
-    AisElement(const ZCHX::Data::ITF_AIS &ele, zchxMapFrameWork* frame = 0);
+    AisElement(zchxMapFrameWork* frame);
+    AisElement(const ZCHX::Data::ITF_AIS &ele, zchxMapFrameWork* frame);
 
     const std::vector<std::pair<double, double> > &getPath() const;
     void setPath(const std::vector<std::pair<double, double> > &path);

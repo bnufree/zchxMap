@@ -102,7 +102,7 @@ class zchxShipAlarmAscendDataMgr : public zchxTemplateDataMgr<ShipAlarmAscendEle
 public:
     explicit zchxShipAlarmAscendDataMgr(zchxMapWidget* w, QObject *parent = 0):
         zchxTemplateDataMgr<ShipAlarmAscendElement, ZCHX::Data::ITF_ShipAlarmAscend>(w, DATA_MGR_SHIPALARM_ASCEND, ZCHX::LAYER_ALARMASCEND, parent){}
-    void show(QPainter* painter);
+    void show(QPainter* painter, double offset_x, double offset_y);
 };
 
 }

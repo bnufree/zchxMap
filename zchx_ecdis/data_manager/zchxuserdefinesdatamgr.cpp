@@ -200,7 +200,7 @@ void zchxCardMouthDataMgr::importData(const std::vector<std::pair<double, double
     }
 }
 
-void zchxShipAlarmAscendDataMgr::show(QPainter *painter)
+void zchxShipAlarmAscendDataMgr::show(QPainter* painter, double offset_x, double offset_y)
 {
     if( !painter || !MapLayerMgr::instance()->isLayerVisible(mLayerName) || mData.empty()) return;
     //追溯线
@@ -217,6 +217,6 @@ void zchxShipAlarmAscendDataMgr::show(QPainter *painter)
         painter->drawPolyline(points);
     }
 
-    zchxTemplateDataMgr::show(painter);
+    zchxTemplateDataMgr::show(painter, offset_x, offset_y);
 }
 }

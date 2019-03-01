@@ -15,7 +15,7 @@ public:
     static zchxDataMgrFactory *instance();
     void setDisplayWidget(zchxMapWidget* w);
 
-    std::shared_ptr<zchxEcdisDataMgr>   createManager(int type);
+    void  createManager(int type);
     QList<std::shared_ptr<zchxEcdisDataMgr>>    getManagers() const;
     std::shared_ptr<zchxEcdisDataMgr> getManager(int type);
 

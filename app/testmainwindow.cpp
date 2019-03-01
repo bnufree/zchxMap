@@ -128,8 +128,8 @@ void TestMainWindow::slotTimerout()
         qt::ZCHX::Data::tagITF_RadarPoint item;
         //构建雷达的尾迹
 //        qDebug()<<"track point size:"<<data.tracks().tracks_size();
-        double lat =  20.123456 + qrand() % 1000 * 0.0001;
-        double lon =  110.12345678 + qrand() % 1000 * 0.0001;
+        double lat =  22.223456 + qrand() % 1000 * 0.0001;
+        double lon =  113.08345678 + qrand() % 1000 * 0.0001;
         item.path.push_back(std::pair<double,double>(lat, lon));
         item.lat = lat;
         item.lon = lon;

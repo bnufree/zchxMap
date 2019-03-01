@@ -18,7 +18,7 @@ zchxEcdisDataMgr::zchxEcdisDataMgr(zchxMapWidget* w, int type, QObject *parent) 
 }
 
 
-void zchxEcdisDataMgr::show(QPainter *painter)
+void zchxEcdisDataMgr::show(QPainter* painter, double offset_x, double offset_y)
 {
 
 }

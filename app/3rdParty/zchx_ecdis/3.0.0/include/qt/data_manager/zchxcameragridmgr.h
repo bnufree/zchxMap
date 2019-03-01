@@ -11,7 +11,7 @@ public:
     explicit zchxCameraGridDataMgr(zchxMapWidget* w, QObject *parent = 0);
     bool    updateActiveItem(const QPoint& pt);
     void    setCameraNetGridList(const QList<ZCHX::Data::ITF_CameraNetGrid> & list);
-    void    show(QPainter *painter);
+    void    show(QPainter* painter, double offset_x, double offset_y);
 
     //鼠标操作时临时的网格图形
 

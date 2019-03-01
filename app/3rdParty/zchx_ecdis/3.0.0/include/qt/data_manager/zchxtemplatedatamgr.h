@@ -10,7 +10,7 @@ public:
     zchxTemplateDataMgr(zchxMapWidget* w, int type, const QString& layer, QObject *parent = 0):
         zchxEcdisDataMgr(w, type, parent), mLayerName(layer), mIsDrawNow(false) {}
     //
-    virtual void show(QPainter *painter)
+    virtual void show(QPainter* painter, double offset_x, double offset_y)
     {
         if( !painter || !MapLayerMgr::instance()->isLayerVisible(mLayerName) || mData.empty()) return;
         for(std::shared_ptr<K> ele : mData)

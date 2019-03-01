@@ -50,7 +50,7 @@ class zchxEcdisDataMgr : public QObject
 public:
     explicit zchxEcdisDataMgr(zchxMapWidget* w, int type, QObject *parent = 0);
     int     getType() const {return mType;}
-    virtual void    show(QPainter* painter);
+    virtual void    show(QPainter* painter, double offset_x, double offset_y);
 
     //关注列表操作
     int             getMaxConcernNum() const {return mMaxConcernNum;}

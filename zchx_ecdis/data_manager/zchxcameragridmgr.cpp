@@ -31,7 +31,7 @@ void zchxCameraGridDataMgr::setCameraNetGridList(const QList<ZCHX::Data::ITF_Cam
     setData(res);
 }
 
-void zchxCameraGridDataMgr::show(QPainter *painter)
+void zchxCameraGridDataMgr::show(QPainter* painter, double offset_x, double offset_y)
 {
     //检查是否正在鼠标操作
     if(isDraw()){
@@ -41,7 +41,7 @@ void zchxCameraGridDataMgr::show(QPainter *painter)
             setCameraNetGridList(QList<ZCHX::Data::ITF_CameraNetGrid>() << res);
         }
     }
-    zchxTemplateDataMgr::show(painter);
+    zchxTemplateDataMgr::show(painter, offset_x, offset_y);
 }
 
 

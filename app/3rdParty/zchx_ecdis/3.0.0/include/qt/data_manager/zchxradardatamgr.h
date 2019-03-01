@@ -10,7 +10,7 @@ class zchxRadarDataMgr : public zchxEcdisDataMgr
     Q_OBJECT
 public:
     explicit zchxRadarDataMgr(zchxMapWidget* w, QObject *parent = 0);
-    void    show(QPainter* painter);
+    void    show(QPainter* painter, double offset_x, double offset_y);
     bool    updateActiveItem(const QPoint& pt);
 
     void    setRadarPointData(const QList<ZCHX::Data::ITF_RadarPoint> &data);

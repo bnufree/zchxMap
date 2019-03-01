@@ -65,6 +65,18 @@ zchxMapWidget::zchxMapWidget(QWidget *parent) : QWidget(parent),
     ZCHX_DATA_FACTORY->createManager(DATA_MGR_PASTROLSTATION);
     ZCHX_DATA_FACTORY->createManager(DATA_MGR_CAMERA_NET_GRID);
     ZCHX_DATA_FACTORY->createManager(DATA_MGR_SHIPALARM_ASCEND);
+    //创建地图框架
+    double lat = Profiles::instance()->value(MAP_INDEX, MAP_DEFAULT_LAT).toDouble();
+    double lon = Profiles::instance()->value(MAP_INDEX, MAP_DEFAULT_LON).toDouble();
+    int     source = Profiles::instance()->value(MAP_INDEX, MAP_SOURCE).toInt();
+    int zoom = Profiles::instance()->value(MAP_INDEX, MAP_DEFAULT_ZOOM).toInt();
+    mFrameWork = new zchxMapFrameWork(lat, lon, zoom, width(), height(), source);
+    mMapThread = new zchxMapLoadThread;
+    connect(mFrameWork, SIGNAL(UpdateMap(MapLoadSetting)), mMapThread, SLOT(appendTask(MapLoadSetting)));
+    connect(mMapThread, SIGNAL(signalSendCurPixmap(QPixmap,int,int)), this, SLOT(append(QPixmap,int,int)));
+    connect(mMapThread, SIGNAL(signalSendNewMap(double, double, int, bool)), this, SLOT(slotRecvNewMap(double,double,int, bool)));
+    connect(mMapThread, SIGNAL(signalSendImgList(TileImageList)), this, SLOT(append(TileImageList)));
+    mMapThread->start();
 }
 
 zchxMapWidget::~zchxMapWidget()
@@ -82,20 +94,7 @@ void zchxMapWidget::resizeEvent(QResizeEvent *e)
     QSize size = e->size();
     if(size.width() > 0 && size.height() > 0)
     {
-        if(!mFrameWork)
-        {
-            double lat = Profiles::instance()->value(MAP_INDEX, MAP_DEFAULT_LAT).toDouble();
-            double lon = Profiles::instance()->value(MAP_INDEX, MAP_DEFAULT_LON).toDouble();
-            int     source = Profiles::instance()->value(MAP_INDEX, MAP_SOURCE).toInt();
-            int zoom = Profiles::instance()->value(MAP_INDEX, MAP_DEFAULT_ZOOM).toInt();
-            mFrameWork = new zchxMapFrameWork(lat, lon, zoom, size.width(), size.height(), source);
-            mMapThread = new zchxMapLoadThread;
-            connect(mFrameWork, SIGNAL(UpdateMap(MapLoadSetting)), mMapThread, SLOT(appendTask(MapLoadSetting)));
-            connect(mMapThread, SIGNAL(signalSendCurPixmap(QPixmap,int,int)), this, SLOT(append(QPixmap,int,int)));
-            connect(mMapThread, SIGNAL(signalSendNewMap(double, double, int, bool)), this, SLOT(slotRecvNewMap(double,double,int, bool)));
-            connect(mMapThread, SIGNAL(signalSendImgList(TileImageList)), this, SLOT(append(TileImageList)));
-            mMapThread->start();
-        } else
+        if(mFrameWork)
         {
             //重新更新地图显示的大小
             mFrameWork->SetViewSize(size.width(), size.height());
@@ -141,7 +140,7 @@ void zchxMapWidget::paintEvent(QPaintEvent *e)
     }
     //显示图元
     foreach (std::shared_ptr<zchxEcdisDataMgr> mgr, ZCHX_DATA_FACTORY->getManagers()) {
-        mgr->show(&painter);
+        mgr->show(&painter, -mDx, -mDy);
     }
 
     //显示当前的中心点
@@ -211,9 +210,6 @@ void zchxMapWidget::mousePressEvent(QMouseEvent *e)
         //先更新当前鼠标点击的位置信息,给地图移动做准备
         updateCurrentPos(e->pos());
         mPressPnt = e->pos();
-        setActiveDrawElement(e->pos(), false);
-
-#if 0
         //检查不同的情况进行处理,地图的其他操作优先处理
          m_startPos = m_endPos = e->pos();
         if(isActiveETool) {
@@ -225,6 +221,7 @@ void zchxMapWidget::mousePressEvent(QMouseEvent *e)
                 m_eToolPoints.push_back(ll);
                 break;
             }
+#if 0
             case DRAWDIRANGLE:
             {
                 isActiveDrawDirAngle = true;
@@ -236,7 +233,7 @@ void zchxMapWidget::mousePressEvent(QMouseEvent *e)
             }
             case DRAWPICKUP:
             {
-                setActiveDrawElement(pt, geoPos);
+                setActiveDrawElement(e->pos(), false);
                 break;
             }
             case CAMERATEACK:

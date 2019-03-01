@@ -34,7 +34,7 @@ void zchxAisDataMgr::setPrepushTrackStyle(const QString &color, const int lineWi
     m_iPrepushTrackWidth = lineWidth;
 }
 
-void zchxAisDataMgr::show(QPainter *painter)
+void zchxAisDataMgr::show(QPainter* painter, double offset_x, double offset_y)
 {
     if(!MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_AIS)) return;
     if(m_aisMap.size() == 0) return;
