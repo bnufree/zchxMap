@@ -196,8 +196,7 @@ bool zchxAisDataMgr::updateActiveItem(const QPoint &pt)
     Element* ele = selectItem(pt);
     if(ele)
     {
-        mDisplayWidget->setCurrentSelectedItem(item.get());
-        qDebug()<<"id:"<<item->getData().id<<" contains:"<<true;
+        mDisplayWidget->setCurrentSelectedItem(ele);
         return true;
     }
     //检查轨迹是否选中
@@ -463,7 +462,10 @@ void zchxAisDataMgr::setPictureInPicture()
 {
     AisElement* ele = static_cast<AisElement*>(getElementOfSender());
     if(!ele) return;
-    emit signalSendPictureInPictureTarget(ele->getElementType(), ele->getData().id);
+    if(mDisplayWidget)
+    {
+        mDisplayWidget->signalSendPictureInPictureTarget(ele->getElementType(), ele->getData().id);
+    }
 }
 
 void zchxAisDataMgr::setFleet()
@@ -500,7 +502,7 @@ void zchxAisDataMgr::setHistoryTraces()
     {
         appendHistoryTrackList(QStringList()<<id, true);
     }
-    emit signalSendHistoryTrail(id, isHistoryTrack(id));
+    if(mDisplayWidget) mDisplayWidget->signalSendHistoryTrail(id, isHistoryTrack(id));
 }
 
 void zchxAisDataMgr::setRealTimeTraces()
@@ -515,7 +517,7 @@ void zchxAisDataMgr::setRealTimeTraces()
     {
         appendRealtimeTailTrackList(QStringList()<<id, true);
     }
-    emit signalSendRealTimeTrail(id, isRealtimeTailTrack(id));
+    if(mDisplayWidget) mDisplayWidget->signalSendRealTimeTrail(id, isRealtimeTailTrack(id));
 }
 
 void zchxAisDataMgr::setBlackList()
@@ -553,7 +555,7 @@ void zchxAisDataMgr::invokeLinkageSpot()
     data.targetType = 1;
     data.targetLon = ele->getData().lon;
     data.targetLat = ele->getData().lat;
-    emit signalInvokeHotSpot(data);
+    if(mDisplayWidget) mDisplayWidget->signalInvokeHotSpot(data);
 }
 
 void zchxAisDataMgr::setConcern()

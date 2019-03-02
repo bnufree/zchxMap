@@ -20,7 +20,7 @@ void zchxDrawTool::startDraw()
     clearPoints();
 }
 
-void zchxDrawTool::appendPoint(const QPointF&)
+void zchxDrawTool::appendPoint(const QPointF& pnt)
 {
     mPoints.append(pnt);
 }
@@ -37,7 +37,7 @@ void zchxDrawTool::clearPoints()
 
 bool zchxDrawTool::isReady()
 {
-    if(!painter || !mWidget || !mWidget->framework() || mPoints.empty()) return false;
+    if(!mWidget || !mWidget->framework() || mPoints.empty()) return false;
     return true;
 }
 

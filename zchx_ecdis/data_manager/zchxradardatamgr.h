@@ -22,9 +22,16 @@ public:
     //雷达特征区域
     void    setRadarFeatureZoneData(const std::vector<RadarFeatureZone> &data);
 
+    //鼠标右键菜单
+    QList<QAction*> getRightMenuActions(const QPoint &pt);
 signals:
 
+
 public slots:
+    void setRealTimeTraces();
+    void invokeLinkageSpot();
+    void setConcern();
+    void setPictureInPicture();
 
 
 private:

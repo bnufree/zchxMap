@@ -14,6 +14,7 @@
 #include "zchxutils.hpp"
 #include "localmarkdlg.h"
 #include "element/drawelement.hpp"
+#include "draw_manager/zchxecdismousedefines.h"
 
 typedef     std::vector<std::pair<double, double> >     POLYLINE;
 typedef     QList<POLYLINE>                             POLYLINES;
@@ -31,6 +32,7 @@ class MapLayerMgr;
 class zchxRouteDataMgr;
 class zchxShipPlanDataMgr;
 class zchxEcdisDataMgr;
+class zchxDrawTool;
 
 class zchxMapWidget : public QWidget
 {
@@ -120,6 +122,12 @@ public:
     bool getEnableRouteHistogram() const {return mRouteHistogram;}
     //图元选择
     void setActiveDrawElement(const Point2D &pos, bool dbClick = false);       //设置选中元素
+    //目标跟踪(横琴)
+    void setSelectedCameraTrackTarget(const Point2D &pos);
+    //目标导航
+    void setPickUpNavigationTarget(const Point2D &pos);
+    //寻找最近的雷达目标
+    void getPointNealyCamera(const Point2D &pos);
 
 
 
@@ -403,7 +411,7 @@ public Q_SLOTS:
 //    void setShipSimulation();                               //船舶模拟
     void setLocationMark();                                 //本地标记
     void setFixedReferencePoint();                          //固定参考点
-//    void invokeHotSpot();                                   //热点
+    void invokeHotSpot();                                   //热点
 //    void invokeLinkageSpot();                               //联动
 //    void invokeLinkageSpotForRadar();                       //联动
 //    void setCustomFlowLine();                               //流量统计线
@@ -906,6 +914,7 @@ private:
     std::vector<qt::LatLon>             m_eToolPoints;          //用户的操作点
     eTool                               m_eTool;                //用户当前的操作模式
     bool                                isActiveETool;          //用户操作时是否允许地图移动
+    zchxDrawTool*                 mToolPtr;
     QPointF                             m_startPos, m_endPos;
     //GPS数据
     std::list<std::shared_ptr<ZCHX::Data::GPSPoint>> m_gpsTracks;

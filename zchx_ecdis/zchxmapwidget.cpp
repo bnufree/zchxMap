@@ -79,6 +79,8 @@ zchxMapWidget::zchxMapWidget(QWidget *parent) : QWidget(parent),
     connect(mMapThread, SIGNAL(signalSendNewMap(double, double, int, bool)), this, SLOT(slotRecvNewMap(double,double,int, bool)));
     connect(mMapThread, SIGNAL(signalSendImgList(TileImageList)), this, SLOT(append(TileImageList)));
     mMapThread->start();
+    //地图状态初始化
+    releaseDrawStatus();
 }
 
 zchxMapWidget::~zchxMapWidget()
@@ -201,6 +203,7 @@ void zchxMapWidget::setActiveDrawElement(const Point2D &pos, bool dbClick)
     //检查各个数据管理类,获取当前选择的目标
     foreach (std::shared_ptr<zchxEcdisDataMgr> mgr, ZCHX_DATA_FACTORY->getManagers()) {
         if(mgr->updateActiveItem(pos.toPoint())){
+            if(dbClick)setETool2DrawPickup();
             break;
         }
     }
@@ -275,7 +278,7 @@ void zchxMapWidget::getPointNealyCamera(const Point2D &pos)
         if(ele) break;
     }
 
-    LatLon ll = zchxUtilToolLL4CurPoint(pos);
+    LatLon ll = zchxUtilToolLL4CurPoint(pos.toPointF());
     int trackNum = 0;
     if(ele)
     {
@@ -309,7 +312,7 @@ void zchxMapWidget::mousePressEvent(QMouseEvent *e)
             case DRAWDIRANGLE:
             case DRAWDISTANCE:
             {
-                mToolPtr->appendPoint(e->pos());
+                if(mToolPtr) mToolPtr->appendPoint(e->pos());
                 break;
             }
             case DRAWPICKUP:
@@ -319,21 +322,20 @@ void zchxMapWidget::mousePressEvent(QMouseEvent *e)
             }
             case CAMERATEACK:
             {
-                setSelectedCameraTrackTarget(pt);
+                setSelectedCameraTrackTarget(e->pos());
                 break;
             }
             case TRACKTARGET:
             {
-                setPickUpNavigationTarget(pt);
+                setPickUpNavigationTarget(e->pos());
                 break;
             }
 
             case DRAWGPS:
             {
-                getPointNealyCamera(pt);
+                getPointNealyCamera(e->pos());
                 break;
             }
-#if 0
             case DRAWNULL:
             {
                 releaseDrawStatus();
@@ -341,26 +343,14 @@ void zchxMapWidget::mousePressEvent(QMouseEvent *e)
             }
             case DRAWLOCALMARK:
             {
-                //Add by yej
-                double lon = 0.0;
-                double lat = 0.0;
-                QPointF posF;
-                posF.setX(e->pos().x());
-                posF.setY(e->pos().y());
-                zchxUtilToolLL4CurPoint(posF,lat,lon);
-                LocalMarkDlg d;
-                d.setLocalMarkPos(lon,lat);
-                d.move(QCursor::pos().x() - d.width() / 2, \
-                       QCursor::pos().y() - d.height() / 2 );
-                if(d.exec() == QDialog::Accepted)
-                {
-                    ZCHX::Data::ITF_LocalMark mark;
-                    d.getLocalMardData(mark);
-                    emit signalCreateLocalMark(mark);
+                if(mToolPtr){
+                    mToolPtr->appendPoint(e->pos());
+                    mToolPtr->endDraw();
                 }
                 releaseDrawStatus();
                 break;
             }
+#if 0
             case ZONEDRAWRADAR:
             {
                 m_eToolPoints.push_back(ll);
@@ -716,10 +706,12 @@ void zchxMapWidget::mousePressEvent(QMouseEvent *e)
                 }
                 break;
             }
+#endif
             }
             // IF END
 
         }
+
         else
         {
             /************要求在拾取时，也可以移动地图时使用这样的方式*************/
@@ -735,10 +727,7 @@ void zchxMapWidget::mousePressEvent(QMouseEvent *e)
             //                    update();
             //                }
             setCursor(Qt::OpenHandCursor);
-            //                update();
-            m_framework->TouchEvent(GetTouchEvent(e, df::TouchEvent::TOUCH_DOWN));
         }
-#endif
         //=======zxl end===========================@}
         //zxl禁用别人的
         //            m_framework->TouchEssvent(GetTouchEvent(e, df::TouchEvent::TOUCH_DOWN));
@@ -749,7 +738,7 @@ void zchxMapWidget::mousePressEvent(QMouseEvent *e)
         QMenu menu;
         if(curUserModel() == ZCHX::Data::ECDIS_PLUGIN_USE_DISPLAY_MODEL )
         {
-            menu.addAction(tr("Scroll     "),this,SLOT(releaseDrawStatus()));
+            menu.addAction(tr("平移"),this,SLOT(releaseDrawStatus()));
             //处于显示模式时.对各个数据对象进行检查,如果当前选择了目标,且当前鼠标位置在对应的目标范围内,则弹出目标对应的菜单,否则只显示基本的右键菜单
             foreach (std::shared_ptr<zchxEcdisDataMgr> mgr, ZCHX_DATA_FACTORY->getManagers()) {
                 QList<QAction*> list =  mgr->getRightMenuActions(e->pos());
@@ -760,14 +749,15 @@ void zchxMapWidget::mousePressEvent(QMouseEvent *e)
                 }
             }
 
-            if (bShowOtherRightKeyMenu)
+            if(bShowOtherRightKeyMenu)
             {
-                menu.addAction(tr("Screen Shot"),this,SIGNAL(signalScreenShot()));
-                menu.addAction(tr("Pick Up"),this, SLOT(enterPickUp()));
-                menu.addAction(tr("Frame Selected"),this,SLOT(selectAnRegion()));
-                menu.addAction(tr("Ship Siumtion"),this,SLOT(setShipSimulation()));
-                menu.addAction(tr("Location Mark"),this,SLOT(setLocationMark()));
-                menu.addAction(tr("Fixed Reference Point"),this,SLOT(setFixedReferencePoint()));
+
+//                menu.addAction(tr("截屏"),this,SIGNAL(signalScreenShot()));
+                if(m_eTool != DRAWPICKUP) menu.addAction(tr("目标点选"),this, SLOT(setETool2DrawPickup()));
+//                menu.addAction(tr("框选"),this,SLOT(selectAnRegion()));
+//                menu.addAction(tr("船舶模拟"),this,SLOT(setShipSimulation()));
+//                menu.addAction(tr("关注点"),this,SLOT(setLocationMark()));
+//                menu.addAction(tr("固定参考点"),this,SLOT(setFixedReferencePoint()));
                 menu.addAction(tr("热点"),this,SLOT(invokeHotSpot()));
             }
 
@@ -919,6 +909,7 @@ void zchxMapWidget::mouseDoubleClickEvent(QMouseEvent *e)
         mFrameWork->UpdateCenter(Point2D(e->pos()));
         //更新当前点的经纬度
         updateCurrentPos(e->pos());
+        //setActiveDrawElement(e->pos(), true);
     }
     e->accept();
 }
@@ -1313,6 +1304,7 @@ void zchxMapWidget::setETool2DrawPickup()
     m_eTool = DRAWPICKUP;
     isActiveETool = true; //拾取时是否允许移动海图 true 不允许，false 允许
     setCursor(Qt::ArrowCursor);
+    setCurPickupType(ZCHX::Data::ECDIS_PICKUP_ALL);
 }
 
 void zchxMapWidget::setETool2DrawTrackTarget()
@@ -1814,6 +1806,20 @@ void zchxMapWidget::setETool2DrawCameraNetGrid(const QSizeF& size, const QString
     isActiveETool = true;
     setCursor(Qt::CrossCursor);
     ZCHX_DATA_FACTORY->getCameraGridMgr()->setCameraGridParam(camera, size);
+}
+
+void zchxMapWidget::invokeHotSpot()
+{
+    if(!mFrameWork) return;
+    LatLon ll = mFrameWork->Pixel2LatLon(mPressPnt);
+    ZCHX::Data::ITF_CloudHotSpot data;
+    data.fllow = ZCHX::Data::ITF_CloudHotSpot::FLLOW_TYPE_TURN;
+    data.mode = ZCHX::Data::ITF_CloudHotSpot::MODE_HANDLE;
+    data.targetNumber = "";
+    data.targetType = 0;
+    data.targetLon = ll.lon;
+    data.targetLat = ll.lat;
+    emit signalInvokeHotSpot(data);
 }
 
 

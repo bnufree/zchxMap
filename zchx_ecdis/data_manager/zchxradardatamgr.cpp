@@ -25,6 +25,29 @@ void zchxRadarDataMgr::show(QPainter* painter, double offset_x, double offset_y)
             item->setIsOpenMeet(mDisplayWidget->getIsOpenMeet());
             //检查当前点是否在矩形区域内
             if(!mDisplayWidget->rect().contains(item->getCurrentPos().toPoint())) continue;
+            QString id = QString::number(item->getData().trackNumber);
+            if(isConcern(id)){
+                item->setIsConcern(true);
+            } else {
+                item->setIsConcern(false);
+            }
+            if(isRealtimeTailTrack(id)){
+                item->setIsRealtimeTailTrack(true);
+            } else {
+                item->setIsRealtimeTailTrack(false);
+            }
+
+            if(isHistoryTrack(id)){
+                item->setIsHistoryTrack(true);
+            } else {
+                item->setIsHistoryTrack(false);
+            }
+
+            if(item.get() == mDisplayWidget->getCurrentSelectedElement()) {
+                item->setIsActive(true);
+            } else {
+                item->setIsActive(false);
+            }
             //预警状态, 闪烁; 0为无预警
             if(item->getStatus() > 0)
             {
@@ -76,29 +99,7 @@ void zchxRadarDataMgr::setRadarPointData(const QList<ZCHX::Data::ITF_RadarPoint>
             m_RadarPoint[id] = item;
         } else {
             item->setData(aisdata);
-        }
-        if(isConcern(id)){
-            item->setIsConcern(true);
-        } else {
-            item->setIsConcern(false);
-        }
-        if(isRealtimeTailTrack(id)){
-            item->setIsRealtimeTailTrack(true);
-        } else {
-            item->setIsRealtimeTailTrack(false);
-        }
-
-        if(isHistoryTrack(id)){
-            item->setIsHistoryTrack(true);
-        } else {
-            item->setIsHistoryTrack(false);
-        }
-
-        if(item.get() == mDisplayWidget->getCurrentSelectedElement()) {
-            item->setIsActive(true);
-        } else {
-            item->setIsActive(false);
-        }
+        }        
         item->setUpdateUTC(QDateTime::currentMSecsSinceEpoch());
     }
 #if 0
@@ -232,18 +233,75 @@ void zchxRadarDataMgr::setHistoryRadarPointData(const std::vector<RadarPointElem
 #endif
 }
 
-//void DrawWidget::invokeLinkageSpotForRadar()
-//{
-//    ms::LatLon ll = MercatorBounds::ToLatLon(m_framework->PtoG(m_curPt));
 
-//    ZCHX::Data::ITF_CloudHotSpot data;
-//    data.fllow = ZCHX::Data::ITF_CloudHotSpot::FLLOW_TYPE_LINKAGE_TRACKING;
-//    data.mode = ZCHX::Data::ITF_CloudHotSpot::MODE_HANDLE;
-//    data.targetNumber = m_curActivShip;
-//    data.targetType = 2;
-//    data.targetLon = ll.lon;
-//    data.targetLat = ll.lat;
-//    emit signalInvokeHotSpot(data);
-//}
+QList<QAction*> zchxRadarDataMgr::getRightMenuActions(const QPoint &pt)
+{
+    QList<QAction*> list;
+    //获取当前选择的目标对象
+    if(mDisplayWidget)
+    {
+        Element* item = mDisplayWidget->getCurrentSelectedElement();
+        if(item && item->getElementType() == ZCHX::Data::ELEMENT_RADAR_POINT)
+        {
+            //目标确定为AIS,弹出对应的右键菜单
+            RadarPointElement* ele = static_cast<RadarPointElement*>(item);
+            if(ele){
+                list.append(addAction(tr("画中画"),this, SLOT(setPictureInPicture()), (void*) ele));
+                list.append(addAction(tr("实时轨迹"),this, SLOT(setRealTimeTraces()), (void*) ele));
+                list.append(addAction(tr("关注"),this, SLOT(setConcern()), (void*) ele));
+                list.append(addAction(tr("联动"),this, SLOT(invokeLinkageSpot()), (void*) ele));
+            }
+        }
+    }
+    return list;
+}
+
+
+void zchxRadarDataMgr::setPictureInPicture()
+{
+    RadarPointElement* ele = static_cast<RadarPointElement*>(getElementOfSender());
+    if(!ele) return;
+    if(mDisplayWidget)
+    {
+        mDisplayWidget->signalSendPictureInPictureTarget(ele->getElementType(), QString::number(ele->getData().trackNumber));
+    }
+}
+
+void zchxRadarDataMgr::setRealTimeTraces()
+{
+    RadarPointElement* ele = static_cast<RadarPointElement*>(getElementOfSender());
+    if(!ele) return;
+    QString id = QString::number(ele->getData().trackNumber);
+    if(isRealtimeTailTrack(id))
+    {
+        removeRealtimeTailTrack(id);
+    } else
+    {
+        appendRealtimeTailTrackList(QStringList()<<id, true);
+    }
+    if(mDisplayWidget) mDisplayWidget->signalSendRealTimeTrail(id, isRealtimeTailTrack(id));
+}
+
+void zchxRadarDataMgr::invokeLinkageSpot()
+{
+    RadarPointElement* ele = static_cast<RadarPointElement*>(getElementOfSender());
+    if(!ele) return;
+    ZCHX::Data::ITF_CloudHotSpot data;
+    data.fllow = ZCHX::Data::ITF_CloudHotSpot::FLLOW_TYPE_LINKAGE_TRACKING;
+    data.mode = ZCHX::Data::ITF_CloudHotSpot::MODE_HANDLE;
+    data.targetNumber = QString::number(ele->getData().trackNumber);
+    data.targetType = 2;
+    data.targetLon = ele->getData().lon;
+    data.targetLat = ele->getData().lat;
+    if(mDisplayWidget) mDisplayWidget->signalInvokeHotSpot(data);
+}
+
+void zchxRadarDataMgr::setConcern()
+{
+    RadarPointElement* ele = static_cast<RadarPointElement*>(getElementOfSender());
+    if(!ele) return;
+    QString id = QString::number(ele->getData().trackNumber);
+    appendConcernList(QStringList()<<id, true);
+}
 
 }

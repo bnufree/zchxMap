@@ -117,7 +117,8 @@ SOURCES += mainwindow.cpp \
     draw_manager/zchxdrawareatool.cpp \
     draw_manager/zchxdrawtool.cpp \
     draw_manager/zchxdrawangletool.cpp \
-    draw_manager/zchxdrawdistool.cpp
+    draw_manager/zchxdrawdistool.cpp \
+    draw_manager/zchxdrawlocalmarktool.cpp
 
 HEADERS  += mainwindow.h \
     zchxmapthread.h \
@@ -191,7 +192,8 @@ HEADERS  += mainwindow.h \
     draw_manager/zchxdrawareatool.h \
     draw_manager/zchxdrawtool.h \
     draw_manager/zchxdrawangletool.h \
-    draw_manager/zchxdrawdistool.h
+    draw_manager/zchxdrawdistool.h \
+    draw_manager/zchxdrawlocalmarktool.h
 
 FORMS    += mainwindow.ui \
     cardmouthinfodialog.ui \
@@ -241,6 +243,11 @@ INSTALLS += LibFilesInclude3
 LibFilesInclude4.path = $$DESTDIRRoot/include/qt/map_layer
 LibFilesInclude4.files = $$PWD/map_layer/*.h $$PWD/map_layer/*.hpp
 INSTALLS += LibFilesInclude4
+
+LibFilesInclude5.path = $$DESTDIRRoot/include/qt/draw_manager
+LibFilesInclude5.files = $$PWD/draw_manager/*.h $$PWD/draw_manager/*.hpp
+INSTALLS += LibFilesInclude5
+
 
 #5)安装lib文件
 LibFilesLib.path = $$DESTDIRRoot/lib/

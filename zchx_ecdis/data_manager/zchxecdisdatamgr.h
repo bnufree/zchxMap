@@ -103,16 +103,8 @@ public:
     void    setFocusID(const QString& id) {mFocusID = id;}
 
 signals:
-    //画中画
-    void signalSendPictureInPictureTarget(const int TargetType, const QString &TargetID);
-    //联动
-    void signalInvokeHotSpot(const ZCHX::Data::ITF_CloudHotSpot& data);
     //外推
     void signalShipExtrapolation(const QString& id, bool add);
-    //历史轨迹
-    void signalSendHistoryTrail(const QString& id, bool add);
-    //实时轨迹
-    void signalSendRealTimeTrail(const QString& id, bool add);
     //关注
     void signalSetConcern(const int type, const QString& id);
 public slots:
