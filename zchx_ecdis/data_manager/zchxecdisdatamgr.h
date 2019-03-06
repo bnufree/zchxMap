@@ -39,7 +39,9 @@ enum    ZCHX_DATA_MGR_TYPE{
     DATA_MGR_DANGEROUS,
     DATA_MGR_PASTROLSTATION,
     DATA_MGR_ISLANDLINE,
-    DATA_MGR_SHIPALARM_ASCEND,
+    DATA_MGR_SHIPALARM_ASCEND,    
+    DATA_MGR_RADAR_VIDEO,
+    DATA_MGR_RADAR_FEATURE_ZONE,
     DATA_MGR_USER_DEFINE,
 
 };
@@ -50,7 +52,7 @@ class zchxEcdisDataMgr : public QObject
 public:
     explicit zchxEcdisDataMgr(zchxMapWidget* w, int type, QObject *parent = 0);
     int     getType() const {return mType;}
-    virtual void    show(QPainter* painter, double offset_x, double offset_y);
+    virtual void    show(QPainter* painter);
 
     //关注列表操作
     int             getMaxConcernNum() const {return mMaxConcernNum;}

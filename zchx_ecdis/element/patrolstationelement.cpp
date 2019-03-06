@@ -22,10 +22,10 @@ void PastrolStationElement::setData(const ZCHX::Data::ITF_PastrolStation &data)
     setIsUpdate(true);
 }
 
-bool PastrolStationElement::contains(int range, double x, double y) const
-{
-    return false;
-}
+//bool PastrolStationElement::contains(int range, double x, double y) const
+//{
+//    return false;
+//}
 
 void PastrolStationElement::drawElement(QPainter *painter)
 {
@@ -42,7 +42,7 @@ void PastrolStationElement::drawElement(QPainter *painter)
 
     int curScale = m_framework->GetDrawScale();
     QPixmap img = ZCHX::Utils::getImage(img_name, Qt::green, curScale);
-    Point2D pos = m_framework->LatLon2Pixel(data().ll.lat,data().ll.lon);
+    ZCHX::Data::Point2D pos = m_framework->LatLon2Pixel(data().ll.lat,data().ll.lon);
     QRect rect(pos.x - img.width() / 2, pos.y - img.height() / 2, img.width(), img.height());
     if(getIsActive())
     {

@@ -58,7 +58,7 @@ void VideoTargetElement::drawElement(QPainter *painter)
     QPixmap image   = ZCHX::Utils::getImage(mTargetIImgList.value(getTargetType()), Qt::green, m_framework->GetDrawScale());
     std::pair<double, double> ll = getLatLon();
 
-    Point2D pos = m_framework->LatLon2Pixel(ll.first,ll.second);
+    ZCHX::Data::Point2D pos = m_framework->LatLon2Pixel(ll.first,ll.second);
     QRect rect(0,0,image.width(),image.height());
     rect.moveCenter(QPoint(pos.x, pos.y));
 

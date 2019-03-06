@@ -20,6 +20,7 @@
 #include "structureelement.h"
 #include "patrolstationelement.h"
 #include "cameragridelement.h"
+#include "radarvideoelement.h"
 #include <QtCore>
 
 namespace qt
@@ -363,14 +364,15 @@ private:
     ZCHX::Data::ITF_DangerousCircle  m_data;
 };
 
-class RadarFeatureZone : public Element
+class RadarFeatureZoneElement : public Element
 {
 public:
-    explicit RadarFeatureZone(const ZCHX::Data::ITF_RadarFeaturesZone &data);
+    explicit RadarFeatureZoneElement(const ZCHX::Data::ITF_RadarFeaturesZone &data, zchxMapFrameWork* f);
     ZCHX::Data::ITF_RadarFeaturesZone data() const;
-    void setRadarFeatureZoneData(const ZCHX::Data::ITF_RadarFeaturesZone &data);
-
+    void setData(const ZCHX::Data::ITF_RadarFeaturesZone &data);
     void updateGeometry(QPointF, int){}
+    std::string name() const {return m_data.name.toStdString();}
+    void drawElement(QPainter *painter);
 private:
     ZCHX::Data::ITF_RadarFeaturesZone  m_data;
 };

@@ -9,7 +9,7 @@ class zchxVideoTargetDataMgr : public zchxEcdisDataMgr
     Q_OBJECT
 public:
     explicit zchxVideoTargetDataMgr(zchxMapWidget* w, QObject *parent = 0);
-    void show(QPainter* painter, double offset_x, double offset_y);
+    void show(QPainter* painter);
     bool updateActiveItem(const QPoint &pt);
 
     //更新数据

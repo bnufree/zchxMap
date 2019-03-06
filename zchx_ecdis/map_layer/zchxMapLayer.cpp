@@ -234,7 +234,7 @@ QPointF MapLayer::convertToView(double lon, double lat)
     QPointF pos;
     if(d->m_drawWidget->framework())
     {
-        Point2D posD = d->m_drawWidget->framework()->LatLon2Pixel(lat, lon);
+        ZCHX::Data::Point2D posD = d->m_drawWidget->framework()->LatLon2Pixel(lat, lon);
         pos = QPointF(posD.x, posD.y);
     }
     return pos;

@@ -4,10 +4,9 @@
 
 namespace qt {
 AreaNetElement::AreaNetElement(const ZCHX::Data::ITF_AreaNet &ele, zchxMapFrameWork* f)
-    :Element(0,0, f, ZCHX::Data::ELEMENT_AREANET)
+    :MoveElement(f, ZCHX::Data::ELEMENT_AREANET)
 {
     setData(ele);
-    setIsUpdate(true);
 }
 
 void AreaNetElement::setData(const ZCHX::Data::ITF_AreaNet &ele)
@@ -19,10 +18,16 @@ void AreaNetElement::setData(const ZCHX::Data::ITF_AreaNet &ele)
         elelon = ele.path.front().second;
     }
     m_data = ele;
-    m_name = ele.name.toStdString();
+    m_name = ele.name.toStdString();    
+    setIsUpdate(true);
 }
 
 std::vector<std::pair<double, double> > AreaNetElement::path() const
+{
+    return m_data.path;
+}
+
+std::vector<std::pair<double, double> >& AreaNetElement::getPath()
 {
     return m_data.path;
 }
@@ -57,30 +62,30 @@ ZCHX::Data::ITF_AreaNet AreaNetElement::data() const
     return m_data;
 }
 
-bool AreaNetElement::contains(int range, double x, double y) const
-{
-    if(!framework()) return false;
-    std::vector<std::pair<double,double>> tmp_path = path();
-    for(int i=0; i<tmp_path.size()-1;++i)
-    {
-        std::pair<double, double> p1 = tmp_path[i];
-        std::pair<double, double> p2 = tmp_path[i+1];
-        Point2D start = framework()->LatLon2Pixel(p1.first, p1.second);
-        Point2D end = framework()->LatLon2Pixel(p2.first, p2.second);
+//bool AreaNetElement::contains(int range, double x, double y) const
+//{
+//    if(!framework()) return false;
+//    std::vector<std::pair<double,double>> tmp_path = path();
+//    for(int i=0; i<tmp_path.size()-1;++i)
+//    {
+//        std::pair<double, double> p1 = tmp_path[i];
+//        std::pair<double, double> p2 = tmp_path[i+1];
+//        ZCHX::Data::Point2D start = framework()->LatLon2Pixel(p1.first, p1.second);
+//        ZCHX::Data::Point2D end = framework()->LatLon2Pixel(p2.first, p2.second);
 
-        //检查3点是否共线
-        int p1x = start.x, p1y = start.y;
-        int p2x = end.x, p2y = end.y;
-        int check = (p1x - x) *(p2y - y) - (p2x - x) * (p1y - y);
-        //qDebug()<<"start:"<<p1x<<" "<<p1y<<" end:"<<p2x<<" "<<p2y<<" cur:"<<x<<" "<<y<<" area:"<<check;
-        if(abs(check) < range)
-        {
-            return true;
-        }
-    }
+//        //检查3点是否共线
+//        int p1x = start.x, p1y = start.y;
+//        int p2x = end.x, p2y = end.y;
+//        int check = (p1x - x) *(p2y - y) - (p2x - x) * (p1y - y);
+//        //qDebug()<<"start:"<<p1x<<" "<<p1y<<" end:"<<p2x<<" "<<p2y<<" cur:"<<x<<" "<<y<<" area:"<<check;
+//        if(abs(check) < range)
+//        {
+//            return true;
+//        }
+//    }
 
-    return false;
-}
+//    return false;
+//}
 
 void AreaNetElement::drawElement(QPainter *painter)
 {

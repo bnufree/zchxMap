@@ -56,15 +56,15 @@ ZCHX::Data::ITF_Structure StructureElement::data() const
     return m_data;
 }
 
-bool StructureElement::contains(int range, double x, double y) const
-{
-    return false;
-}
+//bool StructureElement::contains(int range, double x, double y) const
+//{
+//    return false;
+//}
 
 void StructureElement::drawElement(QPainter *painter)
 {
     if(!painter ||!MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_STRUCTURE)) return;
-    Point2D  curPos = m_framework->LatLon2Pixel(point().first, point().second);
+    ZCHX::Data::Point2D  curPos = m_framework->LatLon2Pixel(point().first, point().second);
 
     QPixmap devicePix;
     if(!devicePix.load(":/navig64/device.png")) return;

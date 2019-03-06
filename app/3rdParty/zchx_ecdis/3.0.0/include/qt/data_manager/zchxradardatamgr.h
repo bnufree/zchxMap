@@ -10,7 +10,7 @@ class zchxRadarDataMgr : public zchxEcdisDataMgr
     Q_OBJECT
 public:
     explicit zchxRadarDataMgr(zchxMapWidget* w, QObject *parent = 0);
-    void    show(QPainter* painter, double offset_x, double offset_y);
+    void    show(QPainter* painter);
     bool    updateActiveItem(const QPoint& pt);
 
     void    setRadarPointData(const QList<ZCHX::Data::ITF_RadarPoint> &data);
@@ -19,8 +19,6 @@ public:
 
     //雷达扫描区域
     void    setRadarAreaData(const std::vector<RadarAreaElement> &data);
-    //雷达特征区域
-    void    setRadarFeatureZoneData(const std::vector<RadarFeatureZone> &data);
 
     //鼠标右键菜单
     QList<QAction*> getRightMenuActions(const QPoint &pt);
@@ -42,7 +40,6 @@ private:
 
     //雷达扫描区域点数据
     std::vector<RadarAreaElement>      m_RadarArea;            //雷达扫描区域数据
-    std::vector<RadarFeatureZone>      m_radarFeatureZone;
 };
 }
 

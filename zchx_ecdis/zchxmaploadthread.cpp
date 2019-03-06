@@ -85,11 +85,11 @@ void zchxMapLoadThread::run()
         qDebug()<<((view_bounds.min_x - total_bounds.min_x) / resolution) / MAP_IMG_SIZE<<"tile range:(x0, y0)--(x1, y1)"<<tile_start_x<<tile_start_y<<tile_end_x<<tile_end_y <<"total "<<total_tile_X<<total_tile_Y;
 
         //计算左上位置的第一张图片对应的墨卡托坐标位置
-        Mercator first_tile(0, 0);
+        ZCHX::Data::Mercator first_tile(0, 0);
         first_tile.mX = total_bounds.min_x + left_tile_num * MAP_IMG_SIZE * resolution;
         first_tile.mY = total_bounds.max_y - top_tile_num * MAP_IMG_SIZE * resolution;
         //计算左上第一福瓦片对应的像素位置
-        Point2D pos;
+        ZCHX::Data::Point2D pos;
         pos.x = (first_tile.mX - view_bounds.min_x) / resolution;
         pos.y = (view_bounds.max_y - first_tile.mY) / resolution;
         qDebug()<<"first tile mercator (x, y) = "<<FLOAT_STRING(first_tile.mX, 2)<<FLOAT_STRING(first_tile.mY, 2)<<" pix pos"<<pos.x<<pos.y;

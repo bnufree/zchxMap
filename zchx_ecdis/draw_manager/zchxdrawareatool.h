@@ -8,7 +8,7 @@ class zchxDrawAreaTool : public zchxDrawTool
     Q_OBJECT
 public:
     explicit zchxDrawAreaTool(zchxMapWidget* w, QObject *parent = 0);
-    void show(QPainter *painter, double offset_x, double offset_y);
+    void show(QPainter *painter);
 
 signals:
 

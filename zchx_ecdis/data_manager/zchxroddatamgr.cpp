@@ -9,7 +9,7 @@ zchxRodDataMgr::zchxRodDataMgr(zchxMapWidget* w,  QObject *parent) : zchxEcdisDa
 
 }
 
-void zchxRodDataMgr::show(QPainter* painter, double offset_x, double offset_y)
+void zchxRodDataMgr::show(QPainter* painter)
 {
     QMap<QString, std::shared_ptr<RodElement>>::iterator it;
     for(it = m_CameraRod.begin(); it != m_CameraRod.end(); ++it)

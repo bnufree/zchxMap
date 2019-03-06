@@ -70,8 +70,8 @@ bool MoveElement::contains(int range, double x, double y) const
     {
         std::pair<double, double> p1 = tmp_path[i];
         std::pair<double, double> p2 = tmp_path[i+1];
-        Point2D start = m_framework->LatLon2Pixel(p1.first, p1.second);
-        Point2D end = m_framework->LatLon2Pixel(p2.first, p2.second);
+        ZCHX::Data::Point2D start = m_framework->LatLon2Pixel(p1.first, p1.second);
+        ZCHX::Data::Point2D end = m_framework->LatLon2Pixel(p2.first, p2.second);
 
         //检查3点是否共线
         int p1x = start.x, p1y = start.y;
@@ -85,6 +85,27 @@ bool MoveElement::contains(int range, double x, double y) const
     }
 
     return false;
+}
+
+bool MoveElement::contains(const QPoint &pt) const
+{
+    if(!framework()) return false;
+    std::vector<std::pair<double,double>> tmp_path = path();
+    QPainterPath paint_path;
+    for(int i = 0; i < tmp_path.size(); ++i)
+    {
+        std::pair<double, double> ll = tmp_path[i];
+        ZCHX::Data::Point2D  curPos = m_framework->LatLon2Pixel(ZCHX::Data::LatLon(ll.first,ll.second));
+        if(i == 0)
+        {
+            paint_path.moveTo(QPointF(curPos.x,curPos.y));
+        }
+        else
+        {
+            paint_path.lineTo(QPointF(curPos.x,curPos.y));
+        }
+    }
+    return paint_path.contains(QPointF(pt.x(), pt.y()));
 }
 }
 

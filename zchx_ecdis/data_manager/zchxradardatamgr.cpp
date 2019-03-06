@@ -12,7 +12,7 @@ zchxRadarDataMgr::zchxRadarDataMgr(zchxMapWidget* w, QObject *parent) : zchxEcdi
     mReplaceHistoryTrackWhenOver = Profiles::instance()->value(RADAR_DISPLAY_SETTING, RADAR_REPLACE_HISTORY_TRACK, true).toBool();
 }
 
-void zchxRadarDataMgr::show(QPainter* painter, double offset_x, double offset_y)
+void zchxRadarDataMgr::show(QPainter* painter)
 {
     if(!MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_RADAR)) return;
     QMutexLocker locker(&mDataMutex);
@@ -148,10 +148,6 @@ void zchxRadarDataMgr::setRadarAreaData(const std::vector<RadarAreaElement> &dat
     m_RadarArea = data;
 }
 
-void zchxRadarDataMgr::setRadarFeatureZoneData(const std::vector<RadarFeatureZone> &data)
-{
-    m_radarFeatureZone = data;
-}
 
 void zchxRadarDataMgr::setHistoryRadarPointData(const std::vector<RadarPointElement> &data)
 {

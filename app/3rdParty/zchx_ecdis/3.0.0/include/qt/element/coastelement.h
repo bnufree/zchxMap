@@ -1,12 +1,11 @@
 #ifndef COASTELEMENT_H
 #define COASTELEMENT_H
 
-#include "IDrawElement.hpp"
-#include <QtCore>
+#include "moveelement.h"
 
 namespace qt {
 //海岸数据
-class CoastElement : public Element
+class CoastElement : public MoveElement
 {
 public:
     explicit CoastElement(const ZCHX::Data::ITF_CoastData &ele, zchxMapFrameWork* f);
@@ -15,7 +14,7 @@ public:
 
     std::vector<std::pair<double, double> > path() const;
     void setPath(const std::vector<std::pair<double, double> > &path);
-
+    std::vector<std::pair<double, double> >& getPath();
     int id() const;
     void setId(int id);
 
@@ -23,7 +22,6 @@ public:
     void setName(const std::string &name);
     void updateGeometry(QPointF, int){}
 
-    bool contains(int range, double x, double y) const;
     void drawElement(QPainter *painter);
 
 private:

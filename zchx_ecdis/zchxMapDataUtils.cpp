@@ -8,22 +8,22 @@ zchxMapDataUtils::zchxMapDataUtils()
 
 }
 
-LatLon zchxMapDataUtils::mercatorToWgs84LonLat(const Mercator& mercator)
+ZCHX::Data::LatLon zchxMapDataUtils::mercatorToWgs84LonLat(const ZCHX::Data::Mercator& mercator)
 {
     double x = mercator.mX/EARTH_HALF_CIRCUL_LENGTH * 180.0;
     double y = mercator.mY/EARTH_HALF_CIRCUL_LENGTH * 180.0;
     y= 180/GLOB_PI*(2*atan(exp(y*GLOB_PI/180.0))-GLOB_PI/2.0);
-    return LatLon(y, x);
+    return ZCHX::Data::LatLon(y, x);
 }
 
-Mercator zchxMapDataUtils::wgs84LonlatToMercator(const LatLon& wgs84 )
+ZCHX::Data::Mercator zchxMapDataUtils::wgs84LonlatToMercator(const ZCHX::Data::LatLon& wgs84 )
 {
     //qDebug()<<"wgs:"<<wgs84.mLon<<wgs84.mLat;
     double x = wgs84.lon * EARTH_HALF_CIRCUL_LENGTH / 180;
     double y = log(tan((90 + wgs84.lat) * GLOB_PI / 360)) / (GLOB_PI / 180);
     y = y * EARTH_HALF_CIRCUL_LENGTH / 180;
 
-    return Mercator(x, y);
+    return ZCHX::Data::Mercator(x, y);
 }
 
 //每像素对应的墨卡托坐标的长度
@@ -48,14 +48,14 @@ double zchxMapDataUtils::DistanceOnSphere(double lat1Deg, double lon1Deg, double
   return 2.0 * atan2(sqrt(y), sqrt(fmax(0.0, 1.0 - y)));
 }
 
-double zchxMapDataUtils::AreaOnSphere(LatLon const & ll1, LatLon const & ll2, LatLon const & ll3)
+double zchxMapDataUtils::AreaOnSphere(ZCHX::Data::LatLon const & ll1, ZCHX::Data::LatLon const & ll2, ZCHX::Data::LatLon const & ll3)
 {
   // Todo: proper area on sphere (not needed for now)
   double const avgLat = DegToRad((ll1.lat + ll2.lat + ll3.lat) / 3);
   return cos(avgLat) * 0.5 * fabs((ll2.lon - ll1.lon)*(ll3.lat - ll1.lat) - (ll3.lon - ll1.lon)*(ll2.lat - ll1.lat));
 }
 
-double zchxMapDataUtils::AreaOnSphere(std::vector<LatLon> vectorPoints)
+double zchxMapDataUtils::AreaOnSphere(std::vector<ZCHX::Data::LatLon> vectorPoints)
 {
     int iCycle = 0;
     double iArea = 0;
@@ -64,8 +64,8 @@ double zchxMapDataUtils::AreaOnSphere(std::vector<LatLon> vectorPoints)
 
     for (iCycle = 0; iCycle < iCount; iCycle++)
     {
-        LatLon one = vectorPoints[iCycle];
-        LatLon second = vectorPoints[(iCycle + 1) % iCount];
+        ZCHX::Data::LatLon one = vectorPoints[iCycle];
+        ZCHX::Data::LatLon second = vectorPoints[(iCycle + 1) % iCount];
         iArea += (one.lon * second.lat - second.lon * one.lat);
         avgLat += one.lat;
     }
@@ -82,8 +82,8 @@ double zchxMapDataUtils::getTotalDistance(const std::vector<std::pair<double, do
     {
         if (i > 0)
         {
-            LatLon first(pointList[i - 1].first, pointList[i - 1].second);
-            LatLon second(pointList[i].first, pointList[i].second);
+            ZCHX::Data::LatLon first(pointList[i - 1].first, pointList[i - 1].second);
+            ZCHX::Data::LatLon second(pointList[i].first, pointList[i].second);
 
             double distance = zchxMapDataUtils::DistanceOnEarth(first, second) / 1852.000;
             totalDistance += distance;
@@ -98,13 +98,13 @@ double zchxMapDataUtils::getTotalArea(const std::vector<std::pair<double, double
     double areaNum = 0;
     if(pointList.size() >= 3)
     {
-        LatLon start(pointList[0].first, pointList[0].second);
+        ZCHX::Data::LatLon start(pointList[0].first, pointList[0].second);
         for(int i = 1; i < pointList.size(); i++)
         {
-            LatLon cur(pointList[i].first, pointList[i].second);
+            ZCHX::Data::LatLon cur(pointList[i].first, pointList[i].second);
             if(i + 1 < pointList.size())
             {
-                LatLon next(pointList[i + 1].first, pointList[i + 1].second);
+                ZCHX::Data::LatLon next(pointList[i + 1].first, pointList[i + 1].second);
                 areaNum += zchxMapDataUtils::AreaOnEarth(start, cur, next) / 342990.400;//单位平方海里
             }
         }
@@ -113,7 +113,7 @@ double zchxMapDataUtils::getTotalArea(const std::vector<std::pair<double, double
     return areaNum;
 }
 
-LatLon zchxMapDataUtils::getSmPoint(const LatLon &pt, double lonMetresR, double latMetresR)
+ZCHX::Data::LatLon zchxMapDataUtils::getSmPoint(const ZCHX::Data::LatLon &pt, double lonMetresR, double latMetresR)
 {
     double const lat = pt.lat;
     double const lon = pt.lon;
@@ -125,10 +125,10 @@ LatLon zchxMapDataUtils::getSmPoint(const LatLon &pt, double lonMetresR, double 
     double const lonDegreeOffset = lonMetresR * degreeInMetres / cosL;
     double const newLon = fmin(180.0, fmax(-180.0, lon + lonDegreeOffset));
 
-    return LatLon(newLat, newLon);
+    return ZCHX::Data::LatLon(newLat, newLon);
 }
 
-double zchxMapDataUtils::getDistancePixel(const Point2D& p1, const Point2D & p2)
+double zchxMapDataUtils::getDistancePixel(const ZCHX::Data::Point2D& p1, const ZCHX::Data::Point2D & p2)
 {
     double dx = p1.x - p2.x;
     double dy = p1.y - p2.y;

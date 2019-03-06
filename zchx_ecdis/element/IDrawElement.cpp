@@ -225,7 +225,7 @@ bool Element::contains(int range, double x, double y) const
 {
     if(!m_framework || range <= 0)
         return false;
-    Point2D gpos = m_framework->LatLon2Pixel(displayLat, displayLon);
+    ZCHX::Data::Point2D gpos = m_framework->LatLon2Pixel(displayLat, displayLon);
     QRectF rect(0, 0, 2*range, 2*range);
     rect.moveCenter(QPointF(gpos.x, gpos.y));
     bool sts = rect.contains(QPointF(x, y));
@@ -254,7 +254,7 @@ QPointF Element::getViewPos(zchxMapFrameWork *f)
         f = m_framework;
     if(f)
     {
-        Point2D gpos = f->LatLon2Pixel(displayLat, displayLon);
+        ZCHX::Data::Point2D gpos = f->LatLon2Pixel(displayLat, displayLon);
         m_pos = QPointF(gpos.x, gpos.y);
     }
     return m_pos;
@@ -409,7 +409,7 @@ std::vector<QPointF> Element::convert2QtPonitList(const std::vector<std::pair<do
     for(int i = 0; i < path.size(); ++i)
     {
         std::pair<double, double> ll = path[i];
-        Point2D pos = m_framework->LatLon2Pixel(ll.first,ll.second);
+        ZCHX::Data::Point2D pos = m_framework->LatLon2Pixel(ll.first,ll.second);
         pts.push_back(QPointF(pos.x,pos.y));
     }
     return pts;
@@ -420,7 +420,7 @@ QPointF Element::convertToView(double lon, double lat)
     QPointF pos;
     if(m_framework)
     {
-        Point2D posD = m_framework->LatLon2Pixel(lat, lon);
+        ZCHX::Data::Point2D posD = m_framework->LatLon2Pixel(lat, lon);
         pos = QPointF(posD.x, posD.y);
     }
     return pos;
@@ -532,7 +532,7 @@ void  Element::initFromSettings()
 
 QPointF Element::getCurrentPos()
 {
-    Point2D pos = m_framework->LatLon2Pixel(lat(), lon());
+    ZCHX::Data::Point2D pos = m_framework->LatLon2Pixel(lat(), lon());
     return QPointF(pos.x, pos.y);
 }
 

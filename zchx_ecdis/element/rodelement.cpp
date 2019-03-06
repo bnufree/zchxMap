@@ -72,7 +72,7 @@ void RodElement::drawElement(QPainter *painter)
     QPixmap cameraRodFocus      = ZCHX::Utils::getImage(":/element/gan_bg.png", Qt::yellow, curScale);
 
     ZCHX::Data::ITF_CameraRod data =  this->getData();
-    Point2D pos = m_framework->LatLon2Pixel(data.nLatLon.lat,data.nLatLon.lon);
+    ZCHX::Data::Point2D pos = m_framework->LatLon2Pixel(data.nLatLon.lat,data.nLatLon.lon);
     QRect rect(pos.x - cameraRadImg.width() / 2, pos.y - cameraRadImg.height() / 2, cameraRadImg.width(),cameraRadImg.height());
     if(getIsActive())
     {
@@ -84,9 +84,9 @@ void RodElement::drawElement(QPainter *painter)
     if(getIsHover())
     {
         //通过推算经纬度计算半径
-        LatLon drll(0, 0);
+        ZCHX::Data::LatLon drll(0, 0);
         ZCHX::Utils::distbear_to_latlon(data.nLatLon.lat,data.nLatLon.lon,800,0,drll.lat,drll.lon);
-        Point2D drPos = m_framework->LatLon2Pixel(drll);
+        ZCHX::Data::Point2D drPos = m_framework->LatLon2Pixel(drll);
         double dr = sqrt(abs(drPos.y - pos.y) * abs(drPos.y-pos.y) + abs(drPos.x - pos.x) * abs(drPos.x - pos.x));
         PainterPair chk(painter);
         painter->setBrush(QBrush(QColor(0,255,255,125)));

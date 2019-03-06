@@ -123,12 +123,12 @@ QPolygonF RadarAreaElement::getShapePnts(zchxMapFrameWork *framework, double ang
     {
         double startAng = this->centerLineAngel() - this->maxScanRangeANgle() / 2;
         double lenAng =   this->maxScanRangeANgle();
-        Point2D centerPos = framework->LatLon2Pixel(this->radarY(),this->radarX());
+        ZCHX::Data::Point2D centerPos = framework->LatLon2Pixel(this->radarY(),this->radarX());
 
         //通过推算经纬度计算半径
-        LatLon drll(0, 0);
+        ZCHX::Data::LatLon drll(0, 0);
         ZCHX::Utils::distbear_to_latlon(this->radarY(),this->radarX(),this->radius() * 1000,-90 + startAng, drll.lat, drll.lon);
-        Point2D drPos = framework->LatLon2Pixel(drll);
+        ZCHX::Data::Point2D drPos = framework->LatLon2Pixel(drll);
         double dr = sqrt(abs(drPos.y - centerPos.y) * abs(drPos.y-centerPos.y) + abs(drPos.x - centerPos.x) * abs(drPos.x - centerPos.x));
 
         QRectF rectangle(centerPos.x-dr,centerPos.y-dr, dr*2, dr*2);
@@ -158,12 +158,12 @@ bool RadarAreaElement::contains(zchxMapFrameWork *framework, double angleFromNor
     QPolygonF polygon;
     double startAng = this->centerLineAngel() - this->maxScanRangeANgle() / 2;
     double lenAng =   this->maxScanRangeANgle();
-    Point2D centerPos = framework->LatLon2Pixel(this->radarY(),this->radarX());
+    ZCHX::Data::Point2D centerPos = framework->LatLon2Pixel(this->radarY(),this->radarX());
 
     //通过推算经纬度计算半径
-    LatLon drll(0, 0);
+    ZCHX::Data::LatLon drll(0, 0);
     ZCHX::Utils::distbear_to_latlon(this->radarY(),this->radarX(),this->radius() * 1000,-90 + startAng, drll.lat, drll.lon);
-    Point2D drPos = framework->LatLon2Pixel(drll);
+    ZCHX::Data::Point2D drPos = framework->LatLon2Pixel(drll);
     double dr = sqrt(abs(drPos.y - centerPos.y) * abs(drPos.y-centerPos.y) + abs(drPos.x - centerPos.x) * abs(drPos.x - centerPos.x));
 
     QRectF rectangle(centerPos.x-dr,centerPos.y-dr, dr*2, dr*2);
@@ -404,7 +404,7 @@ void RadarPointElement::drawElement(QPainter *painter)
             for(int j = 0;j<getData().RadarMeetVec.size();j++)
             {
                 ZCHX::Data::RadarMeet meetItem = getData().RadarMeetVec.at(j);
-                Point2D meetPos = m_framework->LatLon2Pixel(meetItem.lat,meetItem.lon);
+                ZCHX::Data::Point2D meetPos = m_framework->LatLon2Pixel(meetItem.lat,meetItem.lon);
                 uint time_hour = meetItem.UTC / 3600;
                 uint time_minute = meetItem.UTC / 60 - time_hour * 60;
                 uint time_second = meetItem.UTC % 60;

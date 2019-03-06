@@ -2,6 +2,7 @@
 #define ZCHXMAPLAYERMGR_H
 
 #include <QObject>
+#include <QDomDocument>
 #include "zchxMapLayer.h"
 
 namespace qt {

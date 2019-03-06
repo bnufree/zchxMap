@@ -32,7 +32,7 @@ void zchxEcdisDlgMgr::zchxOpenCameraListDlg(RodElement *item)
         qDebug()<<"No camera deivce on this Camera rod!"<<item->getData().szName;
         return;
     }
-    zchxOpenCameraListDlg(list, LatLon(item->lat(), item->lon()));
+    zchxOpenCameraListDlg(list, ZCHX::Data::LatLon(item->lat(), item->lon()));
 }
 
 void zchxEcdisDlgMgr::zchxOpenCameraListDlg(AisElement *item)
@@ -47,11 +47,11 @@ void zchxEcdisDlgMgr::zchxOpenCameraListDlg(AisElement *item)
         qDebug()<<"No camera deivce on this ais :"<<item->getData().mmsi;
         return;
     }
-    zchxOpenCameraListDlg(list, LatLon(item->lat(), item->lon()));
+    zchxOpenCameraListDlg(list, ZCHX::Data::LatLon(item->lat(), item->lon()));
 }
 
 //在指定的经纬度位置弹出对话框
-void zchxEcdisDlgMgr::zchxOpenCameraListDlg(QList<ZCHX::Data::ITF_CameraDev>& list, const LatLon& ll)
+void zchxEcdisDlgMgr::zchxOpenCameraListDlg(QList<ZCHX::Data::ITF_CameraDev>& list, const ZCHX::Data::LatLon& ll)
 {
     if((!mDisplayWidget) || list.empty()) return;
 
@@ -60,7 +60,7 @@ void zchxEcdisDlgMgr::zchxOpenCameraListDlg(QList<ZCHX::Data::ITF_CameraDev>& li
     d.setWindowModality(Qt::ApplicationModal);
     connect(&d, &ZCHXCameraListDlg::cameraDevSelected,  this,   &zchxEcdisDlgMgr::signalIsSelected4CameraDev); //发送单击的相机信息
     connect(&d, &ZCHXCameraListDlg::cameraDevDoubleClicked, this, &zchxEcdisDlgMgr::signalCameraDoubleClicked);
-    Point2D pos;
+    ZCHX::Data::Point2D pos;
     if(ll.isNull())
     {
         pos = mDisplayWidget->framework()->LatLon2Pixel(list[0].nLatLon.lat, list[0].nLatLon.lon);

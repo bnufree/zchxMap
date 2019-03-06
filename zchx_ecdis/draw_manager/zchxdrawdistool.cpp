@@ -7,7 +7,7 @@ zchxDrawDistanceTool::zchxDrawDistanceTool(zchxMapWidget* w, QObject *parent) : 
 
 }
 
-void zchxDrawDistanceTool::show(QPainter *painter, double offset_x, double offset_y)
+void zchxDrawDistanceTool::show(QPainter *painter)
 {
     if(!isReady()) return;
 

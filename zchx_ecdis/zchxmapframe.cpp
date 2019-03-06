@@ -2,17 +2,24 @@
 #include <QDebug>
 
 namespace qt {
-zchxMapFrameWork::zchxMapFrameWork(double center_lat, double center_lon, int zoom, int width, int height, int source, QObject *parent) : QObject(parent),
+zchxMapFrameWork::zchxMapFrameWork(double center_lat, double center_lon, int zoom, int width, int height, int source,  int min_zoom, int max_zoom, QObject *parent) : QObject(parent),
   mViewWidth(0),
   mViewHeight(0),
   mSource(source),
   mStyle(MapStyleEcdisDayBright),
-  mMinZoom(0),
-  mMaxZoom(22)
+  mMinZoom(min_zoom),
+  mMaxZoom(max_zoom),
+  mOffset(0, 0)
 {
     SetZoom(zoom);
     UpdateCenter(center_lon, center_lat);
     SetViewSize(width, height);
+}
+
+void zchxMapFrameWork::setOffSet(int offset_x, int offset_y)
+{
+    mOffset.setWidth(offset_x);
+    mOffset.setHeight(offset_y);
 }
 
 void zchxMapFrameWork::SetViewSize(int width, int height)
@@ -62,7 +69,7 @@ void zchxMapFrameWork::UpdateCenter(double lon, double lat)
     UpdateDisplayRange();
 }
 
-void zchxMapFrameWork::UpdateCenterAndZoom(const LatLon &ll, int zoom)
+void zchxMapFrameWork::UpdateCenterAndZoom(const ZCHX::Data::LatLon &ll, int zoom)
 {
     mCenter = ll;
     SetZoom(zoom);
@@ -70,45 +77,45 @@ void zchxMapFrameWork::UpdateCenterAndZoom(const LatLon &ll, int zoom)
 
 void zchxMapFrameWork::Drag(int x, int y)
 {
-    UpdateCenter(Point2D(0.5*mViewWidth + x, 0.5*mViewHeight + y));
+    UpdateCenter(ZCHX::Data::Point2D(0.5*mViewWidth + x, 0.5*mViewHeight + y));
 }
 
-void zchxMapFrameWork::UpdateCenter(const Point2D &point)
+void zchxMapFrameWork::UpdateCenter(const ZCHX::Data::Point2D &point)
 {
     UpdateCenter(Pixel2LatLon(point));
 }
 
-Point2D zchxMapFrameWork::Mercator2Pixel(const Mercator &mct)
+ZCHX::Data::Point2D zchxMapFrameWork::Mercator2Pixel(const ZCHX::Data::Mercator &mct)
 {
     double x = mct.mX - mMapRange.mLowerLeft.mX;
     double y = mct.mY - mMapRange.mTopRight.mY;
-    Point2D res;
-    res.x = x / mUnitMercatorLength;
-    res.y = 0 - y / mUnitMercatorLength;
+    ZCHX::Data::Point2D res;
+    res.x = x / mUnitMercatorLength + mOffset.width();
+    res.y = 0 - y / mUnitMercatorLength + mOffset.height();
     return res;
 }
 
-Point2D zchxMapFrameWork::LatLon2Pixel(const LatLon &ll)
+ZCHX::Data::Point2D zchxMapFrameWork::LatLon2Pixel(const ZCHX::Data::LatLon &ll)
 {
     //获取当前经纬度对应的墨卡托坐标
-    Mercator mct = zchxMapDataUtils::wgs84LonlatToMercator(ll);
+    ZCHX::Data::Mercator mct = zchxMapDataUtils::wgs84LonlatToMercator(ll);
     //通过墨卡托坐标换算屏幕坐标
     return Mercator2Pixel(mct);
 }
 
-Point2D zchxMapFrameWork::LatLon2Pixel(double lat, double lon)
+ZCHX::Data::Point2D zchxMapFrameWork::LatLon2Pixel(double lat, double lon)
 {
-    return LatLon2Pixel(LatLon(lat, lon));
+    return LatLon2Pixel(ZCHX::Data::LatLon(lat, lon));
 }
 
 
 
-LatLon zchxMapFrameWork::Pixel2LatLon(const Point2D& pos)
+ZCHX::Data::LatLon zchxMapFrameWork::Pixel2LatLon(const ZCHX::Data::Point2D& pos)
 {
     double x = pos.x;
     double y = mViewHeight - pos.y;
     //获取当前指定位置对应的墨卡托坐标
-    Mercator target;
+    ZCHX::Data::Mercator target;
     target.mX = mMapRange.mLowerLeft.mX + mUnitMercatorLength * x;
     target.mY = mMapRange.mLowerLeft.mY + mUnitMercatorLength * y;
 
@@ -119,7 +126,7 @@ void zchxMapFrameWork::UpdateDisplayRange()
 {
     if(mViewWidth == 0 || mViewHeight == 0) return;
     //计算当前中心经纬度对应的墨卡托坐标
-    Mercator center_mct = zchxMapDataUtils::wgs84LonlatToMercator(mCenter);
+    ZCHX::Data::Mercator center_mct = zchxMapDataUtils::wgs84LonlatToMercator(mCenter);
     //计算当前视窗对应的墨卡托坐标的显示范围
     mMapRange.mLowerLeft.mX = center_mct.mX - mUnitMercatorLength * mViewWidth / 2.0;
     mMapRange.mLowerLeft.mY = center_mct.mY - mUnitMercatorLength * mViewHeight / 2.0;

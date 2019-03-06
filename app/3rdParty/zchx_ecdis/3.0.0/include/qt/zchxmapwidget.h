@@ -43,10 +43,10 @@ public:
     //地图显示
     void setCurZoom(int zoom);
     int  zoom() const;
-    void setCenterLL(const LatLon& pnt );
-    void setCenterAndZoom(const LatLon &ll, int zoom);
+    void setCenterLL(const ZCHX::Data::LatLon& pnt );
+    void setCenterAndZoom(const ZCHX::Data::LatLon &ll, int zoom);
     void setCenterAtTargetLL(double lat, double lon);
-    LatLon centerLatLon() const;
+    ZCHX::Data::LatLon centerLatLon() const;
     void setSource(int source);
     void setDisplayImgeNum(bool sts) {mDisplayImageNum = sts; update();}
     zchxMapFrameWork* framework() const {return mFrameWork;}
@@ -76,7 +76,7 @@ public:
     //经纬度和屏幕坐标的转换
     bool   zchxUtilToolPoint4CurWindow(double lat, double lon,QPointF &p);//返回经纬度所对应当前窗口的坐标
     bool   zchxUtilToolLL4CurPoint(const QPointF &p, double &lat,double &lon); //返回当前窗口上的某个点对应于海图上的经续度
-    qt::LatLon zchxUtilToolLL4CurPoint(const QPointF &p);
+    ZCHX::Data::LatLon zchxUtilToolLL4CurPoint(const QPointF &p);
     void   zchxUtilToolGetDis4Point(QPointF star, QPointF end, double &latoff, double &lonoff); //取得两个像素点的坐标移动距离,转化成的经纬度变化范围
     //海图缩放级别显示
     uint   zchxUtilToolCurZoom();          //返回当前海图的缩放级别
@@ -121,13 +121,13 @@ public:
     void setEnableRouteHistogram(bool b) {mRouteHistogram = b;}
     bool getEnableRouteHistogram() const {return mRouteHistogram;}
     //图元选择
-    void setActiveDrawElement(const Point2D &pos, bool dbClick = false);       //设置选中元素
+    void setActiveDrawElement(const ZCHX::Data::Point2D &pos, bool dbClick = false);       //设置选中元素
     //目标跟踪(横琴)
-    void setSelectedCameraTrackTarget(const Point2D &pos);
+    void setSelectedCameraTrackTarget(const ZCHX::Data::Point2D &pos);
     //目标导航
-    void setPickUpNavigationTarget(const Point2D &pos);
+    void setPickUpNavigationTarget(const ZCHX::Data::Point2D &pos);
     //寻找最近的雷达目标
-    void getPointNealyCamera(const Point2D &pos);
+    void getPointNealyCamera(const ZCHX::Data::Point2D &pos);
 
 
 
@@ -306,6 +306,7 @@ public Q_SLOTS:
 
     //位置标注 Add by yej
     void setETool2DrawLocalMark();
+    void setETool2PickUpPTZ();
 
     //set data
     //    void setAisData(const std::vector<AisElement> &data);//设置<ais>轨迹数据
@@ -843,6 +844,7 @@ signals: //发送外部信号
 
     //回传相机网格
     void signalSendCameraNetGrid(const ZCHX::Data::ITF_CameraNetGrid& data);
+    void signalSendPTZLocation(double lat, double lon);
 
 public:
 //    static std::vector<std::pair<double, double>> convertLatLonPath(const std::vector<LatLon> &path);
@@ -879,7 +881,7 @@ private:
     TileImageList               mDataList;
     zchxMapFrameWork*           mFrameWork;
     zchxMapLoadThread*          mMapThread;
-    LatLon                      mCenter;
+    ZCHX::Data::LatLon                      mCenter;
     qint64                      mLastWheelTime;
     bool                        mDrag;
     QPoint                      mPressPnt;
@@ -911,11 +913,9 @@ private:
     QList<ZCHX::Data::CableBaseData>        mBaseCableDataList;
     QList<ZCHX::Data::CableInterfaceData>        mInterfaceCableDataList;
     //地图的鼠标操作
-    std::vector<qt::LatLon>             m_eToolPoints;          //用户的操作点
     eTool                               m_eTool;                //用户当前的操作模式
     bool                                isActiveETool;          //用户操作时是否允许地图移动
-    zchxDrawTool*                 mToolPtr;
-    QPointF                             m_startPos, m_endPos;
+    std::shared_ptr<zchxDrawTool>                       mToolPtr;
     //GPS数据
     std::list<std::shared_ptr<ZCHX::Data::GPSPoint>> m_gpsTracks;
     QMutex                                           m_gpsTracksMutex;

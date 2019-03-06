@@ -10,6 +10,7 @@ class zchxWarningZoneDataMgr : public zchxTemplateDataMgr<WarningZoneElement, ZC
 public:
     explicit zchxWarningZoneDataMgr(zchxMapWidget* w, QObject *parent = 0):
         zchxTemplateDataMgr<WarningZoneElement, ZCHX::Data::ITF_WarringZone>(w, DATA_MGR_WARNING_ZONE, ZCHX::LAYER_DEFENCE, parent) {}
+    bool updateActiveItem(const QPoint &pt);
 };
 
 class zchxCoastDataMgr : public zchxTemplateDataMgr<CoastElement, ZCHX::Data::ITF_CoastData>
@@ -102,8 +103,16 @@ class zchxShipAlarmAscendDataMgr : public zchxTemplateDataMgr<ShipAlarmAscendEle
 public:
     explicit zchxShipAlarmAscendDataMgr(zchxMapWidget* w, QObject *parent = 0):
         zchxTemplateDataMgr<ShipAlarmAscendElement, ZCHX::Data::ITF_ShipAlarmAscend>(w, DATA_MGR_SHIPALARM_ASCEND, ZCHX::LAYER_ALARMASCEND, parent){}
-    void show(QPainter* painter, double offset_x, double offset_y);
+    void show(QPainter* painter);
 };
+
+class zchxRadarFeatureZoneDataMgr : public zchxTemplateDataMgr<RadarFeatureZoneElement, ZCHX::Data::ITF_RadarFeaturesZone>
+{
+public:
+    explicit zchxRadarFeatureZoneDataMgr(zchxMapWidget* w, QObject *parent = 0):
+        zchxTemplateDataMgr<RadarFeatureZoneElement, ZCHX::Data::ITF_RadarFeaturesZone>(w, DATA_MGR_RADAR_FEATURE_ZONE, ZCHX::LAYER_RADAR_FRETURE_AREA, parent){}
+};
+
 
 }
 

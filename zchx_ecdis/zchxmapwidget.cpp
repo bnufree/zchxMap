@@ -3,14 +3,13 @@
 #include "zchxmaploadthread.h"
 #include "map_layer/zchxmaplayermgr.h"
 #include "data_manager/zchxdatamgrfactory.h"
-#include "draw_manager/zchxdrawtool.h"
+#include "draw_manager/zchxdrawtoolutil.h"
 #include "zchxroutedatamgr.h"
 #include "zchxshipplandatamgr.h"
 #include <QPainter>
 #include <QDebug>
 #include <QDomDocument>
 #include "profiles.h"
-
 
 //#define     DEFAULT_LON         113.093664
 //#define     DEFAULT_LAT         22.216150
@@ -43,7 +42,24 @@ zchxMapWidget::zchxMapWidget(QWidget *parent) : QWidget(parent),
     QTimer *timer = new QTimer;
     timer->setInterval(Profiles::instance()->value(MAP_INDEX, MAP_UPDATE_INTERVAL).toInt());
     connect(timer, SIGNAL(timeout()), this, SLOT(update()));
-    timer->start();
+    timer->start();    
+    //创建地图框架
+    double lat = Profiles::instance()->value(MAP_INDEX, MAP_DEFAULT_LAT).toDouble();
+    double lon = Profiles::instance()->value(MAP_INDEX, MAP_DEFAULT_LON).toDouble();
+    int     source = Profiles::instance()->value(MAP_INDEX, MAP_SOURCE).toInt();
+    int zoom = Profiles::instance()->value(MAP_INDEX, MAP_DEFAULT_ZOOM).toInt();
+    int min_zoom = Profiles::instance()->value(MAP_INDEX, MAP_MIN_ZOOM).toInt();
+    int max_zoom = Profiles::instance()->value(MAP_INDEX, MAP_MAX_ZOOM).toInt();
+    mFrameWork = new zchxMapFrameWork(lat, lon, zoom, width(), height(), source, min_zoom, max_zoom);
+    mMapThread = new zchxMapLoadThread;
+    connect(mFrameWork, SIGNAL(UpdateMap(MapLoadSetting)), mMapThread, SLOT(appendTask(MapLoadSetting)));
+    connect(mMapThread, SIGNAL(signalSendCurPixmap(QPixmap,int,int)), this, SLOT(append(QPixmap,int,int)));
+    connect(mMapThread, SIGNAL(signalSendNewMap(double, double, int, bool)), this, SLOT(slotRecvNewMap(double,double,int, bool)));
+    connect(mMapThread, SIGNAL(signalSendImgList(TileImageList)), this, SLOT(append(TileImageList)));
+    mMapThread->start();
+    //地图状态初始化
+    releaseDrawStatus();
+    //
     //创建数据管理容器
     ZCHX_DATA_FACTORY->setDisplayWidget(this);
     ZCHX_DATA_FACTORY->createManager(DATA_MGR_AIS);
@@ -67,20 +83,8 @@ zchxMapWidget::zchxMapWidget(QWidget *parent) : QWidget(parent),
     ZCHX_DATA_FACTORY->createManager(DATA_MGR_PASTROLSTATION);
     ZCHX_DATA_FACTORY->createManager(DATA_MGR_CAMERA_NET_GRID);
     ZCHX_DATA_FACTORY->createManager(DATA_MGR_SHIPALARM_ASCEND);
-    //创建地图框架
-    double lat = Profiles::instance()->value(MAP_INDEX, MAP_DEFAULT_LAT).toDouble();
-    double lon = Profiles::instance()->value(MAP_INDEX, MAP_DEFAULT_LON).toDouble();
-    int     source = Profiles::instance()->value(MAP_INDEX, MAP_SOURCE).toInt();
-    int zoom = Profiles::instance()->value(MAP_INDEX, MAP_DEFAULT_ZOOM).toInt();
-    mFrameWork = new zchxMapFrameWork(lat, lon, zoom, width(), height(), source);
-    mMapThread = new zchxMapLoadThread;
-    connect(mFrameWork, SIGNAL(UpdateMap(MapLoadSetting)), mMapThread, SLOT(appendTask(MapLoadSetting)));
-    connect(mMapThread, SIGNAL(signalSendCurPixmap(QPixmap,int,int)), this, SLOT(append(QPixmap,int,int)));
-    connect(mMapThread, SIGNAL(signalSendNewMap(double, double, int, bool)), this, SLOT(slotRecvNewMap(double,double,int, bool)));
-    connect(mMapThread, SIGNAL(signalSendImgList(TileImageList)), this, SLOT(append(TileImageList)));
-    mMapThread->start();
-    //地图状态初始化
-    releaseDrawStatus();
+    ZCHX_DATA_FACTORY->createManager(DATA_MGR_RADAR_VIDEO);
+    ZCHX_DATA_FACTORY->createManager(DATA_MGR_RADAR_FEATURE_ZONE);
 }
 
 zchxMapWidget::~zchxMapWidget()
@@ -145,11 +149,12 @@ void zchxMapWidget::paintEvent(QPaintEvent *e)
         if(mDisplayImageNum)painter.drawText(data.mPosX + offset_x, data.mPosY + offset_y, data.mName);
     }
     //显示图元
+    mFrameWork->setOffSet(offset_x, offset_y);
     foreach (std::shared_ptr<zchxEcdisDataMgr> mgr, ZCHX_DATA_FACTORY->getManagers()) {
-        mgr->show(&painter, offset_x,  offset_y);
+        mgr->show(&painter);
     }
     //显示用户的鼠标操作
-    if(mToolPtr) mToolPtr->show(&painter, offset_x,  offset_y);
+    if(mToolPtr) mToolPtr->show(&painter);
 
 //    //显示当前的中心点
 //    Point2D pnt = mFrameWork->LatLon2Pixel(mCenter);
@@ -193,7 +198,7 @@ bool zchxMapWidget::IsLocationEmulation(QMouseEvent * e)
     return e->modifiers() & Qt::AltModifier;
 }
 
-void zchxMapWidget::setActiveDrawElement(const Point2D &pos, bool dbClick)
+void zchxMapWidget::setActiveDrawElement(const ZCHX::Data::Point2D &pos, bool dbClick)
 {
     //检查当前的地图模式,如果是纯显示模式,重置当前的目标图元选择;编辑模式则保持不变
     if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL == mCurPluginUserModel) return;
@@ -209,7 +214,7 @@ void zchxMapWidget::setActiveDrawElement(const Point2D &pos, bool dbClick)
     }
 }
 //目标跟踪的情况,横琴使用.雷达,AIS,目标跟踪;空白点:热点视频显示
-void zchxMapWidget::setSelectedCameraTrackTarget(const Point2D &pos)
+void zchxMapWidget::setSelectedCameraTrackTarget(const ZCHX::Data::Point2D &pos)
 {
     if(ZCHX::Data::ECDIS_PICKUP_NONE == mCurPickupType) return;
     //检查当前选中的东西
@@ -253,7 +258,7 @@ void zchxMapWidget::setSelectedCameraTrackTarget(const Point2D &pos)
     emit signalIsEcdisCameraTrackTarget(target);
 }
 
-void zchxMapWidget::setPickUpNavigationTarget(const Point2D &pos)
+void zchxMapWidget::setPickUpNavigationTarget(const ZCHX::Data::Point2D &pos)
 {
     if(ZCHX::Data::ECDIS_PICKUP_AIS !=  mCurPickupType) return;
     Element *ele = 0;
@@ -268,7 +273,7 @@ void zchxMapWidget::setPickUpNavigationTarget(const Point2D &pos)
     emit signalIsSelected4TrackRadarOrbit(item->getData(), true);
 }
 
-void zchxMapWidget::getPointNealyCamera(const Point2D &pos)
+void zchxMapWidget::getPointNealyCamera(const ZCHX::Data::Point2D &pos)
 {
     if(ZCHX::Data::ECDIS_PICKUP_RADARORPOINT !=  mCurPickupType) return;
     Element *ele = 0;
@@ -278,7 +283,7 @@ void zchxMapWidget::getPointNealyCamera(const Point2D &pos)
         if(ele) break;
     }
 
-    LatLon ll = zchxUtilToolLL4CurPoint(pos.toPointF());
+    ZCHX::Data::LatLon ll = zchxUtilToolLL4CurPoint(pos.toPointF());
     int trackNum = 0;
     if(ele)
     {
@@ -303,14 +308,15 @@ void zchxMapWidget::mousePressEvent(QMouseEvent *e)
         updateCurrentPos(e->pos());
         mPressPnt = e->pos();
         //检查不同的情况进行处理,地图的其他操作优先处理
-         m_startPos = m_endPos = e->pos();
         if(isActiveETool) {
             //获取当前点的经纬度
-            qt::LatLon ll =zchxUtilToolLL4CurPoint(e->pos());
+            ZCHX::Data::LatLon ll =zchxUtilToolLL4CurPoint(e->pos());
             switch (m_eTool) {
             case DRAWMEASUREAREA:
             case DRAWDIRANGLE:
             case DRAWDISTANCE:
+            case ZONEDRAWRADAR:
+            case ZONEDRAW:
             {
                 if(mToolPtr) mToolPtr->appendPoint(e->pos());
                 break;
@@ -350,25 +356,39 @@ void zchxMapWidget::mousePressEvent(QMouseEvent *e)
                 releaseDrawStatus();
                 break;
             }
-#if 0
-            case ZONEDRAWRADAR:
+            case PICKUPPTZ:
             {
-                m_eToolPoints.push_back(ll);
+                emit signalSendPTZLocation(ll.lat, ll.lon);
                 break;
             }
-            case ZONEDRAW:
+            case DRAWCAMERANETGRID:
             {
-                m_eToolPoints.push_back(ll);
+                if(mToolPtr)
+                {
+                    mToolPtr->appendPoint(e->pos());
+                    if(mToolPtr->getPointSize() == 2)
+                    {
+                        mToolPtr->endDraw();
+                        releaseDrawStatus();
+                    }
+                }
                 break;
             }
             case COMMONZONESELECT:
             {
-                zoneEditSelect(pt);
-                channelEditSelect(pt);
-                mooringEditSelect(pt);
-                cardMouthEditSelect(pt);
+                foreach (std::shared_ptr<zchxEcdisDataMgr> mgr, ZCHX_DATA_FACTORY->getManagers()) {
+                    int type = mgr->getType();
+                    if(type == DATA_MGR_WARNING_ZONE || type == DATA_MGR_CHANNEL || type == DATA_MGR_MOOR || type == DATA_MGR_CARDMOUTH)
+                    {
+                        if(mgr->updateActiveItem(e->pos()))
+                        {
+                            break;
+                        }
+                    }
+                }
                 break;
             }
+#if 0
             case ZONESELECT:
             {
                 zoneEditSelect(pt);
@@ -906,7 +926,7 @@ void zchxMapWidget::mouseDoubleClickEvent(QMouseEvent *e)
     if(mFrameWork)
     {
         //地图移动到当前点作为中心点
-        mFrameWork->UpdateCenter(Point2D(e->pos()));
+        mFrameWork->UpdateCenter(ZCHX::Data::Point2D(e->pos()));
         //更新当前点的经纬度
         updateCurrentPos(e->pos());
         //setActiveDrawElement(e->pos(), true);
@@ -928,6 +948,10 @@ void zchxMapWidget::mouseMoveEvent(QMouseEvent *e)
     } else {
         //单纯地移动鼠标
         updateCurrentPos(e->pos());
+        if(m_eTool == DRAWCAMERANETGRID)
+        {
+            if(mToolPtr) mToolPtr->appendPoint(e->pos());
+        }
 
     }
     e->accept();
@@ -936,10 +960,10 @@ void zchxMapWidget::mouseMoveEvent(QMouseEvent *e)
 void zchxMapWidget::updateCurrentPos(const QPoint &p)
 {
     //取得当前的屏幕坐标
-    Point2D pnt(p);
+    ZCHX::Data::Point2D pnt(p);
     //获取当前位置对应的经纬度坐标
     if(!mFrameWork) return;
-    LatLon ll = mFrameWork->Pixel2LatLon(pnt);
+    ZCHX::Data::LatLon ll = mFrameWork->Pixel2LatLon(pnt);
     emit signalDisplayCurPos(ll.lon, ll.lat);
 }
 
@@ -972,12 +996,12 @@ int  zchxMapWidget::zoom() const
     if(!mFrameWork) return 0;
     return mFrameWork->Zoom();
 }
-void zchxMapWidget::setCenterLL(const LatLon& pnt )
+void zchxMapWidget::setCenterLL(const ZCHX::Data::LatLon& pnt )
 {
     if(mFrameWork) mFrameWork->UpdateCenter(pnt);
 }
 
-void zchxMapWidget::setCenterAndZoom(const LatLon &ll, int zoom)
+void zchxMapWidget::setCenterAndZoom(const ZCHX::Data::LatLon &ll, int zoom)
 {
     if(mFrameWork) mFrameWork->UpdateCenterAndZoom(ll, zoom);
 }
@@ -985,13 +1009,13 @@ void zchxMapWidget::setCenterAndZoom(const LatLon &ll, int zoom)
 void zchxMapWidget::setCenterAtTargetLL(double lat, double lon)
 {
     int zoom = Profiles::instance()->value(MAP_INDEX, MAP_DEFAULT_TARGET_ZOOM).toInt();
-    setCenterAndZoom(LatLon(lat, lon), zoom);
+    setCenterAndZoom(ZCHX::Data::LatLon(lat, lon), zoom);
 }
 
-LatLon zchxMapWidget::centerLatLon() const
+ZCHX::Data::LatLon zchxMapWidget::centerLatLon() const
 {
     if(mFrameWork) return mFrameWork->Center();
-    return LatLon();
+    return ZCHX::Data::LatLon();
 }
 
 void zchxMapWidget::wheelEvent(QWheelEvent *e)
@@ -1062,7 +1086,7 @@ void zchxMapWidget::reset()
     double lat = Profiles::instance()->value(MAP_INDEX, MAP_DEFAULT_LAT).toDouble();
     double lon = Profiles::instance()->value(MAP_INDEX, MAP_DEFAULT_LON).toDouble();
     double zoom = Profiles::instance()->value(MAP_INDEX, MAP_DEFAULT_ZOOM).toInt();
-    setCenterAndZoom(LatLon(lat, lon), zoom);
+    setCenterAndZoom(ZCHX::Data::LatLon(lat, lon), zoom);
 }
 
 void zchxMapWidget::setStyleAutoChange(bool val)
@@ -1107,7 +1131,7 @@ zchxShipPlanDataMgr* zchxMapWidget::getShipPlanDataMgr()
 
 bool zchxMapWidget::zchxUtilToolPoint4CurWindow(double lat, double lon, QPointF &p)
 {
-    Point2D pos = mFrameWork->LatLon2Pixel(lat, lon);
+    ZCHX::Data::Point2D pos = mFrameWork->LatLon2Pixel(lat, lon);
     p.setX(pos.x);
     p.setY(pos.y);
     return true;
@@ -1115,22 +1139,22 @@ bool zchxMapWidget::zchxUtilToolPoint4CurWindow(double lat, double lon, QPointF 
 
 bool zchxMapWidget::zchxUtilToolLL4CurPoint(const QPointF &p, double &lat, double &lon)
 {
-    Point2D pos(p.x(), p.y());
-    LatLon ll = mFrameWork->Pixel2LatLon(pos);
+    ZCHX::Data::Point2D pos(p.x(), p.y());
+    ZCHX::Data::LatLon ll = mFrameWork->Pixel2LatLon(pos);
     lat = ll.lat;
     lon = ll.lon;
     return true;
 }
 
-qt::LatLon zchxMapWidget::zchxUtilToolLL4CurPoint(const QPointF &p)
+ZCHX::Data::LatLon zchxMapWidget::zchxUtilToolLL4CurPoint(const QPointF &p)
 {
-    return mFrameWork->Pixel2LatLon(Point2D(p));
+    return mFrameWork->Pixel2LatLon(ZCHX::Data::Point2D(p));
 }
 
 void zchxMapWidget::zchxUtilToolGetDis4Point(QPointF star, QPointF end, double &latoff, double &lonoff)
 {
-    LatLon endll = mFrameWork->Pixel2LatLon(Point2D(end.x(), end.y()));
-    LatLon startll = mFrameWork->Pixel2LatLon(Point2D(star.x(), star.y()));
+    ZCHX::Data::LatLon endll = mFrameWork->Pixel2LatLon(ZCHX::Data::Point2D(end.x(), end.y()));
+    ZCHX::Data::LatLon startll = mFrameWork->Pixel2LatLon(ZCHX::Data::Point2D(star.x(), star.y()));
     lonoff = endll.lon - startll.lon;
     latoff = endll.lat - startll.lat;
 }
@@ -1264,7 +1288,6 @@ void zchxMapWidget::releaseDrawStatus()
     //地图重新进入平移状态
     isActiveETool = false;
     m_eTool = DRAWNULL;
-    m_eToolPoints.clear();
     setCursor(Qt::OpenHandCursor);
     mCurPluginUserModel = ZCHX::Data::ECDIS_PLUGIN_USE_DISPLAY_MODEL;
     //当前没有活动的图元
@@ -1274,7 +1297,6 @@ void zchxMapWidget::releaseDrawStatus()
 
 void zchxMapWidget::selectAnRegion()
 {
-    m_eToolPoints.clear();
     m_eTool = ARESELECTD;
     isActiveETool = true;
     setCursor(Qt::ArrowCursor);
@@ -1282,7 +1304,6 @@ void zchxMapWidget::selectAnRegion()
 
 void zchxMapWidget::setLocationMark()
 {
-    m_eToolPoints.clear();
     m_eTool = LOCALMARKPOSTION;
     isActiveETool = true;
     setCursor(Qt::ArrowCursor);
@@ -1291,7 +1312,6 @@ void zchxMapWidget::setLocationMark()
 
 void zchxMapWidget::setFixedReferencePoint()
 {
-    m_eToolPoints.clear();
     m_eTool = FIXEFREFERENCEPOINT;
     isActiveETool = true;
     setCursor(Qt::ArrowCursor);
@@ -1300,7 +1320,6 @@ void zchxMapWidget::setFixedReferencePoint()
 
 void zchxMapWidget::setETool2DrawPickup()
 {
-    m_eToolPoints.clear();
     m_eTool = DRAWPICKUP;
     isActiveETool = true; //拾取时是否允许移动海图 true 不允许，false 允许
     setCursor(Qt::ArrowCursor);
@@ -1309,7 +1328,6 @@ void zchxMapWidget::setETool2DrawPickup()
 
 void zchxMapWidget::setETool2DrawTrackTarget()
 {
-    m_eToolPoints.clear();
     m_eTool = TRACKTARGET;
     isActiveETool = true; //拾取时是否允许移动海图 true 不允许，false 允许
     setCurPickupType(ZCHX::Data::ECDIS_PICKUP_TYPE::ECDIS_PICKUP_AIS);
@@ -1319,7 +1337,6 @@ void zchxMapWidget::setETool2DrawTrackTarget()
 
 void zchxMapWidget::setETool2DrawCameraTrackTarget()
 {
-    m_eToolPoints.clear();
     m_eTool = CAMERATEACK;
     isActiveETool = true;//拾取时是否允许移动海图 true 不允许，false 允许
     setCurPickupType(ZCHX::Data::ECDIS_PICKUP_TYPE::ECDIS_PICKUP_ALL);
@@ -1328,7 +1345,6 @@ void zchxMapWidget::setETool2DrawCameraTrackTarget()
 
 void zchxMapWidget::setETool2DrawGps()
 {
-    m_eToolPoints.clear();
     m_eTool = DRAWGPS;
     isActiveETool = true; //是否允许移动海图 true 不允许，false 允许
     setCursor(Qt::ArrowCursor);
@@ -1336,8 +1352,6 @@ void zchxMapWidget::setETool2DrawGps()
 
 void zchxMapWidget::setETool2DrawRouteOrCross()
 {
-    //qDebug()<<"进去路由和交越点拾取";
-    m_eToolPoints.clear();
     m_eTool = ROUTEORCROSSPICKUP;
     isActiveETool = true; //拾取时是否允许移动海图 true 不允许，false 允许
     setCurPickupType(ZCHX::Data::ECDIS_PICKUP_TYPE::ECDIS_PICKUP_ROUTEANDCROSS);
@@ -1346,7 +1360,6 @@ void zchxMapWidget::setETool2DrawRouteOrCross()
 
 void zchxMapWidget::setETool2DrawDistance()
 {
-    m_eToolPoints.clear();
     m_eTool = DRAWDISTANCE;
     isActiveETool =true;
     setCursor(Qt::CrossCursor);
@@ -1354,7 +1367,6 @@ void zchxMapWidget::setETool2DrawDistance()
 
 void zchxMapWidget::setETool2DrawDirAngle()
 {
-    m_eToolPoints.clear();
     m_eTool = DRAWDIRANGLE;
     isActiveETool = true;
     setCursor(Qt::CrossCursor);
@@ -1363,12 +1375,10 @@ void zchxMapWidget::setETool2DrawDirAngle()
 void zchxMapWidget::setETool2DrawNull()
 {
     m_eTool = DRAWNULL;
-    m_eToolPoints.clear();
 }
 
 void zchxMapWidget::setETool2DrawArea()
 {
-    m_eToolPoints.clear();
     m_eTool = DRAWMEASUREAREA;
     isActiveETool = true;
     setCursor(Qt::CrossCursor);
@@ -1377,7 +1387,6 @@ void zchxMapWidget::setETool2DrawArea()
 void zchxMapWidget::setETool2SelectCommonZONE()
 {
     if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
-    m_eToolPoints.clear();
     m_eTool = COMMONZONESELECT;
     isActiveETool = true;
     setCurPickupType(ZCHX::Data::ECDIS_PICKUP_TYPE::ECDIS_PICKUP_COMMONZONE);
@@ -1387,7 +1396,6 @@ void zchxMapWidget::setETool2SelectCommonZONE()
 void zchxMapWidget::setETool2DrawRadarZONE()
 {
     if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
-    m_eToolPoints.clear();
     m_eTool = ZONEDRAWRADAR;
     isActiveETool = true;
     setCursor(Qt::CrossCursor);
@@ -1397,7 +1405,6 @@ void zchxMapWidget::setETool2DrawZONE()
 {
     //在编辑模式下使用
     if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
-    m_eToolPoints.clear();
     m_eTool = ZONEDRAW;
     isActiveETool = true;
     setCursor(Qt::CrossCursor);
@@ -1406,7 +1413,6 @@ void zchxMapWidget::setETool2DrawZONE()
 void zchxMapWidget::setETool2SelectZONE()
 {
     if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
-    m_eToolPoints.clear();
     m_eTool = ZONESELECT;
     isActiveETool = true;
     setCurPickupType(ZCHX::Data::ECDIS_PICKUP_TYPE::ECDIS_PICKUP_WARRINGZONE);
@@ -1416,7 +1422,6 @@ void zchxMapWidget::setETool2SelectZONE()
 void zchxMapWidget::setETool2moveZONE()
 {
     if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
-    m_eToolPoints.clear();
     m_eTool = ZONEMOVE;
     isActiveETool = true;
     setCursor(Qt::SizeAllCursor);
@@ -1425,7 +1430,6 @@ void zchxMapWidget::setETool2moveZONE()
 void zchxMapWidget::setETool2ctrlZONE()
 {
     if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
-    m_eToolPoints.clear();
     m_eTool = ZONEMOVECTRL;
     isActiveETool = true;
     setCursor(Qt::CrossCursor);
@@ -1434,7 +1438,6 @@ void zchxMapWidget::setETool2ctrlZONE()
 void zchxMapWidget::setETool2addCtrlZONE()
 {
     if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
-    m_eToolPoints.clear();
     m_eTool = ZONEADDCTRL;
     isActiveETool = true;
     setCursor(Qt::PointingHandCursor);
@@ -1443,7 +1446,6 @@ void zchxMapWidget::setETool2addCtrlZONE()
 void zchxMapWidget::setETool2delCtrlZONE()
 {
     if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
-    m_eToolPoints.clear();
     m_eTool = ZONEDELCTRL;
     isActiveETool = true;
     setCursor(Qt::ForbiddenCursor);
@@ -1454,7 +1456,6 @@ void zchxMapWidget::setETool2Draw4CoastDataLine()
 {
     //在编辑模式下使用
     if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
-    m_eToolPoints.clear();
     m_eTool = COASTDATALINEDRAW;
     isActiveETool = true;
     setCursor(Qt::CrossCursor);
@@ -1464,7 +1465,6 @@ void zchxMapWidget::setETool2Draw4SeabedPipeLineLine()
 {
     //在编辑模式下使用
     if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
-    m_eToolPoints.clear();
     m_eTool = SEABEDPIPELINEDRAW;
     isActiveETool = true;
     setCursor(Qt::CrossCursor);
@@ -1474,8 +1474,6 @@ void zchxMapWidget::setETool2Draw4StructurePoint()
 {
     //在编辑模式下使用
     if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
-    //m_eToolPoint.setLatLon(0.0, 0.0);
-    m_eToolPoints.clear();
     m_eTool = STRUCTUREPOINTDRAW;
     isActiveETool = true;
     setCursor(Qt::CrossCursor);
@@ -1485,7 +1483,6 @@ void zchxMapWidget::setETool2Draw4AreaNetZone()
 {
     //在编辑模式下使用
     if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
-    m_eToolPoints.clear();
     m_eTool = AREANETZONEDRAW;
     isActiveETool = true;
     setCursor(Qt::CrossCursor);
@@ -1495,7 +1492,6 @@ void zchxMapWidget::setETool2Draw4ChannelArea()
 {
     //在编辑模式下使用
     if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
-    m_eToolPoints.clear();
     m_eTool = CHANNELMANAGER;
     isActiveETool = true;
     setCursor(Qt::CrossCursor);
@@ -1504,7 +1500,6 @@ void zchxMapWidget::setETool2Draw4ChannelArea()
 void zchxMapWidget::setETool2SelectChannel()
 {
     if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
-    m_eToolPoints.clear();
     m_eTool = CHANNELSELECT;
     isActiveETool = true;
     setCurPickupType(ZCHX::Data::ECDIS_PICKUP_TYPE::ECDIS_PICKUP_CHANNELZONE);
@@ -1514,7 +1509,6 @@ void zchxMapWidget::setETool2SelectChannel()
 void zchxMapWidget::setETool2moveChannel()
 {
     if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
-    m_eToolPoints.clear();
     m_eTool = CHANNELMOVE;
     isActiveETool = true;
     setCursor(Qt::SizeAllCursor);
@@ -1523,7 +1517,6 @@ void zchxMapWidget::setETool2moveChannel()
 void zchxMapWidget::setETool2ctrlChannel()
 {
     if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
-    m_eToolPoints.clear();
     m_eTool = CHANNELMOVECTRL;
     isActiveETool = true;
     setCursor(Qt::CrossCursor);
@@ -1532,7 +1525,6 @@ void zchxMapWidget::setETool2ctrlChannel()
 void zchxMapWidget::setETool2addCtrlChannel()
 {
     if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
-    m_eToolPoints.clear();
     m_eTool = CHANNELADDCTRL;
     isActiveETool = true;
     setCursor(Qt::PointingHandCursor);
@@ -1541,7 +1533,6 @@ void zchxMapWidget::setETool2addCtrlChannel()
 void zchxMapWidget::setETool2delCtrlChannel()
 {
     if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
-    m_eToolPoints.clear();
     m_eTool = CHANNELDELCTRL;
     isActiveETool = true;
     setCursor(Qt::ForbiddenCursor);
@@ -1551,7 +1542,6 @@ void zchxMapWidget::setETool2Draw4MooringArea()
 {
     //在编辑模式下使用
     if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
-    m_eToolPoints.clear();
     m_eTool = MOORINGMANAGER;
     isActiveETool = true;
     setCursor(Qt::CrossCursor);
@@ -1560,7 +1550,6 @@ void zchxMapWidget::setETool2Draw4MooringArea()
 void zchxMapWidget::setETool2SelectMooring()
 {
     if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
-    m_eToolPoints.clear();
     m_eTool = MOORINGSELECT;
     isActiveETool = true;
     setCurPickupType(ZCHX::Data::ECDIS_PICKUP_TYPE::ECDIS_PICKUP_MOORINGZONE);
@@ -1570,7 +1559,6 @@ void zchxMapWidget::setETool2SelectMooring()
 void zchxMapWidget::setETool2moveMooring()
 {
     if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
-    m_eToolPoints.clear();
     m_eTool = MOORINGMOVE;
     isActiveETool = true;
     setCursor(Qt::SizeAllCursor);
@@ -1579,7 +1567,6 @@ void zchxMapWidget::setETool2moveMooring()
 void zchxMapWidget::setETool2ctrlMooring()
 {
     if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
-    m_eToolPoints.clear();
     m_eTool = MOORINGMOVECTRL;
     isActiveETool = true;
     setCursor(Qt::CrossCursor);
@@ -1588,7 +1575,6 @@ void zchxMapWidget::setETool2ctrlMooring()
 void zchxMapWidget::setETool2addCtrlMooring()
 {
     if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
-    m_eToolPoints.clear();
     m_eTool = MOORINGADDCTRL;
     isActiveETool = true;
     setCursor(Qt::PointingHandCursor);
@@ -1597,7 +1583,6 @@ void zchxMapWidget::setETool2addCtrlMooring()
 void zchxMapWidget::setETool2delCtrlMooring()
 {
     if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
-    m_eToolPoints.clear();
     m_eTool = MOORINGDELCTRL;
     isActiveETool = true;
     setCursor(Qt::ForbiddenCursor);
@@ -1607,7 +1592,6 @@ void zchxMapWidget::setETool2Draw4CardMouthArea()
 {
     //在编辑模式下使用
     if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
-    m_eToolPoints.clear();
     m_eTool = CARDMOUTHMANAGER;
     isActiveETool = true;
     setCursor(Qt::CrossCursor);
@@ -1616,7 +1600,6 @@ void zchxMapWidget::setETool2Draw4CardMouthArea()
 void zchxMapWidget::setETool2SelectCardMouth()
 {
     if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
-    m_eToolPoints.clear();
     m_eTool = CARDMOUTHSELECT;
     isActiveETool = true;
     setCurPickupType(ZCHX::Data::ECDIS_PICKUP_TYPE::ECDIS_PICKUP_CARDMOUTHZONE);
@@ -1626,7 +1609,6 @@ void zchxMapWidget::setETool2SelectCardMouth()
 void zchxMapWidget::setETool2moveCardMouth()
 {
     if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
-    m_eToolPoints.clear();
     m_eTool = CARDMOUTHMOVE;
     isActiveETool = true;
     setCursor(Qt::SizeAllCursor);
@@ -1635,7 +1617,6 @@ void zchxMapWidget::setETool2moveCardMouth()
 void zchxMapWidget::setETool2ctrlCardMouth()
 {
     if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
-    m_eToolPoints.clear();
     m_eTool = CARDMOUTHMOVECTRL;
     isActiveETool = true;
     setCursor(Qt::CrossCursor);
@@ -1644,7 +1625,6 @@ void zchxMapWidget::setETool2ctrlCardMouth()
 void zchxMapWidget::setETool2addCtrlCardMouth()
 {
     if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
-    m_eToolPoints.clear();
     m_eTool = CARDMOUTHADDCTRL;
     isActiveETool = true;
     setCursor(Qt::PointingHandCursor);
@@ -1653,7 +1633,6 @@ void zchxMapWidget::setETool2addCtrlCardMouth()
 void zchxMapWidget::setETool2delCtrlCardMouth()
 {
     if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
-    m_eToolPoints.clear();
     m_eTool = CARDMOUTHDELCTRL;
     isActiveETool = true;
     setCursor(Qt::ForbiddenCursor);
@@ -1662,7 +1641,6 @@ void zchxMapWidget::setETool2delCtrlCardMouth()
 void zchxMapWidget::setETool2Draw4IslandLine()
 {
     if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
-    m_eToolPoints.clear();
     m_eTool = ISLANDLINEDRAW;
     isActiveETool = true;
     setCursor(Qt::CrossCursor);
@@ -1672,7 +1650,6 @@ void zchxMapWidget::setETool2Draw4IslandLine()
 void zchxMapWidget::setETool2Select4IslandLine()
 {
     if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
-    m_eToolPoints.clear();
     m_eTool = ISLANDLINESELECT;
     isActiveETool = true;
     setCursor(Qt::ArrowCursor);
@@ -1682,7 +1659,6 @@ void zchxMapWidget::setETool2Select4IslandLine()
 void zchxMapWidget::setETool2move4IslandLine()
 {
     if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
-    m_eToolPoints.clear();
     m_eTool =  ISLANDLINEMOVE;
     isActiveETool = true;
     setCursor(Qt::SizeAllCursor);
@@ -1692,7 +1668,6 @@ void zchxMapWidget::setETool2move4IslandLine()
 void zchxMapWidget::setETool2moveCtrlPoint4IslandLine()
 {
     if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
-    m_eToolPoints.clear();
     m_eTool = ISLANDLINEMOVECTRL;
     isActiveETool = true;
     setCursor(Qt::CrossCursor);
@@ -1702,7 +1677,6 @@ void zchxMapWidget::setETool2moveCtrlPoint4IslandLine()
 void zchxMapWidget::setETool2addCtrlPoint4IslandLine()
 {
     if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
-    m_eToolPoints.clear();
     m_eTool = ISLANDLINEADDCTRL;
     isActiveETool = true;
     setCursor(Qt::PointingHandCursor);
@@ -1712,7 +1686,6 @@ void zchxMapWidget::setETool2addCtrlPoint4IslandLine()
 void zchxMapWidget::setETool2delCtrlPoint4IslandLine()
 {
     if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
-    m_eToolPoints.clear();
     m_eTool = ISLANDLINEDELCTRL;
     isActiveETool = true;
     setCursor(Qt::ForbiddenCursor);
@@ -1723,7 +1696,6 @@ void zchxMapWidget::setETool2DrawShipPlanLine()
 {
     //强制进入编辑状态
     mCurPluginUserModel = ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL;
-    m_eToolPoints.clear();
 
     //将所有船舶的选择清空
     if(mCurrentSelectElement->getElementType() == ZCHX::Data::ELEMENT_SHIP_PLAN)
@@ -1739,7 +1711,6 @@ void zchxMapWidget::setETool2DrawShipPlanLine()
 void zchxMapWidget::setETool2SelectShipPlanLine()
 {
     mCurPluginUserModel = ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL;
-    m_eToolPoints.clear();
     m_eTool = SHIPPLANSELECT;
     isActiveETool = true;
     setCursor(Qt::ArrowCursor);
@@ -1748,7 +1719,6 @@ void zchxMapWidget::setETool2SelectShipPlanLine()
 void zchxMapWidget::setETool2insertCtrlPointShipPlanLine()
 {
     if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
-    m_eToolPoints.clear();
     m_eTool =  SHIPPLANINSERTCTRL;
     isActiveETool = true;
     setCursor(Qt::PointingHandCursor);
@@ -1757,7 +1727,6 @@ void zchxMapWidget::setETool2insertCtrlPointShipPlanLine()
 void zchxMapWidget::setETool2moveCtrlPointShipPlanLine()
 {
     if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
-    m_eToolPoints.clear();
     m_eTool = SHIPPLANMOVECTRL;
     isActiveETool = true;
     setCursor(Qt::CrossCursor);
@@ -1766,7 +1735,6 @@ void zchxMapWidget::setETool2moveCtrlPointShipPlanLine()
 void zchxMapWidget::setETool2addCtrlPointShipPlanLine()
 {
     if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
-    m_eToolPoints.clear();
     m_eTool = SHIPPLANADDCTRL;
     isActiveETool = true;
     setCursor(Qt::PointingHandCursor);
@@ -1775,7 +1743,6 @@ void zchxMapWidget::setETool2addCtrlPointShipPlanLine()
 void zchxMapWidget::setETool2delCtrlPointShipPlanLine()
 {
     if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
-    m_eToolPoints.clear();
     m_eTool = SHIPPLANEDELCTRL;
     isActiveETool = true;
     setCursor(Qt::ForbiddenCursor);
@@ -1785,12 +1752,19 @@ void zchxMapWidget::setETool2DrawLocalMark()
 {
     //在编辑模式下使用
     if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
-    m_eToolPoints.clear();
     m_eTool = DRAWLOCALMARK;
     isActiveETool = true;
     QCursor cursor(QPixmap(":/mouseCursor/mousecursor/positionMark.svg"),-1,-1);
     setCursor(cursor);
 }
+
+void zchxMapWidget::setETool2PickUpPTZ()
+{
+    m_eTool = PICKUPPTZ;
+    isActiveETool = true;
+    setCursor(Qt::CrossCursor);
+}
+
 
 void zchxMapWidget::setCurrentProjectID(int id)
 {
@@ -1801,17 +1775,20 @@ void zchxMapWidget::setETool2DrawCameraNetGrid(const QSizeF& size, const QString
 {
     //在编辑模式下使用
     if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
-    m_eToolPoints.clear();
     m_eTool = DRAWCAMERANETGRID;
     isActiveETool = true;
     setCursor(Qt::CrossCursor);
-    ZCHX_DATA_FACTORY->getCameraGridMgr()->setCameraGridParam(camera, size);
+    if(!mToolPtr || mToolPtr->getType() != DRAWCAMERANETGRID){
+        mToolPtr = std::shared_ptr<zchxDrawCameraNetGridTool>(new zchxDrawCameraNetGridTool(this));
+    }
+    zchxDrawCameraNetGridTool* ptr = static_cast<zchxDrawCameraNetGridTool*> (mToolPtr.get());
+    if(ptr) ptr->setCameraGridParam(camera, size);
 }
 
 void zchxMapWidget::invokeHotSpot()
 {
     if(!mFrameWork) return;
-    LatLon ll = mFrameWork->Pixel2LatLon(mPressPnt);
+    ZCHX::Data::LatLon ll = mFrameWork->Pixel2LatLon(mPressPnt);
     ZCHX::Data::ITF_CloudHotSpot data;
     data.fllow = ZCHX::Data::ITF_CloudHotSpot::FLLOW_TYPE_TURN;
     data.mode = ZCHX::Data::ITF_CloudHotSpot::MODE_HANDLE;

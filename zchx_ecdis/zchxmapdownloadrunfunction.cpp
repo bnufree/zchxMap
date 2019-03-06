@@ -24,8 +24,8 @@ void zchxMapDownloadRunFunction::run()
 
     //计算显示位置对应的墨卡托坐标范围
     //计算当前中心经纬度对应的墨卡托坐标
-    Mercator bottom_left = zchxMapDataUtils::wgs84LonlatToMercator(LatLon(mRange.bottemLat, mRange.bottemLon ));
-    Mercator top_right = zchxMapDataUtils::wgs84LonlatToMercator(LatLon(mRange.topLat, mRange.topLon ));
+    ZCHX::Data::Mercator bottom_left = zchxMapDataUtils::wgs84LonlatToMercator(ZCHX::Data::LatLon(mRange.bottemLat, mRange.bottemLon ));
+    ZCHX::Data::Mercator top_right = zchxMapDataUtils::wgs84LonlatToMercator(ZCHX::Data::LatLon(mRange.topLat, mRange.topLon ));
 
     zchxMapBounds view_bounds = { bottom_left.mX, bottom_left.mY, top_right.mX, top_right.mY };
     zchxMapBounds total_bounds = {EARTH_HALF_CIRCUL_LENGTH *(-1), EARTH_HALF_CIRCUL_LENGTH * (-1), EARTH_HALF_CIRCUL_LENGTH, EARTH_HALF_CIRCUL_LENGTH};
@@ -37,7 +37,7 @@ void zchxMapDownloadRunFunction::run()
     int tile_end_x = floor(((view_bounds.max_x - total_bounds.min_x) / resolution) / MAP_IMG_SIZE);
     int tile_end_y = total_tile_Y - floor(((view_bounds.min_y - total_bounds.min_y) / resolution) / MAP_IMG_SIZE);
     //计算第一福瓦片对应的墨卡托坐标
-    Mercator first_tile(0, 0);
+    ZCHX::Data::Mercator first_tile(0, 0);
     first_tile.mX = total_bounds.min_x + (tile_start_x * 256 * resolution);
     first_tile.mY = total_bounds.max_y - (tile_start_y * 256 * resolution);
     while (first_tile.mY < view_bounds.max_y)

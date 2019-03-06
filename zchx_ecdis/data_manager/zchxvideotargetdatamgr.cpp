@@ -8,7 +8,7 @@ zchxVideoTargetDataMgr::zchxVideoTargetDataMgr(zchxMapWidget* w,  QObject *paren
 
 }
 
-void zchxVideoTargetDataMgr::show(QPainter* painter, double offset_x, double offset_y)
+void zchxVideoTargetDataMgr::show(QPainter* painter)
 {
     if(!painter || !MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_WARNING_TARGET)) return ;
     QMap<QString, std::shared_ptr<VideoTargetElement>>::iterator it = mTargetMap.begin();

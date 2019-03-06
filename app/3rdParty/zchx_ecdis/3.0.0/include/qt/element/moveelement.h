@@ -40,7 +40,8 @@ public:
     void addCtrlPoint(std::pair<double, double> ps);
 
     //指定点是否在区域线上
-    bool contains(int range, double x, double y) const;
+    virtual bool contains(int range, double x, double y) const;
+    virtual bool contains(const QPoint &pt) const;
     virtual void drawElement(QPainter* painter) {}
     void updateGeometry(QPointF, int){}
 protected:

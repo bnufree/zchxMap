@@ -4,7 +4,7 @@
 
 namespace qt {
 CoastElement::CoastElement(const ZCHX::Data::ITF_CoastData &ele, zchxMapFrameWork* f)
-    :Element(0,0,f, ZCHX::Data::ELEMENT_COAST)
+    :MoveElement(f, ZCHX::Data::ELEMENT_COAST)
 {
     setData(ele);
     setIsUpdate(true);
@@ -33,6 +33,11 @@ void CoastElement::setPath(const std::vector<std::pair<double, double> > &path)
     m_data.path = path;
 }
 
+std::vector<std::pair<double, double> >& CoastElement::getPath()
+{
+    return m_data.path;
+}
+
 int CoastElement::id() const
 {
     return uuid;
@@ -59,30 +64,30 @@ ZCHX::Data::ITF_CoastData CoastElement::data() const
 }
 
 
-bool CoastElement::contains(int range, double x, double y) const
-{
-    if(!framework()) return false;
-    std::vector<std::pair<double,double>> tmp_path = path();
-    for(int i=0; i<tmp_path.size()-1;++i)
-    {
-        std::pair<double, double> p1 = tmp_path[i];
-        std::pair<double, double> p2 = tmp_path[i+1];
-        Point2D start = framework()->LatLon2Pixel(p1.first, p1.second);
-        Point2D end = framework()->LatLon2Pixel(p2.first, p2.second);
+//bool CoastElement::contains(int range, double x, double y) const
+//{
+//    if(!framework()) return false;
+//    std::vector<std::pair<double,double>> tmp_path = path();
+//    for(int i=0; i<tmp_path.size()-1;++i)
+//    {
+//        std::pair<double, double> p1 = tmp_path[i];
+//        std::pair<double, double> p2 = tmp_path[i+1];
+//        ZCHX::Data::Point2D start = framework()->LatLon2Pixel(p1.first, p1.second);
+//        ZCHX::Data::Point2D end = framework()->LatLon2Pixel(p2.first, p2.second);
 
-        //检查3点是否共线
-        int p1x = start.x, p1y = start.y;
-        int p2x = end.x, p2y = end.y;
-        int check = (p1x - x) *(p2y - y) - (p2x - x) * (p1y - y);
-        //qDebug()<<"start:"<<p1x<<" "<<p1y<<" end:"<<p2x<<" "<<p2y<<" cur:"<<x<<" "<<y<<" area:"<<check;
-        if(abs(check) < range)
-        {
-            return true;
-        }
-    }
+//        //检查3点是否共线
+//        int p1x = start.x, p1y = start.y;
+//        int p2x = end.x, p2y = end.y;
+//        int check = (p1x - x) *(p2y - y) - (p2x - x) * (p1y - y);
+//        //qDebug()<<"start:"<<p1x<<" "<<p1y<<" end:"<<p2x<<" "<<p2y<<" cur:"<<x<<" "<<y<<" area:"<<check;
+//        if(abs(check) < range)
+//        {
+//            return true;
+//        }
+//    }
 
-    return false;
-}
+//    return false;
+//}
 
 void CoastElement::drawElement(QPainter *painter)
 {

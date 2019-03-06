@@ -10,10 +10,25 @@
 
 #include "zchx_ecdis_global.h"
 
-#define FLOAT_ZERO 0.000001
+#define         FLOAT_ZERO                              0.000001
+#define         GLOB_PI                                 (3.14159265358979323846)
+#define         DOUBLE_EPS                              0.000001
+#define         EARTH_HALF_CIRCUL_LENGTH                20037508.3427892
+#define         MAP_IMG_SIZE                            256
+
+#define         DATETIME_STRING(datetime)               (datetime.toString("yyyy-MM-dd hh:mm:ss"))
+#define         FLOAT_STRING(val ,n)                    (QString::number(val, 'f', n))
+#define         INT_STRING(val)                         (QString("").sprintf("%d", val))
+#define         INT_COMMA_STRING(val)                   (QString("%L1").arg(val))
+#define         TIMESTAMP16_STRING(val)                 ( DATETIME_STRING(QDateTime::fromMSecsSinceEpoch(val)))
+#define         TIMESTAMP10_STRING(val)                 ( DATETIME_STRING(QDateTime::fromTime_t(val)))
+#define         KPH2KTS(val)                            ((val) / 1.852)
+#define         MPS2KTS(val)                            (KPH2KTS((val) * 3.6))
+#define         TIMEOFDAY2UTC(val)                      (QDateTime(QDate::currentDate()).toMSecsSinceEpoch() + (val*1000))
 
 namespace qt {
 class zchxMapFrameWork;
+}
 
 class PainterPair{
 public:
@@ -46,6 +61,78 @@ namespace ZCHX {
   template <class T> T sqr(T t) { return (t*t); }
 
 namespace Data{
+struct Mercator{
+public:
+    Mercator() {mX = 0.0; mY = 0.0;}
+    Mercator(double x, double y){mX = x; mY= y;}
+    bool operator ==(const Mercator& other)
+    {
+        return fabs(this->mX- other.mX) <= DOUBLE_EPS  && \
+               fabs(this->mY - other.mY) <= DOUBLE_EPS ;
+    }
+    double mX;
+    double mY;
+};
+
+struct LatLon{
+public:
+    LatLon() {lon = 0.0; lat = 0.0;}
+    LatLon(double y, double x){lon = x; lat= y;}
+    bool operator ==(const LatLon& other) const
+    {
+        return fabs(this->lon - other.lon) <= DOUBLE_EPS  && \
+               fabs(this->lat - other.lat) <= DOUBLE_EPS ;
+    }
+
+    bool isNull() const
+    {
+        return fabs(lat) < 0.000001 && fabs(lon) < 0.000001;
+    }
+
+    double lat;
+    double lon;
+};
+
+struct Point2D{
+    double x;
+    double y;
+
+    Point2D(double px, double py) {
+        x = px;
+        y = py;
+    }
+
+    Point2D()
+    {
+        x = 0;
+        y = 0;
+    }
+
+    Point2D(const QPoint& p)
+    {
+        x = p.x();
+        y = p.y();
+    }
+
+    Point2D(const QPointF& p)
+    {
+        x = p.x();
+        y = p.y();
+    }
+
+    QPointF toPointF() const
+    {
+        return QPointF(x, y);
+    }
+
+    QPoint toPoint() const
+    {
+        return QPoint(qRound(x), qRound(y));
+    }
+
+
+};
+
 //zxl add 定义海图插件使用模式{编辑模式与显示模式是互斥的}
 enum ECDIS_PLUGIN_USE_MODEL{
     NO_MODEL = 0x00,
@@ -84,6 +171,8 @@ enum ELETYPE{
     ELEMENT_DANGREOUS,
     ELEMENT_SHIP_PLAN,
     ELEMENT_CAMERA_GRID,
+    ELEMENT_RADAR_VIDEOGLOW,
+    ELEMENT_RADAR_FEATURE_ZONE,
 
 
 };
@@ -431,11 +520,6 @@ struct TimeSpanVo{
     int time_cycle;
 };
 
-typedef struct tagLatLon
-{
-    double lat;
-    double lon;
-}LatLon;
 
 typedef struct tagElePos{
     int  x;
@@ -756,7 +840,7 @@ typedef struct tagITF_RadarArea
 typedef struct tagITF_EditRadarZone
 {
     int zoneNumber;
-    QString zoneName;
+    QString name;
     int zoneType;
     int zoneAction;
     QList<LatLon> pointList;
@@ -1075,9 +1159,15 @@ typedef struct tagITF_CameraView
 
 typedef struct tagITF_WarringZone
 {
+    enum WARRING_ZONE_SHAPE {
+        ZONE_POLYGON = 1,
+        ZONE_CIRCLE,
+        ZONE_LINE,
+    };
+
     int      id;                      // 防区id号
     QString  name;                    // 防区名称
-    int      shape;                   // 防区形状 1:多边形 2:圆 3:线
+    WARRING_ZONE_SHAPE      shape;                   // 防区形状 1:多边形 2:圆 3:线
     double   circleRadius;            // 圆半径形状为圆必须存在单位：米（M）
     double   circleLon;               // 圆心经度形状为圆必须存在
     double   circleLat;               // 圆心纬度形状为圆必须存在
@@ -1485,7 +1575,10 @@ struct GPSPoint
     std::list<std::shared_ptr<GPSPoint> > track;
 };
 
-//回波数据
+//回波余晖数据
+const int RadarVideoPixmapWidth = 1364*2;
+const int RadarVideoPixmapHeight = 1364*2;
+
 class ZCHX_ECDIS_EXPORT ITF_RadarVideo
 {
 public:
@@ -1498,6 +1591,34 @@ public:
     int    uBitResolution;        //分辨率
     QList<int> amplitudeList;     //该方位角线上点集合(总共1364个点)
     QList<int> indexList;         //该方位角线上点集合(总共1364个点)
+};
+
+class ZCHX_ECDIS_EXPORT ITF_RadarVideoGLow
+{
+public:
+    enum RadarVideoGLowType{
+        RadarVideo = 1,
+        RadarGlow,
+    };
+    QString                     name;           //雷达站的名字,便于区分是那个雷达
+
+    //回波
+    QPixmap                     videoPixmap;
+    double                      lat;//回波中心经度
+    double                      lon;//回波中心纬度
+    double                      distance;  //半径距离
+    bool                        showvideo;
+
+    RadarVideoGLowType          type;//1回波显示，2余辉显示
+    //余辉
+    QPixmap                     afterglowPixmap[12];
+    int                         afterglowType;//1,3,6,12
+    qint64                      afterglowIndex;//余辉图片索引
+
+    ITF_RadarVideoGLow()
+    {
+        name = "default_radar";
+    }
 };
 
 //视频联动跟踪
@@ -1545,7 +1666,8 @@ public:
 
     static void distbear_to_latlon(double lat1, double lon1, double dist,
                                    double brng, double &lat_out, double &lon_out );
-    static double getDistanceByPixel(zchxMapFrameWork *f, double lat1, double lon1, double dist, double brng, QPointF pos);
+    static ZCHX::Data::LatLon  distbear_to_latlon(double lat1, double lon1, double dist, double brng);
+    static double getDistanceByPixel(qt::zchxMapFrameWork *f, double lat1, double lon1, double dist, double brng, QPointF pos);
     static double calcAzimuth(double lon1, double lat1, double lon2, double lat2);//已知两点坐标，求两点连线的方位角
     static double getDis(double startX, double startY, double endX, double endY);//求两点连线之间的距离
     static void getCenterPosValueByPosList(const QList<QPointF> &posList,QPointF &centerPos);//求一系列点的中心点
@@ -1729,5 +1851,4 @@ const char TR_LAYER_CARDMOUTH[]           = QT_TRANSLATE_NOOP("TranslationManage
 const char TR_LAYER_ALARMASCEND[]         = QT_TRANSLATE_NOOP("TranslationManager", "AlarmAscend");          //预警追溯轨迹线
 const char TR_LAYER_CAMERANETGRID[]             =  QT_TRANSLATE_NOOP("TranslationManager", "CameraNetGrid");    //相机网格
 
-}
 }

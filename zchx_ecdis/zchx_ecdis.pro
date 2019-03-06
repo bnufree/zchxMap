@@ -68,7 +68,6 @@ SOURCES += mainwindow.cpp \
     cardmouthinfodialog.cpp \
     channelinfodialog.cpp \
     coastdatainfodialog.cpp \
-    defenceinfodialog.cpp \
     info_dialog.cpp \
     localmarkdlg.cpp \
     mooringinfodialog.cpp \
@@ -95,6 +94,7 @@ SOURCES += mainwindow.cpp \
     element/rodelement.cpp \
     element/ipcelement.cpp \
     dialog/zchxecdisdlgmgr.cpp \
+    dialog/defenceinfodialog.cpp \
     element/cameraviewelement.cpp \
     element/videotargetelement.cpp \
     data_manager/zchxvideotargetdatamgr.cpp \
@@ -118,7 +118,12 @@ SOURCES += mainwindow.cpp \
     draw_manager/zchxdrawtool.cpp \
     draw_manager/zchxdrawangletool.cpp \
     draw_manager/zchxdrawdistool.cpp \
-    draw_manager/zchxdrawlocalmarktool.cpp
+    draw_manager/zchxdrawlocalmarktool.cpp \
+    draw_manager/zchxdrawcameranetgridtool.cpp \
+    data_manager/zchxradarvideomgr.cpp \
+    element/radarvideoelement.cpp \
+    dialog/radarfeaturezone.cpp \
+    draw_manager/zchxdrawzonetool.cpp
 
 HEADERS  += mainwindow.h \
     zchxmapthread.h \
@@ -141,7 +146,6 @@ HEADERS  += mainwindow.h \
     cardmouthinfodialog.h \
     channelinfodialog.h \
     coastdatainfodialog.h \
-    defenceinfodialog.h \
     info_dialog.hpp \
     localmarkdlg.h \
     mooringinfodialog.h \
@@ -153,6 +157,7 @@ HEADERS  += mainwindow.h \
     map_layer/zchxmaplayer_p.h \
     map_layer/zchxMapLayer.h \
     dialog/zchxcameralistdlg.h \
+    dialog/defenceinfodialog.h \
     element/aiselement.hpp \
     element/cameraelement.h \
     element/radarelement.h \
@@ -193,17 +198,24 @@ HEADERS  += mainwindow.h \
     draw_manager/zchxdrawtool.h \
     draw_manager/zchxdrawangletool.h \
     draw_manager/zchxdrawdistool.h \
-    draw_manager/zchxdrawlocalmarktool.h
+    draw_manager/zchxdrawlocalmarktool.h \
+    draw_manager/zchxdrawcameranetgridtool.h \
+    draw_manager/zchxdrawtoolutil.h \
+    data_manager/zchxradarvideomgr.h \
+    element/radarvideoelement.h \
+    dialog/radarfeaturezone.h \
+    draw_manager/zchxdrawzonetool.h
 
 FORMS    += mainwindow.ui \
     cardmouthinfodialog.ui \
     channelinfodialog.ui \
     coastdatainfodialog.ui \
-    defenceinfodialog.ui \
     localmarkdlg.ui \
     mooringinfodialog.ui \
     structureinfodialog.ui \
-    warningzoneparadialog.ui
+    warningzoneparadialog.ui \
+    dialog/radarfeaturezone.ui \
+    dialog/defenceinfodialog.ui \
 
 RESOURCES += res/resources.qrc
 DISTFILES += \
@@ -214,7 +226,7 @@ RESOURCES += $$PWD/opengl/opengl.qrc
 #生成安装文件到第三方�?
 #1)指定三方库目�?
 DESTDIRRoot = $$TargetRoot/app/3rdParty/zchx_ecdis/3.0.0
-#DESTDIRRoot = H:/workspace/2018_WBS_V2/5.code/trunk/kakou_framework/Tools/3rdParty/zchx_ecdis/3.0.0
+#DESTDIRRoot = H:/workspace/2018_WBS_V2/5.code/trunk/kakou_framework_new_ecdis/Tools/3rdParty/zchx_ecdis/3.0.0
 #2)安装翻译文件
 qminstall.files = $$BINARIES_PATH/translations/zchx_ecdis_zh_CN.qm
 qminstall.path = $$DESTDIRRoot/translations/

@@ -2,6 +2,7 @@
 #include "zchxmapframe.h"
 
 using namespace qt;
+using namespace ZCHX::Data;
 zchxDrawAngleTool::zchxDrawAngleTool(zchxMapWidget* w, QObject *parent) : zchxDrawTool(w, qt::eTool::DRAWDIRANGLE, parent)
 {
 
@@ -16,7 +17,7 @@ void zchxDrawAngleTool::appendPoint(const QPointF &pnt)
     }
 }
 
-void zchxDrawAngleTool::show(QPainter *painter, double offset_x, double offset_y)
+void zchxDrawAngleTool::show(QPainter *painter)
 {
     if(!isReady() || mPoints.size() < 2) return;
     PainterPair chk(painter);

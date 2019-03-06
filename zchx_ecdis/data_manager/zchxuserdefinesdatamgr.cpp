@@ -8,7 +8,17 @@
 #include "mooringinfodialog.h"
 #include "zchxmapframe.h"
 
-namespace qt {
+using namespace qt;
+
+bool zchxWarningZoneDataMgr::updateActiveItem(const QPoint &pt)
+{
+    bool sts = zchxTemplateDataMgr::updateActiveItem(pt);
+    if(sts && mDisplayWidget) {
+        WarningZoneElement* ele = static_cast<WarningZoneElement*>(mDisplayWidget->getCurrentSelectedElement());
+        if(ele) mDisplayWidget->signalIsSelected4WarringZone(ele->data());
+    }
+}
+
 void zchxCoastDataMgr::importData(const std::vector<std::pair<double, double> > & path)
 {
     ZCHX::Data::ITF_CoastData zone;
@@ -200,7 +210,7 @@ void zchxCardMouthDataMgr::importData(const std::vector<std::pair<double, double
     }
 }
 
-void zchxShipAlarmAscendDataMgr::show(QPainter* painter, double offset_x, double offset_y)
+void zchxShipAlarmAscendDataMgr::show(QPainter* painter)
 {
     if( !painter || !MapLayerMgr::instance()->isLayerVisible(mLayerName) || mData.empty()) return;
     //追溯线
@@ -217,6 +227,5 @@ void zchxShipAlarmAscendDataMgr::show(QPainter* painter, double offset_x, double
         painter->drawPolyline(points);
     }
 
-    zchxTemplateDataMgr::show(painter, offset_x, offset_y);
-}
+    zchxTemplateDataMgr::show(painter);
 }

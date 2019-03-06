@@ -4,10 +4,9 @@
 
 namespace qt {
 WarningZoneElement::WarningZoneElement(const ZCHX::Data::ITF_WarringZone &ele, zchxMapFrameWork* f)
-    :Element(0,0,f,ZCHX::Data::ELEMENT_WARNING_ZONE)
+    :MoveElement(f,ZCHX::Data::ELEMENT_WARNING_ZONE)
 {
     setData(ele);
-    setIsUpdate(true);
 }
 
 void WarningZoneElement::setData(const ZCHX::Data::ITF_WarringZone &ele)
@@ -24,6 +23,11 @@ void WarningZoneElement::setData(const ZCHX::Data::ITF_WarringZone &ele)
 }
 
 std::vector<std::pair<double, double> > WarningZoneElement::path() const
+{
+    return m_data.path;
+}
+
+std::vector<std::pair<double, double> > & WarningZoneElement::getPath()
 {
     return m_data.path;
 }
@@ -58,38 +62,13 @@ ZCHX::Data::ITF_WarringZone WarningZoneElement::data() const
     return m_data;
 }
 
-void WarningZoneElement::changePathPoint(double lat, double lon)
-{
-    if(0 <= m_activePathPoint  && m_activePathPoint < m_data.path.size())
-    {
-        m_data.path[m_activePathPoint].first = lat;
-        m_data.path[m_activePathPoint].second = lon;
-    }
-}
-
-void WarningZoneElement::moveTo(double lat, double lon)
-{
-    for(int i= 0; i< m_data.path.size(); ++i)
-    {
-        m_data.path[i].first  = m_path[i].first  + lat;
-        m_data.path[i].second = m_path[i].second + lon;
-    }
-}
 
 void WarningZoneElement::updateOldPath()
 {
     m_path = m_data.path;
 }
 
-int WarningZoneElement::activePathPoint() const
-{
-    return m_activePathPoint;
-}
 
-void WarningZoneElement::setActivePathPoint(int activePathPoint)
-{
-    m_activePathPoint = activePathPoint;
-}
 
 void WarningZoneElement::delPathPoint(int idx)
 {
@@ -101,38 +80,6 @@ void WarningZoneElement::delPathPoint(int idx)
     }
 }
 
-void WarningZoneElement::addCtrlPoint(std::pair<double, double> ps)
-{
-    m_data.path.push_back(ps);
-    m_path = m_data.path;
-    m_activePathPoint = -1;
-}
-
-bool WarningZoneElement::contains(int range, double x, double y) const
-{
-    if(!framework()) return false;
-    std::vector<std::pair<double,double>> tmp_path = path();
-    for(int i=0; i<tmp_path.size()-1;++i)
-    {
-        std::pair<double, double> p1 = tmp_path[i];
-        std::pair<double, double> p2 = tmp_path[i+1];
-        Point2D start = framework()->LatLon2Pixel(p1.first, p1.second);
-        Point2D end = framework()->LatLon2Pixel(p2.first, p2.second);
-
-        //检查3点是否共线
-        int p1x = start.x, p1y = start.y;
-        int p2x = end.x, p2y = end.y;
-        int check = (p1x - x) *(p2y - y) - (p2x - x) * (p1y - y);
-        //qDebug()<<"start:"<<p1x<<" "<<p1y<<" end:"<<p2x<<" "<<p2y<<" cur:"<<x<<" "<<y<<" area:"<<check;
-        if(abs(check) < range)
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
 void WarningZoneElement::drawElement(QPainter *painter)
 {
     //禁止显示防区信息
@@ -142,7 +89,7 @@ void WarningZoneElement::drawElement(QPainter *painter)
     for(int i = 0; i < tmp_path.size(); ++i)
     {
         std::pair<double, double> ll = tmp_path[i];
-        Point2D  curPos = m_framework->LatLon2Pixel(ll.first, ll.second);
+        ZCHX::Data::Point2D  curPos = m_framework->LatLon2Pixel(ll.first, ll.second);
         QPointF pos(curPos.x,curPos.y);
         polygon.append(pos);
         if(getIsActive())

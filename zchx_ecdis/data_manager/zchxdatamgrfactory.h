@@ -43,6 +43,8 @@ public:
     zchxIslandLineDataMgr*  getIslandlineMgr();
     zchxCameraGridDataMgr*  getCameraGridMgr();
     zchxShipAlarmAscendDataMgr* getShipAlarmAscendMgr();
+    zchxRadarVideoMgr*          getRadarVideoMgr();
+    zchxRadarFeatureZoneDataMgr* getRadarFeatureZoneMgr();
 
 
 private:

@@ -10,7 +10,7 @@ zchxDrawTool::zchxDrawTool(zchxMapWidget* w, int type, QObject *parent) : QObjec
 }
 
 
-void zchxDrawTool::show(QPainter* painter, double offset_x, double offset_y)
+void zchxDrawTool::show(QPainter* painter)
 {
     return;
 }
@@ -23,6 +23,11 @@ void zchxDrawTool::startDraw()
 void zchxDrawTool::appendPoint(const QPointF& pnt)
 {
     mPoints.append(pnt);
+}
+
+int zchxDrawTool::getPointSize()
+{
+    return mPoints.size();
 }
 
 void zchxDrawTool::endDraw()

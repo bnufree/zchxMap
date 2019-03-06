@@ -3,7 +3,9 @@
 #include "localmarkdlg.h"
 
 using namespace qt;
-zchxDrawLocalMarkTool::zchxDrawLocalMarkTool(zchxMapWidget* w, QObject *parent) : zchxDrawTool(w, qt::eTool::DRAWDIRANGLE, parent)
+using namespace ZCHX::Data;
+
+zchxDrawLocalMarkTool::zchxDrawLocalMarkTool(zchxMapWidget* w, QObject *parent) : zchxDrawTool(w, qt::eTool::DRAWLOCALMARK, parent)
 {
 
 }
@@ -17,15 +19,6 @@ void zchxDrawLocalMarkTool::appendPoint(const QPointF &pnt)
     }
 
 }
-
-//void zchxDrawLocalMarkTool::show(QPainter *painter, double offset_x, double offset_y)
-//{
-//    if(!isReady()) return;
-//    PainterPair chk(painter);
-//    painter->setRenderHint(QPainter::Antialiasing);
-//    //在当前位置画图片
-//    painter->drawPixmap(mPoints[0], QPixmap(":/mouseCursor/mousecursor/positionMark.svg"));
-//}
 
 void zchxDrawLocalMarkTool::endDraw()
 {

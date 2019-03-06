@@ -413,6 +413,7 @@ signals: //定义发送信号接口
     void itfSignalCreateCPATrack(const QString &ShipId);
     void itfSignalUpdateWarringZoneOrLineState(const int type,const int state);
     void itfSignalMapIsRoaming();
+    void itfSignalSendPTZLocation(double lat, double lon);
     //图层
     /*!
          * \brief 图层中的元素的选中状态有变化
@@ -625,6 +626,8 @@ public slots: //定义Recive数据接口
     //数据显示管理
     void itfAppendItemDataMgr(std::shared_ptr<zchxEcdisDataMgr> mgr);
     void itfRemoveItemDataMgr(std::shared_ptr<zchxEcdisDataMgr> mgr);
+    //PTZ获取
+    void itfPickUpPTZ();
 protected Q_SLOTS:
     void OnMeasureAreaAction();
     void OnDirAngleAction();

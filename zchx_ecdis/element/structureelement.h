@@ -25,7 +25,7 @@ public:
     ZCHX::Data::ITF_Structure data() const;
 
     void updateGeometry(QPointF, int){}
-    bool contains(int range, double x, double y) const;
+//    bool contains(int range, double x, double y) const;
     void drawElement(QPainter *painter);
 
 private:

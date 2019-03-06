@@ -130,10 +130,10 @@ void IslandLineElement::setColor(QString color)
     m_data.warnColor = color;
 }
 
-bool IslandLineElement::contains(int range, double x, double y) const
-{
-    return Element::contains(range, x, y);
-}
+//bool IslandLineElement::contains(int range, double x, double y) const
+//{
+//    return Element::contains(range, x, y);
+//}
 
 void IslandLineElement::drawElement(QPainter *painter)
 {

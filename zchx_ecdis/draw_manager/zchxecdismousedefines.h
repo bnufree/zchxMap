@@ -74,6 +74,7 @@ enum eTool{
     CARDMOUTHADDCTRL,               //添加控制点
     CARDMOUTHDEL,                   //删除航道
     DRAWCAMERANETGRID,              //相机网格图
+    PICKUPPTZ,                      //PTZ获取
 };
 }
 #endif // ZCHXECDISMOUSEDEFINES_H

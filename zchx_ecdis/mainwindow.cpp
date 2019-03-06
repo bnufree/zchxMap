@@ -76,7 +76,7 @@ void MainWindow::on_load_clicked()
     double lon = ui->lon->text().toDouble();
     double lat = ui->lat->text().toDouble();
     int zoom = ui->zoom->text().toInt();
-    if(mMapWidget) mMapWidget->setCenterAndZoom(LatLon(lat, lon), zoom);
+    if(mMapWidget) mMapWidget->setCenterAndZoom(ZCHX::Data::LatLon(lat, lon), zoom);
 }
 
 void MainWindow::slotUpdateCurrentPos(double lon, double lat)
@@ -224,6 +224,7 @@ void MainWindow::initSignalConnect()
     connect(mMapWidget,SIGNAL(signalUpdateCardMouthZoneState(int,int)),this, SIGNAL(itfSignalUpdateCardMouthZoneState(int, int)));
     connect(mMapWidget,SIGNAL(signalMapIsRoaming()),this, SIGNAL(itfSignalMapIsRoaming()));
     connect(mMapWidget,SIGNAL(signalSendCameraNetGrid(ZCHX::Data::ITF_CameraNetGrid)), this, SIGNAL(itfSignalSendCameraNetGrid(ZCHX::Data::ITF_CameraNetGrid)));
+    connect(mMapWidget,SIGNAL(signalSendPTZLocation(double, double)),this,SIGNAL(itfSignalSendPTZLocation(double, double)));
 }
 
 void MainWindow::itfSetAisData(const QList<ZCHX::Data::ITF_AIS> &data)
@@ -473,15 +474,7 @@ void MainWindow::itfSetDangerousCircleRange(const double range)
 
 void MainWindow::itfSetRadarFeatureZoneDagta(const QList<ZCHX::Data::ITF_RadarFeaturesZone> &data)
 {
-    std::vector<RadarFeatureZone> list;
-    for(int i=0; i< data.size(); ++i)
-    {
-        RadarFeatureZone item(data.at(i));
-        list.push_back(item);
-
-    }
-
-    ZCHX_DATA_FACTORY->getRadarDataMgr()->setRadarFeatureZoneData(list);
+    ZCHX_DATA_FACTORY->getRadarFeatureZoneMgr()->setData(data);
 }
 
 void MainWindow::itfSetRouteLineData(const QList<ZCHX::Data::RouteLine> &data)
@@ -635,17 +628,17 @@ void MainWindow::itfSetCameraObservationZoneData(const QList<ZCHX::Data::ITF_Cam
 void MainWindow::itfSetRadarVideoData(double dCentreLon, double dCentreLat, double dDistance, int uType, int uLoopNum)
 {
 
-    //if(mMapWidget) mMapWidget->setRadarVideoData(dCentreLon,dCentreLat,dDistance,uType,uLoopNum);
+    ZCHX_DATA_FACTORY->getRadarVideoMgr()->setRadarVideoData(dCentreLon,dCentreLat,dDistance,uType,uLoopNum);
 }
 
 void MainWindow::itfSetRadarVideoPixmap(int uIndex, const QPixmap &objPixmap, const QPixmap &prePixmap)
 {
-    //if(mMapWidget) mMapWidget->setRadarVideoPixmap(uIndex,objPixmap,prePixmap);
+    ZCHX_DATA_FACTORY->getRadarVideoMgr()->setRadarVideoPixmap(uIndex,objPixmap,prePixmap);
 }
 
 void MainWindow::itfSetCurrentRadarVideoPixmap(const QPixmap &objPixmap)
 {
-    //if(mMapWidget) mMapWidget->setCurrentRadarVideoPixmap(objPixmap);
+    ZCHX_DATA_FACTORY->getRadarVideoMgr()->setCurrentRadarVideoPixmap(objPixmap);
 }
 
 //void MainWindow::itfSetMultibeamData(const QList<ZCHX::Data::ITF_Multibeam> &data, const double dMinLon, const double dMinLat, const double dMaxLon, const double dMaxLat, const double dMinX, const double dMinY, const double dMinZ, const double dMaxX, const double dMaxY, const double dMaxZ)
@@ -1284,7 +1277,7 @@ void MainWindow::OnSetMapAngle(double angle)
 
 void MainWindow::setMapCenterAndZoom(double lat, double lon, int zoom)
 {
-    if(mMapWidget) mMapWidget->setCenterAndZoom(LatLon(lat, lon), zoom);
+    if(mMapWidget) mMapWidget->setCenterAndZoom(ZCHX::Data::LatLon(lat, lon), zoom);
 }
 
 void MainWindow::setMapCenterAndRotate(double lat, double lon, double ang)
@@ -1304,7 +1297,7 @@ void MainWindow::resetMapRotate(double lat, double lon)
 
 void MainWindow::setMapCenter(double lat, double lon)
 {
-    if(mMapWidget) mMapWidget->setCenterAndZoom(LatLon(lat, lon), -1);
+    if(mMapWidget) mMapWidget->setCenterAndZoom(ZCHX::Data::LatLon(lat, lon), -1);
 }
 
 void MainWindow::resetMap()
@@ -1786,6 +1779,11 @@ void MainWindow::itfAppendItemDataMgr(std::shared_ptr<zchxEcdisDataMgr> mgr)
 void MainWindow::itfRemoveItemDataMgr(std::shared_ptr<zchxEcdisDataMgr> mgr)
 {
     ZCHX_DATA_FACTORY->removeDataMgr(mgr);
+}
+
+void MainWindow::itfPickUpPTZ()
+{
+    if(mMapWidget) mMapWidget->setETool2PickUpPTZ();
 }
 }
 

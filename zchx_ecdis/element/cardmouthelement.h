@@ -14,16 +14,13 @@ public:
 
     virtual std::vector<std::pair<double, double> > path() const;
     virtual void setPath(const std::vector<std::pair<double, double> > &path);
+    virtual std::vector<std::pair<double, double> > & getPath();
 
     int id() const;
     void setId(int id);
 
     std::string name() const;
     void setName(const std::string &name);
-
-
-
-    virtual std::vector<std::pair<double, double> > & getPath();
 
     void updateOldPath();
     void updateGeometry(QPointF, int){}

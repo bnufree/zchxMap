@@ -1,6 +1,5 @@
 #include "zchxmaplayermgr.h"
 #include "zchxmapwidget.h"
-#include <QDomDocument>
 
 namespace qt {
 MapLayerMgr* MapLayerMgr::minstance = 0;

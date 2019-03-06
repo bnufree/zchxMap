@@ -1,12 +1,11 @@
 #ifndef AREANETELEMENT_H
 #define AREANETELEMENT_H
 
-#include "IDrawElement.hpp"
-#include <QtCore>
+#include "moveelement.h"
 
 namespace qt {
 //地理区域网络
-class AreaNetElement : public Element
+class AreaNetElement : public MoveElement
 {
 public:
     explicit AreaNetElement(const ZCHX::Data::ITF_AreaNet &ele, zchxMapFrameWork* f);
@@ -16,14 +15,14 @@ public:
 
     std::vector<std::pair<double, double> > path() const;
     void setPath(const std::vector<std::pair<double, double> > &path);
-
+    std::vector<std::pair<double, double> > & getPath();
     int id() const;
     void setId(int id);
 
     std::string name() const;
     void setName(const std::string &name);
     void updateGeometry(QPointF, int){}
-    bool contains(int range, double x, double y) const;
+//    bool contains(int range, double x, double y) const;
     void drawElement(QPainter *painter);
 
 private:

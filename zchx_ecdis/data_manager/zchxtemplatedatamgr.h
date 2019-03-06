@@ -10,7 +10,7 @@ public:
     zchxTemplateDataMgr(zchxMapWidget* w, int type, const QString& layer, QObject *parent = 0):
         zchxEcdisDataMgr(w, type, parent), mLayerName(layer), mIsDrawNow(false) {}
     //
-    virtual void show(QPainter* painter, double offset_x, double offset_y)
+    virtual void show(QPainter* painter)
     {
         if( !painter || !MapLayerMgr::instance()->isLayerVisible(mLayerName) || mData.empty()) return;
         for(std::shared_ptr<K> ele : mData)
@@ -24,9 +24,29 @@ public:
         }
     }
 
+    Element* selectItem(const QPoint &pt)
+    {
+        for(std::shared_ptr<K> ele : mData)
+        {
+            //检查AIS图元本身是否选中
+            if(ele->contains(pt))
+            {
+                return ele.get();
+            }
+        }
+        return 0;
+    }
+
     //
     virtual bool updateActiveItem(const QPoint &pt)
     {
+        if(!MapLayerMgr::instance()->isLayerVisible(mLayerName)) return false;
+        Element* ele = selectItem(pt);
+        if(ele)
+        {
+            mDisplayWidget->setCurrentSelectedItem(ele);
+            return true;
+        }
         return false;
     }
 
@@ -38,6 +58,11 @@ public:
             list.push_back(ele->data());
         }
         return list;
+    }
+
+    void setData(const T& data)
+    {
+        setData(QList<T>() <<data);
     }
 
     void setData(const QList<T> &list)

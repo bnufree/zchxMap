@@ -46,6 +46,8 @@ void Profiles::initDefaultValues()
     setDefault(MAP_INDEX, MAP_DEFAULT_LAT, 20.12345678);
     setDefault(MAP_INDEX, MAP_DEFAULT_LON, 110.12345678);
     setDefault(MAP_INDEX, MAP_DEFAULT_ZOOM, 13);
+    setDefault(MAP_INDEX, MAP_MIN_ZOOM, 13);
+    setDefault(MAP_INDEX, MAP_MAX_ZOOM, 17);
     setDefault(MAP_INDEX, MAP_DEFAULT_TARGET_ZOOM, 15);
     setDefault(MAP_INDEX, MAP_UPDATE_INTERVAL, 100);
     setDefault(MAP_INDEX, MAP_SOURCE, 0);

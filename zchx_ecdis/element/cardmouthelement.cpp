@@ -19,6 +19,7 @@ void CardMouthElement::setData(const ZCHX::Data::ITF_CardMouth &ele)
     }
     m_data = ele;
     m_name = ele.name.toStdString();
+    setIsUpdate(true);
 }
 
 std::vector<std::pair<double, double> > CardMouthElement::path() const

@@ -34,7 +34,7 @@ void zchxAisDataMgr::setPrepushTrackStyle(const QString &color, const int lineWi
     m_iPrepushTrackWidth = lineWidth;
 }
 
-void zchxAisDataMgr::show(QPainter* painter, double offset_x, double offset_y)
+void zchxAisDataMgr::show(QPainter* painter)
 {
     if(!MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_AIS)) return;
     if(m_aisMap.size() == 0) return;
@@ -132,7 +132,7 @@ void zchxAisDataMgr::show(QPainter* painter, double offset_x, double offset_y)
                         for(int j = 0; j < item->getData().RadarMeetVec.size(); j++)
                         {
                             ZCHX::Data::RadarMeet meetItem = item->getData().RadarMeetVec.at(j);
-                            Point2D meetPos = item->framework()->LatLon2Pixel(meetItem.lat, meetItem.lon);
+                            ZCHX::Data::Point2D meetPos = item->framework()->LatLon2Pixel(meetItem.lat, meetItem.lon);
                             time_hour = meetItem.UTC / 3600;
                             time_minute = meetItem.UTC / 60 - time_hour * 60;
                             time_second = meetItem.UTC % 60;

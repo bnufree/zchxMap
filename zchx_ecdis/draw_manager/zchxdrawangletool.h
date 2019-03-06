@@ -8,7 +8,7 @@ class zchxDrawAngleTool : public zchxDrawTool
     Q_OBJECT
 public:
     explicit zchxDrawAngleTool(zchxMapWidget* w, QObject *parent = 0);
-    void show(QPainter *painter, double offset_x, double offset_y);
+    void show(QPainter *painter);
     void appendPoint(const QPointF& pnt);
 
 signals:

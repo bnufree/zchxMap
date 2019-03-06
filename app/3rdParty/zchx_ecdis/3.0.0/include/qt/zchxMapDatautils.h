@@ -5,103 +5,13 @@
 #include <QString>
 #include <QDateTime>
 #include <QPixmap>
-
-#define         GLOB_PI                                 (3.14159265358979323846)
-#define         DOUBLE_EPS                              0.000001
-#define         EARTH_HALF_CIRCUL_LENGTH                20037508.3427892
-#define         MAP_IMG_SIZE                            256
-
-#define         DATETIME_STRING(datetime)       (datetime.toString("yyyy-MM-dd hh:mm:ss"))
-#define         FLOAT_STRING(val ,n)   (QString::number(val, 'f', n))
-#define         INT_STRING(val)      (QString("").sprintf("%d", val))
-#define         INT_COMMA_STRING(val) (QString("%L1").arg(val))
-#define         TIMESTAMP16_STRING(val) ( DATETIME_STRING(QDateTime::fromMSecsSinceEpoch(val)))
-#define         TIMESTAMP10_STRING(val) ( DATETIME_STRING(QDateTime::fromTime_t(val)))
-#define         KPH2KTS(val)            ((val) / 1.852)
-#define         MPS2KTS(val)            (KPH2KTS((val) * 3.6))
-#define         TIMEOFDAY2UTC(val)      (QDateTime(QDate::currentDate()).toMSecsSinceEpoch() + (val*1000))
+#include "zchxutils.hpp"
 
 namespace qt {
-struct Mercator{
-public:
-    Mercator() {mX = 0.0; mY = 0.0;}
-    Mercator(double x, double y){mX = x; mY= y;}
-    bool operator ==(const Mercator& other)
-    {
-        return fabs(this->mX- other.mX) <= DOUBLE_EPS  && \
-               fabs(this->mY - other.mY) <= DOUBLE_EPS ;
-    }
-    double mX;
-    double mY;
-};
-
-struct LatLon{
-public:
-    LatLon() {lon = 0.0; lat = 0.0;}
-    LatLon(double y, double x){lon = x; lat= y;}
-    bool operator ==(const LatLon& other) const
-    {
-        return fabs(this->lon - other.lon) <= DOUBLE_EPS  && \
-               fabs(this->lat - other.lat) <= DOUBLE_EPS ;
-    }
-
-    bool isNull() const
-    {
-        return fabs(lat) < 0.000001 && fabs(lon) < 0.000001;
-    }
-
-    double lat;
-    double lon;
-};
-
-struct Point2D{
-    double x;
-    double y;
-
-    Point2D(double px, double py) {
-        x = px;
-        y = py;
-    }
-
-    Point2D()
-    {
-        x = 0;
-        y = 0;
-    }
-
-    Point2D(const QPoint& p)
-    {
-        x = p.x();
-        y = p.y();
-    }
-
-    Point2D(const QPointF& p)
-    {
-        x = p.x();
-        y = p.y();
-    }
-
-    QPointF toPointF() const
-    {
-        return QPointF(x, y);
-    }
-
-    QPoint toPoint() const
-    {
-        return QPoint(qRound(x), qRound(y));
-    }
-
-
-};
-
-//struct strLatLon{
-//    double lat;
-//    double lon;
-//};
 
 struct MapRangeData{
-    Mercator    mLowerLeft;         //左下
-    Mercator    mTopRight;          //右上
+    ZCHX::Data::Mercator    mLowerLeft;         //左下
+    ZCHX::Data::Mercator    mTopRight;          //右上
 };
 
 enum    TILE_ORIGIN_POS{
@@ -122,7 +32,7 @@ struct MapLoadSetting{
     int             mZoom;
     int             mSource; //0:本地1:服务器地址
     int             mTilePos;
-    LatLon          mCenter;
+    ZCHX::Data::LatLon          mCenter;
 };
 
 //瓦片图片信息
@@ -156,9 +66,9 @@ class zchxMapDataUtils
 public:
     zchxMapDataUtils();
     //墨卡托和wgs84互转
-    static LatLon mercatorToWgs84LonLat(const Mercator& mercator);
-    static Mercator wgs84LonlatToMercator(const LatLon& wgs84 );
-    static Mercator wgs84LatLonToMercator(double lat, double lon ) {return wgs84LonlatToMercator(LatLon(lat, lon));}
+    static ZCHX::Data::LatLon mercatorToWgs84LonLat(const ZCHX::Data::Mercator& mercator);
+    static ZCHX::Data::Mercator wgs84LonlatToMercator(const ZCHX::Data::LatLon& wgs84 );
+    static ZCHX::Data::Mercator wgs84LatLonToMercator(double lat, double lon ) {return wgs84LonlatToMercator(ZCHX::Data::LatLon(lat, lon));}
     static double calResolution(int zoom);
     //角度弧度换算
     static double DegToRad(double deg);
@@ -171,8 +81,8 @@ public:
     // lat1, lat2, lon1, lon2 - in degrees.
     static double DistanceOnSphere(double lat1Deg, double lon1Deg, double lat2Deg, double lon2Deg);
     // Area on unit sphere for a triangle (ll1, ll2, ll3).
-    static double AreaOnSphere(LatLon const & ll1, LatLon const & ll2, LatLon const & ll3);
-    static double AreaOnSphere(std::vector<LatLon> vectorPoints);
+    static double AreaOnSphere(ZCHX::Data::LatLon const & ll1, ZCHX::Data::LatLon const & ll2, ZCHX::Data::LatLon const & ll3);
+    static double AreaOnSphere(std::vector<ZCHX::Data::LatLon> vectorPoints);
 
     // Distance in meteres on Earth between (lat1, lon1) and (lat2, lon2).
     // lat1, lat2, lon1, lon2 - in degrees.
@@ -181,35 +91,35 @@ public:
       return EarthRadiusMeters() * DistanceOnSphere(lat1Deg, lon1Deg, lat2Deg, lon2Deg);
     }
 
-    static double DistanceOnEarth(LatLon const & ll1, LatLon const & ll2)
+    static double DistanceOnEarth(ZCHX::Data::LatLon const & ll1, ZCHX::Data::LatLon const & ll2)
     {
       return DistanceOnEarth(ll1.lat, ll1.lon, ll2.lat, ll2.lon);
     }
 
-    static double AreaOnEarth(LatLon const & ll1, LatLon const & ll2, LatLon const & ll3)
+    static double AreaOnEarth(ZCHX::Data::LatLon const & ll1, ZCHX::Data::LatLon const & ll2, ZCHX::Data::LatLon const & ll3)
     {
       return OneDegreeEquatorLengthMeters() * OneDegreeEquatorLengthMeters() * AreaOnSphere(ll1, ll2, ll3);
     }
 
-    static double AreaOnEarth(std::vector<LatLon> vectorPoints)
+    static double AreaOnEarth(std::vector<ZCHX::Data::LatLon> vectorPoints)
     {
       return OneDegreeEquatorLengthMeters() * OneDegreeEquatorLengthMeters() * AreaOnSphere(vectorPoints);
     }
 
     static double getTotalDistance(const std::vector<std::pair<double, double> > &pointList);
     static double getTotalArea(const std::vector<std::pair<double, double> > &pointList);
-    LatLon static getSmPoint(const LatLon & pt, double lonMetresR, double latMetresR);
-    static double getDistancePixel(const Point2D& p1, const Point2D & p2);
+    ZCHX::Data::LatLon static getSmPoint(const ZCHX::Data::LatLon & pt, double lonMetresR, double latMetresR);
+    static double getDistancePixel(const ZCHX::Data::Point2D& p1, const ZCHX::Data::Point2D & p2);
 
 
     //计算向量的角度[P1,P2]
-    static inline double AngleTo(const Point2D& p1, const Point2D & p2)
+    static inline double AngleTo(const ZCHX::Data::Point2D& p1, const ZCHX::Data::Point2D & p2)
     {
         return atan2(p2.y - p1.y, p2.x - p1.x);
     }
 
     //计算两个向量的夹角[p, p1] 到[p, p2]. 逆时针旋转. [0, 2pi]
-    static inline double TwoVectorsAngle(const Point2D& p0, const Point2D& p1, const Point2D & p2)
+    static inline double TwoVectorsAngle(const ZCHX::Data::Point2D& p0, const ZCHX::Data::Point2D& p1, const ZCHX::Data::Point2D & p2)
     {
         double a = AngleTo(p0, p2) - AngleTo(p0, p1);
         while (a < 0) a += GLOB_PI;
@@ -223,8 +133,8 @@ public:
 
 
 typedef struct tagStartEndPoint{
-    Point2D start;
-    Point2D end;
+    ZCHX::Data::Point2D start;
+    ZCHX::Data::Point2D end;
 }StartEndPoint;
 
 typedef struct tagMultiBeamImg {
@@ -273,6 +183,8 @@ Q_DECLARE_METATYPE(qt::TileImageList)
 #define             MAP_DEFAULT_LAT                      "Lat"
 #define             MAP_DEFAULT_LON                      "Lon"
 #define             MAP_DEFAULT_ZOOM                    "Zoom"
+#define             MAP_MIN_ZOOM                        "MinZoom"
+#define             MAP_MAX_ZOOM                        "MaxZoom"
 #define             MAP_DEFAULT_TARGET_ZOOM             "TargetZoom"            //目标居中放大时的倍数
 #define             MAP_UPDATE_INTERVAL             "UpdateInterval"            //刷新时间间隔毫秒
 #define             MAP_SOURCE                      "MapSource"                 //地图数据来源

@@ -111,7 +111,7 @@ void AisElement::drawCPA(QPainter *painter)
     double lat = list.at(1).toDouble();
     double distance = list.at(2).toDouble();
 
-    Point2D CPApos = m_framework->LatLon2Pixel(lat, lon);
+    ZCHX::Data::Point2D CPApos = m_framework->LatLon2Pixel(lat, lon);
     PainterPair chk(painter);
     //划线
     painter->setPen(QPen(QColor(210,210,90),2));
@@ -243,7 +243,7 @@ void AisElement::drawHistoryTrackPoint(QPainter *painter)
     for(int i = 0; i < size; i++)
     {
         ZCHX::Data::ITF_AIS AisData = mHistoryTrackList[i];
-        Point2D meetPos = m_framework->LatLon2Pixel(AisData.lat,AisData.lon);
+        ZCHX::Data::Point2D meetPos = m_framework->LatLon2Pixel(AisData.lat,AisData.lon);
         if(i == 0)
         {
             PreviousTime = AisData.UTC;
@@ -292,7 +292,7 @@ void AisElement::drawHistoryTrack(QPainter *painter)
     for(int i = 0; i < numberSize; i++)
     {
         ZCHX::Data::ITF_AIS AisData = mHistoryTrackList.at(i);
-        Point2D pos =  m_framework->LatLon2Pixel(AisData.lat,AisData.lon);
+        ZCHX::Data::Point2D pos =  m_framework->LatLon2Pixel(AisData.lat,AisData.lon);
         pts.push_back(QPointF(pos.x, pos.y));
     }
     //画尾迹线段
@@ -351,7 +351,7 @@ void AisElement::drawRealtimeTailTrack(QPainter *painter)
     for(int j =0; j <mRealtimeTailTrackList.size(); ++j)
     {
         ZCHX::Data::ITF_AIS ItemData = mRealtimeTailTrackList.at(j);
-        qt::Point2D curPos = m_framework->LatLon2Pixel(qt::LatLon(ItemData.lat, ItemData.lon));
+        ZCHX::Data::Point2D curPos = m_framework->LatLon2Pixel(ZCHX::Data::LatLon(ItemData.lat, ItemData.lon));
         if(j == 0)
         {
             path.moveTo(curPos.x,curPos.y);
@@ -427,14 +427,14 @@ void AisElement::drawExtrapolation(QPainter *painter)
 {
     if(!painter || !getIsExtrapolate() || getExtrapolate() == 0) return;
     //绘制外推点
-    qt::Point2D  curPos = m_framework->LatLon2Pixel(getData().lat, getData().lon);
+    ZCHX::Data::Point2D  curPos = m_framework->LatLon2Pixel(getData().lat, getData().lon);
 
     //第二点
     double lat = 0.0, lon = 0.0;
     double Speed = getData().sog * 1852 /3600.0;
     double Distance = getExtrapolate() * 60 * Speed;
     ZCHX::Utils::distbear_to_latlon(getData().lat,getData().lon,Distance,getData().cog, lat, lon);
-    qt::Point2D nextPos = m_framework->LatLon2Pixel(lat, lon);
+    ZCHX::Data::Point2D nextPos = m_framework->LatLon2Pixel(lat, lon);
     PainterPair chk(painter);
     //画点
     painter->setPen(QPen(QColor(m_sPrepushTrackStyle),m_iPrepushTrackWidth,Qt::SolidLine));
@@ -594,10 +594,10 @@ void AisElement::drawCollide(const ZCHX::Data::ITF_AIS &targetAis, QPainter *pai
         QPointF pos = getCurrentPos();
 
         PainterPair chk(painter);
-        Point2D objCollideD = m_framework->LatLon2Pixel(AisData.objCollide.lat, AisData.objCollide.lon);
+        ZCHX::Data::Point2D objCollideD = m_framework->LatLon2Pixel(AisData.objCollide.lat, AisData.objCollide.lon);
         QPointF objCollidePos = QPointF(objCollideD.x, objCollideD.y);
 
-        Point2D targetD = m_framework->LatLon2Pixel(targetAis.lat, targetAis.lon);
+        ZCHX::Data::Point2D targetD = m_framework->LatLon2Pixel(targetAis.lat, targetAis.lon);
         QPointF targetPos = QPointF(targetD.x, targetD.y);
 
         painter->setPen(QPen(Qt::red, 1));

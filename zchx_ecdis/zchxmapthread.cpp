@@ -60,7 +60,7 @@ void zchxMapThread::run()
         double resolution = calResolution(task.zoom);
         qDebug()<<"resolution:"<<resolution;
         //计算当前中心经纬度对应的墨卡托坐标
-        Mercator center_mct = zchxMapDataUtils::wgs84LonlatToMercator(LatLon(task.lat, task.lon));
+        ZCHX::Data::Mercator center_mct = zchxMapDataUtils::wgs84LonlatToMercator(ZCHX::Data::LatLon(task.lat, task.lon));
         qDebug()<<"mercator (X, y) = "<<DBG_DOUBLE(center_mct.mX)<<DBG_DOUBLE(center_mct.mY);
         //计算层级的视窗对应的显示范围()
         MapBounds view_bounds = calViewBounds(center_mct.mX, center_mct.mY, task.view_x, task.view_y, resolution);
@@ -75,7 +75,7 @@ void zchxMapThread::run()
         qDebug()<<"tile range:(x0, y0)--(x1, y1)"<<tile_start_x<<tile_start_y<<tile_end_x<<tile_end_y <<"total "<<total_tile_X<<total_tile_Y;
         emit signalSendCurSize(tile_end_x-tile_start_x, tile_end_y-tile_start_y);
         //计算第一福瓦片对应的墨卡托坐标
-        Mercator first_tile(0, 0);
+        ZCHX::Data::Mercator first_tile(0, 0);
         first_tile.mX = total_bounds.min_x + (tile_start_x * 256 * resolution);
 //        while (first_tile.mX < view_bounds.min_x)
 //        {

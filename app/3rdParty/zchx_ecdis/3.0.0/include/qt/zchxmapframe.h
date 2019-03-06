@@ -10,10 +10,11 @@ class zchxMapFrameWork : public QObject
 {
     Q_OBJECT
 public:
-    explicit zchxMapFrameWork(double center_lat, double center_lon, int zoom, int width, int height, int source, QObject *parent = 0);
-    LatLon      Pixel2LatLon(const Point2D& pos);
-    Point2D     LatLon2Pixel(const LatLon& ll);
-    Point2D     LatLon2Pixel(double lat, double lon);
+    explicit zchxMapFrameWork(double center_lat, double center_lon, int zoom, int width, int height, int source, int min_zoom, int max_zoom, QObject *parent = 0);
+    ZCHX::Data::LatLon      Pixel2LatLon(const ZCHX::Data::Point2D& pos);
+    ZCHX::Data::Point2D     LatLon2Pixel(const ZCHX::Data::LatLon& ll);
+    ZCHX::Data::Point2D     LatLon2Pixel(double lat, double lon);
+    void        setOffSet(int offset_x, int offset_y);
     int         Zoom() const;
     int         GetDrawScale() const {return Zoom();}
     void        SetZoom(int zoom) ;
@@ -22,13 +23,13 @@ public:
     int         GetMinZoom() const {return mMinZoom;}
     void        Zoom2Min() {SetZoom(mMinZoom);}
     void        SetViewSize(int width, int height);
-    void        UpdateCenterAndZoom(const LatLon& ll, int zoom);
+    void        UpdateCenterAndZoom(const ZCHX::Data::LatLon& ll, int zoom);
     void        UpdateCenter(double lon, double lat);
-    void        UpdateCenter(const Point2D& point);
-    void        UpdateCenter(const LatLon& ll) {UpdateCenter(ll.lon, ll.lat);}
-    LatLon      Center() const {return mCenter;}
+    void        UpdateCenter(const ZCHX::Data::Point2D& point);
+    void        UpdateCenter(const ZCHX::Data::LatLon& ll) {UpdateCenter(ll.lon, ll.lat);}
+    ZCHX::Data::LatLon      Center() const {return mCenter;}
     void        UpdateDisplayRange();
-    Point2D     Mercator2Pixel(const Mercator& mct);
+    ZCHX::Data::Point2D     Mercator2Pixel(const ZCHX::Data::Mercator& mct);
     void        ZoomIn();
     void        ZoomOut();
     void        Update();
@@ -53,10 +54,11 @@ private:
     int                 mViewWidth;
     int                 mViewHeight;
     double              mUnitMercatorLength;
-    LatLon              mCenter;
+    ZCHX::Data::LatLon              mCenter;
     int                 mSource;
     MapStyle            mStyle;
     double              mRotateAngle;
+    QSize               mOffset;
 };
 }
 

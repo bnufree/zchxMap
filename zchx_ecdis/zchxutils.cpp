@@ -2,7 +2,6 @@
 #include "zchxMapDatautils.h"
 #include "zchxmapframe.h"
 
-namespace qt {
 namespace ZCHX {
 Utils *Utils::d = NULL;
 QString Utils::gCurrProject;
@@ -43,6 +42,13 @@ void Utils::distbear_to_latlon(double lat1,double lon1,double dist,
     double lon2 = lon1 + atan2(sin(brng)*sin(dist/R)*cos(lat1),cos(dist/R)-sin(lat1)*sin(lat2));
     lat_out=toDeg(lat2);
     lon_out=toDeg(lon2);
+}
+
+ZCHX::Data::LatLon Utils::distbear_to_latlon(double lat1, double lon1, double dist, double brng)
+{
+    ZCHX::Data::LatLon ll;
+    distbear_to_latlon(lat1, lon1, dist, brng, ll.lat, ll.lon);
+    return ll;
 }
 
 /*-------------------------------------------
@@ -465,14 +471,14 @@ int    Utils::rounds(double x)
     return (x > 0.0 ? int(x + 0.5) : int(x - 0.5));
 }
 
-double Utils::getDistanceByPixel(zchxMapFrameWork *f, double lat1, double lon1, double dist, double brng, QPointF pos)
+double Utils::getDistanceByPixel(qt::zchxMapFrameWork *f, double lat1, double lon1, double dist, double brng, QPointF pos)
 {
     if(!f)
         return 0.0;
     //通过推算经纬度计算半径
-    LatLon drll(0, 0);
+    ZCHX::Data::LatLon drll(0, 0);
     ZCHX::Utils::distbear_to_latlon(lat1, lon1, dist, brng, drll.lat, drll.lon);
-    Point2D drPos = f->LatLon2Pixel(drll);
+    ZCHX::Data::Point2D drPos = f->LatLon2Pixel(drll);
     QPointF pos2(drPos.x, drPos.y);
     QLineF line(pos, pos2);
 
@@ -1208,7 +1214,6 @@ bool tagITF_ChannelLine::operator ==(const tagITF_ChannelLine &other)
     }
 }
 
-}
 }
 }
 //} //ZCHX

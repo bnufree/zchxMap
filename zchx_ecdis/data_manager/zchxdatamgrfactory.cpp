@@ -93,6 +93,12 @@ void zchxDataMgrFactory::createManager(int type)
     case DATA_MGR_SHIPALARM_ASCEND:
         mMgrList[type] = std::shared_ptr<zchxShipAlarmAscendDataMgr>(new zchxShipAlarmAscendDataMgr(mWidget));
         break;
+    case DATA_MGR_RADAR_VIDEO:
+        mMgrList[type] = std::shared_ptr<zchxRadarVideoMgr>(new zchxRadarVideoMgr(mWidget));
+        break;
+    case DATA_MGR_RADAR_FEATURE_ZONE:
+        mMgrList[type] = std::shared_ptr<zchxRadarFeatureZoneDataMgr>(new zchxRadarFeatureZoneDataMgr(mWidget));
+        break;
     default:
         break;
     }
@@ -226,6 +232,16 @@ zchxCameraGridDataMgr*   zchxDataMgrFactory::getCameraGridMgr()
 zchxShipAlarmAscendDataMgr*   zchxDataMgrFactory::getShipAlarmAscendMgr()
 {
     return static_cast<zchxShipAlarmAscendDataMgr*>(getManager(DATA_MGR_SHIPALARM_ASCEND).get());
+}
+
+zchxRadarVideoMgr* zchxDataMgrFactory::getRadarVideoMgr()
+{
+    return static_cast<zchxRadarVideoMgr*>(getManager(DATA_MGR_RADAR_VIDEO).get());
+}
+
+zchxRadarFeatureZoneDataMgr* zchxDataMgrFactory::getRadarFeatureZoneMgr()
+{
+    return static_cast<zchxRadarFeatureZoneDataMgr*>(getManager(DATA_MGR_RADAR_FEATURE_ZONE).get());
 }
 
 }

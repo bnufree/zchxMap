@@ -5,6 +5,7 @@
 #include "profiles.h"
 #include <QDebug>
 #include "zchxutils.hpp"
+#include "map_layer/zchxmaplayermgr.h"
 
 namespace qt{
 
@@ -158,20 +159,49 @@ void DangerousCircle::setData(const ZCHX::Data::ITF_DangerousCircle &data)
     setIsUpdate(true);
 }
 
-RadarFeatureZone::RadarFeatureZone(const ZCHX::Data::ITF_RadarFeaturesZone &data)
-    :Element(0, 0, 0)
+RadarFeatureZoneElement::RadarFeatureZoneElement(const ZCHX::Data::ITF_RadarFeaturesZone &data, zchxMapFrameWork* f)
+    :Element(0, 0, f, ZCHX::Data::ELEMENT_RADAR_FEATURE_ZONE)
 {
-    m_data = data;
+    setData(data);
 }
 
-ZCHX::Data::ITF_RadarFeaturesZone RadarFeatureZone::data() const
+ZCHX::Data::ITF_RadarFeaturesZone RadarFeatureZoneElement::data() const
 {
    return m_data;
 }
 
-void RadarFeatureZone::setRadarFeatureZoneData(const ZCHX::Data::ITF_RadarFeaturesZone &data)
+void RadarFeatureZoneElement::setData(const ZCHX::Data::ITF_RadarFeaturesZone &data)
 {
     m_data = data;
+    setIsUpdate(true);
+}
+
+void RadarFeatureZoneElement::drawElement(QPainter *painter)
+{
+    if(!painter ||!MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_RADAR_FRETURE_AREA) || !m_framework) return;
+    QPolygonF polygon;
+    for(int i=0; i<m_data.pointList.size();++i)
+    {
+        QPointF pos = m_framework->LatLon2Pixel(m_data.pointList[i]).toPointF();
+        polygon.append(pos);
+        if(getIsActive())
+        {
+            PainterPair chk(painter);
+            painter->setPen(QPen(Qt::red,1,Qt::SolidLine));
+            painter->setBrush(Qt::white);
+            painter->drawEllipse(pos,5,5);
+        }
+    }
+    //封闭
+    if(polygon.first() != polygon.last())
+    {
+        polygon.append(polygon.first());
+    }
+    PainterPair chk(painter);
+    painter->setPen(QPen(QColor(Qt::red),1,Qt::DashLine));
+    painter->setBrush(QBrush(Qt::blue, Qt::Dense7Pattern));
+    painter->drawPolygon(polygon);
+    painter->drawText(polygon.boundingRect().center(), m_data.name);
 }
 
 RouteLine::RouteLine(const ZCHX::Data::RouteLine &ele)
