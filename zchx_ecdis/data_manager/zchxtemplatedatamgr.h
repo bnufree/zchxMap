@@ -40,7 +40,8 @@ public:
     //
     virtual bool updateActiveItem(const QPoint &pt)
     {
-        if(!MapLayerMgr::instance()->isLayerVisible(mLayerName)) return false;
+        if(!MapLayerMgr::instance()->isLayerVisible(mLayerName) ||
+           !isPickupAvailable()) return false;
         Element* ele = selectItem(pt);
         if(ele)
         {

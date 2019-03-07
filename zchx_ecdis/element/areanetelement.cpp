@@ -37,6 +37,11 @@ void AreaNetElement::setPath(const std::vector<std::pair<double, double> > &path
     m_data.path = path;
 }
 
+void AreaNetElement::updateOldPath()
+{
+    m_path = m_data.path;
+}
+
 int AreaNetElement::id() const
 {
     return uuid;

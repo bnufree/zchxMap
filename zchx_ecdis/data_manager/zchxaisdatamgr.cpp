@@ -2,7 +2,7 @@
 #include "zchxmapframe.h"
 
 namespace qt {
-zchxAisDataMgr::zchxAisDataMgr(zchxMapWidget* w, QObject *parent) : zchxEcdisDataMgr(w, DATA_MGR_AIS, parent)
+zchxAisDataMgr::zchxAisDataMgr(zchxMapWidget* w, QObject *parent) : zchxEcdisDataMgr(w, ZCHX::DATA_MGR_AIS, parent)
   , mSelHistoryPointIndex(-1)
   , mSelHistoryTrackID("")
 {
@@ -186,7 +186,7 @@ void zchxAisDataMgr::clearHistoryTrackSel()
 
 bool zchxAisDataMgr::updateActiveItem(const QPoint &pt)
 {
-    if(!MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_AIS)) return false;
+    if(!MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_AIS) || !isPickupAvailable()) return false;
     int type = mDisplayWidget->getCurPickupType();
     if(type != ZCHX::Data::ECDIS_PICKUP_AIS && type != ZCHX::Data::ECDIS_PICKUP_ALL ) return false;
 

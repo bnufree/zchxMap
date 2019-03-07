@@ -38,6 +38,11 @@ std::vector<std::pair<double, double> >& CoastElement::getPath()
     return m_data.path;
 }
 
+void CoastElement::updateOldPath()
+{
+    m_path = m_data.path;
+}
+
 int CoastElement::id() const
 {
     return uuid;

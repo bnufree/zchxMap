@@ -32,8 +32,7 @@ zchxMapWidget::zchxMapWidget(QWidget *parent) : QWidget(parent),
     mIsRadarTagetTrack(false),
     mIsCameraCombinedTrack(false),
     mIsCameraDisplayWithoutRod(true),
-    mCurPluginUserModel(ZCHX::Data::ECDIS_PLUGIN_USE_DISPLAY_MODEL),
-    mCurPickupType(ZCHX::Data::ECDIS_PICKUP_TYPE::ECDIS_PICKUP_ALL),
+    mCurPluginUserModel(ZCHX::Data::ECDIS_PLUGIN_USE_DISPLAY_MODEL),    
     mRouteDataMgr(new zchxRouteDataMgr(this)),
     mShipPlanDataMgr(new zchxShipPlanDataMgr(this)),
     mToolPtr(0)
@@ -62,29 +61,12 @@ zchxMapWidget::zchxMapWidget(QWidget *parent) : QWidget(parent),
     //
     //创建数据管理容器
     ZCHX_DATA_FACTORY->setDisplayWidget(this);
-    ZCHX_DATA_FACTORY->createManager(DATA_MGR_AIS);
-    ZCHX_DATA_FACTORY->createManager(DATA_MGR_RADAR);
-    ZCHX_DATA_FACTORY->createManager(DATA_MGR_CAMERA);
-    ZCHX_DATA_FACTORY->createManager(DATA_MGR_CAMERA_VIEW);
-    ZCHX_DATA_FACTORY->createManager(DATA_MGR_VIDEO_TARGET);
-    ZCHX_DATA_FACTORY->createManager(DATA_MGR_ROD);
-    //ZCHX_DATA_FACTORY->createManager(DATA_MGR_IPC);
-    ZCHX_DATA_FACTORY->createManager(DATA_MGR_WARNING_ZONE);
-    ZCHX_DATA_FACTORY->createManager(DATA_MGR_COAST);
-    ZCHX_DATA_FACTORY->createManager(DATA_MGR_SEABEDIPLINE);
-    ZCHX_DATA_FACTORY->createManager(DATA_MGR_CHANNEL);
-    ZCHX_DATA_FACTORY->createManager(DATA_MGR_CAMERA_NET_GRID);
-    ZCHX_DATA_FACTORY->createManager(DATA_MGR_STRUCTURE);
-    ZCHX_DATA_FACTORY->createManager(DATA_MGR_AREANET);
-    ZCHX_DATA_FACTORY->createManager(DATA_MGR_MOOR);
-    ZCHX_DATA_FACTORY->createManager(DATA_MGR_CARDMOUTH);
-    ZCHX_DATA_FACTORY->createManager(DATA_MGR_LOCAL_MARK);
-    ZCHX_DATA_FACTORY->createManager(DATA_MGR_DANGEROUS);
-    ZCHX_DATA_FACTORY->createManager(DATA_MGR_PASTROLSTATION);
-    ZCHX_DATA_FACTORY->createManager(DATA_MGR_CAMERA_NET_GRID);
-    ZCHX_DATA_FACTORY->createManager(DATA_MGR_SHIPALARM_ASCEND);
-    ZCHX_DATA_FACTORY->createManager(DATA_MGR_RADAR_VIDEO);
-    ZCHX_DATA_FACTORY->createManager(DATA_MGR_RADAR_FEATURE_ZONE);
+    for(int i= ZCHX::DATA_MGR_UNKNOWN + 1; i< ZCHX::DATA_MGR_USER_DEFINE; i = i<<1)
+    {
+        ZCHX_DATA_FACTORY->createManager(i);
+    }
+    //数据选择默认为全选择
+    setCurPickupType(ZCHX::Data::ECDIS_PICKUP_TYPE::ECDIS_PICKUP_ALL);
 }
 
 zchxMapWidget::~zchxMapWidget()
@@ -139,6 +121,7 @@ void zchxMapWidget::paintEvent(QPaintEvent *e)
 {
     if(!mFrameWork) return;
     QPainter painter(this);
+    painter.setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform, true);
     painter.fillRect(0,0,width(),height(), Qt::white);
     //显示地图
     double offset_x =  (-1) * mDx;
@@ -148,8 +131,8 @@ void zchxMapWidget::paintEvent(QPaintEvent *e)
         painter.drawPixmap(data.mPosX + offset_x, data.mPosY + offset_y, data.mImg);
         if(mDisplayImageNum)painter.drawText(data.mPosX + offset_x, data.mPosY + offset_y, data.mName);
     }
-    //显示图元
     mFrameWork->setOffSet(offset_x, offset_y);
+    //显示图元
     foreach (std::shared_ptr<zchxEcdisDataMgr> mgr, ZCHX_DATA_FACTORY->getManagers()) {
         mgr->show(&painter);
     }
@@ -201,7 +184,7 @@ bool zchxMapWidget::IsLocationEmulation(QMouseEvent * e)
 void zchxMapWidget::setActiveDrawElement(const ZCHX::Data::Point2D &pos, bool dbClick)
 {
     //检查当前的地图模式,如果是纯显示模式,重置当前的目标图元选择;编辑模式则保持不变
-    if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL == mCurPluginUserModel) return;
+    //if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL == mCurPluginUserModel) return;
     //重置选择的目标为空
     setCurrentSelectedItem(0);
 
@@ -263,7 +246,7 @@ void zchxMapWidget::setPickUpNavigationTarget(const ZCHX::Data::Point2D &pos)
     if(ZCHX::Data::ECDIS_PICKUP_AIS !=  mCurPickupType) return;
     Element *ele = 0;
     foreach (std::shared_ptr<zchxEcdisDataMgr> mgr, ZCHX_DATA_FACTORY->getManagers()) {
-        if(mgr->getType() != DATA_MGR_AIS) continue;
+        if(mgr->getType() != ZCHX::DATA_MGR_AIS) continue;
         ele = mgr->selectItem(pos.toPoint());
         if(ele) break;
     }
@@ -278,7 +261,7 @@ void zchxMapWidget::getPointNealyCamera(const ZCHX::Data::Point2D &pos)
     if(ZCHX::Data::ECDIS_PICKUP_RADARORPOINT !=  mCurPickupType) return;
     Element *ele = 0;
     foreach (std::shared_ptr<zchxEcdisDataMgr> mgr, ZCHX_DATA_FACTORY->getManagers()) {
-        if(mgr->getType() != DATA_MGR_RADAR) continue;
+        if(mgr->getType() != ZCHX::DATA_MGR_RADAR) continue;
         ele = mgr->selectItem(pos.toPoint());
         if(ele) break;
     }
@@ -317,13 +300,57 @@ void zchxMapWidget::mousePressEvent(QMouseEvent *e)
             case DRAWDISTANCE:
             case ZONEDRAWRADAR:
             case ZONEDRAW:
+            case CHANNELMANAGER:
+            case MOORINGMANAGER:
+            case CARDMOUTHMANAGER:
             {
                 if(mToolPtr) mToolPtr->appendPoint(e->pos());
                 break;
             }
             case DRAWPICKUP:
+            case COMMONZONESELECT:
+            case ZONESELECT:
+            case CHANNELSELECT:
+            case MOORINGSELECT:
+            case CARDMOUTHSELECT:
             {
                 setActiveDrawElement(e->pos(), false);
+                if(m_eTool != DRAWPICKUP)
+                {
+                    if(mToolPtr) mToolPtr->setElement((MoveElement*)getCurrentSelectedElement());
+                }
+                break;
+            }
+            case CARDMOUTHMOVECTRL:
+            case CHANNELMOVECTRL:
+            case ZONEMOVECTRL:
+            case MOORINGMOVECTRL:
+            {
+                if(mToolPtr) mToolPtr->selectCtrlPoint(e->pos());
+                break;
+            }
+            case ZONEMOVE:
+            case CHANNELMOVE:
+            case MOORINGMOVE:
+            case CARDMOUTHMOVE:
+            {
+                if(mToolPtr && mToolPtr->element()) mToolPtr->setStartMove(true);
+                break;
+            }
+            case ZONEADDCTRL:
+            case CHANNELADDCTRL:
+            case MOORINGADDCTRL:
+            case CARDMOUTHADDCTRL:
+            {
+                if(mToolPtr && mToolPtr->element()) mToolPtr->addCtrlPoint(e->pos());
+                break;
+            }
+            case ZONEDELCTRL:
+            case CHANNELDELCTRL:
+            case MOORINGDELCTRL:
+            case CARDMOUTHDELCTRL:
+            {
+                if(mToolPtr && mToolPtr->element()) mToolPtr->delCtrlPoint(e->pos());
                 break;
             }
             case CAMERATEACK:
@@ -353,7 +380,6 @@ void zchxMapWidget::mousePressEvent(QMouseEvent *e)
                     mToolPtr->appendPoint(e->pos());
                     mToolPtr->endDraw();
                 }
-                releaseDrawStatus();
                 break;
             }
             case PICKUPPTZ:
@@ -374,48 +400,10 @@ void zchxMapWidget::mousePressEvent(QMouseEvent *e)
                 }
                 break;
             }
-            case COMMONZONESELECT:
-            {
-                foreach (std::shared_ptr<zchxEcdisDataMgr> mgr, ZCHX_DATA_FACTORY->getManagers()) {
-                    int type = mgr->getType();
-                    if(type == DATA_MGR_WARNING_ZONE || type == DATA_MGR_CHANNEL || type == DATA_MGR_MOOR || type == DATA_MGR_CARDMOUTH)
-                    {
-                        if(mgr->updateActiveItem(e->pos()))
-                        {
-                            break;
-                        }
-                    }
-                }
-                break;
-            }
+
 #if 0
-            case ZONESELECT:
-            {
-                zoneEditSelect(pt);
-                //发送新的防区数据,以便更新
-                break;
-            }
-            case ZONEMOVE:
-            {
-                zoneIsMove = true;
-                break;
-            }
-            case ZONEMOVECTRL:
-            {
-                zoneEditSelectCtrlPoint(pt);
-                zoneIsMove = true;
-                break;
-            }
-            case ZONEADDCTRL:
-            {
-                zoneEditAddCtrlPoint(pt);
-                break;
-            }
-            case ZONEDELCTRL:
-            {
-                zoneEditDelCtrlPoint(pt);
-                break;
-            }
+
+
             case ROUTELINEDRAW:
             {
                 m_eToolPoints.push_back(ll);
@@ -535,99 +523,12 @@ void zchxMapWidget::mousePressEvent(QMouseEvent *e)
                 m_eToolPoints.push_back(ll);
                 break;
             }
-            case CHANNELMANAGER:
-            {
-                m_eToolPoints.push_back(ll);
-                break;
-            }
-            case CHANNELSELECT:
-            {
-                channelEditSelect(pt);
-                break;
-            }
-            case CHANNELMOVE:
-            {
-                zoneIsMove = true;
-                break;
-            }
-            case CHANNELMOVECTRL:
-            {
-                channelEditSelectCtrlPoint(pt);
-                zoneIsMove = true;
-                break;
-            }
-            case CHANNELADDCTRL:
-            {
-                channelEditAddCtrlPoint(pt);
-                break;
-            }
-            case CHANNELDELCTRL:
-            {
-                channelEditDelCtrlPoint(pt);
-                break;
-            }
-            case MOORINGMANAGER:
-            {
-                m_eToolPoints.push_back(ll);
-                break;
-            }
-            case MOORINGSELECT:
-            {
-                mooringEditSelect(pt);
-                break;
-            }
-            case MOORINGMOVE:
-            {
-                zoneIsMove = true;
-                break;
-            }
-            case MOORINGMOVECTRL:
-            {
-                mooringEditSelectCtrlPoint(pt);
-                zoneIsMove = true;
-                break;
-            }
-            case MOORINGADDCTRL:
-            {
-                mooringEditAddCtrlPoint(pt);
-                break;
-            }
-            case MOORINGDELCTRL:
-            {
-                mooringEditDelCtrlPoint(pt);
-                break;
-            }
-            case CARDMOUTHMANAGER:
-            {
-                m_eToolPoints.push_back(ll);
-                break;
-            }
-            case CARDMOUTHSELECT:
-            {
-                cardMouthEditSelect(pt);
-                break;
-            }
-            case CARDMOUTHMOVE:
-            {
-                zoneIsMove = true;
-                break;
-            }
-            case CARDMOUTHMOVECTRL:
-            {
-                cardMouthEditSelectCtrlPoint(pt);
-                zoneIsMove = true;
-                break;
-            }
-            case CARDMOUTHADDCTRL:
-            {
-                cardMouthEditAddCtrlPoint(pt);
-                break;
-            }
-            case CARDMOUTHDELCTRL:
-            {
-                cardMouthEditDelCtrlPoint(pt);
-                break;
-            }
+
+
+
+
+
+
 
                 //环岛线操作
             case ISLANDLINEDRAW:
@@ -702,30 +603,7 @@ void zchxMapWidget::mousePressEvent(QMouseEvent *e)
                 emit signalSendReferencePos(ll.lat, ll.lon);
                 break;
             }
-            case DRAWCAMERANETGRID:
-            {
-                if(m_eToolPoints.size() == 0)
-                {
-                    m_eToolPoints.push_back(ll);
-                } else if(m_eToolPoints.size() == 2)
-                {
-                    //弹出对话框是否保存当前的网格
-                    QMessageBox box;
-                    box.setWindowTitle(tr("提示"));
-                    box.setText(tr("是否更新当前的相机网格信息?"));
-                    box.setStandardButtons (QMessageBox::Ok|QMessageBox::No);
-                    box.setButtonText(QMessageBox::Ok,tr("确认"));
-                    box.setButtonText(QMessageBox::No,tr("取消"));
-                    if(box.exec () == QMessageBox::Ok)
-                    {
-                        m_eToolPoints[1] = ll;
-                        //生成网格进行回传到客户端
-                        emit signalSendCameraNetGrid(makeCameraGrid(m_eToolPoints[0], m_eToolPoints[1]));
-                    }
-                    releaseDrawStatus();
-                }
-                break;
-            }
+
 #endif
             }
             // IF END
@@ -754,152 +632,105 @@ void zchxMapWidget::mousePressEvent(QMouseEvent *e)
         //            setCursor(Qt::OpenHandCursor);
     } else if(IsRightButton(e) && mUseRightKey)
     {
-        bool bShowOtherRightKeyMenu = Profiles::instance()->value(MAP_INDEX, MAP_DISPLAY_MENU, false).toBool();
         QMenu menu;
-        if(curUserModel() == ZCHX::Data::ECDIS_PLUGIN_USE_DISPLAY_MODEL )
-        {
-            menu.addAction(tr("平移"),this,SLOT(releaseDrawStatus()));
-            //处于显示模式时.对各个数据对象进行检查,如果当前选择了目标,且当前鼠标位置在对应的目标范围内,则弹出目标对应的菜单,否则只显示基本的右键菜单
-            foreach (std::shared_ptr<zchxEcdisDataMgr> mgr, ZCHX_DATA_FACTORY->getManagers()) {
-                QList<QAction*> list =  mgr->getRightMenuActions(e->pos());
-                if(list.size() > 0)
-                {
-                    menu.addActions(list);
-                    break;
+        if(mToolPtr) {
+            menu.addActions(mToolPtr->getRightMenuActions(e->pos()));
+        } else {
+            bool bShowOtherRightKeyMenu = Profiles::instance()->value(MAP_INDEX, MAP_DISPLAY_MENU, false).toBool();
+
+            if(curUserModel() == ZCHX::Data::ECDIS_PLUGIN_USE_DISPLAY_MODEL )
+            {
+                menu.addAction(tr("平移"),this,SLOT(releaseDrawStatus()));
+                //处于显示模式时.对各个数据对象进行检查,如果当前选择了目标,且当前鼠标位置在对应的目标范围内,则弹出目标对应的菜单,否则只显示基本的右键菜单
+                foreach (std::shared_ptr<zchxEcdisDataMgr> mgr, ZCHX_DATA_FACTORY->getManagers()) {
+                    QList<QAction*> list =  mgr->getRightMenuActions(e->pos());
+                    if(list.size() > 0)
+                    {
+                        menu.addActions(list);
+                        break;
+                    }
                 }
-            }
 
-            if(bShowOtherRightKeyMenu)
+                if(bShowOtherRightKeyMenu)
+                {
+
+                    //                menu.addAction(tr("截屏"),this,SIGNAL(signalScreenShot()));
+                    if(m_eTool != DRAWPICKUP) menu.addAction(tr("目标点选"),this, SLOT(setETool2DrawPickup()));
+                    //                menu.addAction(tr("框选"),this,SLOT(selectAnRegion()));
+                    //                menu.addAction(tr("船舶模拟"),this,SLOT(setShipSimulation()));
+                    //                menu.addAction(tr("关注点"),this,SLOT(setLocationMark()));
+                    //                menu.addAction(tr("固定参考点"),this,SLOT(setFixedReferencePoint()));
+                    menu.addAction(tr("热点"),this,SLOT(invokeHotSpot()));
+                }
+
+            } else
             {
-
-//                menu.addAction(tr("截屏"),this,SIGNAL(signalScreenShot()));
-                if(m_eTool != DRAWPICKUP) menu.addAction(tr("目标点选"),this, SLOT(setETool2DrawPickup()));
-//                menu.addAction(tr("框选"),this,SLOT(selectAnRegion()));
-//                menu.addAction(tr("船舶模拟"),this,SLOT(setShipSimulation()));
-//                menu.addAction(tr("关注点"),this,SLOT(setLocationMark()));
-//                menu.addAction(tr("固定参考点"),this,SLOT(setFixedReferencePoint()));
-                menu.addAction(tr("热点"),this,SLOT(invokeHotSpot()));
-            }
-
-        } else
-        {
 #if 0
-            //处于编辑模式时,则弹出对应操作的右键菜单
-            //绘制路由线时候，增加右键结束绘制
-            if ROUTELINEDRAW:
-            {
-                menu.addAction(tr("End draw"),  this,   SLOT(routeLineRightKeyOKSlot()));
-                menu.addAction(tr("Cancel"),    this,   SLOT(routeLineRightKeyCancelSlot()));
-            }
-            if(isActiveETool && (m_eTool == ROUTEINSERTCTRL ||
-                                 m_eTool == ROUTEMOVECTRL ||
-                                 m_eTool == ROUTEDELCTRL ||
-                                 m_eTool == ROUTEADDCTRL))
-            {
-                menu.addAction(tr("End edit"),this,SLOT(routeLineRightKeyOKSlot()));
-                menu.addAction(tr("Cancel"),this,SLOT(routeLineRightKeyCancelSlot()));
-            }
-            if(isActiveETool && (m_eTool == SHIPPLANINSERTCTRL ||
-                                 m_eTool == SHIPPLANMOVECTRL ||
-                                 m_eTool == SHIPPLANEDELCTRL ||
-                                 m_eTool == SHIPPLANADDCTRL))
-            {
-                menu.addAction(tr("End edit"),this,SLOT(shipPlanLineRightKeyOkSlot()));
-                menu.addAction(tr("Cancel"),this,SLOT(shipPlanLineRightKeyCancelSlot()));
-            }
-            if(isActiveETool && m_eTool == SHIPPLANDRAW)
-            {
-                menu.addAction(tr("End draw"),this,SLOT(shipPlanLineRightKeyOkSlot()));
-                menu.addAction(tr("Cancel"),this,SLOT(shipPlanLineRightKeyCancelSlot()));
-            }
-            if(isActiveETool && m_eTool == COASTDATALINEDRAW)
-            {
-                menu.addAction(tr("End draw"),this,SLOT(coastDataRightKeyOkSlot()));
-                menu.addAction(tr("Cancel"),this,SLOT(coastDataRightKeyCancelSlot()));
-            }
-            if(isActiveETool && m_eTool == SEABEDPIPELINEDRAW)
-            {
-                menu.addAction(tr("End draw"),this,SLOT(seabedPipeLineRightKeyOkSlot()));
-                menu.addAction(tr("Cancel"),this,SLOT(seabedPipeLineRightKeyCancelSlot()));
-            }
-            if(isActiveETool && m_eTool == STRUCTUREPOINTDRAW)
-            {
-                menu.addAction(tr("End draw"),this,SLOT(structureRightKeyOkSlot()));
-                menu.addAction(tr("Cancel"),this,SLOT(structureRightKeyCancelSlot()));
-                return;
-            }
-            if(isActiveETool && m_eTool == AREANETZONEDRAW)
-            {
-                menu.addAction(tr("End draw"),this,SLOT(areaNetRightKeyOkSlot()));
-                menu.addAction(tr("Cancel"),this,SLOT(areaNetRightKeyCancelSlot()));
-            }
-            if(isActiveETool && m_eTool == CHANNELMANAGER)
-            {
-                menu.addAction(tr("End draw"), this, SLOT(channelRightKeyOkSlot()));
-                menu.addAction(tr("Cancel"), this, SLOT(channelRightKeyCancelSlot()));
-            }
-            if(isActiveETool && (m_eTool == CHANNELMOVE ||
-                                 m_eTool == CHANNELMOVECTRL ||
-                                 m_eTool == CHANNELDELCTRL ||
-                                 m_eTool == CHANNELADDCTRL))
-            {
-                menu.addAction(tr("End draw"),this,SLOT(channelRightKeyOkSlot()));
-                menu.addAction(tr("Cancel"),this,SLOT(channelRightKeyCancelSlot()));
-                return;
-            }
-            if(isActiveETool && m_eTool == MOORINGMANAGER)
-            {
-                menu.addAction(tr("End draw"), this, SLOT(mooringRightKeyOkSlot()));
-                menu.addAction(tr("Cancel"), this, SLOT(mooringRightKeyCancelSlot()));
-            }
-            if(isActiveETool && (m_eTool == MOORINGMOVE ||
-                                 m_eTool == MOORINGMOVECTRL ||
-                                 m_eTool == MOORINGDELCTRL ||
-                                 m_eTool == MOORINGADDCTRL))
-            {
-                menu.addAction(tr("End draw"),this,SLOT(mooringRightKeyOkSlot()));
-                menu.addAction(tr("Cancel"),this,SLOT(mooringRightKeyCancelSlot()));
-            }
-            if(isActiveETool && m_eTool == CARDMOUTHMANAGER)
-            {
-                menu.addAction(tr("End draw"), this, SLOT(cardMouthRightKeyOkSlot()));
-                menu.addAction(tr("Cancel"), this, SLOT(cardMouthRightKeyCancelSlot()));
-            }
-            if(isActiveETool && (m_eTool == CARDMOUTHMOVE ||
-                                 m_eTool == CARDMOUTHMOVECTRL ||
-                                 m_eTool == CARDMOUTHDELCTRL ||
-                                 m_eTool == CARDMOUTHADDCTRL))
-            {
-                menu.addAction(tr("End draw"),this,SLOT(cardMouthRightKeyOkSlot()));
-                menu.addAction(tr("Cancel"),this,SLOT(cardMouthRightKeyCancelSlot()));
-            }
-            if(isActiveETool && m_eTool == ZONEDRAW)
-            {
-                menu.addAction(tr("End draw"),this,SLOT(warringZoneRightKeyOkSlot()));
-                menu.addAction(tr("Cancel"),this,SLOT(warringZoneRightKeyCancelSlot()));
-            }
-            if(isActiveETool && (m_eTool == ZONEMOVE ||
-                                 m_eTool == ZONEMOVECTRL ||
-                                 m_eTool == ZONEDELCTRL ||
-                                 m_eTool == ZONEADDCTRL))
-            {
-                menu.addAction(tr("End draw"),this,SLOT(warringZoneRightKeyOkSlot()));
-                menu.addAction(tr("Cancel"),this,SLOT(warringZoneRightKeyCancelSlot()));
-            }
+                //处于编辑模式时,则弹出对应操作的右键菜单
+                //绘制路由线时候，增加右键结束绘制
+                if ROUTELINEDRAW:
+                {
+                    menu.addAction(tr("End draw"),  this,   SLOT(routeLineRightKeyOKSlot()));
+                    menu.addAction(tr("Cancel"),    this,   SLOT(routeLineRightKeyCancelSlot()));
+                }
+                if(isActiveETool && (m_eTool == ROUTEINSERTCTRL ||
+                                     m_eTool == ROUTEMOVECTRL ||
+                                     m_eTool == ROUTEDELCTRL ||
+                                     m_eTool == ROUTEADDCTRL))
+                {
+                    menu.addAction(tr("End edit"),this,SLOT(routeLineRightKeyOKSlot()));
+                    menu.addAction(tr("Cancel"),this,SLOT(routeLineRightKeyCancelSlot()));
+                }
+                if(isActiveETool && (m_eTool == SHIPPLANINSERTCTRL ||
+                                     m_eTool == SHIPPLANMOVECTRL ||
+                                     m_eTool == SHIPPLANEDELCTRL ||
+                                     m_eTool == SHIPPLANADDCTRL))
+                {
+                    menu.addAction(tr("End edit"),this,SLOT(shipPlanLineRightKeyOkSlot()));
+                    menu.addAction(tr("Cancel"),this,SLOT(shipPlanLineRightKeyCancelSlot()));
+                }
+                if(isActiveETool && m_eTool == SHIPPLANDRAW)
+                {
+                    menu.addAction(tr("End draw"),this,SLOT(shipPlanLineRightKeyOkSlot()));
+                    menu.addAction(tr("Cancel"),this,SLOT(shipPlanLineRightKeyCancelSlot()));
+                }
+                if(isActiveETool && m_eTool == COASTDATALINEDRAW)
+                {
+                    menu.addAction(tr("End draw"),this,SLOT(coastDataRightKeyOkSlot()));
+                    menu.addAction(tr("Cancel"),this,SLOT(coastDataRightKeyCancelSlot()));
+                }
+                if(isActiveETool && m_eTool == SEABEDPIPELINEDRAW)
+                {
+                    menu.addAction(tr("End draw"),this,SLOT(seabedPipeLineRightKeyOkSlot()));
+                    menu.addAction(tr("Cancel"),this,SLOT(seabedPipeLineRightKeyCancelSlot()));
+                }
+                if(isActiveETool && m_eTool == STRUCTUREPOINTDRAW)
+                {
+                    menu.addAction(tr("End draw"),this,SLOT(structureRightKeyOkSlot()));
+                    menu.addAction(tr("Cancel"),this,SLOT(structureRightKeyCancelSlot()));
+                    return;
+                }
+                if(isActiveETool && m_eTool == AREANETZONEDRAW)
+                {
+                    menu.addAction(tr("End draw"),this,SLOT(areaNetRightKeyOkSlot()));
+                    menu.addAction(tr("Cancel"),this,SLOT(areaNetRightKeyCancelSlot()));
+                }
 
-            if (isActiveETool && m_eTool == SHIPSIMULATIONDRAW)
-            {
 
-                menu.addAction(tr("End draw"),this,SLOT(shipSlumtionLineRightKeyOKSlot()));
-                menu.addAction(tr("Cancel"),this,SLOT(shipSlumtionLineRightKeyCancelSlot()));
-            }
-            if (isActiveETool && m_eTool == CUSTOMFLOWLINE)
-            {
-                menu.addAction(tr("End draw"),this,SLOT(customFlowLineRightKeyOKSlot()));
-                menu.addAction(tr("Cancel"),this,SLOT(customFlowLineRightKeyCancelSlot()));
-                return;
-            }
+                if (isActiveETool && m_eTool == SHIPSIMULATIONDRAW)
+                {
+
+                    menu.addAction(tr("End draw"),this,SLOT(shipSlumtionLineRightKeyOKSlot()));
+                    menu.addAction(tr("Cancel"),this,SLOT(shipSlumtionLineRightKeyCancelSlot()));
+                }
+                if (isActiveETool && m_eTool == CUSTOMFLOWLINE)
+                {
+                    menu.addAction(tr("End draw"),this,SLOT(customFlowLineRightKeyOKSlot()));
+                    menu.addAction(tr("Cancel"),this,SLOT(customFlowLineRightKeyCancelSlot()));
+                    return;
+                }
 #endif
+            }
 
         }
         menu.exec(QCursor::pos());
@@ -909,21 +740,30 @@ void zchxMapWidget::mousePressEvent(QMouseEvent *e)
 void zchxMapWidget::mouseReleaseEvent(QMouseEvent *e)
 {
     updateCurrentPos(e->pos());
-    if(mDrag)
-    {
-        mDrag = false;
-        //mDx = 0;
-        //mDy = 0;
-        QPoint pnt = e->pos();
-        if(mFrameWork) mFrameWork->Drag(mPressPnt.x()- pnt.x(), mPressPnt.y() - pnt.y());
+    //更新点
+    if(mToolPtr) {
+        mToolPtr->updateOldPath();
+    } else {
+        if(mDrag)
+        {
+            mDrag = false;
+            //mDx = 0;
+            //mDy = 0;
+            QPoint pnt = e->pos();
+            if(mFrameWork) mFrameWork->Drag(mPressPnt.x()- pnt.x(), mPressPnt.y() - pnt.y());
 
+        }
     }
     e->accept();
 }
 
 void zchxMapWidget::mouseDoubleClickEvent(QMouseEvent *e)
 {
-    if(mFrameWork)
+    //检查当前是否正在进行鼠标操作,双击结束鼠标操作
+    if(mToolPtr)
+    {
+        mToolPtr->endDraw();
+    } else
     {
         //地图移动到当前点作为中心点
         mFrameWork->UpdateCenter(ZCHX::Data::Point2D(e->pos()));
@@ -945,14 +785,45 @@ void zchxMapWidget::mouseMoveEvent(QMouseEvent *e)
         mDy = mPressPnt.y() - pnt.y();
         //update();
 
-    } else {
+    } else
+    {
         //单纯地移动鼠标
         updateCurrentPos(e->pos());
-        if(m_eTool == DRAWCAMERANETGRID)
+        switch(m_eTool)
+        {
+        //画网格
+        case DRAWCAMERANETGRID:
         {
             if(mToolPtr) mToolPtr->appendPoint(e->pos());
+            break;
+        }
+            //移动区域
+        case ZONEMOVE:
+        case CHANNELMOVE:
+        case MOORINGMOVE:
+        case CARDMOUTHMOVE:
+        {
+            if(mToolPtr){
+                double lonOff,latOff;
+                lonOff = latOff = 0;
+                zchxUtilToolGetDis4Point(mPressPnt, e->pos(),latOff,lonOff);
+                mToolPtr->moveWithOffset(latOff, lonOff);
+            }
+            break;
         }
 
+        case ZONEMOVECTRL:
+        case CHANNELMOVECTRL:
+        case MOORINGMOVECTRL:
+        case CARDMOUTHMOVECTRL:
+        {
+            if(mToolPtr) mToolPtr->changeCtrlPoint(e->pos());
+            break;
+        }
+
+        default:
+            break;
+        }
     }
     e->accept();
 }
@@ -1196,6 +1067,11 @@ ZCHX::Data::ECDIS_PICKUP_TYPE zchxMapWidget::getCurPickupType() const
 void zchxMapWidget::setCurPickupType(const ZCHX::Data::ECDIS_PICKUP_TYPE &curPickupType)
 {
     mCurPickupType = curPickupType;
+    //设定各个数据类是否可以选择
+    //编辑模式下不显示图元
+    foreach (std::shared_ptr<zchxEcdisDataMgr> mgr, ZCHX_DATA_FACTORY->getManagers()) {
+        mgr->setPickUpAvailable(mgr->getType() & curPickupType);
+    }
 }
 
 Element* zchxMapWidget::getCurrentSelectedElement()
@@ -1289,10 +1165,11 @@ void zchxMapWidget::releaseDrawStatus()
     isActiveETool = false;
     m_eTool = DRAWNULL;
     setCursor(Qt::OpenHandCursor);
-    mCurPluginUserModel = ZCHX::Data::ECDIS_PLUGIN_USE_DISPLAY_MODEL;
+    setCurPluginUserModel(ZCHX::Data::ECDIS_PLUGIN_USE_DISPLAY_MODEL);
     //当前没有活动的图元
     setCurrentSelectedItem(0);
     emit signalMapIsRoaming();
+    releaseDrawTool();
 }
 
 void zchxMapWidget::selectAnRegion()
@@ -1363,6 +1240,7 @@ void zchxMapWidget::setETool2DrawDistance()
     m_eTool = DRAWDISTANCE;
     isActiveETool =true;
     setCursor(Qt::CrossCursor);
+    initDrawTool();
 }
 
 void zchxMapWidget::setETool2DrawDirAngle()
@@ -1370,6 +1248,7 @@ void zchxMapWidget::setETool2DrawDirAngle()
     m_eTool = DRAWDIRANGLE;
     isActiveETool = true;
     setCursor(Qt::CrossCursor);
+    initDrawTool();
 }
 
 void zchxMapWidget::setETool2DrawNull()
@@ -1377,11 +1256,59 @@ void zchxMapWidget::setETool2DrawNull()
     m_eTool = DRAWNULL;
 }
 
+void zchxMapWidget::initDrawTool()
+{
+    if(mToolPtr && mToolPtr->getType() != m_eTool) mToolPtr.reset();
+    if(!mToolPtr)
+    {
+        switch(m_eTool){
+        case DRAWMEASUREAREA:
+            mToolPtr = std::shared_ptr<zchxDrawAreaTool>(new zchxDrawAreaTool(this));
+            break;
+        case DRAWDISTANCE:
+            mToolPtr = std::shared_ptr<zchxDrawDistanceTool>(new zchxDrawDistanceTool(this));
+            break;
+        case DRAWDIRANGLE:
+            mToolPtr = std::shared_ptr<zchxDrawAngleTool>(new zchxDrawAngleTool(this));
+            break;
+        case CHANNELMANAGER:
+            mToolPtr = std::shared_ptr<zchxDrawChannelZoneTool>(new zchxDrawChannelZoneTool(this));
+            break;
+        case MOORINGMANAGER:
+            mToolPtr = std::shared_ptr<zchxDrawMooringZoneTool>(new zchxDrawMooringZoneTool(this));
+            break;
+        case CARDMOUTHMANAGER:
+            mToolPtr = std::shared_ptr<zchxDrawCardMouthTool>(new zchxDrawCardMouthTool(this));
+            break;
+        case ZONEDRAW:
+            mToolPtr = std::shared_ptr<zchxDrawWarningZoneTool>(new zchxDrawWarningZoneTool(this));
+            break;
+        case COMMONZONESELECT:
+        case ZONESELECT:
+        case CHANNELSELECT:
+        case MOORINGSELECT:
+        case CARDMOUTHSELECT:
+            mToolPtr = std::shared_ptr<zchxEditZoneTool>(new zchxEditZoneTool(this, m_eTool, 4));
+            break;
+        default:
+            break;
+        }
+
+    }
+    if(mToolPtr)mToolPtr->startDraw();
+}
+
+void zchxMapWidget::releaseDrawTool()
+{
+    if(mToolPtr) mToolPtr.reset();
+}
+
 void zchxMapWidget::setETool2DrawArea()
 {
     m_eTool = DRAWMEASUREAREA;
     isActiveETool = true;
     setCursor(Qt::CrossCursor);
+    initDrawTool();
 }
 
 void zchxMapWidget::setETool2SelectCommonZONE()
@@ -1391,6 +1318,7 @@ void zchxMapWidget::setETool2SelectCommonZONE()
     isActiveETool = true;
     setCurPickupType(ZCHX::Data::ECDIS_PICKUP_TYPE::ECDIS_PICKUP_COMMONZONE);
     setCursor(Qt::ArrowCursor);
+    initDrawTool();
 }
 
 void zchxMapWidget::setETool2DrawRadarZONE()
@@ -1408,6 +1336,7 @@ void zchxMapWidget::setETool2DrawZONE()
     m_eTool = ZONEDRAW;
     isActiveETool = true;
     setCursor(Qt::CrossCursor);
+    initDrawTool();
 }
 
 void zchxMapWidget::setETool2SelectZONE()
@@ -1417,6 +1346,7 @@ void zchxMapWidget::setETool2SelectZONE()
     isActiveETool = true;
     setCurPickupType(ZCHX::Data::ECDIS_PICKUP_TYPE::ECDIS_PICKUP_WARRINGZONE);
     setCursor(Qt::ArrowCursor);
+    initDrawTool();
 }
 
 void zchxMapWidget::setETool2moveZONE()
@@ -1495,6 +1425,7 @@ void zchxMapWidget::setETool2Draw4ChannelArea()
     m_eTool = CHANNELMANAGER;
     isActiveETool = true;
     setCursor(Qt::CrossCursor);
+    initDrawTool();
 }
 
 void zchxMapWidget::setETool2SelectChannel()
@@ -1504,6 +1435,7 @@ void zchxMapWidget::setETool2SelectChannel()
     isActiveETool = true;
     setCurPickupType(ZCHX::Data::ECDIS_PICKUP_TYPE::ECDIS_PICKUP_CHANNELZONE);
     setCursor(Qt::ArrowCursor);
+    initDrawTool();
 }
 
 void zchxMapWidget::setETool2moveChannel()
@@ -1545,6 +1477,7 @@ void zchxMapWidget::setETool2Draw4MooringArea()
     m_eTool = MOORINGMANAGER;
     isActiveETool = true;
     setCursor(Qt::CrossCursor);
+    initDrawTool();
 }
 
 void zchxMapWidget::setETool2SelectMooring()
@@ -1554,6 +1487,7 @@ void zchxMapWidget::setETool2SelectMooring()
     isActiveETool = true;
     setCurPickupType(ZCHX::Data::ECDIS_PICKUP_TYPE::ECDIS_PICKUP_MOORINGZONE);
     setCursor(Qt::ArrowCursor);
+    initDrawTool();
 }
 
 void zchxMapWidget::setETool2moveMooring()
@@ -1595,6 +1529,7 @@ void zchxMapWidget::setETool2Draw4CardMouthArea()
     m_eTool = CARDMOUTHMANAGER;
     isActiveETool = true;
     setCursor(Qt::CrossCursor);
+    initDrawTool();
 }
 
 void zchxMapWidget::setETool2SelectCardMouth()
@@ -1604,6 +1539,7 @@ void zchxMapWidget::setETool2SelectCardMouth()
     isActiveETool = true;
     setCurPickupType(ZCHX::Data::ECDIS_PICKUP_TYPE::ECDIS_PICKUP_CARDMOUTHZONE);
     setCursor(Qt::ArrowCursor);
+    initDrawTool();
 }
 
 void zchxMapWidget::setETool2moveCardMouth()

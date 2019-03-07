@@ -11,6 +11,7 @@ public:
     explicit zchxDrawZoneTool(zchxMapWidget* w, int type, int num, QObject *parent = 0);
     virtual void show(QPainter *painter);
     virtual bool checkPnts();
+    virtual QList<QAction*> getRightMenuActions(const QPoint &pt);
 
 signals:
 
@@ -42,6 +43,45 @@ public:
 
 signals:
     void signalCreateWarringZONE(const ZCHX::Data::ITF_WarringZone& zone);
+public slots:
+};
+
+class zchxDrawChannelZoneTool: public zchxDrawZoneTool
+{
+    Q_OBJECT
+public:
+    explicit zchxDrawChannelZoneTool(zchxMapWidget* w, QObject *parent = 0):
+        zchxDrawZoneTool(w, qt::eTool::CHANNELMANAGER, 3, parent) {}
+    void endDraw();
+
+signals:
+    //void signalCreateWarringZONE(const ZCHX::Data::ITF_WarringZone& zone);
+public slots:
+};
+
+class zchxDrawMooringZoneTool: public zchxDrawZoneTool
+{
+    Q_OBJECT
+public:
+    explicit zchxDrawMooringZoneTool(zchxMapWidget* w, QObject *parent = 0):
+        zchxDrawZoneTool(w, qt::eTool::MOORINGMANAGER, 3, parent) {}
+    void endDraw();
+
+signals:
+    //void signalCreateWarringZONE(const ZCHX::Data::ITF_WarringZone& zone);
+public slots:
+};
+
+class zchxDrawCardMouthTool: public zchxDrawZoneTool
+{
+    Q_OBJECT
+public:
+    explicit zchxDrawCardMouthTool(zchxMapWidget* w, QObject *parent = 0):
+        zchxDrawZoneTool(w, qt::eTool::CARDMOUTHMANAGER, 3, parent) {}
+    void endDraw();
+
+signals:
+    //void signalCreateWarringZONE(const ZCHX::Data::ITF_WarringZone& zone);
 public slots:
 };
 

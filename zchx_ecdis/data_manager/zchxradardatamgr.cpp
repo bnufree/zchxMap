@@ -2,7 +2,7 @@
 #include "zchxmapframe.h"
 
 namespace qt {
-zchxRadarDataMgr::zchxRadarDataMgr(zchxMapWidget* w, QObject *parent) : zchxEcdisDataMgr(w, DATA_MGR_RADAR, parent)
+zchxRadarDataMgr::zchxRadarDataMgr(zchxMapWidget* w, QObject *parent) : zchxEcdisDataMgr(w, ZCHX::DATA_MGR_RADAR, parent)
 {
     mMaxConcernNum = Profiles::instance()->value(RADAR_DISPLAY_SETTING, RADAR_CONCERN_NUM, 10).toInt();
     mReplaceConcernWhenOver = Profiles::instance()->value(RADAR_DISPLAY_SETTING, RADAR_REPLACE_CONCERN, true).toBool();
@@ -129,7 +129,8 @@ bool zchxRadarDataMgr::updateActiveItem(const QPoint &pt)
 {
     if(!mDisplayWidget ||
        !MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_RADAR) ||
-       !MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_RADAR_CURRENT)) return false;
+       !MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_RADAR_CURRENT) ||
+       !isPickupAvailable()) return false;
     int type = mDisplayWidget->getCurPickupType();
     if(type != ZCHX::Data::ECDIS_PICKUP_RADARORPOINT && type != ZCHX::Data::ECDIS_PICKUP_ALL ) return false;
 

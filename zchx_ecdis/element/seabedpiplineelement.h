@@ -15,6 +15,7 @@ public:
     std::vector<std::pair<double, double> > path() const;
     void setPath(const std::vector<std::pair<double, double> > &path);
     std::vector<std::pair<double, double> >& getPath();
+    void updateOldPath();
 
     int id() const;
     void setId(int id);

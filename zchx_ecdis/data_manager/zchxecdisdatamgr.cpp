@@ -13,6 +13,7 @@ zchxEcdisDataMgr::zchxEcdisDataMgr(zchxMapWidget* w, int type, QObject *parent) 
   ,mMaxExtrapolationNum(10)
   ,mReplaceExtrapolationWhenOver(true)
   ,mDataDisplayMode(Data_RealTime)
+  ,mIsPickUp(true)
 {
 
 }

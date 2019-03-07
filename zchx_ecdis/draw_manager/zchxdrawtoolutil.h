@@ -8,5 +8,6 @@
 #include "zchxdrawdistool.h"
 #include "zchxdrawlocalmarktool.h"
 #include "zchxdrawzonetool.h"
+#include "zchxeditzonetool.h"
 
 #endif // ZCHXDRAWTOOLUTIL_H

@@ -3,7 +3,7 @@
 
 namespace qt {
 zchxRadarVideoMgr::zchxRadarVideoMgr(zchxMapWidget *w, QObject *parent):
-    zchxTemplateDataMgr<RadarVideoGlowElement, ZCHX::Data::ITF_RadarVideoGLow>(w, DATA_MGR_RADAR_VIDEO, ZCHX::LAYER_RADARVIDEO, parent)
+    zchxTemplateDataMgr<RadarVideoGlowElement, ZCHX::Data::ITF_RadarVideoGLow>(w, ZCHX::DATA_MGR_RADAR_VIDEO, ZCHX::LAYER_RADARVIDEO, parent)
 {
     mRadarVideoData.afterglowType = 3;
     mRadarVideoData.type = ZCHX::Data::ITF_RadarVideoGLow::RadarVideo;

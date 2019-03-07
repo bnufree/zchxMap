@@ -3,14 +3,14 @@
 
 namespace qt {
 zchxCameraGridDataMgr::zchxCameraGridDataMgr(zchxMapWidget *w, QObject *parent):
-    zchxTemplateDataMgr<CameraGridElement, ZCHX::Data::ITF_NetGrid>(w, DATA_MGR_CAMERA_NET_GRID, ZCHX::LAYER_CAMERANETGRID)
+    zchxTemplateDataMgr<CameraGridElement, ZCHX::Data::ITF_NetGrid>(w, ZCHX::DATA_MGR_CAMERA_NET_GRID, ZCHX::LAYER_CAMERANETGRID)
 {
 
 }
 
 bool zchxCameraGridDataMgr::updateActiveItem(const QPoint &pt)
 {
-    if( !MapLayerMgr::instance()->isLayerVisible(layerName()) || mData.empty()) return false;
+    if( !MapLayerMgr::instance()->isLayerVisible(layerName()) || mData.empty() || !isPickupAvailable()) return false;
     for(std::shared_ptr<CameraGridElement> ele : mData)
     {
         if(ele->contains(pt)){

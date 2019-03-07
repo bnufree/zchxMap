@@ -45,9 +45,4 @@ void zchxDrawDistanceTool::show(QPainter *painter)
         painter->drawEllipse(mPoints[i], 3, 3);
 
     }
-
-//    if(isActiveETool)
-//    {
-//        painter->drawLine(m_startPos,m_endPos);
-//    }
 }

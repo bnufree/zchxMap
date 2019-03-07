@@ -2,10 +2,10 @@
 #include "profiles.h"
 #include "zchxmapwidget.h"
 #include "map_layer/zchxmaplayermgr.h"
-#include "coastdatainfodialog.h"
-#include "cardmouthinfodialog.h"
-#include "channelinfodialog.h"
-#include "mooringinfodialog.h"
+//#include "coastdatainfodialog.h"
+//#include "cardmouthinfodialog.h"
+//#include "channelinfodialog.h"
+//#include "mooringinfodialog.h"
 
 namespace qt {
 zchxShipPlanDataMgr::zchxShipPlanDataMgr(zchxMapWidget* w, QObject *parent) : QObject(parent),mDisplayWidget(w)

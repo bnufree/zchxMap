@@ -3,9 +3,9 @@
 #include "zchxmapwidget.h"
 #include "map_layer/zchxmaplayermgr.h"
 #include "coastdatainfodialog.h"
-#include "cardmouthinfodialog.h"
-#include "channelinfodialog.h"
-#include "mooringinfodialog.h"
+#include "dialog/cardmouthinfodialog.h"
+#include "dialog/channelinfodialog.h"
+#include "dialog/mooringinfodialog.h"
 #include "zchxmapframe.h"
 
 using namespace qt;
@@ -17,6 +17,7 @@ bool zchxWarningZoneDataMgr::updateActiveItem(const QPoint &pt)
         WarningZoneElement* ele = static_cast<WarningZoneElement*>(mDisplayWidget->getCurrentSelectedElement());
         if(ele) mDisplayWidget->signalIsSelected4WarringZone(ele->data());
     }
+    return sts;
 }
 
 void zchxCoastDataMgr::importData(const std::vector<std::pair<double, double> > & path)
@@ -103,6 +104,16 @@ void zchxChannelDataMgr::importData(const std::vector<std::pair<double, double> 
     }
 }
 
+bool zchxChannelDataMgr::updateActiveItem(const QPoint &pt)
+{
+    bool sts = zchxTemplateDataMgr::updateActiveItem(pt);
+    if(sts && mDisplayWidget) {
+        ChannelElement* ele = static_cast<ChannelElement*>(mDisplayWidget->getCurrentSelectedElement());
+        if(ele) mDisplayWidget->signalIsSelected4ChannelZone(ele->data());
+    }
+    return sts;
+}
+
 void zchxChannelDataMgr::selectChannelLine(int channelId, const ZCHX::Data::ITF_ChannelLine & line)
 {
     ChannelElement *ele = item(channelId);
@@ -185,6 +196,16 @@ void zchxMooringDataMgr::importData(const std::vector<std::pair<double, double> 
     }
 }
 
+bool zchxMooringDataMgr::updateActiveItem(const QPoint &pt)
+{
+    bool sts = zchxTemplateDataMgr::updateActiveItem(pt);
+    if(sts && mDisplayWidget) {
+        MooringElement* ele = static_cast<MooringElement*>(mDisplayWidget->getCurrentSelectedElement());
+        if(ele) mDisplayWidget->signalIsSelected4MooringZone(ele->data());
+    }
+    return sts;
+}
+
 void zchxCardMouthDataMgr::importData(const std::vector<std::pair<double, double> > &path)
 {
     ZCHX::Data::ITF_CardMouth zone;
@@ -208,6 +229,16 @@ void zchxCardMouthDataMgr::importData(const std::vector<std::pair<double, double
         updateData(zone);
         emit mDisplayWidget->signalCreateCardMouthZone(zone);
     }
+}
+
+bool zchxCardMouthDataMgr::updateActiveItem(const QPoint &pt)
+{
+    bool sts = zchxTemplateDataMgr::updateActiveItem(pt);
+    if(sts && mDisplayWidget) {
+        CardMouthElement* ele = static_cast<CardMouthElement*>(mDisplayWidget->getCurrentSelectedElement());
+        if(ele) mDisplayWidget->signalIsSelected4CardMouthZone(ele->data());
+    }
+    return sts;
 }
 
 void zchxShipAlarmAscendDataMgr::show(QPainter* painter)

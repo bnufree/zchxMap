@@ -3,7 +3,7 @@
 #include <QDebug>
 
 namespace qt {
-zchxVideoTargetDataMgr::zchxVideoTargetDataMgr(zchxMapWidget* w,  QObject *parent) : zchxEcdisDataMgr(w, DATA_MGR_VIDEO_TARGET, parent)
+zchxVideoTargetDataMgr::zchxVideoTargetDataMgr(zchxMapWidget* w,  QObject *parent) : zchxEcdisDataMgr(w, ZCHX::DATA_MGR_VIDEO_TARGET, parent)
 {
 
 }
@@ -21,6 +21,7 @@ void zchxVideoTargetDataMgr::show(QPainter* painter)
 
 bool zchxVideoTargetDataMgr::updateActiveItem(const QPoint &pt)
 {
+    if(!MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_WARNING_TARGET) || !isPickupAvailable()) return false;
     return false;
 }
 

@@ -31,72 +31,70 @@ void zchxDataMgrFactory::setDisplayWidget(zchxMapWidget *w)
 void zchxDataMgrFactory::createManager(int type)
 {
     switch (type) {
-    case DATA_MGR_AIS:
+    case ZCHX::DATA_MGR_AIS:
         mMgrList[type] = std::shared_ptr<zchxAisDataMgr>(new zchxAisDataMgr(mWidget));
         break;
-    case DATA_MGR_RADAR:
+    case ZCHX::DATA_MGR_RADAR:
         mMgrList[type] = std::shared_ptr<zchxRadarDataMgr>(new zchxRadarDataMgr(mWidget));
         break;
-    case DATA_MGR_CAMERA:
+    case ZCHX::DATA_MGR_CAMERA:
         mMgrList[type] = std::shared_ptr<zchxCameraDataMgr>(new zchxCameraDataMgr(mWidget));
         break;
-    case DATA_MGR_CAMERA_VIEW:
+    case ZCHX::DATA_MGR_CAMERA_VIEW:
         mMgrList[type] = std::shared_ptr<zchxCameraViewDataMgr>(new zchxCameraViewDataMgr(mWidget));
         break;
-    case DATA_MGR_VIDEO_TARGET:
+    case ZCHX::DATA_MGR_VIDEO_TARGET:
         mMgrList[type] = std::shared_ptr<zchxVideoTargetDataMgr>(new zchxVideoTargetDataMgr(mWidget));
         break;
-    case DATA_MGR_ROD:
+    case ZCHX::DATA_MGR_ROD:
         mMgrList[type] = std::shared_ptr<zchxRodDataMgr>(new zchxRodDataMgr(mWidget));
         break;
-    case DATA_MGR_WARNING_ZONE:
+    case ZCHX::DATA_MGR_WARNING_ZONE:
         mMgrList[type] = std::shared_ptr<zchxWarningZoneDataMgr>(new zchxWarningZoneDataMgr(mWidget));
         break;
-    case DATA_MGR_COAST:
+    case ZCHX::DATA_MGR_COAST:
         mMgrList[type] = std::shared_ptr<zchxCoastDataMgr>(new zchxCoastDataMgr(mWidget));
         break;
-    case DATA_MGR_SEABEDIPLINE:
+    case ZCHX::DATA_MGR_SEABEDIPLINE:
         mMgrList[type] = std::shared_ptr<zchxSeabedPipLineDataMgr>(new zchxSeabedPipLineDataMgr(mWidget));
         break;
-    case DATA_MGR_CHANNEL:
+    case ZCHX::DATA_MGR_CHANNEL:
         mMgrList[type] = std::shared_ptr<zchxChannelDataMgr>(new zchxChannelDataMgr(mWidget));
         break;
-    case DATA_MGR_STRUCTURE:
+    case ZCHX::DATA_MGR_STRUCTURE:
         mMgrList[type] = std::shared_ptr<zchxStructureDataMgr>(new zchxStructureDataMgr(mWidget));
         break;
-    case DATA_MGR_AREANET:
+    case ZCHX::DATA_MGR_AREANET:
         mMgrList[type] = std::shared_ptr<zchxAreaNetDataMgr>(new zchxAreaNetDataMgr(mWidget));
         break;
-    case DATA_MGR_MOOR:
+    case ZCHX::DATA_MGR_MOOR:
         mMgrList[type] = std::shared_ptr<zchxMooringDataMgr>(new zchxMooringDataMgr(mWidget));
         break;
-    case DATA_MGR_CARDMOUTH:
+    case ZCHX::DATA_MGR_CARDMOUTH:
         mMgrList[type] = std::shared_ptr<zchxCardMouthDataMgr>(new zchxCardMouthDataMgr(mWidget));
         break;
-    case DATA_MGR_LOCAL_MARK:
+    case ZCHX::DATA_MGR_LOCAL_MARK:
         mMgrList[type] = std::shared_ptr<zchxLocalMarkDataMgr>(new zchxLocalMarkDataMgr(mWidget));
         break;
-    case DATA_MGR_DANGEROUS:
+    case ZCHX::DATA_MGR_DANGEROUS:
         mMgrList[type] = std::shared_ptr<zchxDangerousDataMgr>(new zchxDangerousDataMgr(mWidget));
         break;
-    case DATA_MGR_PASTROLSTATION:
+    case ZCHX::DATA_MGR_PASTROLSTATION:
         mMgrList[type] = std::shared_ptr<zchxPastrolStationDataMgr>(new zchxPastrolStationDataMgr(mWidget));
         break;
-    case DATA_MGR_IPC:
-        break;
-    case DATA_MGR_ISLANDLINE:
+    case ZCHX::DATA_MGR_ISLANDLINE:
         mMgrList[type] = std::shared_ptr<zchxIslandLineDataMgr>(new zchxIslandLineDataMgr(mWidget));
         break;
-    case DATA_MGR_CAMERA_NET_GRID:
+    case ZCHX::DATA_MGR_CAMERA_NET_GRID:
         mMgrList[type] = std::shared_ptr<zchxCameraGridDataMgr>(new zchxCameraGridDataMgr(mWidget));
         break;
-    case DATA_MGR_SHIPALARM_ASCEND:
+    case ZCHX::DATA_MGR_SHIPALARM_ASCEND:
         mMgrList[type] = std::shared_ptr<zchxShipAlarmAscendDataMgr>(new zchxShipAlarmAscendDataMgr(mWidget));
         break;
-    case DATA_MGR_RADAR_VIDEO:
+    case ZCHX::DATA_MGR_RADAR_VIDEO:
         mMgrList[type] = std::shared_ptr<zchxRadarVideoMgr>(new zchxRadarVideoMgr(mWidget));
         break;
-    case DATA_MGR_RADAR_FEATURE_ZONE:
+    case ZCHX::DATA_MGR_RADAR_FEATURE_ZONE:
         mMgrList[type] = std::shared_ptr<zchxRadarFeatureZoneDataMgr>(new zchxRadarFeatureZoneDataMgr(mWidget));
         break;
     default:
@@ -136,112 +134,112 @@ bool zchxDataMgrFactory::appendDataMgr(std::shared_ptr<zchxEcdisDataMgr> mgr)
 
 zchxAisDataMgr* zchxDataMgrFactory::getAisDataMgr()
 {
-    return static_cast<zchxAisDataMgr*>(getManager(DATA_MGR_AIS).get());
+    return static_cast<zchxAisDataMgr*>(getManager(ZCHX::DATA_MGR_AIS).get());
 }
 
 zchxRadarDataMgr* zchxDataMgrFactory::getRadarDataMgr()
 {
-    return static_cast<zchxRadarDataMgr*>(getManager(DATA_MGR_RADAR).get());
+    return static_cast<zchxRadarDataMgr*>(getManager(ZCHX::DATA_MGR_RADAR).get());
 }
 
 zchxCameraDataMgr* zchxDataMgrFactory::getCameraDataMgr()
 {
-    return static_cast<zchxCameraDataMgr*>(getManager(DATA_MGR_CAMERA).get());
+    return static_cast<zchxCameraDataMgr*>(getManager(ZCHX::DATA_MGR_CAMERA).get());
 }
 
 zchxRodDataMgr* zchxDataMgrFactory::getRodDataMgr()
 {
-    return static_cast<zchxRodDataMgr*>(getManager(DATA_MGR_ROD).get());
+    return static_cast<zchxRodDataMgr*>(getManager(ZCHX::DATA_MGR_ROD).get());
 }
 
 zchxCameraViewDataMgr* zchxDataMgrFactory::getCameraViewMgr()
 {
-    return static_cast<zchxCameraViewDataMgr*>(getManager(DATA_MGR_CAMERA_VIEW).get());
+    return static_cast<zchxCameraViewDataMgr*>(getManager(ZCHX::DATA_MGR_CAMERA_VIEW).get());
 }
 
 zchxVideoTargetDataMgr* zchxDataMgrFactory::getVideoDataMgr()
 {
-    return static_cast<zchxVideoTargetDataMgr*>(getManager(DATA_MGR_VIDEO_TARGET).get());
+    return static_cast<zchxVideoTargetDataMgr*>(getManager(ZCHX::DATA_MGR_VIDEO_TARGET).get());
 }
 
 zchxPastrolStationDataMgr* zchxDataMgrFactory::getPastrolStationMgr()
 {
-    return static_cast<zchxPastrolStationDataMgr*>(getManager(DATA_MGR_PASTROLSTATION).get());
+    return static_cast<zchxPastrolStationDataMgr*>(getManager(ZCHX::DATA_MGR_PASTROLSTATION).get());
 }
 
 zchxWarningZoneDataMgr* zchxDataMgrFactory::getWarningZoneMgr()
 {
-    return static_cast<zchxWarningZoneDataMgr*>(getManager(DATA_MGR_WARNING_ZONE).get());
+    return static_cast<zchxWarningZoneDataMgr*>(getManager(ZCHX::DATA_MGR_WARNING_ZONE).get());
 }
 
 zchxCoastDataMgr*   zchxDataMgrFactory::getCoastMgr()
 {
-    return static_cast<zchxCoastDataMgr*>(getManager(DATA_MGR_COAST).get());
+    return static_cast<zchxCoastDataMgr*>(getManager(ZCHX::DATA_MGR_COAST).get());
 }
 
 zchxSeabedPipLineDataMgr* zchxDataMgrFactory::getSeabedPiplineMgr()
 {
-    return static_cast<zchxSeabedPipLineDataMgr*>(getManager(DATA_MGR_SEABEDIPLINE).get());
+    return static_cast<zchxSeabedPipLineDataMgr*>(getManager(ZCHX::DATA_MGR_SEABEDIPLINE).get());
 }
 
 zchxChannelDataMgr* zchxDataMgrFactory::getChannelMgr()
 {
-    return static_cast<zchxChannelDataMgr*>(getManager(DATA_MGR_CHANNEL).get());
+    return static_cast<zchxChannelDataMgr*>(getManager(ZCHX::DATA_MGR_CHANNEL).get());
 }
 
 zchxStructureDataMgr*   zchxDataMgrFactory::getStructureMgr()
 {
-    return static_cast<zchxStructureDataMgr*>(getManager(DATA_MGR_STRUCTURE).get());
+    return static_cast<zchxStructureDataMgr*>(getManager(ZCHX::DATA_MGR_STRUCTURE).get());
 }
 
 zchxAreaNetDataMgr* zchxDataMgrFactory::getAreanetMgr()
 {
-    return static_cast<zchxAreaNetDataMgr*>(getManager(DATA_MGR_AREANET).get());
+    return static_cast<zchxAreaNetDataMgr*>(getManager(ZCHX::DATA_MGR_AREANET).get());
 }
 
 zchxMooringDataMgr* zchxDataMgrFactory::getMooringMgr()
 {
-    return static_cast<zchxMooringDataMgr*>(getManager(DATA_MGR_MOOR).get());
+    return static_cast<zchxMooringDataMgr*>(getManager(ZCHX::DATA_MGR_MOOR).get());
 }
 
 zchxCardMouthDataMgr*   zchxDataMgrFactory::getCardmouthMgr()
 {
-    return static_cast<zchxCardMouthDataMgr*>(getManager(DATA_MGR_CARDMOUTH).get());
+    return static_cast<zchxCardMouthDataMgr*>(getManager(ZCHX::DATA_MGR_CARDMOUTH).get());
 }
 
 zchxLocalMarkDataMgr*   zchxDataMgrFactory::getLocalmarkMgr()
 {
-    return static_cast<zchxLocalMarkDataMgr*>(getManager(DATA_MGR_LOCAL_MARK).get());
+    return static_cast<zchxLocalMarkDataMgr*>(getManager(ZCHX::DATA_MGR_LOCAL_MARK).get());
 }
 
 zchxDangerousDataMgr*   zchxDataMgrFactory::getDangerousMgr()
 {
-    return static_cast<zchxDangerousDataMgr*>(getManager(DATA_MGR_DANGEROUS).get());
+    return static_cast<zchxDangerousDataMgr*>(getManager(ZCHX::DATA_MGR_DANGEROUS).get());
 }
 
 zchxIslandLineDataMgr*   zchxDataMgrFactory::getIslandlineMgr()
 {
-    return static_cast<zchxIslandLineDataMgr*>(getManager(DATA_MGR_ISLANDLINE).get());
+    return static_cast<zchxIslandLineDataMgr*>(getManager(ZCHX::DATA_MGR_ISLANDLINE).get());
 }
 
 zchxCameraGridDataMgr*   zchxDataMgrFactory::getCameraGridMgr()
 {
-    return static_cast<zchxCameraGridDataMgr*>(getManager(DATA_MGR_CAMERA_NET_GRID).get());
+    return static_cast<zchxCameraGridDataMgr*>(getManager(ZCHX::DATA_MGR_CAMERA_NET_GRID).get());
 }
 
 zchxShipAlarmAscendDataMgr*   zchxDataMgrFactory::getShipAlarmAscendMgr()
 {
-    return static_cast<zchxShipAlarmAscendDataMgr*>(getManager(DATA_MGR_SHIPALARM_ASCEND).get());
+    return static_cast<zchxShipAlarmAscendDataMgr*>(getManager(ZCHX::DATA_MGR_SHIPALARM_ASCEND).get());
 }
 
 zchxRadarVideoMgr* zchxDataMgrFactory::getRadarVideoMgr()
 {
-    return static_cast<zchxRadarVideoMgr*>(getManager(DATA_MGR_RADAR_VIDEO).get());
+    return static_cast<zchxRadarVideoMgr*>(getManager(ZCHX::DATA_MGR_RADAR_VIDEO).get());
 }
 
 zchxRadarFeatureZoneDataMgr* zchxDataMgrFactory::getRadarFeatureZoneMgr()
 {
-    return static_cast<zchxRadarFeatureZoneDataMgr*>(getManager(DATA_MGR_RADAR_FEATURE_ZONE).get());
+    return static_cast<zchxRadarFeatureZoneDataMgr*>(getManager(ZCHX::DATA_MGR_RADAR_FEATURE_ZONE).get());
 }
 
 }

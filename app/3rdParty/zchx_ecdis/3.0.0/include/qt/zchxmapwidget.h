@@ -235,6 +235,8 @@ public Q_SLOTS:
 //    void SetPickUpAisInfo(QString id);
 //    void SetPickUpPosition(const QString &id);
 //    void SetPickUpRouteCross(const int id);//设置当前选中的交越点
+    void initDrawTool();
+    void releaseDrawTool();
 
     void setETool2DrawNull();
     void setETool2DrawArea();

@@ -38,6 +38,11 @@ std::vector<std::pair<double, double> >& SeabedPipeLineElement::getPath()
     return m_data.path;
 }
 
+void SeabedPipeLineElement::updateOldPath()
+{
+    m_path = m_data.path;
+}
+
 int SeabedPipeLineElement::id() const
 {
     return uuid;

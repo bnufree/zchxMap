@@ -65,12 +65,9 @@ SOURCES += mainwindow.cpp \
     zchxmapframe.cpp \
     slider_ctrl.cpp \
     proxystyle.cpp \
-    cardmouthinfodialog.cpp \
-    channelinfodialog.cpp \
     coastdatainfodialog.cpp \
     info_dialog.cpp \
     localmarkdlg.cpp \
-    mooringinfodialog.cpp \
     structureinfodialog.cpp \
     warningzoneparadialog.cpp \
     zchxdrawmultibeam.cpp \
@@ -123,7 +120,11 @@ SOURCES += mainwindow.cpp \
     data_manager/zchxradarvideomgr.cpp \
     element/radarvideoelement.cpp \
     dialog/radarfeaturezone.cpp \
-    draw_manager/zchxdrawzonetool.cpp
+    draw_manager/zchxdrawzonetool.cpp \
+    dialog/channelinfodialog.cpp \
+    dialog/mooringinfodialog.cpp \
+    dialog/cardmouthinfodialog.cpp \
+    draw_manager/zchxeditzonetool.cpp
 
 HEADERS  += mainwindow.h \
     zchxmapthread.h \
@@ -143,12 +144,9 @@ HEADERS  += mainwindow.h \
     zchxmapframe.h \
     slider_ctrl.hpp \
     proxystyle.hpp \
-    cardmouthinfodialog.h \
-    channelinfodialog.h \
     coastdatainfodialog.h \
     info_dialog.hpp \
     localmarkdlg.h \
-    mooringinfodialog.h \
     structureinfodialog.h \
     warningzoneparadialog.h \
     zchxdrawmultibeam.h \
@@ -204,18 +202,22 @@ HEADERS  += mainwindow.h \
     data_manager/zchxradarvideomgr.h \
     element/radarvideoelement.h \
     dialog/radarfeaturezone.h \
-    draw_manager/zchxdrawzonetool.h
+    draw_manager/zchxdrawzonetool.h \
+    dialog/channelinfodialog.h \
+    dialog/mooringinfodialog.h \
+    dialog/cardmouthinfodialog.h \
+    draw_manager/zchxeditzonetool.h
 
 FORMS    += mainwindow.ui \
-    cardmouthinfodialog.ui \
-    channelinfodialog.ui \
     coastdatainfodialog.ui \
     localmarkdlg.ui \
-    mooringinfodialog.ui \
     structureinfodialog.ui \
     warningzoneparadialog.ui \
     dialog/radarfeaturezone.ui \
     dialog/defenceinfodialog.ui \
+    dialog/channelinfodialog.ui \
+    dialog/mooringinfodialog.ui \
+    dialog/cardmouthinfodialog.ui
 
 RESOURCES += res/resources.qrc
 DISTFILES += \

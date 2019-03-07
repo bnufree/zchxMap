@@ -14,6 +14,7 @@ public:
     virtual std::vector<std::pair<double, double> > path() const = 0;
     virtual void setPath(const std::vector<std::pair<double, double> > &path) = 0;
     virtual std::vector<std::pair<double, double> > & getPath() = 0;
+    virtual void updateOldPath() = 0;
 
     /**
      * @brief 改变第几个点的位置

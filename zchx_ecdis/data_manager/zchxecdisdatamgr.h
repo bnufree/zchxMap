@@ -17,15 +17,15 @@ enum DataDisplayMode{
     Data_History,
 };
 
-
-enum    ZCHX_DATA_MGR_TYPE{
-    DATA_MGR_AIS = 1,
-    DATA_MGR_RADAR = 2,
+#if 0
+enum    ZCHX_DATA_MGR_TYPE{     //这里值的安排和图元绘制时有关系  值越小 就在最底层
+    DATA_MGR_UNKNOWN = 0,
+    DATA_MGR_RADAR_VIDEO = 1,
+    DATA_MGR_AIS,
+    DATA_MGR_RADAR,
     DATA_MGR_CAMERA,
-    DATA_MGR_CAMERA_VIEW,
-    DATA_MGR_VIDEO_TARGET,
+    DATA_MGR_CAMERA_VIEW,    
     DATA_MGR_ROD,
-    DATA_MGR_IPC,
     DATA_MGR_WARNING_ZONE,
     DATA_MGR_COAST,
     DATA_MGR_SEABEDIPLINE,
@@ -39,12 +39,13 @@ enum    ZCHX_DATA_MGR_TYPE{
     DATA_MGR_DANGEROUS,
     DATA_MGR_PASTROLSTATION,
     DATA_MGR_ISLANDLINE,
-    DATA_MGR_SHIPALARM_ASCEND,    
-    DATA_MGR_RADAR_VIDEO,
+    DATA_MGR_SHIPALARM_ASCEND,
+    DATA_MGR_VIDEO_TARGET,
     DATA_MGR_RADAR_FEATURE_ZONE,
     DATA_MGR_USER_DEFINE,
 
 };
+#endif
 
 class zchxEcdisDataMgr : public QObject
 {
@@ -53,6 +54,10 @@ public:
     explicit zchxEcdisDataMgr(zchxMapWidget* w, int type, QObject *parent = 0);
     int     getType() const {return mType;}
     virtual void    show(QPainter* painter);
+
+    //设定当前数据是否可以鼠标选择
+    void    setPickUpAvailable(bool sts) {mIsPickUp = sts;}
+    bool    isPickupAvailable() const {return mIsPickUp;}
 
     //关注列表操作
     int             getMaxConcernNum() const {return mMaxConcernNum;}
@@ -137,6 +142,7 @@ protected:
 
     int                 mType;                      //数据管理类型
     QString             mFocusID;
+    bool                mIsPickUp;
 };
 }
 

@@ -95,11 +95,13 @@ TestMainWindow::TestMainWindow(QWidget *parent) :
     std::shared_ptr<qt::MapLayer> cameraGridLayer(new qt::MapLayer(ZCHX::LAYER_CAMERANETGRID, ZCHX::TR_LAYER_CAMERANETGRID, true));
     m_pEcdisWin->itfAddLayer(cameraGridLayer);
 
-    mTestTimer = new QTimer;
-    mTestTimer->setInterval(3000);
-    connect(mTestTimer, SIGNAL(timeout()), this, SLOT(slotTimerout()));
-    mTestTimer->setSingleShot(true);
-    mTestTimer->start();
+//    mTestTimer = new QTimer;
+//    mTestTimer->setInterval(3000);
+//    connect(mTestTimer, SIGNAL(timeout()), this, SLOT(slotTimerout()));
+//    mTestTimer->setSingleShot(true);
+//    mTestTimer->start();
+    m_pEcdisWin->itfsetPluginUseModel(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL);
+    m_pEcdisWin->itfToolBarChannelAreaAdd();
 }
 
 TestMainWindow::~TestMainWindow()

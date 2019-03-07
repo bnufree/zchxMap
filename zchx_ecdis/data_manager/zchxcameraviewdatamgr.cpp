@@ -1,7 +1,7 @@
 #include "zchxcameraviewdatamgr.h"
 
 namespace qt {
-zchxCameraViewDataMgr::zchxCameraViewDataMgr(zchxMapWidget* w, QObject *parent) : zchxEcdisDataMgr(w, DATA_MGR_CAMERA_VIEW, parent)
+zchxCameraViewDataMgr::zchxCameraViewDataMgr(zchxMapWidget* w, QObject *parent) : zchxEcdisDataMgr(w, ZCHX::DATA_MGR_CAMERA_VIEW, parent)
 {
 
 }
