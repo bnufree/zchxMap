@@ -7,20 +7,18 @@
 class QGeoCoordinate;
 
 namespace qt{
-class zchxMapFrameWork;
 class zchxMapWidget;
 class MapLayer;
 
 enum RADARTYPE{RADARSHIP,RADARPLAN,WARRINGZONE};
 
-class ElementPrivate;
 //TODO: 由于使用了很多拷贝构造函数, 所以不能继承qobject
+template<typename T>
 class ZCHX_ECDIS_EXPORT Element// : public QObject
 {
-protected:
-    ElementPrivate *d;
+
 public:
-    Element(const double &lat, const double &lon, zchxMapFrameWork* frame, ZCHX::Data::ELETYPE type = ZCHX::Data::ELE_NONE, const QColor& flashColor = QColor());
+    Element(const double &lat, const double &lon, zchxMapWidget* view, ZCHX::Data::ELETYPE type, const QColor& flashColor = QColor());
     Element(const Element &element);
     virtual ~Element();
 
@@ -54,7 +52,8 @@ public:
     /*!
      * \brief 图元的id
      */
-    int getUuid() const;
+    QString getID() const;
+    void    setID(const QString& id);
 
     /*!
      * \brief 图元是否被鼠标悬垂
@@ -127,7 +126,7 @@ public:
     virtual bool contains(const QGeoCoordinate &geoPos) const;
     virtual bool isEmpty() const;
 
-    QPointF getViewPos(zchxMapFrameWork *f = 0);
+    QPointF getViewPos();
 
     /*!
      * \brief 绘制图元的内容, 子类需要实现此接口, 以便实现自身绘制
@@ -138,6 +137,9 @@ public:
     virtual void drawFocus(QPainter *painter);
     virtual void updateGeometry(QPointF pos, qreal size);
     virtual void drawHover(QPainter *painter) {}
+
+    //图元双击的处理
+    virtual void doubleClickNow() {}
 
     void addChild(std::shared_ptr<Element> child);
     void removeChild(std::shared_ptr<Element> child);
@@ -200,53 +202,50 @@ public:
     QPointF getCurrentPos();
     //
     std::shared_ptr<MapLayer> layer() {return m_layer;}
-    zchxMapFrameWork* framework() const {return m_framework;}
-    void setFrameWork(zchxMapFrameWork* f) {m_framework = f;}
+    zchxMapWidget* view() const {return mView;}
+    void setView(zchxMapWidget* v) {mView = v;}
 
     //检查层设定是否显示
     bool isLayervisible();
 
 protected://TODO: 添加私有类, 实现成员变量对外隐藏, 且防止依赖扩展情况
-    double elelat;
-    double elelon;
-    double displayLat;
-    double displayLon;
-    bool useDisplayLatLon;
-    bool   isActive;
-    bool   isHover;
-    bool   isFocus;
-    bool   isConcern;           //用户是否关注
-    bool   isRealtimeTailTrack;         //是否显示尾迹点
-    bool   isHistroyTrack;              //是否显示历史轨迹
-    bool   isOpenMeet;          //是否开启会遇显示
-    bool   isUpdate;            //是否更新过
-    int    uuid;
-    QString m_strID;
-    ZCHX::Data::ELETYPE  m_element_type;
-    QPointF m_pos;
-    //QMap<int, QColor> m_mapFlashColor;
-    QColor      mFlashColor;
-    bool m_forceImage;
+    double                                  elelat;
+    double                                  elelon;
+    double                                  displayLat;
+    double                                  displayLon;
+    bool                                    useDisplayLatLon;
+    bool                                    isActive;
+    bool                                    isHover;
+    bool                                    isFocus;
+    bool                                    isConcern;           //用户是否关注
+    bool                                    isRealtimeTailTrack;         //是否显示尾迹点
+    bool                                    isHistroyTrack;              //是否显示历史轨迹
+    bool                                    isOpenMeet;          //是否开启会遇显示
+    bool                                    isUpdate;            //是否更新过
+    bool                                    isForceImage;       //目标是否强制显示
+    QString                                 mID;               //目标标识
+    ZCHX::Data::ELETYPE                     m_element_type;      //图元类型
+    QColor                                  mFlashColor;        //目标报警时的图元填充颜色
+    zchxMapWidget                           *mView;             //图元对应的视窗
 
-    std::list<std::shared_ptr<Element> > m_children;
-    std::shared_ptr<Element>             m_parent;
 
-    std::shared_ptr<MapLayer> m_layer;
-    zchxMapFrameWork *m_framework;
-    QUuid m_uuid;
-    qint64 m_updateUTC;
+    std::list<std::shared_ptr<Element> >    m_children;
+    std::shared_ptr<Element>                m_parent;
+    std::shared_ptr<MapLayer>               m_layer;
+    qint64                                  m_updateUTC;
 
-    QRectF m_boundingRectSmall;
-    QRectF m_boundingRect;
-    QRectF m_activeRect;
-    QRectF m_focusRect;
-    bool m_geometryChanged;
-    QColor      mBorderColor;           //图元边框颜色
-    QColor      mFillingColor;             //图元填充颜色
-    QColor      mTextColor;             //图元文本颜色
-    QColor      mConcernColor;          //图元关注颜色
+    QRectF                                  m_boundingRectSmall;
+    QRectF                                  m_boundingRect;
+    QRectF                                  m_activeRect;
+    QRectF                                  m_focusRect;
+    bool                                    m_geometryChanged;
+    QColor                                  mBorderColor;           //图元边框颜色
+    QColor                                  mFillingColor;          //图元填充颜色
+    QColor                                  mTextColor;             //图元文本颜色
+    QColor                                  mConcernColor;          //图元关注颜色
 
-    static int g_maxLineLength;
+
+    static int          g_maxLineLength;
 
 public:
     friend class MapLayer;

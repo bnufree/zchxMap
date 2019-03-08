@@ -132,7 +132,7 @@ bool zchxRadarDataMgr::updateActiveItem(const QPoint &pt)
        !MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_RADAR_CURRENT) ||
        !isPickupAvailable()) return false;
     int type = mDisplayWidget->getCurPickupType();
-    if(type != ZCHX::Data::ECDIS_PICKUP_RADARORPOINT && type != ZCHX::Data::ECDIS_PICKUP_ALL ) return false;
+    if(!(type & ZCHX::Data::ECDIS_PICKUP_RADARPOINT)) return false;
 
     foreach (std::shared_ptr<RadarPointElement> item, m_RadarPoint) {
         if(item->contains(10, pt.x(), pt.y())){

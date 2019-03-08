@@ -817,7 +817,7 @@ void MainWindow::itfSetIsOpenMeet(bool b)
     if(mMapWidget) mMapWidget->setIsOpenMeet(b);
 }
 
-void MainWindow::itfSetPuickupType(const ZCHX::Data::ECDIS_PICKUP_TYPE &type)
+void MainWindow::itfSetPuickupType(const ZCHX::Data::ECDIS_PICKUP_TYPEs &type)
 {
     if(mMapWidget) mMapWidget->setCurPickupType(type);
 }
@@ -1207,7 +1207,6 @@ void MainWindow::itfSetMapUnit(const MapUnit& uint)
 void MainWindow::OnPickupAction()
 {
     if(mMapWidget) mMapWidget->setETool2DrawPickup();
-    if(mMapWidget) mMapWidget->setCurPickupType(ZCHX::Data::ECDIS_PICKUP_ALL);
 }
 
 void MainWindow::OnShowAllAction()

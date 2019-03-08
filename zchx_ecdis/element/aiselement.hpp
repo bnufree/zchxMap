@@ -20,8 +20,8 @@ enum SHIP_ITEM {
 class  AisElement: public Element
 {
 public:
-    AisElement(zchxMapFrameWork* frame);
-    AisElement(const ZCHX::Data::ITF_AIS &ele, zchxMapFrameWork* frame);
+    AisElement(zchxMapWidget* frame);
+    AisElement(const ZCHX::Data::ITF_AIS &ele, zchxMapWidget* frame);
 
     const std::vector<std::pair<double, double> > &getPath() const;
     void setPath(const std::vector<std::pair<double, double> > &path);
@@ -84,6 +84,7 @@ public:
     void setHistoryTrackStyle(const QString &color, const int lineWidth);
     void setPrepushTrackStyle(const QString &color, const int lineWidth);
     //bool contains(QPointF pos) const;
+    void doubleClickNow();
 
 //    bool getFleet();
 //    void setFleet(bool val);

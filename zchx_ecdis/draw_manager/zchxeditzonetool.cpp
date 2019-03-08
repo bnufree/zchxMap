@@ -44,6 +44,13 @@ void zchxEditZoneTool::selectCtrlPoint(const QPoint &pt)
     if(!mWidget || !mWidget->framework()) return;
     MoveElement *ele = element();
     if(!ele) return;
+    if(ele->activePathPoint() >= 0)
+    {
+        //确认当前的修改
+        ele->setActivePathPoint(-1);
+        return;
+    }
+
     std::vector<std::pair<double, double>> path = ele->path();
     for(int i = 0; i < path.size(); ++i)
     {

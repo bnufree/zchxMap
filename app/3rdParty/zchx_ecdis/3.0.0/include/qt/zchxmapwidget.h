@@ -86,8 +86,8 @@ public:
     ZCHX::Data::ECDIS_PLUGIN_USE_MODEL curUserModel() const;
     void setCurPluginUserModel(const ZCHX::Data::ECDIS_PLUGIN_USE_MODEL &curUserModel);
     //设置当前的拾取元素的类型(默认拾取全部,可以定制只拾取某种类型的数据)
-    ZCHX::Data::ECDIS_PICKUP_TYPE getCurPickupType() const;
-    void setCurPickupType(const ZCHX::Data::ECDIS_PICKUP_TYPE &curPickupType);
+    ZCHX::Data::ECDIS_PICKUP_TYPEs getCurPickupType() const;
+    void setCurPickupType(const ZCHX::Data::ECDIS_PICKUP_TYPEs &curPickupType);
     // 获取图层中当前被选中的元素
     Element* getCurrentSelectedElement();
     void setCurrentSelectedItem(Element* item);
@@ -900,7 +900,7 @@ private:
     int                         mDy;
     bool                        m_bHaveWarningType;//创建的防区是否有报警类型
     ZCHX::Data::ECDIS_PLUGIN_USE_MODEL  mCurPluginUserModel;
-    ZCHX::Data::ECDIS_PICKUP_TYPE       mCurPickupType;
+    ZCHX::Data::ECDIS_PICKUP_TYPEs       mCurPickupType;
     Element*                            mCurrentSelectElement;
     zchxRouteDataMgr            *mRouteDataMgr;                 //路由数据管理
     zchxShipPlanDataMgr         *mShipPlanDataMgr;              //船舶计划数据管理

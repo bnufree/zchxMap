@@ -574,7 +574,7 @@ public slots: //定义Recive数据接口
          * @author:zxl
          * 设置当前可使用的拾取类型
          */
-    void itfSetPuickupType(const ZCHX::Data::ECDIS_PICKUP_TYPE &type);
+    void itfSetPuickupType(const ZCHX::Data::ECDIS_PICKUP_TYPEs &type);
 
     /**
          * @brief 定义更新相机状态接口

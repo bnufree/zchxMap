@@ -175,38 +175,53 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(ECDIS_PLUGIN_USE_MODELs);
 
 enum ELETYPE{
     ELE_NONE,
-    ELEELLIPSE,  //圆元素
-    ELETRIANGLE, //三角形元素
-    ELELINE,     //直线元素
-    ELERECT,      //矩形元素
-    ELEMENT_AIS,
-    ELEMENT_AREANET,
-    ELEMENT_RADAR_POINT,
-    ELEMENT_RADAR_AREA,
-    ELEMENT_ROD,//杆
-    ELEMENT_IPC,
-    ELEMENT_CAMERA,
-    ELEMENT_VIDEO_TARGET,
-    ELEMENT_CAMERA_VIEW,
-    ELEMENT_WARNING_ZONE,
-    ELEMENT_COAST,
-    ELEMENT_CHANNEL,
-    ELEMENT_SEABEDPIPLINE,
-    ELEMENT_ISLAND_LINE,
-    ELEMENT_CARD_MOUTH,
-    ELEMENT_MOOR,
-    ELEMENT_SHIP_ALARM_ASCEND,
-    ELEMENT_STRUCTURE,
-    ELEMENT_PATROL_STATION,
-    ELEMENT_LOCALMARK,
-    ELEMENT_DANGREOUS,
-    ELEMENT_SHIP_PLAN,
-    ELEMENT_CAMERA_GRID,
-    ELEMENT_RADAR_VIDEOGLOW,
-    ELEMENT_RADAR_FEATURE_ZONE,
-
-
+    ELE_POINT,
+    ELE_ELLIPSE,  //圆元素
+    ELE_TRIANGLE, //三角形元素
+    ELE_LINE,     //直线元素
+    ELE_RECT,      //矩形元素
+    ELE_AIS,            //船舶
+    ELE_AIS_COLLIDE,    //船舶碰撞
+    ELE_NAVIGATION,
+    ELE_AREA_NET,
+    ELE_RADAR_POINT,
+    ELE_RADAR_ECHO,
+    ELE_RADAR_AREA,
+    ELE_RADAR_MEET,
+    ELE_ROD,//杆
+    ELE_IPC,
+    ELE_CAMERA,
+    ELE_VIDEO_TARGET,
+    ELE_CAMERA_VIEW,
+    ELE_WARNING_ZONE,
+    ELE_COAST,
+    ELE_CHANNEL,
+    ELE_CHANNEL_LINE,
+    ELE_SEABEDPIPLINE,
+    ELE_ISLAND_LINE,
+    ELE_CARD_MOUTH,
+    ELE_MOOR,
+    ELE_SHIP_ALARM_ASCEND,
+    ELE_STRUCTURE,
+    ELE_PATROL_STATION,
+    ELE_LOCALMARK,
+    ELE_DANGREOUS,
+    ELE_CAMERA_GRID,
+    ELE_RADAR_VIDEOGLOW,
+    ELE_RADAR_FEATURE_ZONE,
+    ELE_SPECIAL_ROUTE_POINT,
+    ELE_SPECIAL_ROUTE_LINE,
+    ELE_CABLE_BASE,
+    ELE_CABLE_INTERFACE,
+    ELE_CABLE_ASSEMBLY,
+    ELE_ROUTE_POINT,
+    ELE_PLAN_POINT,
+    ELE_ROUTE_LINE,
+    ELE_PLAN_LINE,
+    ELE_ROUTE_CROSS_POINT,
+    ELE_MULTIBEAM,
 };
+
 enum ECDIS_DISPLAY_MODEL{//海图显示模式
     ECDIS_MODEL_BASE = 0, //海图基本模式
     ECDIS_MODEL_STANDARD, //海图标准模式
@@ -239,7 +254,7 @@ enum ECDIS_STATION{
 enum ECDIS_PICKUP_TYPE{
     ECDIS_PICKUP_NONE = DATA_MGR_UNKNOWN,
     ECDIS_PICKUP_AIS = DATA_MGR_AIS,
-    ECDIS_PICKUP_RADARORPOINT = DATA_MGR_RADAR,
+    ECDIS_PICKUP_RADARPOINT = DATA_MGR_RADAR,
     ECDIS_PICKUP_RADARAREA = DATA_MGR_RADAR_AREA,
     ECDIS_PICKUP_CAMERAROD = DATA_MGR_ROD,
     ECDIS_PICKUP_CAMERADEV = DATA_MGR_CAMERA,
@@ -254,9 +269,13 @@ enum ECDIS_PICKUP_TYPE{
     ECDIS_PICKUP_MOORINGZONE = DATA_MGR_MOOR,
     ECDIS_PICKUP_CARDMOUTHZONE = DATA_MGR_CARDMOUTH,
     ECDIS_PICKUP_COMMONZONE = ECDIS_PICKUP_WARRINGZONE | ECDIS_PICKUP_CHANNELZONE | ECDIS_PICKUP_MOORINGZONE | ECDIS_PICKUP_CARDMOUTHZONE,
+    ECDIS_PICKUP_TARGET = ECDIS_PICKUP_AIS | ECDIS_PICKUP_RADARPOINT | ECDIS_PICKUP_CAMERAROD | ECDIS_PICKUP_CAMERADEV | ECDIS_PICKUP_CAMERAVIDEOWARN,
     ECDIS_PICKUP_ALL = 0xffffffff,
 
 };
+
+Q_DECLARE_FLAGS(ECDIS_PICKUP_TYPEs, ECDIS_PICKUP_TYPE);
+Q_DECLARE_OPERATORS_FOR_FLAGS(ECDIS_PICKUP_TYPEs);
 
 enum COURSE_TYPE
 {
@@ -265,159 +284,7 @@ enum COURSE_TYPE
     COURSE_TYPE_RESTRICT,
     COURSE_TYPE_OTHER
 };
-#if 0
-//操作权限列表
-enum EOperatePrivilege
-{
-    EOP_PROJECT_MANAGE = 0,//项目管理
-        EOP_PROJECT_VIEW,  //1打开项目1
-        EOP_PROJECT_NEW,   //2新建
-        EOP_PROJECT_EDIT,  //3
-        EOP_PROJECT_DELETE,//4
-    EOP_PROJECT_OVERVIEW ,               //5项目总览0
-        EOP_PROJECT_OVERVIEW_VIEW,      //6
-        EOP_PROJECT_OVERVIEW_FILTER,    //7
-        EOP_PROJECT_OVERVIEW_STATISTIC, //8
-        EOP_PROJECT_OVERVIEW_EXPORT,    //9
 
-//    EOP_CONSTRUCTION_NAVIGATION,
-
-    //项目管理
-    EOP_PROJECT_MANAGER,
-        EOP_MAINTAIN_ROUTE_PATH,                    //维护路由路径
-      //      EOP_MAINTAIN_ROUTE_PATH_VIEW,               //维护路由路径信息查看
-     //       EOP_MAINTAIN_ROUTE_PATH_NEW,                //维护路由路径信息更新
-            EOP_MAINTAIN_ROUTE_PATH_DELETE,             //维护路由路径信息删除
-            EOP_MAINTAIN_ROUTE_PATH_IMPORT,             //维护路由路径信息导入
-            EOP_MAINTAIN_ROUTE_PATH_EXPORT,             //维护路由路径信息导出
-     //       EOP_MAINTAIN_ROUTE_PATH_HISTORY,            //维护路由路径信息历史
-            EOP_MAINTAIN_ROUTE_PATH_EVALUATE,           //维护路由路径信息评审
-
-//        EOP_MAINTAIN_ROUTE_DETAIL,                  //维护路由明细
-//            EOP_MAINTAIN_ROUTE_DETAIL_VIEW,             //维护路由明细信息查看
-//            EOP_MAINTAIN_ROUTE_DETAIL_EDIT,             //维护路由明细信息
-//            EOP_MAINTAIN_ROUTE_DETAIL_INSERT,           //维护路由明细信息
-//            EOP_MAINTAIN_ROUTE_DETAIL_ADD,              //维护路由明细信息
-//            EOP_MAINTAIN_ROUTE_DETAIL_DELETE,           //维护路由明细信息
-//            EOP_MAINTAIN_ROUTE_DETAIL_EXPORT,           //维护路由明细信息
-//            EOP_MAINTAIN_ROUTE_DETAIL_PRINT,            //维护路由明细信息
-//            EOP_MAINTAIN_ROUTE_DETAIL_SAVE,             //维护路由明细信息
-
-        EOP_MAINTAIN_PLAN,                          //维护计划表计划
-       //     EOP_MAINTAIN_PLAN_VIEW,                     //维护计划表查看
-            EOP_MAINTAIN_PLAN_IMPORT,                   //维护计划表
-            EOP_MAINTAIN_PLAN_EXPORT,                   //维护计划表
-            EOP_MAINTAIN_PLAN_DELETE,                   //维护计划表
-
-        EOP_MAINTAIN_SOLUTION,                      //维护方案表
-       //     EOP_MAINTAIN_SOLUTION_VIEW,                 //维护方案表查看
-            EOP_MAINTAIN_SOLUTION_IMPORT,               //维护方案表
-            EOP_MAINTAIN_SOLUTION_EXPORT,               //维护方案表
-            EOP_MAINTAIN_SOLUTION_DELETE,               //维护方案表
-            EOP_MAINTAIN_SOLUTION_EVALUATE,             //维护方案表
-
-        EOP_MAINTAIN_PERMISSION,                      //维护审批表
-      //      EOP_MAINTAIN_PERMISSION_VIEW,                 //维护审批表查看
-            EOP_MAINTAIN_PERMISSION_IMPORT,               //维护审批表
-            EOP_MAINTAIN_PERMISSION_EXPORT,               //维护审批表
-            EOP_MAINTAIN_PERMISSION_DELETE,               //维护审批表
-            EOP_MAINTAIN_PERMISSION_EVALUATE,             //维护审批表
-
-        EOP_MAINTAIN_REPORT,                        //维护报告
-       //     EOP_MAINTAIN_REPORT_VIEW,                   //维护报告查看
-            EOP_MAINTAIN_REPORT_EDIT,                   //维护报告
-            EOP_MAINTAIN_REPORT_INSERT,                 //维护报告
-            EOP_MAINTAIN_REPORT_ADD,                    //维护报告
-            EOP_MAINTAIN_REPORT_DELETE,                 //维护报告
-            EOP_MAINTAIN_REPORT_EXPORT,                 //维护报告
-            EOP_MAINTAIN_REPORT_SAVE,                   //维护报告
-
-        EOP_MAINTAIN_CABLE_DETECTION,               //维护海缆检测
-      //      EOP_MAINTAIN_CABLE_DETECTION_VIEW,          //维护海缆检测查看
-            EOP_MAINTAIN_CABLE_DETECTION_IMPORT,        //维护海缆检测
-            EOP_MAINTAIN_CABLE_DETECTION_EXPORT,        //维护海缆检测
-            EOP_MAINTAIN_CABLE_DETECTION_DELETE,        //维护海缆检测
-            EOP_MAINTAIN_CABLE_DETECTION_EVALUATE,      //维护海缆检测
-
-     //   EOP_MAINTAIN_CABLE_DETECTION_DETAIL,            //维护海缆检测明细
-     //       EOP_MAINTAIN_CABLE_DETECTION_DETAIL_VIEW,       //维护海缆检测明细查看
-
-    //维护操作
-    EOP_PROJECT_MAINTAIN,           //10
-        EOP_ROUTE_MANAGE,           //路由管理
-            EOP_ROUTE_VIEW,         //路由表(南中海)
-            EOP_ROUTE_ADD,          //新增和编辑
-            EOP_ROUTE_DELETE,
-            EOP_ROUTE_BACKUP,
-            EOP_ROUTE_RECOVER,
-//            EOP_ROUTE_HISTORY,
-//            EOP_ROUTE_REVERSE,
-        EOP_DRAWZONE_MANAGE,        //19区域绘制
-            EOP_DRAWZONE_ADD,
-            EOP_DRAWLINE_ADD,
-            EOP_DRAWRISKZONE_ADD,
-        EOP_SETTINGZONE_MANAGE,     //22区域设置
-            EOP_ZONE_MODIFY,
-            EOP_RISKZONE_MODIFY,
-        EOP_EVENSIMULATION_MANAGE,  //25事件模拟
-        EOP_HISTORYTRACK_SHIPTRACK, //历史轨迹
-        EOP_REALTIME_SHIPTRACK,     //26实时轨迹
-        EOP_MENAGEMENT_MANAGE,      //27消息管理
-        EOP_CHANNEL_MANAGEMENT,     //航道管理
-        EOP_MOORING_MANAGEMENT,     //锚泊管理
-    EOP_DATA_MANAGE,                //28数据管理
-        EOP_SHIPARCHIVES_MANAGE,    //29船舶档案
-            EOP_SHIPARCHIVES_VIEW,  //船舶档案窗口
-            EOP_ADD_SHIPARCHIVES,   //新增/修改船舶档案
-            EOP_DELETE_SHIPARCHIVES,//删除船舶档案
-            EOP_OUTPUT_SHIPARCHIVES,//导出船舶档案
-        EOP_VOYAGERECORD_MANAGE,    //航行记录
-        EOP_TIDEDATA_MANAGE,        //潮汐记录
-            EOP_TIDEVIEW_MANAGE,    //潮汐窗口
-            EOP_DELETETIDE_MANAGE,  //删除潮汐记录
-            EOP_OUTPUTTIDE_MANAGE,  //导入潮汐记录
-        EOP_TIDEDATAVIEW_MANAGE,    //潮汐曲线图
-        EOP_TRENDDATA_MANAGE,       //潮流记录
-            EOP_TRENDVIEW_MANAGE,   // 潮流窗口
-            EOP_DELETETREND_MANAGE, //删除潮流记录
-            EOP_OUTPUTTREND_MANAGE, //导出潮流记录
-        EOP_TRENDDATAVIEW_MANAGE,   //潮流曲线图
-        EOP_WEATHERDATA_MANAGE,     //气象数据
-            EOP_WEATHERDATA_VIEW,   //预览气象窗口
-            EOP_OUTWEATHERDATA,     //导出气象数据
-        EOP_WEATHERWARNING_MANAGE,    //气象报警参数
-            EOP_WEATHERWARNING_DATA,    //气象报警窗口
-            EOP_MODIFY_WEATHERWARNING,  //修改气象参数
-        EOP_EMERGENCYPLAN_MANAGE,       //应急预案管理.
-            EOP_EMERGENCYPLAN_VIEW,     //应急预案窗口
-            EOP_EMERGENCYPLAN_MODIFY,   //新增和修改应急预案
-            EOP_EMERGENCYPLAN_DELETE,   //删除应急预案
-            EOP_EMERGENCYPLAN_OUTPUT,   //导出应急预案
-        EOP_POWERGRID_ROUTE_VIEW,       //路由表(电网)
-    EOP_DATASTATICTIS_MANAGE,           //数据统计
-//        EOP_ALARMSTATICTIS_MANAGE,      //报警统计
-        EOP_ZONESTATICTIS_MANAGE,       //区域统计
-//            EOP_ZONESTATICTIS_COUNT,    //区域是否统计设置
-//            EOP_ZONESTATICTIS_QUERY,    //区域统计查询
-        EOP_FLOWSTATICTIS_MANAGE,       //流量统计查询
-        EOP_PREPUSH_MANAGE,             //模拟外推
-        EOP_HISTORYPLAYBACK_MANAGE,     //历史回放
-    EOP_CONFIG_MANAGE,                  //配置
-        EOP_USER_CONFIG,                //用户管理
-        EOP_SMS_CONFIG,                 //金笛短信配置
-        EOP_SYSTEM_CONFIG,              //系统配置
-    EOP_OTHERFUNCTION_MANAGE,                //其他操作 ？？？？
-        EOP_OTHERFUNCTION_CPA,               //cpa
-        EOP_OTHERFUNCTION_FIXPOS,            //固定参考点
-        EOP_OTHERFUNCTION_POSMARK,           //位置标注
-        EOP_OTHERFUNCTION_FLOWLINR,          //自定义流量线
-        EOP_OTHERFUNCTION_TRAGETINFO,        //目标信息
-        EOP_OTHERFUNCTION_TRAGETLIST,        //目标列表
-        EOP_OTHERFUNCTION_PROFILE,           //剖面
-        //总数
-    EOP_TOTAL_COUNT
-};
-#endif
 //----------------------------------------------------------------------------------------------------------
 // Message Type  This data item allows for a more convenient handling of the messages
 // at the receiver side by further defining the type of transaction.
@@ -551,13 +418,23 @@ struct TimeSpanVo{
     int time_cycle;
 };
 
+struct Base {
+public:
+    Base(ELETYPE t):type(t) {}
+    virtual QString key () = 0;
+public:
+    ELETYPE type;
+};
 
-typedef struct tagElePos{
-    int  x;
-    int  y;
+
+typedef struct tagElePos : public Base {
+    double   lon;
+    double   lat;
+    tagElePos() : Base(ELE_POINT) {}
+    QString key() const {return QString("%1, %2").arg(FLOAT_STRING(lon, 6)).arg(FLOAT_STRING(lat, 6));}
 }ElePos;
 
-struct RadarMeet
+struct RadarMeet : public Base
 {
     int trackNumber;		       // 航迹号 I010/161
     QString id;                //ais id
@@ -566,7 +443,9 @@ struct RadarMeet
     double disrance;				//距离
     qint64 UTC;                    // 时间标记
 
-    RadarMeet()
+
+    QString key() {return QString("%1_%2_%3").arg(trackNumber).arg(id).arg(utc);}
+    RadarMeet() : Base(ELE_RADAR_MEET)
     {
         trackNumber = 0;
         id = "";
@@ -583,11 +462,12 @@ struct RadarMeet
         lon = other.lon;
         disrance = other.disrance;
         UTC = other.UTC;
+        type = other.type;
         return *this;
     }
 };
 
-struct AISCollide
+struct AISCollide : public Base
 {
     QString id;                // 唯一识别码("AIS"+消息识别码+"__"+用户识别码)
     double lat;		           // WGS84坐标计算纬度 I010/041
@@ -595,7 +475,8 @@ struct AISCollide
     double disrance;	       // 距离
     QString collideTime;       // 碰撞时间（格式为2018-08-21 13:30:12）
 
-    AISCollide()
+    QString key() {return QString("%1_%2").arg(id).arg(collideTime);}
+    AISCollide() : Base(ELE_AIS_COLLIDE)
     {
         id = "";
         lat = 0;
@@ -610,6 +491,7 @@ struct AISCollide
         lon = other.lon;
         disrance = other.disrance;
         collideTime = other.collideTime;
+        type = other.type;
         return *this;
     }
 };
@@ -634,9 +516,12 @@ enum WARN_STATUS{
 };
 
 //radar数据
-typedef struct tagITF_RadarPoint
+typedef struct tagITF_RadarPoint : public Base
 {
-    int uuid;
+public:
+    tagITF_RadarPoint() :Base(ELE_RADAR_POINT) {}
+    QString key() {return QString("T%1").arg(trackNumber);}
+public:
     double lat;
     double lon;
     std::vector<RadarMeet> RadarMeetVec; //交汇点集合
@@ -678,9 +563,8 @@ typedef struct tagITF_RadarPoint
     uint    mode;                      // 模式 1:自动 2:手动
 //    QMap<int, QColor>          mWarnStsColorMap;
     QColor      warnStatusColor;
-    //添加是否显示关注,是否显示尾迹
-    bool        isConcern;
-    bool        isTailTrack;
+
+
 
 }ITF_RadarPoint;
 
@@ -721,11 +605,12 @@ struct ExtrapolateParam{
 
 typedef QList<ExtrapolateParam> ExtrapolateList;
 
-class ZCHX_ECDIS_EXPORT ITF_AIS
+class ZCHX_ECDIS_EXPORT ITF_AIS : public Base
 {
     std::vector<std::pair<double, double> > _path;
 public:
-    ITF_AIS();
+    ITF_AIS():Base(ELE_AIS) {}
+    QString key() {return id;}
 
     std::vector<RadarMeet> RadarMeetVec;  //交汇点集合
     int type;                             //类型 0：ais，1：北斗，2：CMDA
@@ -800,44 +685,57 @@ public:
     void setPath(const std::vector<std::pair<double, double> > &value);
     std::vector<std::pair<double, double> > getTouchdown() const;
     void setTouchdown(const std::vector<std::pair<double, double> > &value);
-//    QMap<int, QColor>        mOnlineStsColorMap;
-//    QMap<int, QColor>          mWarnStsColorMap;
 
 };
 
-typedef struct tagITF_RadarEcho
+typedef struct tagITF_RadarEcho : public Base
 {
-    QPointF pos;
-    QColor curColor;
-    int amplitude;
+public:
+    tagITF_RadarEcho() :Base(ELE_RADAR_ECHO) {}
+    QString key() {return QString::number(amplitude);}
+
+    QPointF     pos;
+    QColor      curColor;
+    int         amplitude;
 }ITF_RadarEcho;
 
 typedef QMap<int,ITF_RadarEcho> ITF_RadarEchoMap;
 //导航
-typedef struct NavigationITF
+typedef struct tagITF_Navigation : public Base
 {
-    int uuid;
-    double lon;
-    double lat;
-    float heading ;
+public:
+    tagITF_Navigation() :Base(ELE_NAVIGATION) {}
+    QString key() {return QString::number(uuid);}
+
+    int     uuid;
+    double  lon;
+    double  lat;
+    float   heading ;
 
 }ITF_Navigation;
 
 //危險圈
-typedef struct DangerousCircleITF
+typedef struct DangerousCircleITF : public Base
 {
+public:
+    DangerousCircleITF() :Base(ELE_DANGREOUS) {}
+    QString key() {return id;}
+
     QString id;                 //唯一识别码
     double  lat;                //經度
     double  lon;                //緯度
     double  direction;          //方向角
-    double  range; //危险圈半径单位：米（M）
-    QString name;
+    double  range;              //危险圈半径单位：米（M）
 
 }ITF_DangerousCircle;
 
 //人车船
-typedef struct tagITF_VideoTarget
+typedef struct tagITF_VideoTarget : public Base
 {
+public:
+    tagITF_VideoTarget() :Base(ELE_VIDEO_TARGET) {}
+    QString key() {return objectID;}
+
      int uuid;
      uint cameraId;		    	// 相机id
      QString objectID;           	 // 目标ID
@@ -855,8 +753,12 @@ typedef struct tagITF_VideoTarget
 
 }ITF_VideoTarget;
 
-typedef struct tagITF_RadarArea
+typedef struct tagITF_RadarArea : public Base
 {
+public:
+    tagITF_RadarArea() :Base(ELE_RADAR_AREA) {}
+    QString key() {return QString::number(uuid);}
+
     int uuid;
     double radarX;
     double radarY;
@@ -868,8 +770,12 @@ typedef struct tagITF_RadarArea
 }ITF_RadarArea;
 
 ////雷达特征区域
-typedef struct tagITF_EditRadarZone
+typedef struct tagITF_EditRadarZone : public Base
 {
+public:
+    tagITF_EditRadarZone() :Base(ELE_RADAR_FEATURE_ZONE) {}
+    QString key() {return QString::number(name);}
+
     int zoneNumber;
     QString name;
     int zoneType;
@@ -878,10 +784,11 @@ typedef struct tagITF_EditRadarZone
 }ITF_RadarFeaturesZone;
 
 //特殊路由
-class ZCHX_ECDIS_EXPORT SpecialRoutePoint
+class ZCHX_ECDIS_EXPORT SpecialRoutePoint : public Base
 {
 public:
-    SpecialRoutePoint();
+    SpecialRoutePoint() : Base(ELE_SPECIAL_ROUTE_POINT) {}
+    QString key() {return QString::number(m_iNumber);}
     SpecialRoutePoint &operator=(const SpecialRoutePoint &other);
     int     m_iFileId;
     int     m_iNumber;      //序号
@@ -901,7 +808,9 @@ public:
 class ZCHX_ECDIS_EXPORT SpecialRouteLine
 {
 public:
-    SpecialRouteLine();
+    SpecialRouteLine() :Base(ELE_SPECIAL_ROUTE_LINE) {}
+    QString key() {return QString::number(m_iId);}
+
     SpecialRouteLine &operator=(const SpecialRouteLine &other);
     int     m_iId;
     int     m_iProjectId;       //项目ID
@@ -913,10 +822,11 @@ public:
     std::vector<SpecialRoutePoint> points;
 };
 
-class ZCHX_ECDIS_EXPORT CableBaseData//海缆组件
+class ZCHX_ECDIS_EXPORT CableBaseData : public Base//海缆组件
 {
 public:
-    CableBaseData();
+    CableBaseData() :Base(ELE_CABLE_BASE) {}
+    QString key() {return mName;}
     CableBaseData& operator=(const CableBaseData &other);
 
     QString     mName;
@@ -925,10 +835,11 @@ public:
     int         mWidth;
 };
 
-class ZCHX_ECDIS_EXPORT CableInterfaceData//海缆组件
+class ZCHX_ECDIS_EXPORT CableInterfaceData : public Base//海缆组件
 {
 public:
     CableInterfaceData();
+    QString key() {return mName;}
     CableInterfaceData& operator=(const CableInterfaceData &other);
 
     QString     mName;
@@ -937,11 +848,12 @@ public:
 
 
 
-class ZCHX_ECDIS_EXPORT CableAssembly//海缆组件
+class ZCHX_ECDIS_EXPORT CableAssembly : public Base//海缆组件
 {
 public:
     CableAssembly();
     CableAssembly& operator=(const CableAssembly &other);
+    QString key() {return QString::number(m_uID);}
 
     int          m_uID;
     QString      m_sAssemblyName;
@@ -966,10 +878,11 @@ public:
 };
 
 
-class ZCHX_ECDIS_EXPORT RoutePoint
+class ZCHX_ECDIS_EXPORT RoutePoint : public Base
 {
 public:
     RoutePoint();
+    QString key() {return QString::number(m_idbID);}
     RoutePoint & operator = (const RoutePoint &other);
     bool operator ==(const RoutePoint &other);
     QString getTypeStr() const;
@@ -1023,10 +936,11 @@ public:
     bool    mAcPoint;
 };
 
-class ZCHX_ECDIS_EXPORT RouteLine
+class ZCHX_ECDIS_EXPORT RouteLine : public Base
 {
 public:
     RouteLine();
+    QString key() {return QString::number(routeID);}
     RouteLine & operator = (const RouteLine &other);
     bool operator ==(const RouteLine &other);
 
@@ -1051,10 +965,11 @@ public:
 };
 
 //路由交越数据
-class ZCHX_ECDIS_EXPORT ITF_RouteCross
+class ZCHX_ECDIS_EXPORT ITF_RouteCross : public Base
 {
 public:
     ITF_RouteCross();
+    QString key() {return QString::number(m_uKeyID);}
     ITF_RouteCross &operator =(const ITF_RouteCross &other);
     int        m_uKeyID;
     QString    m_sOriginalRouteName;    //原路由名称
@@ -1069,10 +984,11 @@ public:
 };
 
 
-class ZCHX_ECDIS_EXPORT ITF_Multibeam
+class ZCHX_ECDIS_EXPORT ITF_Multibeam : public Base
 {
 public:
     ITF_Multibeam();
+    QString key() {return QString("%1_%2_%3").arg(INT_STRING(m_uRouteID).arg(FLOAT_STRING(m_dLat, 6).arg(FLOAT_STRING(m_dLon, 6))));}
     ITF_Multibeam &operator =(const ITF_Multibeam &other);
     int m_uRouteID;
     double m_dLon;
@@ -1082,10 +998,11 @@ public:
     double m_dY;
 };
 
-class ZCHX_ECDIS_EXPORT ShipPlanPoint
+class ZCHX_ECDIS_EXPORT ShipPlanPoint : Base
 {
 public:
     ShipPlanPoint();
+    QString key() {return QString::number(m_dId);}
     ShipPlanPoint & operator = (const ShipPlanPoint &other);
     bool operator ==(const ShipPlanPoint &other);
 
@@ -1118,10 +1035,11 @@ public:
     double  m_dTension;         //张力
 };
 
-class ZCHX_ECDIS_EXPORT ShipPlanLine
+class ZCHX_ECDIS_EXPORT ShipPlanLine : public Base
 {
 public:
     ShipPlanLine();
+    QString key() {return QString::number(m_dShipPlanId);}
     ShipPlanLine & operator = (const ShipPlanLine &other);
     bool operator ==(const ShipPlanLine &other);
 
@@ -1178,8 +1096,12 @@ typedef struct WaterPoint
 }ITF_WaterDepth;
 
 //相机视场范围
-typedef struct tagITF_CameraView
+typedef struct tagITF_CameraView : public Base
 {
+public:
+    tagITF_CameraView() : Base(ELE_CAMERA_VIEW) {}
+    QString key() {return id;}
+
     double lat;
     double lon;
     double center_line; //中心线角度  pan postion
@@ -1188,13 +1110,16 @@ typedef struct tagITF_CameraView
     QString id;
 }ITF_CameraView;
 
-typedef struct tagITF_WarringZone
+typedef struct tagITF_WarringZone : public Base
 {
     enum WARRING_ZONE_SHAPE {
         ZONE_POLYGON = 1,
         ZONE_CIRCLE,
         ZONE_LINE,
     };
+public:
+    tagITF_WarringZone() : Base(ELE_WARNING_ZONE) {}
+    QString key() {return name;}
 
     int      id;                      // 防区id号
     QString  name;                    // 防区名称
@@ -1223,8 +1148,12 @@ typedef struct tagITF_WarringZone
 
 }ITF_WarringZone;
 
-typedef struct tagITF_CoastData
+typedef struct tagITF_CoastData : public Base
 {
+public:
+    tagITF_CoastData() : Base(ELE_COAST) {}
+    QString key() {return name;}
+
     int         id;                     // 主键号
     QString     name;                   // 名称
     QString     manageOrganization;     // 监管机构
@@ -1236,8 +1165,12 @@ typedef struct tagITF_CoastData
     double      height;                 // 高度
 }ITF_CoastData;
 
-typedef struct tagITF_SeabedPipeLine
+typedef struct tagITF_SeabedPipeLine : public Base
 {
+public:
+    tagITF_SeabedPipeLine() : Base(ELE_SEABEDPIPLINE) {}
+    QString key() {return name;}
+
     int         id;                     // 主键号
     QString     name;                   // 名称
     QString     manageOrganization;     // 监管机构
@@ -1249,8 +1182,11 @@ typedef struct tagITF_SeabedPipeLine
     double      depth;                  // 深度
 }ITF_SeabedPipeLine;
 
-typedef struct tagITF_Structure
+typedef struct tagITF_Structure: public Base
 {
+public:
+    tagITF_Structure() : Base(ELE_STRUCTURE) {}
+    QString key() {return name;}
     int         id;                     // 主键号
     QString     name;                   // 名称
     double      area;                   // 面积
@@ -1260,8 +1196,11 @@ typedef struct tagITF_Structure
     double      depth;                  // 深度
 }ITF_Structure;
 
-typedef struct tagITF_AreaNet
+typedef struct tagITF_AreaNet : public Base
 {
+public:
+    tagITF_AreaNet() : Base(ELE_AREA_NET) {}
+    QString key() {return name;}
     int         id;                     // 主键号
     QString     name;                   // 名称
     double      area;                   // 面积
@@ -1270,21 +1209,28 @@ typedef struct tagITF_AreaNet
     std::vector<std::pair<double, double> > path; // 经纬度集合
 }ITF_AreaNet;
 
-typedef struct tagITF_ChannelLine
+typedef struct tagITF_ChannelLine: public Base
 {
+public:
+    tagITF_ChannelLine() : Base(ELE_CHANNEL_LINE) {}
+    QString key() {return name;}
     int      lineType;    // 航道线类型1：航道入口 2：航道出口3：航道边线4：特殊边线
     bool     isSelected;  // 是否选中
     double   startLon;    // 开始经度
     double   startLat;    // 开始纬度
     double   endLon;      // 结束经度
     double   endLat;      // 结束纬度
+    QString  name;
 
     bool operator ==(const tagITF_ChannelLine &other);
 
 }ITF_ChannelLine;
 
-typedef struct tagITF_Channel
+typedef struct tagITF_Channel: public Base
 {
+public:
+    tagITF_Channel() : Base(ELE_CHANNEL) {}
+    QString key() {return name;}
     int      id;                   // 航道编号
     QString  name;                 // 航道名称
     int      shape;                // 形状 1：多边形 2：圆
@@ -1315,8 +1261,12 @@ typedef struct tagITF_Channel
     std::vector<ITF_ChannelLine> lineList; // 航道线集合
 }ITF_Channel;
 
-typedef struct tagITF_Mooring
+typedef struct tagITF_Mooring: public Base
 {
+public:
+    tagITF_Mooring() : Base(ELE_MOOR) {}
+    QString key() {return name;}
+
     int      id;            // 锚泊编号
     QString  name;          // 锚泊名称
     int      shape;         // 形状 1：多边形 2：圆
@@ -1336,8 +1286,11 @@ typedef struct tagITF_Mooring
     std::vector<std::pair<double, double> > path; // 经纬度集合
 }ITF_Mooring;
 
-typedef struct tagITF_CardMouth
+typedef struct tagITF_CardMouth: public Base
 {
+public:
+    tagITF_CardMouth() : Base(ELE_CARD_MOUTH) {}
+    QString key() {return name;}
     int            id;              // 卡口编号
     QString        name;            // 卡口名称
     int            shape;           // 形状 1：多边形 2：圆3：线
@@ -1360,8 +1313,12 @@ typedef struct tagITF_CardMouth
 
 }ITF_CardMouth;
 
-typedef struct tagITF_ShipAlarmAscend
+typedef struct tagITF_ShipAlarmAscend: public Base
 {
+public:
+    tagITF_ShipAlarmAscend() : Base(ELE_SHIP_ALARM_ASCEND) {}
+    QString key() {return QString("%1_%2").arg(sShipName).arg(time);}
+
     QString  sShipName;       //船名
     qint64   immsi;           //mmsi
     double   lon;             // 经度
@@ -1370,7 +1327,7 @@ typedef struct tagITF_ShipAlarmAscend
                               //6:越线预警、7:锚泊预警、8:其他预警、9:黑名单预警、10:AIS未开启、
                               //11:超载航行、12:逆行报警、13:超长报警、14:追越报警、15:违规抛锚
     QString  ereaName;        // 区域名称
-    QString  name;            // time 时间格式为2018-11-06 11:21:02
+    QString  time;            // time 时间格式为2018-11-06 11:21:02
 }ITF_ShipAlarmAscend;
 
 typedef struct tagITF_Fleet

@@ -514,7 +514,7 @@ CableAssembly& CableAssembly::operator=(const CableAssembly &other)
     return *this;
 }
 
-CableAssembly::CableAssembly()
+CableAssembly::CableAssembly():Base(ELE_CABLE_ASSEMBLY)
 {
     m_uID = 0;
     m_sAssemblyName = "";
@@ -569,14 +569,14 @@ CableInterfaceData& CableInterfaceData::operator=(const CableInterfaceData &othe
     return *this;
 }
 
-CableInterfaceData::CableInterfaceData()
+CableInterfaceData::CableInterfaceData():Base(ELE_CABLE_INTERFACE)
 {
     mName = "UnDef";
     mDiagramSymbol = 0;
 }
 
 
-RoutePoint::RoutePoint()
+RoutePoint::RoutePoint() : Base(ELE_ROUTE_POINT)
 {
     lon = 0;
     lat = 0;
@@ -787,7 +787,7 @@ QString RoutePoint::getTypeStr() const
     return sType;
 }
 
-RouteLine::RouteLine()
+RouteLine::RouteLine() : Base(ELE_ROUTE_LINE)
 {
     routeID = 0;
     projectID = 0;
@@ -871,7 +871,7 @@ bool RouteLine::operator ==(const RouteLine &other)
 }
 
 
-ITF_RouteCross::ITF_RouteCross()
+ITF_RouteCross::ITF_RouteCross() : Base(ELE_ROUTE_CROSS_POINT)
 {
     m_uKeyID = 0;
     m_sOriginalRouteName = "";    //原路由名称
@@ -900,7 +900,7 @@ ITF_RouteCross & ITF_RouteCross::operator =(const ITF_RouteCross &other)
     return *this;
 }
 
-ShipPlanPoint::ShipPlanPoint()
+ShipPlanPoint::ShipPlanPoint() : Base(ELE_PLAN_POINT)
 {
     m_dId = 0;
     m_dShipPlanIndex = 0;
@@ -974,7 +974,7 @@ bool ShipPlanPoint::operator ==(const ShipPlanPoint &other)
     return true;
 }
 
-ShipPlanLine::ShipPlanLine()
+ShipPlanLine::ShipPlanLine() : Base(ELE_PLAN_LINE)
 {
     m_dShipPlanId = 0;
     m_iStartPosType = 0;        //路径开始方式  :  1路由 ,2KP , 3海缆
@@ -1129,7 +1129,7 @@ ITF_AIS::ITF_AIS()
     _touchdown.clear();
 }
 
-ITF_Multibeam::ITF_Multibeam()
+ITF_Multibeam::ITF_Multibeam():Base(ELE_MULTIBEAM)
 {
     m_uRouteID = 0;
     m_dLon = 0;

@@ -138,7 +138,6 @@ HEADERS  += mainwindow.h \
     zchxutils.hpp \
     zchxMapDataUtils.h \
     element/IDrawElement.hpp \
-    element/IDrawElement_p.hpp \
     element/drawelement.hpp \
     profiles.h \
     zchxmapframe.h \

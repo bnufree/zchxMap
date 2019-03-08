@@ -65,8 +65,8 @@ zchxMapWidget::zchxMapWidget(QWidget *parent) : QWidget(parent),
     {
         ZCHX_DATA_FACTORY->createManager(i);
     }
-    //数据选择默认为全选择
-    setCurPickupType(ZCHX::Data::ECDIS_PICKUP_TYPE::ECDIS_PICKUP_ALL);
+    //数据选择默认为不能选择
+    setCurPickupType(ZCHX::Data::ECDIS_PICKUP_TYPE::ECDIS_PICKUP_NONE);
 }
 
 zchxMapWidget::~zchxMapWidget()
@@ -191,7 +191,9 @@ void zchxMapWidget::setActiveDrawElement(const ZCHX::Data::Point2D &pos, bool db
     //检查各个数据管理类,获取当前选择的目标
     foreach (std::shared_ptr<zchxEcdisDataMgr> mgr, ZCHX_DATA_FACTORY->getManagers()) {
         if(mgr->updateActiveItem(pos.toPoint())){
-            if(dbClick)setETool2DrawPickup();
+            if(dbClick){
+                setETool2DrawPickup();
+            }
             break;
         }
     }
@@ -258,7 +260,7 @@ void zchxMapWidget::setPickUpNavigationTarget(const ZCHX::Data::Point2D &pos)
 
 void zchxMapWidget::getPointNealyCamera(const ZCHX::Data::Point2D &pos)
 {
-    if(ZCHX::Data::ECDIS_PICKUP_RADARORPOINT !=  mCurPickupType) return;
+    if(ZCHX::Data::ECDIS_PICKUP_RADARPOINT !=  mCurPickupType) return;
     Element *ele = 0;
     foreach (std::shared_ptr<zchxEcdisDataMgr> mgr, ZCHX_DATA_FACTORY->getManagers()) {
         if(mgr->getType() != ZCHX::DATA_MGR_RADAR) continue;
@@ -317,7 +319,11 @@ void zchxMapWidget::mousePressEvent(QMouseEvent *e)
                 setActiveDrawElement(e->pos(), false);
                 if(m_eTool != DRAWPICKUP)
                 {
-                    if(mToolPtr) mToolPtr->setElement((MoveElement*)getCurrentSelectedElement());
+                    if(mToolPtr)
+                    {
+                        mToolPtr->setElement((MoveElement*)getCurrentSelectedElement());
+                        if(mToolPtr->element()) mToolPtr->element()->setActivePathPoint(-1);
+                    }
                 }
                 break;
             }
@@ -326,7 +332,10 @@ void zchxMapWidget::mousePressEvent(QMouseEvent *e)
             case ZONEMOVECTRL:
             case MOORINGMOVECTRL:
             {
-                if(mToolPtr) mToolPtr->selectCtrlPoint(e->pos());
+                if(mToolPtr)
+                {
+                    mToolPtr->selectCtrlPoint(e->pos());
+                }
                 break;
             }
             case ZONEMOVE:
@@ -769,7 +778,9 @@ void zchxMapWidget::mouseDoubleClickEvent(QMouseEvent *e)
         mFrameWork->UpdateCenter(ZCHX::Data::Point2D(e->pos()));
         //更新当前点的经纬度
         updateCurrentPos(e->pos());
-        //setActiveDrawElement(e->pos(), true);
+        //检查当前是否选择了船舶或者雷达目标
+        setCurPickupType(ZCHX::Data::ECDIS_PICKUP_TARGET);
+        setActiveDrawElement(e->pos(), true);
     }
     e->accept();
 }
@@ -779,10 +790,13 @@ void zchxMapWidget::mouseMoveEvent(QMouseEvent *e)
     if(e->buttons() & Qt::LeftButton)
     {
         //当前鼠标按住左键移动拖动地图
-        mDrag = true;
-        QPoint pnt = e->pos();
-        mDx = mPressPnt.x() - pnt.x();
-        mDy = mPressPnt.y() - pnt.y();
+        if(!mToolPtr)
+        {
+            mDrag = true;
+            QPoint pnt = e->pos();
+            mDx = mPressPnt.x() - pnt.x();
+            mDy = mPressPnt.y() - pnt.y();
+        }
         //update();
 
     } else
@@ -1059,12 +1073,12 @@ void zchxMapWidget::setCurPluginUserModel(const ZCHX::Data::ECDIS_PLUGIN_USE_MOD
     mCurPluginUserModel = curUserModel;
 }
 
-ZCHX::Data::ECDIS_PICKUP_TYPE zchxMapWidget::getCurPickupType() const
+ZCHX::Data::ECDIS_PICKUP_TYPEs zchxMapWidget::getCurPickupType() const
 {
     return mCurPickupType;
 }
 
-void zchxMapWidget::setCurPickupType(const ZCHX::Data::ECDIS_PICKUP_TYPE &curPickupType)
+void zchxMapWidget::setCurPickupType(const ZCHX::Data::ECDIS_PICKUP_TYPEs &curPickupType)
 {
     mCurPickupType = curPickupType;
     //设定各个数据类是否可以选择
@@ -1200,7 +1214,7 @@ void zchxMapWidget::setETool2DrawPickup()
     m_eTool = DRAWPICKUP;
     isActiveETool = true; //拾取时是否允许移动海图 true 不允许，false 允许
     setCursor(Qt::ArrowCursor);
-    setCurPickupType(ZCHX::Data::ECDIS_PICKUP_ALL);
+    setCurPickupType(ZCHX::Data::ECDIS_PICKUP_TARGET );
 }
 
 void zchxMapWidget::setETool2DrawTrackTarget()
@@ -1216,7 +1230,7 @@ void zchxMapWidget::setETool2DrawCameraTrackTarget()
 {
     m_eTool = CAMERATEACK;
     isActiveETool = true;//拾取时是否允许移动海图 true 不允许，false 允许
-    setCurPickupType(ZCHX::Data::ECDIS_PICKUP_TYPE::ECDIS_PICKUP_ALL);
+    setCurPickupType(ZCHX::Data::ECDIS_PICKUP_AIS | ZCHX::Data::ECDIS_PICKUP_RADARPOINT | ZCHX::Data::ECDIS_PICKUP_CAMERAVIDEOWARN);
     setCursor(Qt::ArrowCursor);
 }
 

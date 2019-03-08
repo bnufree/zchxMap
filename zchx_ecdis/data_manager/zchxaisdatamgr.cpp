@@ -188,7 +188,7 @@ bool zchxAisDataMgr::updateActiveItem(const QPoint &pt)
 {
     if(!MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_AIS) || !isPickupAvailable()) return false;
     int type = mDisplayWidget->getCurPickupType();
-    if(type != ZCHX::Data::ECDIS_PICKUP_AIS && type != ZCHX::Data::ECDIS_PICKUP_ALL ) return false;
+    if(!(type & ZCHX::Data::ECDIS_PICKUP_AIS)) return false;
 
     //重置历史轨迹点的显示
     clearHistoryTrackSel();

@@ -11,7 +11,7 @@ Q_LOGGING_CATEGORY(ecdis, "zchx.Ecdis")
 namespace qt {
 int Element::g_maxLineLength = 100;
 
-Element::Element(const double &lat, const double &lon, zchxMapFrameWork* frame, ZCHX::Data::ELETYPE type,const QColor& flashColor)
+Element::Element(const double &lat, const double &lon, zchxMapWidget* view, ZCHX::Data::ELETYPE type, const QColor& flashColor)
     : elelat(lat)
     , elelon(lon)
     , displayLat(lat)
@@ -24,14 +24,11 @@ Element::Element(const double &lat, const double &lon, zchxMapFrameWork* frame, 
     , isHistroyTrack(false)
     , isOpenMeet(false)
     , isUpdate(false)
-    , uuid(-1)
-    , m_strID("")
+    , mID("")
     , m_element_type(type)
-    , m_pos(QPointF(-1, -1))
-    , m_forceImage(false)
+    , isForceImage(false)
     , m_layer(0)
-    , m_framework(frame)
-    , m_uuid(QUuid::createUuid())
+    , mView(view)
     , m_updateUTC(QDateTime::currentMSecsSinceEpoch())
     , m_geometryChanged(false)
 	, mFlashColor(flashColor)
@@ -57,15 +54,12 @@ Element::Element(const Element &element)
     , isHistroyTrack(element.isHistroyTrack)
     , isOpenMeet(element.isOpenMeet)
     , isUpdate(element.isUpdate)
-    , uuid(element.uuid)
-    , m_strID(element.m_strID)
+    , mID(element.mID)
     , m_element_type(element.m_element_type)
-    , m_pos(element.m_pos)
-    , m_forceImage(element.m_forceImage)
+    , isForceImage(element.isForceImage)
     , mFlashColor(element.mFlashColor)
     , m_layer(element.m_layer)
-    , m_framework(element.m_framework)
-    , m_uuid(element.m_uuid)
+    , mView(element.mView)
     , m_updateUTC(element.m_updateUTC)
     , m_boundingRectSmall(element.m_boundingRectSmall)
     , m_boundingRect(element.m_boundingRect)
@@ -136,9 +130,14 @@ void Element::setElementType(const ZCHX::Data::ELETYPE &type)
     m_element_type = type;
 }
 
-int Element::getUuid() const
+QString Element::getID() const
 {
-    return uuid;
+    return mID;
+}
+
+void Element::setID(const QString &id)
+{
+    mID = id;
 }
 
 bool Element::getIsHover() const
@@ -223,14 +222,11 @@ void Element::setUseDisplayLatLon(bool value)
 
 bool Element::contains(int range, double x, double y) const
 {
-    if(!m_framework || range <= 0)
-        return false;
-    ZCHX::Data::Point2D gpos = m_framework->LatLon2Pixel(displayLat, displayLon);
+    if(!mView || !mView->framework() || range <= 0) return false;
+    ZCHX::Data::Point2D gpos = mView->framework()->LatLon2Pixel(displayLat, displayLon);
     QRectF rect(0, 0, 2*range, 2*range);
     rect.moveCenter(QPointF(gpos.x, gpos.y));
-    bool sts = rect.contains(QPointF(x, y));
-    //qDebug()<<"rect:"<<rect<<" point:"<<x<<y<<" sts:"<<sts;
-    return sts;
+    return rect.contains(QPointF(x, y));
 }
 
 bool Element::contains(const QPoint& pos) const
@@ -248,16 +244,14 @@ bool Element::isEmpty() const
     return false;
 }
 
-QPointF Element::getViewPos(zchxMapFrameWork *f)
+QPointF Element::getViewPos()
 {
-    if(!f)
-        f = m_framework;
-    if(f)
+    QPointF pos;
+    if(mView && mView->framework())
     {
-        ZCHX::Data::Point2D gpos = f->LatLon2Pixel(displayLat, displayLon);
-        m_pos = QPointF(gpos.x, gpos.y);
+        pos = mView->framework()->LatLon2Pixel(elelat, elelon).toPointF();
     }
-    return m_pos;
+    return pos;
 }
 
 void Element::drawElement(QPainter *painter)
@@ -341,10 +335,8 @@ std::shared_ptr<Element> Element::parent()
 
 void Element::drawSpeedDirectionLine(QPainter *painter, QPointF pos, qreal sog, qreal cog, qreal rot)
 {
-    if(!painter || !m_framework)
-        return;
-
-    double angleFromNorth = m_framework->GetRotateAngle(); //计算当前正北方向的方向角
+    if(!painter || !mView || !mView->framework()) return;
+    double angleFromNorth = mView->framework()->GetRotateAngle(); //计算当前正北方向的方向角
     qreal sideLen = getDrawScaleSize();
 
     PainterPair chk(painter);
@@ -403,13 +395,12 @@ void Element::drawFlashRegion(QPainter *painter, QPointF pos, int status, QColor
 std::vector<QPointF> Element::convert2QtPonitList(const std::vector<std::pair<double, double> > &path)
 {
     std::vector<QPointF> pts;
-    if(!m_framework)
-        return pts;
+    if(!mView || !mView->framework()) return pts;
 
     for(int i = 0; i < path.size(); ++i)
     {
         std::pair<double, double> ll = path[i];
-        ZCHX::Data::Point2D pos = m_framework->LatLon2Pixel(ll.first,ll.second);
+        ZCHX::Data::Point2D pos = mView->framework()->LatLon2Pixel(ll.first,ll.second);
         pts.push_back(QPointF(pos.x,pos.y));
     }
     return pts;
@@ -417,13 +408,8 @@ std::vector<QPointF> Element::convert2QtPonitList(const std::vector<std::pair<do
 
 QPointF Element::convertToView(double lon, double lat)
 {
-    QPointF pos;
-    if(m_framework)
-    {
-        ZCHX::Data::Point2D posD = m_framework->LatLon2Pixel(lat, lon);
-        pos = QPointF(posD.x, posD.y);
-    }
-    return pos;
+    if(!mView || !mView->framework()) return QPointF();
+    return mView->framework()->LatLon2Pixel(lat, lon).toPointF();
 }
 
 qint64 Element::getUpdateUTC() const
@@ -438,12 +424,12 @@ void Element::setUpdateUTC(const qint64 &updateUTC)
 
 bool Element::getForceImage() const
 {
-    return m_forceImage;
+    return isForceImage;
 }
 
 void Element::setForceImage(bool forceImage)
 {
-    m_forceImage = forceImage;
+    isForceImage = forceImage;
 }
 
 bool Element::getGeometryChanged() const
@@ -458,31 +444,11 @@ void Element::setGeometryChanged(bool geometryChanged)
 
 int Element::getDrawScaleSize() const
 {
-    if(!m_framework)
-        return 10;
-    int curScale = m_framework->Zoom() < 7 ? 5 : 10;
+    if(!mView || !mView->framework()) return 10;
+    int curScale = mView->framework()->Zoom() < 7 ? 5 : 10;
     return curScale;
 }
 
-QString Element::getStrID() const
-{
-    return m_strID;
-}
-
-void Element::setStrID(const QString &strID)
-{
-    m_strID = strID;
-}
-
-void Element::setUuid(const QUuid &uuid)
-{
-    m_uuid = uuid;
-}
-
-QUuid Element::getUuid2() const
-{
-    return m_uuid;
-}
 
 void Element::updateFlashRegionColor(const QColor& color)
 {
@@ -532,8 +498,7 @@ void  Element::initFromSettings()
 
 QPointF Element::getCurrentPos()
 {
-    ZCHX::Data::Point2D pos = m_framework->LatLon2Pixel(lat(), lon());
-    return QPointF(pos.x, pos.y);
+    return getViewPos();
 }
 
 bool Element::isLayervisible()

@@ -10,9 +10,7 @@
 
 namespace qt{
 
-AisElement::AisElement(zchxMapFrameWork* frame)
-    : Element(0,0,frame,ZCHX::Data::ELEMENT_AIS)
-//    , m_isFleet(false)
+AisElement::AisElement(zchxMapWidget* view) : Element(0, 0, view, ZCHX::Data::ELEMENT_AIS)
 {
     m_drawTargetInfo = true;
     mRealtimeTailTrackList.clear();
@@ -23,12 +21,11 @@ AisElement::AisElement(zchxMapFrameWork* frame)
     initFromSettings();
 }
 
-AisElement::AisElement(const ZCHX::Data::ITF_AIS &ele, zchxMapFrameWork* frame)
-    : Element(ele.lat,ele.lon, frame, ZCHX::Data::ELEMENT_AIS, ele.warnStatusColor)
+AisElement::AisElement(const ZCHX::Data::ITF_AIS &ele, zchxMapWidget* view)
+    : Element(ele.lat,ele.lon, view, ZCHX::Data::ELEMENT_AIS, ele.warnStatusColor)
     , m_data(ele)
-//    , m_isFleet(false)
 {
-    setStrID(m_data.id);
+    setID(m_data.id);
     mRealtimeTailTrackList.clear();
     mHistoryTrackList.clear();
     mBigDisplayHistoryIndex = -1;
@@ -746,12 +743,7 @@ void AisElement::initFromSettings()
     //qDebug()<<"ais ini seetings."<<getForceImage()<<mFillingColor.name()<<mTextColor.name()<<mConcernColor.name()<<mBorderColor.name();
 }
 
-//bool AisElement::contains(QPointF pos) const
-//{
-//    bool sts =  Element::contains(m_framework, 10, pos.x(), pos.y());
-//    qDebug()<<__FUNCTION__<<sts;
-//    return sts;
-//}
-
-//namespace end
+void AisElement::doubleClickNow()
+{
+}
 }
