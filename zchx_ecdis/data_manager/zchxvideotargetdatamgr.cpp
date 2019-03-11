@@ -32,7 +32,7 @@ void zchxVideoTargetDataMgr::setData(const QList<ZCHX::Data::ITF_VideoTarget> &l
         if(ele) {
             ele->setData(data);
         } else {
-            mTargetMap[data.objectID] = std::shared_ptr<VideoTargetElement>(new VideoTargetElement(data, mDisplayWidget->framework()));
+            mTargetMap[data.objectID] = std::shared_ptr<VideoTargetElement>(new VideoTargetElement(data, mDisplayWidget));
         }
     }
 }

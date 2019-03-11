@@ -3,8 +3,8 @@
 #include "zchxmapframe.h"
 
 namespace qt {
-CardMouthElement::CardMouthElement(const ZCHX::Data::ITF_CardMouth &ele, zchxMapFrameWork* f)
-    :MoveElement(f, ZCHX::Data::ELEMENT_CARD_MOUTH)
+CardMouthElement::CardMouthElement(const ZCHX::Data::ITF_CardMouth &ele, zchxMapWidget* f)
+    :MoveElement(f, ZCHX::Data::ELE_CARD_MOUTH)
 {
     setData(ele);
 }
@@ -32,15 +32,15 @@ void CardMouthElement::setPath(const std::vector<std::pair<double, double> > &pa
     m_data.path = path;
 }
 
-int CardMouthElement::id() const
-{
-    return uuid;
-}
+//int CardMouthElement::id() const
+//{
+//    return uuid;
+//}
 
-void CardMouthElement::setId(int id)
-{
-    uuid = id;
-}
+//void CardMouthElement::setId(int id)
+//{
+//    uuid = id;
+//}
 
 std::string CardMouthElement::name() const
 {
@@ -78,7 +78,7 @@ void CardMouthElement::drawElement(QPainter *painter)
     for(int i = 0; i < tmp_path.size(); ++i)
     {
         std::pair<double, double> ll = tmp_path[i];
-        QPointF pos = m_framework->LatLon2Pixel(ll.first, ll.second).toPointF();
+        QPointF pos = mView->framework()->LatLon2Pixel(ll.first, ll.second).toPointF();
         if(0 == i)
         {
             polygon.moveTo(pos);
@@ -97,7 +97,7 @@ void CardMouthElement::drawElement(QPainter *painter)
     }
 
     PainterPair chk(painter);
-    MapStyle colorType = m_framework->GetMapStyle();
+    MapStyle colorType = mView->framework()->GetMapStyle();
     if(colorType == MapStyleEcdisNight || colorType == MapStyleEcdisDayDUSK)
     {
         painter->setPen(QPen(QColor(color), 4, Qt::SolidLine));

@@ -278,8 +278,8 @@ void MainWindow::itfSetRadarAreaData(const QList<ZCHX::Data::ITF_RadarArea> &dat
     std::vector<RadarAreaElement> list;
     for(int i=0; i < data.count(); ++i)
     {
-        RadarAreaElement item(data.at(i));
-        list.push_back(item);
+        //RadarAreaElement item(data.at(i));
+        //list.push_back(item);
     }
     ZCHX_DATA_FACTORY->getRadarDataMgr()->setRadarAreaData(list);
 }

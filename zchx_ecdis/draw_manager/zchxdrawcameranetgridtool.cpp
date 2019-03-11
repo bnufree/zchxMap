@@ -36,7 +36,7 @@ void zchxDrawCameraNetGridTool::show(QPainter *painter)
             QList<std::shared_ptr<CameraGridElement>> list;
             for(ZCHX::Data::ITF_NetGrid data : res.mNetGridList)
             {
-                list.append(std::shared_ptr<CameraGridElement>(new CameraGridElement(data, mWidget->framework())));
+                list.append(std::shared_ptr<CameraGridElement>(new CameraGridElement(data, mWidget)));
             }
             for(std::shared_ptr<CameraGridElement> ele : list)
             {

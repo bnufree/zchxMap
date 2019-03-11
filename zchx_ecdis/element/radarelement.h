@@ -1,5 +1,5 @@
-#ifndef RADARELEMENT_H
-#define RADARELEMENT_H
+#ifndef RADARELE_H
+#define RADARELE_H
 
 #include "IDrawElement.hpp"
 #include <QtCore>
@@ -9,8 +9,8 @@ namespace qt
 class  RadarPointElement: public Element
 {
 public:
-    RadarPointElement(const double &lat, const double &lon, zchxMapFrameWork* frame);
-    RadarPointElement(const ZCHX::Data::ITF_RadarPoint &ele, zchxMapFrameWork* frame);
+    RadarPointElement(const double &lat, const double &lon, zchxMapWidget* frame);
+    RadarPointElement(const ZCHX::Data::ITF_RadarPoint &ele, zchxMapWidget* frame);
     RadarPointElement(const RadarPointElement& pt);
 
     enum RADAR_SHARE{
@@ -65,8 +65,8 @@ private:
 class  RadarAreaElement: public Element
 {
 public:
-    explicit RadarAreaElement(double radarY,double radarX,int centerLineAngel,int radius, int maxScanRangeANgle, int numberofChannele, int maxWakePointsNumber);
-    explicit RadarAreaElement(const ZCHX::Data::ITF_RadarArea &ele);
+    explicit RadarAreaElement(double radarY,double radarX,int centerLineAngel,int radius, int maxScanRangeANgle, int numberofChannele, int maxWakePointsNumber, zchxMapWidget* v);
+    explicit RadarAreaElement(const ZCHX::Data::ITF_RadarArea &ele, zchxMapWidget* v);
     double radarX() const;
     void setRadarX(double radarX);
 
@@ -106,4 +106,4 @@ private:
 };
 }
 
-#endif // RADARELEMENT_H
+#endif // RADARELE_H

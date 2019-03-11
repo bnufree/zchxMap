@@ -1,5 +1,5 @@
-#ifndef MOVEELEMENT_H
-#define MOVEELEMENT_H
+#ifndef MOVEELE_H
+#define MOVEELE_H
 
 #include "IDrawElement.hpp"
 #include <QtCore>
@@ -8,7 +8,7 @@ namespace qt {
 class ZCHX_ECDIS_EXPORT MoveElement : public Element
 {
 public:
-    explicit MoveElement(zchxMapFrameWork* f, ZCHX::Data::ELETYPE type);
+    explicit MoveElement(zchxMapWidget* f, ZCHX::Data::ELETYPE type);
     void setData();
 
     virtual std::vector<std::pair<double, double> > path() const = 0;
@@ -52,4 +52,4 @@ protected:
 }
 
 
-#endif // MOVEELEMENT_H
+#endif // MOVEELE_H

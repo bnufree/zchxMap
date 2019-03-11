@@ -217,7 +217,7 @@ void zchxMapWidget::setSelectedCameraTrackTarget(const ZCHX::Data::Point2D &pos)
     target.lat = lat;
     target.lon = lon;
     if(ele){
-        if(ele->getElementType() == ZCHX::Data::ELEMENT_RADAR_POINT)
+        if(ele->getElementType() == ZCHX::Data::ELE_RADAR_POINT)
         {
             //选中雷达点(radar)轨迹元素
             RadarPointElement *item = static_cast<RadarPointElement*>(ele);
@@ -227,7 +227,7 @@ void zchxMapWidget::setSelectedCameraTrackTarget(const ZCHX::Data::Point2D &pos)
             target.lon = radar.lon;
             target.lat = radar.lat;
             target.type = 2;
-        } else if(ele->getElementType() == ZCHX::Data::ELEMENT_AIS)
+        } else if(ele->getElementType() == ZCHX::Data::ELE_AIS)
         {
             //选中AIS
             AisElement *item = static_cast<AisElement*>(ele);
@@ -637,7 +637,7 @@ void zchxMapWidget::mousePressEvent(QMouseEvent *e)
         }
         //=======zxl end===========================@}
         //zxl禁用别人的
-        //            m_framework->TouchEssvent(GetTouchEvent(e, df::TouchEvent::TOUCH_DOWN));
+        //            mView->framework()->TouchEssvent(GetTouchEvent(e, df::TouchEvent::TOUCH_DOWN));
         //            setCursor(Qt::OpenHandCursor);
     } else if(IsRightButton(e) && mUseRightKey)
     {
@@ -1648,7 +1648,7 @@ void zchxMapWidget::setETool2DrawShipPlanLine()
     mCurPluginUserModel = ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL;
 
     //将所有船舶的选择清空
-    if(mCurrentSelectElement->getElementType() == ZCHX::Data::ELEMENT_SHIP_PLAN)
+    if(mCurrentSelectElement->getElementType() == ZCHX::Data::ELE_PLAN_LINE)
     {
         setCurrentSelectedItem(0);
     }

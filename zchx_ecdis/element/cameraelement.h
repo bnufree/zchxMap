@@ -1,5 +1,5 @@
-#ifndef CAMERAELEMENT_H
-#define CAMERAELEMENT_H
+#ifndef CAMERAELE_H
+#define CAMERAELE_H
 
 #include "IDrawElement.hpp"
 #include <QtCore>
@@ -8,11 +8,10 @@ namespace qt {
 class CameraElement : public Element
 {
 public:
-    explicit CameraElement(const ZCHX::Data::ITF_CameraDev & data, zchxMapFrameWork* frame);
+    explicit CameraElement(const ZCHX::Data::ITF_CameraDev & data, zchxMapWidget* frame);
 
     const ZCHX::Data::ITF_CameraDev &getData() const;
     void setData(const ZCHX::Data::ITF_CameraDev& dev);
-    int getParentID() const;
 
     ZCHX::Data::CAMERATYPE getType() const;
 
@@ -23,7 +22,7 @@ public:
     bool isBug() const;
     bool isError() const;
 
-    QPixmap getImage(zchxMapFrameWork *f = 0) const;
+    QPixmap getImage() const;
     double getMaxTrackRange() const;
 
     void updateGeometry(QPointF, int){}
@@ -38,4 +37,4 @@ private:
 
 }
 
-#endif // CAMERAELEMENT_H
+#endif // CAMERAELE_H

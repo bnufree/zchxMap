@@ -1,5 +1,5 @@
-#ifndef RADARVIDEOELEMENT_H
-#define RADARVIDEOELEMENT_H
+#ifndef RADARVIDEOELE_H
+#define RADARVIDEOELE_H
 
 #include "IDrawElement.hpp"
 #include <QtCore>
@@ -8,7 +8,7 @@ namespace qt {
 class RadarVideoGlowElement : public Element
 {
 public:
-    explicit RadarVideoGlowElement(const ZCHX::Data::ITF_RadarVideoGLow& data, zchxMapFrameWork* frame);
+    explicit RadarVideoGlowElement(const ZCHX::Data::ITF_RadarVideoGLow& data, zchxMapWidget* frame);
 
     const ZCHX::Data::ITF_RadarVideoGLow &data() const;
     void setData(const ZCHX::Data::ITF_RadarVideoGLow& dev);
@@ -22,4 +22,4 @@ private:
 
 }
 
-#endif // RADARVIDEOELEMENT_H
+#endif // RADARVIDEOELE_H

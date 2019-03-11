@@ -42,6 +42,8 @@ public:
     //地图旋转不支持,旋转角度为正北方向夹角
     double      GetRotateAngle() {return 0.0;}
     void        SetRotateAngle(double ang) {mRotateAngle = ang;}
+    //
+    PPATH convert2QtPonitList(const GPATH &path);
 
 signals:
     void        UpdateMap(const MapLoadSetting& set);

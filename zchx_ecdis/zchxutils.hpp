@@ -220,6 +220,10 @@ enum ELETYPE{
     ELE_PLAN_LINE,
     ELE_ROUTE_CROSS_POINT,
     ELE_MULTIBEAM,
+    ELE_WATER_POINT,
+    ELE_NETGRID,
+    ELE_GPS,
+
 };
 
 enum ECDIS_DISPLAY_MODEL{//海图显示模式
@@ -418,23 +422,13 @@ struct TimeSpanVo{
     int time_cycle;
 };
 
-struct Base {
-public:
-    Base(ELETYPE t):type(t) {}
-    virtual QString key () = 0;
-public:
-    ELETYPE type;
-};
 
-
-typedef struct tagElePos : public Base {
-    double   lon;
-    double   lat;
-    tagElePos() : Base(ELE_POINT) {}
-    QString key() const {return QString("%1, %2").arg(FLOAT_STRING(lon, 6)).arg(FLOAT_STRING(lat, 6));}
+typedef struct tagElePos{
+    int  x;
+    int  y;
 }ElePos;
 
-struct RadarMeet : public Base
+struct RadarMeet
 {
     int trackNumber;		       // 航迹号 I010/161
     QString id;                //ais id
@@ -443,9 +437,7 @@ struct RadarMeet : public Base
     double disrance;				//距离
     qint64 UTC;                    // 时间标记
 
-
-    QString key() {return QString("%1_%2_%3").arg(trackNumber).arg(id).arg(utc);}
-    RadarMeet() : Base(ELE_RADAR_MEET)
+    RadarMeet()
     {
         trackNumber = 0;
         id = "";
@@ -462,12 +454,11 @@ struct RadarMeet : public Base
         lon = other.lon;
         disrance = other.disrance;
         UTC = other.UTC;
-        type = other.type;
         return *this;
     }
 };
 
-struct AISCollide : public Base
+struct AISCollide
 {
     QString id;                // 唯一识别码("AIS"+消息识别码+"__"+用户识别码)
     double lat;		           // WGS84坐标计算纬度 I010/041
@@ -475,8 +466,7 @@ struct AISCollide : public Base
     double disrance;	       // 距离
     QString collideTime;       // 碰撞时间（格式为2018-08-21 13:30:12）
 
-    QString key() {return QString("%1_%2").arg(id).arg(collideTime);}
-    AISCollide() : Base(ELE_AIS_COLLIDE)
+    AISCollide()
     {
         id = "";
         lat = 0;
@@ -491,7 +481,6 @@ struct AISCollide : public Base
         lon = other.lon;
         disrance = other.disrance;
         collideTime = other.collideTime;
-        type = other.type;
         return *this;
     }
 };
@@ -516,12 +505,9 @@ enum WARN_STATUS{
 };
 
 //radar数据
-typedef struct tagITF_RadarPoint : public Base
+typedef struct tagITF_RadarPoint
 {
-public:
-    tagITF_RadarPoint() :Base(ELE_RADAR_POINT) {}
-    QString key() {return QString("T%1").arg(trackNumber);}
-public:
+    int uuid;
     double lat;
     double lon;
     std::vector<RadarMeet> RadarMeetVec; //交汇点集合
@@ -563,8 +549,9 @@ public:
     uint    mode;                      // 模式 1:自动 2:手动
 //    QMap<int, QColor>          mWarnStsColorMap;
     QColor      warnStatusColor;
-
-
+    //添加是否显示关注,是否显示尾迹
+    bool        isConcern;
+    bool        isTailTrack;
 
 }ITF_RadarPoint;
 
@@ -605,12 +592,11 @@ struct ExtrapolateParam{
 
 typedef QList<ExtrapolateParam> ExtrapolateList;
 
-class ZCHX_ECDIS_EXPORT ITF_AIS : public Base
+class ZCHX_ECDIS_EXPORT ITF_AIS
 {
     std::vector<std::pair<double, double> > _path;
 public:
-    ITF_AIS():Base(ELE_AIS) {}
-    QString key() {return id;}
+    ITF_AIS();
 
     std::vector<RadarMeet> RadarMeetVec;  //交汇点集合
     int type;                             //类型 0：ais，1：北斗，2：CMDA
@@ -685,57 +671,44 @@ public:
     void setPath(const std::vector<std::pair<double, double> > &value);
     std::vector<std::pair<double, double> > getTouchdown() const;
     void setTouchdown(const std::vector<std::pair<double, double> > &value);
+//    QMap<int, QColor>        mOnlineStsColorMap;
+//    QMap<int, QColor>          mWarnStsColorMap;
 
 };
 
-typedef struct tagITF_RadarEcho : public Base
+typedef struct tagITF_RadarEcho
 {
-public:
-    tagITF_RadarEcho() :Base(ELE_RADAR_ECHO) {}
-    QString key() {return QString::number(amplitude);}
-
-    QPointF     pos;
-    QColor      curColor;
-    int         amplitude;
+    QPointF pos;
+    QColor curColor;
+    int amplitude;
 }ITF_RadarEcho;
 
 typedef QMap<int,ITF_RadarEcho> ITF_RadarEchoMap;
 //导航
-typedef struct tagITF_Navigation : public Base
+typedef struct NavigationITF
 {
-public:
-    tagITF_Navigation() :Base(ELE_NAVIGATION) {}
-    QString key() {return QString::number(uuid);}
-
-    int     uuid;
-    double  lon;
-    double  lat;
-    float   heading ;
+    int uuid;
+    double lon;
+    double lat;
+    float heading ;
 
 }ITF_Navigation;
 
 //危險圈
-typedef struct DangerousCircleITF : public Base
+typedef struct DangerousCircleITF
 {
-public:
-    DangerousCircleITF() :Base(ELE_DANGREOUS) {}
-    QString key() {return id;}
-
     QString id;                 //唯一识别码
     double  lat;                //經度
     double  lon;                //緯度
     double  direction;          //方向角
-    double  range;              //危险圈半径单位：米（M）
+    double  range; //危险圈半径单位：米（M）
+    QString name;
 
 }ITF_DangerousCircle;
 
 //人车船
-typedef struct tagITF_VideoTarget : public Base
+typedef struct tagITF_VideoTarget
 {
-public:
-    tagITF_VideoTarget() :Base(ELE_VIDEO_TARGET) {}
-    QString key() {return objectID;}
-
      int uuid;
      uint cameraId;		    	// 相机id
      QString objectID;           	 // 目标ID
@@ -753,12 +726,8 @@ public:
 
 }ITF_VideoTarget;
 
-typedef struct tagITF_RadarArea : public Base
+typedef struct tagITF_RadarArea
 {
-public:
-    tagITF_RadarArea() :Base(ELE_RADAR_AREA) {}
-    QString key() {return QString::number(uuid);}
-
     int uuid;
     double radarX;
     double radarY;
@@ -770,12 +739,8 @@ public:
 }ITF_RadarArea;
 
 ////雷达特征区域
-typedef struct tagITF_EditRadarZone : public Base
+typedef struct tagITF_EditRadarZone
 {
-public:
-    tagITF_EditRadarZone() :Base(ELE_RADAR_FEATURE_ZONE) {}
-    QString key() {return QString::number(name);}
-
     int zoneNumber;
     QString name;
     int zoneType;
@@ -784,11 +749,10 @@ public:
 }ITF_RadarFeaturesZone;
 
 //特殊路由
-class ZCHX_ECDIS_EXPORT SpecialRoutePoint : public Base
+class ZCHX_ECDIS_EXPORT SpecialRoutePoint
 {
 public:
-    SpecialRoutePoint() : Base(ELE_SPECIAL_ROUTE_POINT) {}
-    QString key() {return QString::number(m_iNumber);}
+    SpecialRoutePoint();
     SpecialRoutePoint &operator=(const SpecialRoutePoint &other);
     int     m_iFileId;
     int     m_iNumber;      //序号
@@ -808,9 +772,7 @@ public:
 class ZCHX_ECDIS_EXPORT SpecialRouteLine
 {
 public:
-    SpecialRouteLine() :Base(ELE_SPECIAL_ROUTE_LINE) {}
-    QString key() {return QString::number(m_iId);}
-
+    SpecialRouteLine();
     SpecialRouteLine &operator=(const SpecialRouteLine &other);
     int     m_iId;
     int     m_iProjectId;       //项目ID
@@ -822,11 +784,10 @@ public:
     std::vector<SpecialRoutePoint> points;
 };
 
-class ZCHX_ECDIS_EXPORT CableBaseData : public Base//海缆组件
+class ZCHX_ECDIS_EXPORT CableBaseData//海缆组件
 {
 public:
-    CableBaseData() :Base(ELE_CABLE_BASE) {}
-    QString key() {return mName;}
+    CableBaseData();
     CableBaseData& operator=(const CableBaseData &other);
 
     QString     mName;
@@ -835,11 +796,10 @@ public:
     int         mWidth;
 };
 
-class ZCHX_ECDIS_EXPORT CableInterfaceData : public Base//海缆组件
+class ZCHX_ECDIS_EXPORT CableInterfaceData//海缆组件
 {
 public:
     CableInterfaceData();
-    QString key() {return mName;}
     CableInterfaceData& operator=(const CableInterfaceData &other);
 
     QString     mName;
@@ -848,12 +808,11 @@ public:
 
 
 
-class ZCHX_ECDIS_EXPORT CableAssembly : public Base//海缆组件
+class ZCHX_ECDIS_EXPORT CableAssembly//海缆组件
 {
 public:
     CableAssembly();
     CableAssembly& operator=(const CableAssembly &other);
-    QString key() {return QString::number(m_uID);}
 
     int          m_uID;
     QString      m_sAssemblyName;
@@ -878,11 +837,10 @@ public:
 };
 
 
-class ZCHX_ECDIS_EXPORT RoutePoint : public Base
+class ZCHX_ECDIS_EXPORT RoutePoint
 {
 public:
     RoutePoint();
-    QString key() {return QString::number(m_idbID);}
     RoutePoint & operator = (const RoutePoint &other);
     bool operator ==(const RoutePoint &other);
     QString getTypeStr() const;
@@ -936,11 +894,10 @@ public:
     bool    mAcPoint;
 };
 
-class ZCHX_ECDIS_EXPORT RouteLine : public Base
+class ZCHX_ECDIS_EXPORT RouteLine
 {
 public:
     RouteLine();
-    QString key() {return QString::number(routeID);}
     RouteLine & operator = (const RouteLine &other);
     bool operator ==(const RouteLine &other);
 
@@ -965,11 +922,10 @@ public:
 };
 
 //路由交越数据
-class ZCHX_ECDIS_EXPORT ITF_RouteCross : public Base
+class ZCHX_ECDIS_EXPORT ITF_RouteCross
 {
 public:
     ITF_RouteCross();
-    QString key() {return QString::number(m_uKeyID);}
     ITF_RouteCross &operator =(const ITF_RouteCross &other);
     int        m_uKeyID;
     QString    m_sOriginalRouteName;    //原路由名称
@@ -984,11 +940,10 @@ public:
 };
 
 
-class ZCHX_ECDIS_EXPORT ITF_Multibeam : public Base
+class ZCHX_ECDIS_EXPORT ITF_Multibeam
 {
 public:
     ITF_Multibeam();
-    QString key() {return QString("%1_%2_%3").arg(INT_STRING(m_uRouteID).arg(FLOAT_STRING(m_dLat, 6).arg(FLOAT_STRING(m_dLon, 6))));}
     ITF_Multibeam &operator =(const ITF_Multibeam &other);
     int m_uRouteID;
     double m_dLon;
@@ -998,11 +953,10 @@ public:
     double m_dY;
 };
 
-class ZCHX_ECDIS_EXPORT ShipPlanPoint : Base
+class ZCHX_ECDIS_EXPORT ShipPlanPoint
 {
 public:
     ShipPlanPoint();
-    QString key() {return QString::number(m_dId);}
     ShipPlanPoint & operator = (const ShipPlanPoint &other);
     bool operator ==(const ShipPlanPoint &other);
 
@@ -1035,11 +989,10 @@ public:
     double  m_dTension;         //张力
 };
 
-class ZCHX_ECDIS_EXPORT ShipPlanLine : public Base
+class ZCHX_ECDIS_EXPORT ShipPlanLine
 {
 public:
     ShipPlanLine();
-    QString key() {return QString::number(m_dShipPlanId);}
     ShipPlanLine & operator = (const ShipPlanLine &other);
     bool operator ==(const ShipPlanLine &other);
 
@@ -1096,12 +1049,8 @@ typedef struct WaterPoint
 }ITF_WaterDepth;
 
 //相机视场范围
-typedef struct tagITF_CameraView : public Base
+typedef struct tagITF_CameraView
 {
-public:
-    tagITF_CameraView() : Base(ELE_CAMERA_VIEW) {}
-    QString key() {return id;}
-
     double lat;
     double lon;
     double center_line; //中心线角度  pan postion
@@ -1110,16 +1059,13 @@ public:
     QString id;
 }ITF_CameraView;
 
-typedef struct tagITF_WarringZone : public Base
+typedef struct tagITF_WarringZone
 {
     enum WARRING_ZONE_SHAPE {
         ZONE_POLYGON = 1,
         ZONE_CIRCLE,
         ZONE_LINE,
     };
-public:
-    tagITF_WarringZone() : Base(ELE_WARNING_ZONE) {}
-    QString key() {return name;}
 
     int      id;                      // 防区id号
     QString  name;                    // 防区名称
@@ -1148,12 +1094,8 @@ public:
 
 }ITF_WarringZone;
 
-typedef struct tagITF_CoastData : public Base
+typedef struct tagITF_CoastData
 {
-public:
-    tagITF_CoastData() : Base(ELE_COAST) {}
-    QString key() {return name;}
-
     int         id;                     // 主键号
     QString     name;                   // 名称
     QString     manageOrganization;     // 监管机构
@@ -1165,12 +1107,8 @@ public:
     double      height;                 // 高度
 }ITF_CoastData;
 
-typedef struct tagITF_SeabedPipeLine : public Base
+typedef struct tagITF_SeabedPipeLine
 {
-public:
-    tagITF_SeabedPipeLine() : Base(ELE_SEABEDPIPLINE) {}
-    QString key() {return name;}
-
     int         id;                     // 主键号
     QString     name;                   // 名称
     QString     manageOrganization;     // 监管机构
@@ -1182,11 +1120,8 @@ public:
     double      depth;                  // 深度
 }ITF_SeabedPipeLine;
 
-typedef struct tagITF_Structure: public Base
+typedef struct tagITF_Structure
 {
-public:
-    tagITF_Structure() : Base(ELE_STRUCTURE) {}
-    QString key() {return name;}
     int         id;                     // 主键号
     QString     name;                   // 名称
     double      area;                   // 面积
@@ -1196,11 +1131,8 @@ public:
     double      depth;                  // 深度
 }ITF_Structure;
 
-typedef struct tagITF_AreaNet : public Base
+typedef struct tagITF_AreaNet
 {
-public:
-    tagITF_AreaNet() : Base(ELE_AREA_NET) {}
-    QString key() {return name;}
     int         id;                     // 主键号
     QString     name;                   // 名称
     double      area;                   // 面积
@@ -1209,28 +1141,21 @@ public:
     std::vector<std::pair<double, double> > path; // 经纬度集合
 }ITF_AreaNet;
 
-typedef struct tagITF_ChannelLine: public Base
+typedef struct tagITF_ChannelLine
 {
-public:
-    tagITF_ChannelLine() : Base(ELE_CHANNEL_LINE) {}
-    QString key() {return name;}
     int      lineType;    // 航道线类型1：航道入口 2：航道出口3：航道边线4：特殊边线
     bool     isSelected;  // 是否选中
     double   startLon;    // 开始经度
     double   startLat;    // 开始纬度
     double   endLon;      // 结束经度
     double   endLat;      // 结束纬度
-    QString  name;
 
     bool operator ==(const tagITF_ChannelLine &other);
 
 }ITF_ChannelLine;
 
-typedef struct tagITF_Channel: public Base
+typedef struct tagITF_Channel
 {
-public:
-    tagITF_Channel() : Base(ELE_CHANNEL) {}
-    QString key() {return name;}
     int      id;                   // 航道编号
     QString  name;                 // 航道名称
     int      shape;                // 形状 1：多边形 2：圆
@@ -1261,12 +1186,8 @@ public:
     std::vector<ITF_ChannelLine> lineList; // 航道线集合
 }ITF_Channel;
 
-typedef struct tagITF_Mooring: public Base
+typedef struct tagITF_Mooring
 {
-public:
-    tagITF_Mooring() : Base(ELE_MOOR) {}
-    QString key() {return name;}
-
     int      id;            // 锚泊编号
     QString  name;          // 锚泊名称
     int      shape;         // 形状 1：多边形 2：圆
@@ -1286,11 +1207,8 @@ public:
     std::vector<std::pair<double, double> > path; // 经纬度集合
 }ITF_Mooring;
 
-typedef struct tagITF_CardMouth: public Base
+typedef struct tagITF_CardMouth
 {
-public:
-    tagITF_CardMouth() : Base(ELE_CARD_MOUTH) {}
-    QString key() {return name;}
     int            id;              // 卡口编号
     QString        name;            // 卡口名称
     int            shape;           // 形状 1：多边形 2：圆3：线
@@ -1313,12 +1231,8 @@ public:
 
 }ITF_CardMouth;
 
-typedef struct tagITF_ShipAlarmAscend: public Base
+typedef struct tagITF_ShipAlarmAscend
 {
-public:
-    tagITF_ShipAlarmAscend() : Base(ELE_SHIP_ALARM_ASCEND) {}
-    QString key() {return QString("%1_%2").arg(sShipName).arg(time);}
-
     QString  sShipName;       //船名
     qint64   immsi;           //mmsi
     double   lon;             // 经度
@@ -1327,7 +1241,7 @@ public:
                               //6:越线预警、7:锚泊预警、8:其他预警、9:黑名单预警、10:AIS未开启、
                               //11:超载航行、12:逆行报警、13:超长报警、14:追越报警、15:违规抛锚
     QString  ereaName;        // 区域名称
-    QString  time;            // time 时间格式为2018-11-06 11:21:02
+    QString  name;            // time 时间格式为2018-11-06 11:21:02
 }ITF_ShipAlarmAscend;
 
 typedef struct tagITF_Fleet

@@ -3,8 +3,8 @@
 #include "zchxmapframe.h"
 
 namespace qt {
-MooringElement::MooringElement(const ZCHX::Data::ITF_Mooring &ele, zchxMapFrameWork* f)
-    :MoveElement(f, ZCHX::Data::ELEMENT_MOOR)
+MooringElement::MooringElement(const ZCHX::Data::ITF_Mooring &ele, zchxMapWidget* f)
+    :MoveElement(f, ZCHX::Data::ELE_MOOR)
 {
     setData(ele);
     setIsUpdate(true);
@@ -33,15 +33,15 @@ void MooringElement::setPath(const std::vector<std::pair<double, double> > &path
     m_data.path = path;
 }
 
-int MooringElement::id() const
-{
-    return uuid;
-}
+//int MooringElement::id() const
+//{
+//    return uuid;
+//}
 
-void MooringElement::setId(int id)
-{
-    uuid = id;
-}
+//void MooringElement::setId(int id)
+//{
+//    uuid = id;
+//}
 
 std::string MooringElement::name() const
 {
@@ -77,7 +77,7 @@ void MooringElement::drawElement(QPainter *painter)
     for(int i = 0; i < tmp_path.size(); ++i)
     {
         std::pair<double, double> ll = tmp_path[i];
-        QPointF pos = m_framework->LatLon2Pixel(ll.first, ll.second).toPointF();
+        QPointF pos = mView->framework()->LatLon2Pixel(ll.first, ll.second).toPointF();
         polygon.append(pos);
         if(getIsActive())
         {
@@ -90,7 +90,7 @@ void MooringElement::drawElement(QPainter *painter)
 
     polygon.append(polygon.first());
     PainterPair chk(painter);
-    MapStyle colorType = m_framework->GetMapStyle();
+    MapStyle colorType = mView->framework()->GetMapStyle();
     if(colorType == MapStyleEcdisNight || colorType == MapStyleEcdisDayDUSK)
     {
         painter->setPen(QPen(Qt::white, 4, Qt::SolidLine));

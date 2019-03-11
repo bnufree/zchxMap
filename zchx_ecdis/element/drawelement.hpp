@@ -325,7 +325,7 @@ private:
 class LocalMark :public Element
 {
 public:
-    explicit LocalMark(const ZCHX::Data::ITF_LocalMark & data, zchxMapFrameWork* f);
+    explicit LocalMark(const ZCHX::Data::ITF_LocalMark & data, zchxMapWidget* f);
 
     ZCHX::Data::ITF_LocalMark data() const;
     void setData(const ZCHX::Data::ITF_LocalMark & data);
@@ -354,7 +354,7 @@ private:
 class DangerousCircle : public Element
 {
 public:
-    explicit DangerousCircle(const ZCHX::Data::ITF_DangerousCircle &data, zchxMapFrameWork* f);
+    explicit DangerousCircle(const ZCHX::Data::ITF_DangerousCircle &data, zchxMapWidget* f);
     ZCHX::Data::ITF_DangerousCircle data() const;
     void setData(const ZCHX::Data::ITF_DangerousCircle &data);
     std::string name() const {return m_data.name.toStdString();}
@@ -367,7 +367,7 @@ private:
 class RadarFeatureZoneElement : public Element
 {
 public:
-    explicit RadarFeatureZoneElement(const ZCHX::Data::ITF_RadarFeaturesZone &data, zchxMapFrameWork* f);
+    explicit RadarFeatureZoneElement(const ZCHX::Data::ITF_RadarFeaturesZone &data, zchxMapWidget* f);
     ZCHX::Data::ITF_RadarFeaturesZone data() const;
     void setData(const ZCHX::Data::ITF_RadarFeaturesZone &data);
     void updateGeometry(QPointF, int){}

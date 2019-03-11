@@ -3,8 +3,8 @@
 #include "zchxmapframe.h"
 
 namespace qt {
-ChannelElement::ChannelElement(const ZCHX::Data::ITF_Channel &ele, zchxMapFrameWork* f)
-    :MoveElement(f, ZCHX::Data::ELEMENT_CHANNEL)
+ChannelElement::ChannelElement(const ZCHX::Data::ITF_Channel &ele, zchxMapWidget* f)
+    :MoveElement(f, ZCHX::Data::ELE_CHANNEL)
 {
     setData(ele);
     setIsUpdate(true);
@@ -33,15 +33,15 @@ void ChannelElement::setPath(const std::vector<std::pair<double, double> > &path
     m_data.path = path;
 }
 
-int ChannelElement::id() const
-{
-    return uuid;
-}
+//int ChannelElement::id() const
+//{
+//    return uuid;
+//}
 
-void ChannelElement::setId(int id)
-{
-    uuid = id;
-}
+//void ChannelElement::setId(int id)
+//{
+//    uuid = id;
+//}
 
 std::string ChannelElement::name() const
 {
@@ -89,7 +89,7 @@ void ChannelElement::drawElement(QPainter *painter)
     for(int i = 0; i < tmp_path.size(); ++i)
     {
         std::pair<double, double> ll = tmp_path[i];
-        QPointF pos = m_framework->LatLon2Pixel(ll.first, ll.second).toPointF();
+        QPointF pos = mView->framework()->LatLon2Pixel(ll.first, ll.second).toPointF();
         polygon.append(pos);
         if(getIsActive())
         {
@@ -102,7 +102,7 @@ void ChannelElement::drawElement(QPainter *painter)
 
     polygon.append(polygon.first());
     PainterPair chk(painter);
-    MapStyle colorType = m_framework->GetMapStyle();
+    MapStyle colorType = mView->framework()->GetMapStyle();
 
     Qt::PenStyle style = Qt::SolidLine;
     if (courseType == ZCHX::Data::COURSE_TYPE_SIGNAL)
@@ -144,9 +144,9 @@ void ChannelElement::drawElement(QPainter *painter)
             PainterPair chk(painter);
             painter->setPen(QPen(Qt::red,1,Qt::SolidLine));
             painter->setBrush(Qt::white);
-            QPointF pos = m_framework->LatLon2Pixel(lineObj.startLat, lineObj.startLon).toPointF();
+            QPointF pos = mView->framework()->LatLon2Pixel(lineObj.startLat, lineObj.startLon).toPointF();
             painter->drawEllipse(pos, 5, 5);
-            QPointF pos2 = m_framework->LatLon2Pixel(lineObj.endLat, lineObj.endLon).toPointF();
+            QPointF pos2 = mView->framework()->LatLon2Pixel(lineObj.endLat, lineObj.endLon).toPointF();
             painter->drawEllipse(pos2, 5, 5);
             {
                 PainterPair chk(painter);

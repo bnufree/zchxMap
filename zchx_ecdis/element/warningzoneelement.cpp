@@ -3,8 +3,8 @@
 #include "zchxmapframe.h"
 
 namespace qt {
-WarningZoneElement::WarningZoneElement(const ZCHX::Data::ITF_WarringZone &ele, zchxMapFrameWork* f)
-    :MoveElement(f,ZCHX::Data::ELEMENT_WARNING_ZONE)
+WarningZoneElement::WarningZoneElement(const ZCHX::Data::ITF_WarringZone &ele, zchxMapWidget* f)
+    :MoveElement(f,ZCHX::Data::ELE_WARNING_ZONE)
 {
     setData(ele);
 }
@@ -37,15 +37,15 @@ void WarningZoneElement::setPath(const std::vector<std::pair<double, double> > &
     m_data.path = path;
 }
 
-int WarningZoneElement::id() const
-{
-    return uuid;
-}
+//int WarningZoneElement::id() const
+//{
+//    return uuid;
+//}
 
-void WarningZoneElement::setId(int id)
-{
-    uuid = id;
-}
+//void WarningZoneElement::setId(int id)
+//{
+//    uuid = id;
+//}
 
 std::string WarningZoneElement::name() const
 {
@@ -89,7 +89,7 @@ void WarningZoneElement::drawElement(QPainter *painter)
     for(int i = 0; i < tmp_path.size(); ++i)
     {
         std::pair<double, double> ll = tmp_path[i];
-        ZCHX::Data::Point2D  curPos = m_framework->LatLon2Pixel(ll.first, ll.second);
+        ZCHX::Data::Point2D  curPos = mView->framework()->LatLon2Pixel(ll.first, ll.second);
         QPointF pos(curPos.x,curPos.y);
         polygon.append(pos);
         if(getIsActive())
@@ -103,7 +103,7 @@ void WarningZoneElement::drawElement(QPainter *painter)
     //闭合图形
     polygon.append(polygon.first());
     PainterPair chk(painter);
-    MapStyle colorType = m_framework->GetMapStyle();
+    MapStyle colorType = mView->framework()->GetMapStyle();
     if(colorType == MapStyleEcdisNight || colorType == MapStyleEcdisDayDUSK)
     {
         painter->setPen(QPen(Qt::gray, 2 ,Qt::DashLine));

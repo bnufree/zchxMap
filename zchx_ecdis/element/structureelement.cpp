@@ -3,8 +3,8 @@
 #include "zchxmapframe.h"
 
 namespace qt {
-StructureElement::StructureElement(const ZCHX::Data::ITF_Structure &ele, zchxMapFrameWork* f)
-    :Element(0,0,f, ZCHX::Data::ELEMENT_STRUCTURE)
+StructureElement::StructureElement(const ZCHX::Data::ITF_Structure &ele, zchxMapWidget* f)
+    :Element(0,0,f, ZCHX::Data::ELE_STRUCTURE)
 {
     setData(ele);
     setIsUpdate(true);
@@ -31,15 +31,15 @@ void StructureElement::setPoint(const std::pair<double, double> &point)
     m_data.point = point;
 }
 
-int StructureElement::id() const
-{
-    return uuid;
-}
+//int StructureElement::id() const
+//{
+//    return uuid;
+//}
 
-void StructureElement::setId(int id)
-{
-    uuid = id;
-}
+//void StructureElement::setId(int id)
+//{
+//    uuid = id;
+//}
 
 std::string StructureElement::name() const
 {
@@ -64,7 +64,7 @@ ZCHX::Data::ITF_Structure StructureElement::data() const
 void StructureElement::drawElement(QPainter *painter)
 {
     if(!painter ||!MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_STRUCTURE)) return;
-    ZCHX::Data::Point2D  curPos = m_framework->LatLon2Pixel(point().first, point().second);
+    ZCHX::Data::Point2D  curPos = mView->framework()->LatLon2Pixel(point().first, point().second);
 
     QPixmap devicePix;
     if(!devicePix.load(":/navig64/device.png")) return;

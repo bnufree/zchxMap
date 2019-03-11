@@ -1,14 +1,14 @@
 #include "videotargetelement.h"
 #include "zchxmapframe.h"
+#include "zchxmapwidget.h"
 #include "map_layer/zchxmaplayermgr.h"
 #include <QPainter>
 
 namespace qt {
-VideoTargetElement::VideoTargetElement(const ZCHX::Data::ITF_VideoTarget &data, zchxMapFrameWork* work)
-    :Element(data.objectMapPosY, data.objectMapPosX, work, ZCHX::Data::ELEMENT_VIDEO_TARGET)
+VideoTargetElement::VideoTargetElement(const ZCHX::Data::ITF_VideoTarget &data, zchxMapWidget* work)
+    :Element(data.objectMapPosY, data.objectMapPosX, work, ZCHX::Data::ELE_VIDEO_TARGET)
 {
     m_data = data;
-    uuid = data.uuid;
     mTargetIImgList<< ":/element/ren.png"
                       << ":/element/che.png"
                       << ":/element/chuan.png"
@@ -53,12 +53,12 @@ QString VideoTargetElement::getAlarmColor() const
 void VideoTargetElement::drawElement(QPainter *painter)
 {
     if(!painter || !MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_WARNING_TARGET)) return ;
-    if(!framework()) return;
+    if(!mView->framework()) return;
 
-    QPixmap image   = ZCHX::Utils::getImage(mTargetIImgList.value(getTargetType()), Qt::green, m_framework->GetDrawScale());
+    QPixmap image   = ZCHX::Utils::getImage(mTargetIImgList.value(getTargetType()), Qt::green, mView->framework()->GetDrawScale());
     std::pair<double, double> ll = getLatLon();
 
-    ZCHX::Data::Point2D pos = m_framework->LatLon2Pixel(ll.first,ll.second);
+    ZCHX::Data::Point2D pos = mView->framework()->LatLon2Pixel(ll.first,ll.second);
     QRect rect(0,0,image.width(),image.height());
     rect.moveCenter(QPoint(pos.x, pos.y));
 

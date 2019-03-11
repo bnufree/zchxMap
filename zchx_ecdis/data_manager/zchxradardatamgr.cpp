@@ -95,7 +95,7 @@ void zchxRadarDataMgr::setRadarPointData(const QList<ZCHX::Data::ITF_RadarPoint>
         QString id = QString::number(aisdata.trackNumber);
         std::shared_ptr<RadarPointElement> item = m_RadarPoint.value(id, 0);
         if(!item) {
-            item = std::shared_ptr<RadarPointElement>(new RadarPointElement(aisdata, mDisplayWidget->framework()));
+            item = std::shared_ptr<RadarPointElement>(new RadarPointElement(aisdata, mDisplayWidget));
             m_RadarPoint[id] = item;
         } else {
             item->setData(aisdata);
@@ -238,7 +238,7 @@ QList<QAction*> zchxRadarDataMgr::getRightMenuActions(const QPoint &pt)
     if(mDisplayWidget)
     {
         Element* item = mDisplayWidget->getCurrentSelectedElement();
-        if(item && item->getElementType() == ZCHX::Data::ELEMENT_RADAR_POINT)
+        if(item && item->getElementType() == ZCHX::Data::ELE_RADAR_POINT)
         {
             //目标确定为AIS,弹出对应的右键菜单
             RadarPointElement* ele = static_cast<RadarPointElement*>(item);

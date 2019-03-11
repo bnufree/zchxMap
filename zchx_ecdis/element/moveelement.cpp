@@ -3,7 +3,7 @@
 #include "zchxmapframe.h"
 
 namespace qt {
-MoveElement::MoveElement(zchxMapFrameWork* f, ZCHX::Data::ELETYPE type)
+MoveElement::MoveElement(zchxMapWidget* f, ZCHX::Data::ELETYPE type)
     :Element(0,0,f,type)
 {
     setData();
@@ -63,15 +63,15 @@ void MoveElement::addCtrlPoint(std::pair<double, double> ps)
 
 bool MoveElement::contains(int range, double x, double y) const
 {
-    if(!m_framework) return false;
+    if(!mView->framework()) return false;
 
     std::vector<std::pair<double,double>> tmp_path = path();
     for(int i = 0; i < tmp_path.size() - 1; ++i)
     {
         std::pair<double, double> p1 = tmp_path[i];
         std::pair<double, double> p2 = tmp_path[i+1];
-        ZCHX::Data::Point2D start = m_framework->LatLon2Pixel(p1.first, p1.second);
-        ZCHX::Data::Point2D end = m_framework->LatLon2Pixel(p2.first, p2.second);
+        ZCHX::Data::Point2D start = mView->framework()->LatLon2Pixel(p1.first, p1.second);
+        ZCHX::Data::Point2D end = mView->framework()->LatLon2Pixel(p2.first, p2.second);
 
         //检查3点是否共线
         int p1x = start.x, p1y = start.y;
@@ -89,13 +89,13 @@ bool MoveElement::contains(int range, double x, double y) const
 
 bool MoveElement::contains(const QPoint &pt) const
 {
-    if(!framework()) return false;
+    if(!mView->framework()) return false;
     std::vector<std::pair<double,double>> tmp_path = path();
     QPainterPath paint_path;
     for(int i = 0; i < tmp_path.size(); ++i)
     {
         std::pair<double, double> ll = tmp_path[i];
-        ZCHX::Data::Point2D  curPos = m_framework->LatLon2Pixel(ZCHX::Data::LatLon(ll.first,ll.second));
+        ZCHX::Data::Point2D  curPos = mView->framework()->LatLon2Pixel(ZCHX::Data::LatLon(ll.first,ll.second));
         if(i == 0)
         {
             paint_path.moveTo(QPointF(curPos.x,curPos.y));

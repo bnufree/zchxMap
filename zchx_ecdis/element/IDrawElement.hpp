@@ -13,7 +13,6 @@ class MapLayer;
 enum RADARTYPE{RADARSHIP,RADARPLAN,WARRINGZONE};
 
 //TODO: 由于使用了很多拷贝构造函数, 所以不能继承qobject
-template<typename T>
 class ZCHX_ECDIS_EXPORT Element// : public QObject
 {
 
@@ -170,15 +169,6 @@ public:
      */
     void drawFlashRegion(QPainter *painter, QPointF pos, int status, QColor color/* = QColor()*/, qreal radius = 0);
 
-    /*!
-     * \brief 把经纬度轨迹转化为屏幕坐标轨迹
-     */
-    std::vector<QPointF> convert2QtPonitList(const std::vector<std::pair<double, double>>& path);
-    /*!
-     * \brief 把经纬度点转化为屏幕坐标点
-     */
-    QPointF convertToView(double lon, double lat);
-
 
     qint64 getUpdateUTC() const;
     void setUpdateUTC(const qint64 &updateUTC);
@@ -194,8 +184,8 @@ public:
      */
     int getDrawScaleSize() const;
 
-    QString getStrID() const;
-    void setStrID(const QString &strID);
+//    QString getStrID() const;
+//    void setStrID(const QString &strID);
     //颜色初始化
     virtual void initFromSettings();
     //取得当前图元在屏幕坐标的位置
@@ -224,7 +214,7 @@ protected://TODO: 添加私有类, 实现成员变量对外隐藏, 且防止依�
     bool                                    isUpdate;            //是否更新过
     bool                                    isForceImage;       //目标是否强制显示
     QString                                 mID;               //目标标识
-    ZCHX::Data::ELETYPE                     m_element_type;      //图元类型
+    ZCHX::Data::ELETYPE                     m_ELE_type;      //图元类型
     QColor                                  mFlashColor;        //目标报警时的图元填充颜色
     zchxMapWidget                           *mView;             //图元对应的视窗
 
@@ -243,9 +233,7 @@ protected://TODO: 添加私有类, 实现成员变量对外隐藏, 且防止依�
     QColor                                  mFillingColor;          //图元填充颜色
     QColor                                  mTextColor;             //图元文本颜色
     QColor                                  mConcernColor;          //图元关注颜色
-
-
-    static int          g_maxLineLength;
+    static int                              g_maxLineLength;
 
 public:
     friend class MapLayer;

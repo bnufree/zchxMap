@@ -4,8 +4,8 @@
 
 namespace qt
 {
-CameraViewElement::CameraViewElement(const ZCHX::Data::ITF_CameraView &data, zchxMapFrameWork* f)
-    :Element(data.lat,data.lon, f, ZCHX::Data::ELEMENT_CAMERA_VIEW)
+CameraViewElement::CameraViewElement(const ZCHX::Data::ITF_CameraView &data, zchxMapWidget* f)
+    :Element(data.lat,data.lon, f, ZCHX::Data::ELE_CAMERA_VIEW)
 {
     m_data = data;
 }

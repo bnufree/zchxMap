@@ -3,8 +3,8 @@
 #include "zchxmapframe.h"
 
 namespace qt {
-AreaNetElement::AreaNetElement(const ZCHX::Data::ITF_AreaNet &ele, zchxMapFrameWork* f)
-    :MoveElement(f, ZCHX::Data::ELEMENT_AREANET)
+AreaNetElement::AreaNetElement(const ZCHX::Data::ITF_AreaNet &ele, zchxMapWidget* f)
+    :MoveElement(f, ZCHX::Data::ELE_AREA_NET)
 {
     setData(ele);
 }
@@ -42,15 +42,15 @@ void AreaNetElement::updateOldPath()
     m_path = m_data.path;
 }
 
-int AreaNetElement::id() const
-{
-    return uuid;
-}
+//int AreaNetElement::id() const
+//{
+//    return uuid;
+//}
 
-void AreaNetElement::setId(int id)
-{
-    uuid = id;
-}
+//void AreaNetElement::setId(int id)
+//{
+//    uuid = id;
+//}
 
 std::string AreaNetElement::name() const
 {
@@ -101,7 +101,7 @@ void AreaNetElement::drawElement(QPainter *painter)
     for(int i = 0; i < tmp_path.size(); ++i)
     {
         std::pair<double, double> ll = tmp_path[i];
-        QPointF pos = m_framework->LatLon2Pixel(ll.first, ll.second).toPointF();
+        QPointF pos = mView->framework()->LatLon2Pixel(ll.first, ll.second).toPointF();
         polygon.append(pos);
         if(getIsActive())
         {
@@ -114,7 +114,7 @@ void AreaNetElement::drawElement(QPainter *painter)
 
     polygon.append(polygon.first());
     PainterPair chk(painter);
-    MapStyle colorType = m_framework->GetMapStyle();
+    MapStyle colorType = mView->framework()->GetMapStyle();
     if(colorType == MapStyleEcdisNight || colorType == MapStyleEcdisDayDUSK)
     {
         painter->setPen(QPen(Qt::gray, 2, Qt::DashLine));

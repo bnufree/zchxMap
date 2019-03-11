@@ -1,5 +1,5 @@
-#ifndef PATROLSTATIONELEMENT_H
-#define PATROLSTATIONELEMENT_H
+#ifndef PATROLSTATIONELE_H
+#define PATROLSTATIONELE_H
 
 #include "IDrawElement.hpp"
 #include <QtCore>
@@ -9,7 +9,7 @@ namespace qt {
 class  PastrolStationElement : public Element
 {
 public:
-    explicit PastrolStationElement(const ZCHX::Data::ITF_PastrolStation &data, zchxMapFrameWork* f);
+    explicit PastrolStationElement(const ZCHX::Data::ITF_PastrolStation &data, zchxMapWidget* f);
     ZCHX::Data::ITF_PastrolStation data() const;
     void setData(const ZCHX::Data::ITF_PastrolStation &data);
 
@@ -24,4 +24,4 @@ private:
 }
 
 
-#endif // STRUCTUREELEMENT_H
+#endif // STRUCTUREELE_H

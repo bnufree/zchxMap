@@ -3,8 +3,8 @@
 #include "zchxmapframe.h"
 
 namespace qt {
-CameraGridElement::CameraGridElement(const ZCHX::Data::ITF_NetGrid &ele, zchxMapFrameWork* f)
-    :Element(0,0,f, ZCHX::Data::ELEMENT_CAMERA_GRID)
+CameraGridElement::CameraGridElement(const ZCHX::Data::ITF_NetGrid &ele, zchxMapWidget* f)
+    :Element(0,0,f, ZCHX::Data::ELE_CAMERA_GRID)
 {
     setData(ele);
 }
@@ -44,10 +44,10 @@ ZCHX::Data::ITF_NetGrid CameraGridElement::data() const
 
 bool CameraGridElement::contains(const QPoint& pos) const
 {
-    if(!framework()) return false;
+    if(!mView->framework()) return false;
     //计算左上和右下的经纬度围成的矩形范围
-    QPointF top_left = m_framework->LatLon2Pixel(m_data.leftTopLat, m_data.leftTopLon).toPointF();
-    QPointF bottom_right = m_framework->LatLon2Pixel(m_data.rightLowerLat, m_data.rightLowerLon).toPointF();
+    QPointF top_left = mView->framework()->LatLon2Pixel(m_data.leftTopLat, m_data.leftTopLon).toPointF();
+    QPointF bottom_right = mView->framework()->LatLon2Pixel(m_data.rightLowerLat, m_data.rightLowerLon).toPointF();
     QRectF rect(top_left, bottom_right);
     return rect.contains(pos);
 }
@@ -59,8 +59,8 @@ void CameraGridElement::drawElement(QPainter *painter)
     painter->setPen(QPen(Qt::darkGray,1,Qt::SolidLine));
     painter->setBrush(Qt::NoBrush);
     //画矩形
-    QPointF top_left = m_framework->LatLon2Pixel(m_data.leftTopLat, m_data.leftTopLon).toPointF();
-    QPointF bottom_right = m_framework->LatLon2Pixel(m_data.rightLowerLat, m_data.rightLowerLon).toPointF();
+    QPointF top_left = mView->framework()->LatLon2Pixel(m_data.leftTopLat, m_data.leftTopLon).toPointF();
+    QPointF bottom_right = mView->framework()->LatLon2Pixel(m_data.rightLowerLat, m_data.rightLowerLon).toPointF();
     QRectF rectf(top_left, bottom_right);
     painter->drawRect(rectf);
 

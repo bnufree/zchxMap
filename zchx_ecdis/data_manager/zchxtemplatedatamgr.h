@@ -104,14 +104,14 @@ public:
         }
         else
         {
-            mData.push_back(std::shared_ptr<K>(new K(zone, mDisplayWidget->framework())));
+            mData.push_back(std::shared_ptr<K>(new K(zone, mDisplayWidget/*->framework()*/)));
         }
     }
 
     void removeData(const T &zone)
     {
         for(std::shared_ptr<K> ele : mData){
-            if(zone.name == QString::fromStdString(ele->name()) || zone.id == ele->id())
+            if(zone.name == QString::fromStdString(ele->name())/* || zone.id == ele->id()*/)
             {
                 mData.removeOne(ele);
                 break;

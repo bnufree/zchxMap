@@ -3,8 +3,8 @@
 #include "zchxmapframe.h"
 
 namespace qt {
-SeabedPipeLineElement::SeabedPipeLineElement(const ZCHX::Data::ITF_SeabedPipeLine &ele, zchxMapFrameWork* f)
-    :MoveElement(f, ZCHX::Data::ELEMENT_SEABEDPIPLINE)
+SeabedPipeLineElement::SeabedPipeLineElement(const ZCHX::Data::ITF_SeabedPipeLine &ele, zchxMapWidget* f)
+    :MoveElement(f, ZCHX::Data::ELE_SEABEDPIPLINE)
 {
     setData(ele);
     setIsUpdate(true);
@@ -43,15 +43,15 @@ void SeabedPipeLineElement::updateOldPath()
     m_path = m_data.path;
 }
 
-int SeabedPipeLineElement::id() const
-{
-    return uuid;
-}
+//int SeabedPipeLineElement::id() const
+//{
+//    return uuid;
+//}
 
-void SeabedPipeLineElement::setId(int id)
-{
-    uuid = id;
-}
+//void SeabedPipeLineElement::setId(int id)
+//{
+//    uuid = id;
+//}
 
 std::string SeabedPipeLineElement::name() const
 {
@@ -107,7 +107,7 @@ void SeabedPipeLineElement::drawElement(QPainter *painter)
     for(int i=0; i<tmp_path.size();++i)
     {
         std::pair<double, double> ll = tmp_path[i];
-        QPointF pos = m_framework->LatLon2Pixel(ll.first, ll.second).toPointF();
+        QPointF pos = mView->framework()->LatLon2Pixel(ll.first, ll.second).toPointF();
         if(0 == i)
         {
             polygon.moveTo(pos);
@@ -122,7 +122,7 @@ void SeabedPipeLineElement::drawElement(QPainter *painter)
             painter->drawEllipse(pos,5,5);
         }
     }
-    MapStyle colorType = m_framework->GetMapStyle();
+    MapStyle colorType = mView->framework()->GetMapStyle();
     if(colorType == MapStyleEcdisNight || colorType == MapStyleEcdisDayDUSK)
     {
         painter->setPen(QPen(Qt::gray,2,Qt::DashLine));

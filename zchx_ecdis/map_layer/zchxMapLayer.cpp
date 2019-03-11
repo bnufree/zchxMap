@@ -115,7 +115,7 @@ void MapLayer::addElement(std::shared_ptr<Element> element)
     }
     element->layer().reset(this);
 //    element->m_layer = this;
-    element->setFrameWork(d->m_drawWidget->framework());
+    element->setView(d->m_drawWidget);
 
     bool contained = (std::find(d->m_elements.begin(), d->m_elements.end(), element) != d->m_elements.end());
     if(contained)
@@ -201,7 +201,7 @@ std::shared_ptr<Element> MapLayer::pickUpElement(const QString &id)
         if(!element)
             continue;
 
-        if(element->getStrID() == id)
+        if(element->getID() == id)
         {
             return element;
         }

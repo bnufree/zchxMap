@@ -25,7 +25,7 @@ Element::Element(const double &lat, const double &lon, zchxMapWidget* view, ZCHX
     , isOpenMeet(false)
     , isUpdate(false)
     , mID("")
-    , m_element_type(type)
+    , m_ELE_type(type)
     , isForceImage(false)
     , m_layer(0)
     , mView(view)
@@ -55,7 +55,7 @@ Element::Element(const Element &element)
     , isOpenMeet(element.isOpenMeet)
     , isUpdate(element.isUpdate)
     , mID(element.mID)
-    , m_element_type(element.m_element_type)
+    , m_ELE_type(element.m_ELE_type)
     , isForceImage(element.isForceImage)
     , mFlashColor(element.mFlashColor)
     , m_layer(element.m_layer)
@@ -122,12 +122,12 @@ void Element::setIsActive(bool value)
 
 ZCHX::Data::ELETYPE Element::getElementType() const
 {
-    return m_element_type;
+    return m_ELE_type;
 }
 
 void Element::setElementType(const ZCHX::Data::ELETYPE &type)
 {
-    m_element_type = type;
+    m_ELE_type = type;
 }
 
 QString Element::getID() const
@@ -392,25 +392,6 @@ void Element::drawFlashRegion(QPainter *painter, QPointF pos, int status, QColor
     painter->drawEllipse(pos, radius, radius);
 }
 
-std::vector<QPointF> Element::convert2QtPonitList(const std::vector<std::pair<double, double> > &path)
-{
-    std::vector<QPointF> pts;
-    if(!mView || !mView->framework()) return pts;
-
-    for(int i = 0; i < path.size(); ++i)
-    {
-        std::pair<double, double> ll = path[i];
-        ZCHX::Data::Point2D pos = mView->framework()->LatLon2Pixel(ll.first,ll.second);
-        pts.push_back(QPointF(pos.x,pos.y));
-    }
-    return pts;
-}
-
-QPointF Element::convertToView(double lon, double lat)
-{
-    if(!mView || !mView->framework()) return QPointF();
-    return mView->framework()->LatLon2Pixel(lat, lon).toPointF();
-}
 
 qint64 Element::getUpdateUTC() const
 {

@@ -132,7 +132,7 @@ void zchxAisDataMgr::show(QPainter* painter)
                         for(int j = 0; j < item->getData().RadarMeetVec.size(); j++)
                         {
                             ZCHX::Data::RadarMeet meetItem = item->getData().RadarMeetVec.at(j);
-                            ZCHX::Data::Point2D meetPos = item->framework()->LatLon2Pixel(meetItem.lat, meetItem.lon);
+                            ZCHX::Data::Point2D meetPos = item->view()->framework()->LatLon2Pixel(meetItem.lat, meetItem.lon);
                             time_hour = meetItem.UTC / 3600;
                             time_minute = meetItem.UTC / 60 - time_hour * 60;
                             time_second = meetItem.UTC % 60;
@@ -208,7 +208,7 @@ bool zchxAisDataMgr::updateActiveItem(const QPoint &pt)
             for(int i = 0; i < size; ++i)
             {
                 ZCHX::Data::ITF_AIS ais = item->getHistoryTrackList().at(i);
-                std::shared_ptr<AisElement> ele(new AisElement(ais, mDisplayWidget->framework()));
+                std::shared_ptr<AisElement> ele(new AisElement(ais, mDisplayWidget));
                 if(ele->contains(pt)){
                     mSelHistoryPointIndex = i;
                     mSelHistoryTrackID = item->getData().id;
@@ -362,8 +362,8 @@ void zchxAisDataMgr::setAisData(const QList<ZCHX::Data::ITF_AIS> &data, bool che
         //更新item对应的数据
         std::shared_ptr<AisElement> item = m_aisMap.value(aisdata.id, 0);
         if(!item) {
-            item = std::shared_ptr<AisElement>(new AisElement(aisdata, mDisplayWidget->framework()));
-            item->setFrameWork(mDisplayWidget->framework());
+            item = std::shared_ptr<AisElement>(new AisElement(aisdata, mDisplayWidget));
+            item->setView(mDisplayWidget);
             m_aisMap[aisdata.id] = item;
         } else {
             item->setData(aisdata);
@@ -428,7 +428,7 @@ QList<QAction*> zchxAisDataMgr::getRightMenuActions(const QPoint &pt)
     if(mDisplayWidget)
     {
         Element* item = mDisplayWidget->getCurrentSelectedElement();
-        if(item && item->getElementType() == ZCHX::Data::ELEMENT_AIS)
+        if(item && item->getElementType() == ZCHX::Data::ELE_AIS)
         {
             //目标确定为AIS,弹出对应的右键菜单
             AisElement* ele = static_cast<AisElement*>(item);

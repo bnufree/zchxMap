@@ -3,8 +3,8 @@
 #include "zchxmapframe.h"
 
 namespace qt {
-CoastElement::CoastElement(const ZCHX::Data::ITF_CoastData &ele, zchxMapFrameWork* f)
-    :MoveElement(f, ZCHX::Data::ELEMENT_COAST)
+CoastElement::CoastElement(const ZCHX::Data::ITF_CoastData &ele, zchxMapWidget* f)
+    :MoveElement(f, ZCHX::Data::ELE_COAST)
 {
     setData(ele);
     setIsUpdate(true);
@@ -43,15 +43,15 @@ void CoastElement::updateOldPath()
     m_path = m_data.path;
 }
 
-int CoastElement::id() const
-{
-    return uuid;
-}
+//int CoastElement::id() const
+//{
+//    return uuid;
+//}
 
-void CoastElement::setId(int id)
-{
-    uuid = id;
-}
+//void CoastElement::setId(int id)
+//{
+//    uuid = id;
+//}
 
 std::string CoastElement::name() const
 {
@@ -108,7 +108,7 @@ void CoastElement::drawElement(QPainter *painter)
     for(int i=0; i<tmp_path.size();++i)
     {
         std::pair<double, double> ll = tmp_path[i];
-        QPointF pos = m_framework->LatLon2Pixel(ll.first, ll.second).toPointF();
+        QPointF pos = mView->framework()->LatLon2Pixel(ll.first, ll.second).toPointF();
         if(0 == i)
         {
             polygon.moveTo(pos);
@@ -124,7 +124,7 @@ void CoastElement::drawElement(QPainter *painter)
         }
     }
 
-    MapStyle colorType = m_framework->GetMapStyle();
+    MapStyle colorType = mView->framework()->GetMapStyle();
     if(colorType == MapStyleEcdisNight || colorType == MapStyleEcdisDayDUSK)
     {
         painter->setPen(QPen(Qt::gray,2,Qt::DashLine));

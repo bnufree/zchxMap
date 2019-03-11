@@ -112,16 +112,16 @@ void zchxEditZoneTool::updateOldPath()
 void zchxEditZoneTool::endDraw()
 {
     if(element() && mWidget){
-        if(element()->getElementType() == ZCHX::Data::ELEMENT_WARNING_ZONE)
+        if(element()->getElementType() == ZCHX::Data::ELE_WARNING_ZONE)
         {
             emit mWidget->signalUpdateWarringZoneOrLineState(1, 1);
-        } else if(element()->getElementType() == ZCHX::Data::ELEMENT_CHANNEL)
+        } else if(element()->getElementType() == ZCHX::Data::ELE_CHANNEL)
         {
             emit mWidget->signalUpdateChannelZoneState(1, 1);
-        } else if(element()->getElementType() == ZCHX::Data::ELEMENT_CARD_MOUTH)
+        } else if(element()->getElementType() == ZCHX::Data::ELE_CARD_MOUTH)
         {
             emit mWidget->signalUpdateCardMouthZoneState(1, 1);
-        } else if(element()->getElementType() == ZCHX::Data::ELEMENT_MOOR)
+        } else if(element()->getElementType() == ZCHX::Data::ELE_MOOR)
         {
             emit mWidget->signalUpdateMooringZoneState(1, 1);
         }
@@ -132,16 +132,16 @@ void zchxEditZoneTool::endDraw()
 void zchxEditZoneTool::slotCancel()
 {
     if(element() && mWidget){
-        if(element()->getElementType() == ZCHX::Data::ELEMENT_WARNING_ZONE)
+        if(element()->getElementType() == ZCHX::Data::ELE_WARNING_ZONE)
         {
             emit mWidget->signalUpdateWarringZoneOrLineState(1, 0);
-        } else if(element()->getElementType() == ZCHX::Data::ELEMENT_CHANNEL)
+        } else if(element()->getElementType() == ZCHX::Data::ELE_CHANNEL)
         {
             emit mWidget->signalUpdateChannelZoneState(1, 0);
-        } else if(element()->getElementType() == ZCHX::Data::ELEMENT_CARD_MOUTH)
+        } else if(element()->getElementType() == ZCHX::Data::ELE_CARD_MOUTH)
         {
             emit mWidget->signalUpdateCardMouthZoneState(1, 0);
-        } else if(element()->getElementType() == ZCHX::Data::ELEMENT_MOOR)
+        } else if(element()->getElementType() == ZCHX::Data::ELE_MOOR)
         {
             emit mWidget->signalUpdateMooringZoneState(1, 0);
         }
