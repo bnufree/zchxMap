@@ -288,8 +288,8 @@ void zchxRadarDataMgr::invokeLinkageSpot()
     data.mode = ZCHX::Data::ITF_CloudHotSpot::MODE_HANDLE;
     data.targetNumber = QString::number(ele->getData().trackNumber);
     data.targetType = 2;
-    data.targetLon = ele->getData().lon;
-    data.targetLat = ele->getData().lat;
+    data.targetLon = ele->getData().getLon();
+    data.targetLat = ele->getData().getLat();
     if(mDisplayWidget) mDisplayWidget->signalInvokeHotSpot(data);
 }
 

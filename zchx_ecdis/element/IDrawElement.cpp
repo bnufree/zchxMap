@@ -1,6 +1,6 @@
 #include "IDrawElement.hpp"
 #include "zchxmapwidget.h"
-#include "map_layer/zchxMapLayer.h"
+#include "map_layer/zchxmaplayermgr.h"
 #include "zchxmapframe.h"
 #include "profiles.h"
 #include "zchxMapDatautils.h"
@@ -25,7 +25,7 @@ Element::Element(const double &lat, const double &lon, zchxMapWidget* view, ZCHX
     , isOpenMeet(false)
     , isUpdate(false)
     , mID("")
-    , m_ELE_type(type)
+    , m_element_type(type)
     , isForceImage(false)
     , m_layer(0)
     , mView(view)
@@ -36,6 +36,7 @@ Element::Element(const double &lat, const double &lon, zchxMapWidget* view, ZCHX
     , mTextColor(QColor())
     , mBorderColor(QColor())
     , mFillingColor(QColor())
+    , m_layerName("")
 {
 
     Element::g_maxLineLength = Profiles::instance()->value(MAP_INDEX, MAX_LINE_LENGTH).toInt();
@@ -55,7 +56,7 @@ Element::Element(const Element &element)
     , isOpenMeet(element.isOpenMeet)
     , isUpdate(element.isUpdate)
     , mID(element.mID)
-    , m_ELE_type(element.m_ELE_type)
+    , m_element_type(element.m_element_type)
     , isForceImage(element.isForceImage)
     , mFlashColor(element.mFlashColor)
     , m_layer(element.m_layer)
@@ -70,6 +71,7 @@ Element::Element(const Element &element)
     , mTextColor(element.mTextColor)
     , mBorderColor(element.mBorderColor)
     , mFillingColor(element.mFillingColor)
+    , m_layerName(element.m_layerName)
 {
 
 }
@@ -82,6 +84,14 @@ std::shared_ptr<MapLayer> Element::getLayer()
 {
     return m_layer;
 }
+
+void Element::setLayer(const QString& layer)
+{
+    //多次调用要导致崩溃
+    //m_layer.reset(MapLayerMgr::instance()->getLayer(layer).get());
+    m_layerName = layer;
+}
+
 
 std::pair<double, double> Element::getLatLon() const
 {
@@ -122,12 +132,12 @@ void Element::setIsActive(bool value)
 
 ZCHX::Data::ELETYPE Element::getElementType() const
 {
-    return m_ELE_type;
+    return m_element_type;
 }
 
 void Element::setElementType(const ZCHX::Data::ELETYPE &type)
 {
-    m_ELE_type = type;
+    m_element_type = type;
 }
 
 QString Element::getID() const
@@ -482,9 +492,33 @@ QPointF Element::getCurrentPos()
     return getViewPos();
 }
 
+bool Element::isViewAvailable() const
+{
+    if(!mView || !mView->framework()) return false;
+    return true;
+}
+
+zchxMapFrameWork* Element::framework() const
+{
+    if(mView) return mView->framework();
+    return 0;
+}
+
 bool Element::isLayervisible()
 {
     if(!m_layer) return false;
     return m_layer->visible();
 }
+
+bool Element::isDrawAvailable(QPainter* painter)
+{
+    if(!painter ||!MapLayerMgr::instance()->isLayerVisible(m_layerName) || !isViewAvailable()) return false;
+    return true;
+}
+
+void Element::setFlashColor(const QColor &color)
+{
+    mFlashColor = color;
+}
+
 }

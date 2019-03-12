@@ -140,11 +140,25 @@ bool MapLayerMgr::isLayerVisible(const QString &type)
 {
     if(type.isEmpty()) return true;
 
+    //qDebug()<<"search layer:"<<type;
     std::shared_ptr<MapLayer> layer = getLayer(type);
 
-    //    qDebug()<<type<<layer.get()<<layer->visible();
+//    if(!layer)
+//    {
+//        qDebug()<<type<<layer.get();
+//    }
+//        else
+//    {
+//        qDebug()<<type<<layer.get()<<layer->visible();
+//    }
 
     return (layer && layer->visible());
+}
+
+bool MapLayerMgr::isLayerVisible(std::shared_ptr<MapLayer> layer)
+{
+    if(!layer) return false;
+    return isLayerVisible(layer->type());
 }
 
 bool MapLayerMgr::isAnyLayerVisible(const QString &type1, const QString &type2, const QString &type3, const QString &type4, const QString &type5)

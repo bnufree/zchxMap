@@ -80,18 +80,18 @@ public:
         zchxTemplateDataMgr<PastrolStationElement, ZCHX::Data::ITF_PastrolStation>(w, ZCHX::DATA_MGR_PASTROLSTATION, ZCHX::LAYER_PATROL_SITE, parent) {}
 };
 
-class zchxLocalMarkDataMgr : public zchxTemplateDataMgr<LocalMark, ZCHX::Data::ITF_LocalMark>
+class zchxLocalMarkDataMgr : public zchxTemplateDataMgr<LocalMarkElement, ZCHX::Data::ITF_LocalMark>
 {
 public:
     explicit zchxLocalMarkDataMgr(zchxMapWidget* w, QObject *parent = 0) :
-        zchxTemplateDataMgr<LocalMark, ZCHX::Data::ITF_LocalMark>(w, ZCHX::DATA_MGR_LOCAL_MARK, ZCHX::LAYER_LOCALMARK, parent) {}
+        zchxTemplateDataMgr<LocalMarkElement, ZCHX::Data::ITF_LocalMark>(w, ZCHX::DATA_MGR_LOCAL_MARK, ZCHX::LAYER_LOCALMARK, parent) {}
 };
 
-class zchxDangerousDataMgr : public zchxTemplateDataMgr<DangerousCircle, ZCHX::Data::ITF_DangerousCircle>
+class zchxDangerousDataMgr : public zchxTemplateDataMgr<DangerousCircleElement, ZCHX::Data::ITF_DangerousCircle>
 {
 public:
     explicit zchxDangerousDataMgr(zchxMapWidget* w, QObject *parent = 0):
-        zchxTemplateDataMgr<DangerousCircle, ZCHX::Data::ITF_DangerousCircle>(w, ZCHX::DATA_MGR_DANGEROUS, ZCHX::LAYER_DANGEROUS_CIRLE, parent) {}
+        zchxTemplateDataMgr<DangerousCircleElement, ZCHX::Data::ITF_DangerousCircle>(w, ZCHX::DATA_MGR_DANGEROUS, ZCHX::LAYER_DANGEROUS_CIRLE, parent) {}
 };
 
 class zchxIslandLineDataMgr : public zchxTemplateDataMgr<IslandLineElement, ZCHX::Data::ITF_IslandLine>

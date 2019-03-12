@@ -9,6 +9,7 @@ class QGeoCoordinate;
 namespace qt{
 class zchxMapWidget;
 class MapLayer;
+class zchxMapFrameWork;
 
 enum RADARTYPE{RADARSHIP,RADARPLAN,WARRINGZONE};
 
@@ -26,6 +27,7 @@ public:
      * \note 有可能为空
      */
     std::shared_ptr<MapLayer> getLayer();
+    void                      setLayer(const QString& layer);
 
     /*!
      * \brief 获取图元的经纬度
@@ -138,7 +140,7 @@ public:
     virtual void drawHover(QPainter *painter) {}
 
     //图元双击的处理
-    virtual void doubleClickNow() {}
+    virtual void clicked(bool isDouble ) {}
 
     void addChild(std::shared_ptr<Element> child);
     void removeChild(std::shared_ptr<Element> child);
@@ -193,10 +195,16 @@ public:
     //
     std::shared_ptr<MapLayer> layer() {return m_layer;}
     zchxMapWidget* view() const {return mView;}
+
     void setView(zchxMapWidget* v) {mView = v;}
+    bool isViewAvailable() const;
+    zchxMapFrameWork* framework() const;
 
     //检查层设定是否显示
     bool isLayervisible();
+    bool isDrawAvailable(QPainter* painter = 0);
+    //设置报警颜色
+    void setFlashColor(const QColor& color);
 
 protected://TODO: 添加私有类, 实现成员变量对外隐藏, 且防止依赖扩展情况
     double                                  elelat;
@@ -214,7 +222,7 @@ protected://TODO: 添加私有类, 实现成员变量对外隐藏, 且防止依�
     bool                                    isUpdate;            //是否更新过
     bool                                    isForceImage;       //目标是否强制显示
     QString                                 mID;               //目标标识
-    ZCHX::Data::ELETYPE                     m_ELE_type;      //图元类型
+    ZCHX::Data::ELETYPE                     m_element_type;      //图元类型
     QColor                                  mFlashColor;        //目标报警时的图元填充颜色
     zchxMapWidget                           *mView;             //图元对应的视窗
 
@@ -222,6 +230,7 @@ protected://TODO: 添加私有类, 实现成员变量对外隐藏, 且防止依�
     std::list<std::shared_ptr<Element> >    m_children;
     std::shared_ptr<Element>                m_parent;
     std::shared_ptr<MapLayer>               m_layer;
+    QString                                 m_layerName;
     qint64                                  m_updateUTC;
 
     QRectF                                  m_boundingRectSmall;

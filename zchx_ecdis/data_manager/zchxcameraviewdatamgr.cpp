@@ -20,11 +20,11 @@ void zchxCameraViewDataMgr::show(QPainter* painter)
 void zchxCameraViewDataMgr::setData(const QList<ZCHX::Data::ITF_CameraView> &list)
 {
     foreach (ZCHX::Data::ITF_CameraView data, list) {
-         std::shared_ptr<CameraViewElement> ele = mData[data.id];
+         std::shared_ptr<CameraViewElement> ele = mData[data.getName()];
          if(ele) {
              ele->setData(data);
          } else {
-             mData[data.id] = std::shared_ptr<CameraViewElement>(new CameraViewElement(data, mDisplayWidget));
+             mData[data.getName()] = std::shared_ptr<CameraViewElement>(new CameraViewElement(data, mDisplayWidget));
          }
      }
 }

@@ -29,7 +29,7 @@ QList<ZCHX::Data::ITF_CameraDev> RodElement::getCameraList() const
     foreach (std::shared_ptr<Element> ele, wklist) {
         CameraElement *cam = static_cast<CameraElement*>(ele.get());
         if(cam) {
-            list.append(cam->getData());
+            list.append(cam->data());
         }
     }
     return list;
@@ -62,8 +62,7 @@ ZCHX::Data::CAMERAROD_STATUS RodElement::status() const
 
 void RodElement::drawElement(QPainter *painter)
 {
-    if(!painter) return;
-    if(!isLayervisible()) return;
+    if(!isDrawAvailable(painter)) return;
     /*绘制图片元素*/
     int curScale = mView->framework()->GetDrawScale();
     QPixmap cameraRadImg        = ZCHX::Utils::getImage(":/element/gan_normal.png", Qt::green, curScale);

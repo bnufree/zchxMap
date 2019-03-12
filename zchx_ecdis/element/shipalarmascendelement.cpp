@@ -24,7 +24,7 @@ ZCHX::Data::ITF_ShipAlarmAscend ShipAlarmAscendElement::data() const
 
 std::string ShipAlarmAscendElement::name() const
 {
-    return m_data.name.toStdString();
+    return m_data.getName().toStdString();
 }
 void ShipAlarmAscendElement::drawElement(QPainter *painter)
 {

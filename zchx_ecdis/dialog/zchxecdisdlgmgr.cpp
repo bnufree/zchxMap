@@ -44,7 +44,7 @@ void zchxEcdisDlgMgr::zchxOpenCameraListDlg(AisElement *item)
     QList<ZCHX::Data::ITF_CameraDev> list = QList<ZCHX::Data::ITF_CameraDev>::fromVector(QVector<ZCHX::Data::ITF_CameraDev>::fromStdVector(item->getCameraData()));
     if(list.empty())
     {
-        qDebug()<<"No camera deivce on this ais :"<<item->getData().mmsi;
+        qDebug()<<"No camera deivce on this ais :"<<item->data().mmsi;
         return;
     }
     zchxOpenCameraListDlg(list, ZCHX::Data::LatLon(item->lat(), item->lon()));
@@ -63,7 +63,7 @@ void zchxEcdisDlgMgr::zchxOpenCameraListDlg(QList<ZCHX::Data::ITF_CameraDev>& li
     ZCHX::Data::Point2D pos;
     if(ll.isNull())
     {
-        pos = mDisplayWidget->framework()->LatLon2Pixel(list[0].nLatLon.lat, list[0].nLatLon.lon);
+        pos = mDisplayWidget->framework()->LatLon2Pixel(list[0].getLat(), list[0].getLon());
     } else
     {
         pos = mDisplayWidget->framework()->LatLon2Pixel(ll);

@@ -92,19 +92,11 @@ SOURCES += mainwindow.cpp \
     element/ipcelement.cpp \
     dialog/zchxecdisdlgmgr.cpp \
     dialog/defenceinfodialog.cpp \
-    element/cameraviewelement.cpp \
     element/videotargetelement.cpp \
     data_manager/zchxvideotargetdatamgr.cpp \
     data_manager/zchxcameraviewdatamgr.cpp \
     data_manager/zchxuserdefinesdatamgr.cpp \
-    element/warningzoneelement.cpp \
-    element/coastelement.cpp \
-    element/seabedpiplineelement.cpp \
     element/islandlineelement.cpp \
-    element/areanetelement.cpp \
-    element/cardmouthelement.cpp \
-    element/channelelement.cpp \
-    element/mooringelement.cpp \
     element/shipalarmascendelement.cpp \
     element/structureelement.cpp \
     element/moveelement.cpp \
@@ -124,7 +116,9 @@ SOURCES += mainwindow.cpp \
     dialog/channelinfodialog.cpp \
     dialog/mooringinfodialog.cpp \
     dialog/cardmouthinfodialog.cpp \
-    draw_manager/zchxeditzonetool.cpp
+    draw_manager/zchxeditzonetool.cpp \
+    element/zchxmoveelements.cpp \
+    element/zchxfixelements.cpp
 
 HEADERS  += mainwindow.h \
     zchxmapthread.h \
@@ -170,19 +164,11 @@ HEADERS  += mainwindow.h \
     element/rodelement.h \
     element/ipcelement.h \
     dialog/zchxecdisdlgmgr.h \
-    element/cameraviewelement.h \
     element/videotargetelement.h \
     data_manager/zchxcameraviewdatamgr.h \
     data_manager/zchxvideotargetdatamgr.h \
     data_manager/zchxuserdefinesdatamgr.h \
-    element/warningzoneelement.h \
-    element/coastelement.h \
-    element/seabedpiplineelement.h \
     element/islandlineelement.h \
-    element/areanetelement.h \
-    element/cardmouthelement.h \
-    element/channelelement.h \
-    element/mooringelement.h \
     element/shipalarmascendelement.h \
     element/structureelement.h \
     element/moveelement.h \
@@ -205,7 +191,10 @@ HEADERS  += mainwindow.h \
     dialog/channelinfodialog.h \
     dialog/mooringinfodialog.h \
     dialog/cardmouthinfodialog.h \
-    draw_manager/zchxeditzonetool.h
+    draw_manager/zchxeditzonetool.h \
+    element/zchxmoveelements.h \
+    element/fixelement.h \
+    element/zchxfixelements.h
 
 FORMS    += mainwindow.ui \
     coastdatainfodialog.ui \

@@ -96,7 +96,7 @@ public:
 
     void updateData(const T &zone)
     {
-        K *zoneItem = item(zone.name.toStdString());
+        K *zoneItem = item(zone.getName().toStdString());
         //更新已有的
         if(zoneItem)
         {

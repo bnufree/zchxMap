@@ -189,7 +189,7 @@ RadarPointElement::RadarPointElement(const double &lat, const double &lon, zchxM
 }
 
 RadarPointElement::RadarPointElement(const ZCHX::Data::ITF_RadarPoint &ele, zchxMapWidget* f)
-    :Element(ele.lat,ele.lon, f, ZCHX::Data::ELE_RADAR_POINT, ele.warnStatusColor),m_path(ele.path),m_radar_type((RADARSHIP))
+    :Element(ele.getLat(),ele.getLon(), f, ZCHX::Data::ELE_RADAR_POINT, ele.warnStatusColor),m_path(ele.path),m_radar_type((RADARSHIP))
 {
     if(!ele.path.empty())
     {
@@ -309,7 +309,7 @@ void RadarPointElement::drawElement(QPainter *painter)
     if(!painter) return;
     //qDebug()<<"radar property:"<<getData().trackNumber<<getDrawAsAis()<<getDrawShape()<<getFillingColor().name()<<getBorderColor().name();
 
-    Element::drawElement(painter);
+    //Element::drawElement(painter);
     //检查轨迹点是否已经赋值,没赋值有可能有异常,暂时就不处理
     if(getPath().size() == 0) return;
     //取得当前图元对应的屏幕坐标位置
@@ -456,5 +456,17 @@ void RadarPointElement::drawTrack(QPainter *painter)
     painter->setPen(QPen(Qt::black,1,Qt::DashLine));
     painter->drawPolyline(&pts[0],pts.size());
     return;
+}
+
+
+
+void RadarPointElement::clicked(bool isDouble)
+{
+    if(!mView) return;
+    if(isDouble) {
+        mView->signalIsDoubleClicked4RadarPoint(getData());
+    } else {
+        mView->signalIsSelected4RadarPoint(getData(), false);
+    }
 }
 }

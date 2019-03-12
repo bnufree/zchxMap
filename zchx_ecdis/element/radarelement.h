@@ -51,6 +51,7 @@ public:
     //绘制轨迹点
     void drawTrack(QPainter *painter);
     void drawText(QPainter *painter, QPointF pos, int sideLen);
+    void clicked(bool isDouble);
 private:
     std::vector<std::pair<double, double>> m_path;
     RADARTYPE    m_radar_type;

@@ -191,8 +191,13 @@ void zchxMapWidget::setActiveDrawElement(const ZCHX::Data::Point2D &pos, bool db
     //检查各个数据管理类,获取当前选择的目标
     foreach (std::shared_ptr<zchxEcdisDataMgr> mgr, ZCHX_DATA_FACTORY->getManagers()) {
         if(mgr->updateActiveItem(pos.toPoint())){
-            if(dbClick){
-                setETool2DrawPickup();
+            Element* ele = getCurrentSelectedElement();
+            if(ele)
+            {
+                ele->clicked(dbClick);
+                if(dbClick){
+                    setETool2DrawPickup();
+                }
             }
             break;
         }
@@ -224,15 +229,15 @@ void zchxMapWidget::setSelectedCameraTrackTarget(const ZCHX::Data::Point2D &pos)
             if(!item) return;
             ZCHX::Data::ITF_RadarPoint radar = item->getData();
             target.id = QString::number(radar.trackNumber);
-            target.lon = radar.lon;
-            target.lat = radar.lat;
+            target.lon = radar.getLon();
+            target.lat = radar.getLat();
             target.type = 2;
         } else if(ele->getElementType() == ZCHX::Data::ELE_AIS)
         {
             //选中AIS
             AisElement *item = static_cast<AisElement*>(ele);
             if(!item) return;
-            ZCHX::Data::ITF_AIS ais = item->getData();
+            ZCHX::Data::ITF_AIS ais = item->data();
             target.id = ais.id;
             target.lon = ais.lon;
             target.lat = ais.lat;
@@ -254,8 +259,8 @@ void zchxMapWidget::setPickUpNavigationTarget(const ZCHX::Data::Point2D &pos)
     }
     if(!ele) return;
     AisElement *item = static_cast<AisElement*>(ele);
-    ZCHX_DATA_FACTORY->getAisDataMgr()->setFocusID(item->getData().id);
-    emit signalIsSelected4TrackRadarOrbit(item->getData(), true);
+    ZCHX_DATA_FACTORY->getAisDataMgr()->setFocusID(item->data().id);
+    emit signalIsSelected4TrackRadarOrbit(item->data(), true);
 }
 
 void zchxMapWidget::getPointNealyCamera(const ZCHX::Data::Point2D &pos)
@@ -275,8 +280,8 @@ void zchxMapWidget::getPointNealyCamera(const ZCHX::Data::Point2D &pos)
         RadarPointElement *item = static_cast<RadarPointElement*>(ele);
         if(!item) return;
         trackNum = item->getData().trackNumber;
-        ll.lat = item->getData().lat;
-        ll.lon = item->getData().lon;
+        ll.lat = item->getData().getLat();
+        ll.lon = item->getData().getLon();
     }
 
     emit signalSendPointNealyCamera(trackNum, ll.lat,ll.lon);
@@ -660,7 +665,7 @@ void zchxMapWidget::mousePressEvent(QMouseEvent *e)
                     }
                 }
 
-                if(bShowOtherRightKeyMenu)
+                if(bShowOtherRightKeyMenu && menu.actions().size() == 1)
                 {
 
                     //                menu.addAction(tr("截屏"),this,SIGNAL(signalScreenShot()));
@@ -1148,7 +1153,7 @@ void zchxMapWidget::setFleet(const QMap<QString, ZCHX::Data::ITF_Fleet> &fleetMa
         ZCHX::Data::ITF_Fleet fleetInfo = *fleetIt;
         if (fleetInfo.dangerCircleRadius > 0)
         {
-            ZCHX::Data::ITF_DangerousCircle circle = {fleetIt.key(), 0, 0, 0, fleetInfo.dangerCircleRadius};
+            ZCHX::Data::ITF_DangerousCircle circle = {fleetIt.key(), {0, 0}, 0, fleetInfo.dangerCircleRadius};
             list.push_back(circle);
         }
     }

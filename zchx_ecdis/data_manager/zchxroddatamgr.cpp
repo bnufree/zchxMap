@@ -87,9 +87,9 @@ void zchxRodDataMgr::updateCameraStatus(const QString& rod, const QString& cam_n
     std::list<std::shared_ptr<Element>> wklist = ele->getChildren(ZCHX::Data::ELE_CAMERA);
     foreach (std::shared_ptr<Element> ele_cam, wklist) {
         CameraElement *cam = static_cast<CameraElement*>(ele_cam.get());
-        if(cam && cam->getData().szCamName == cam_name) {
+        if(cam && cam->data().szCamName == cam_name) {
             cam->setStatus(status);
-            ele->updateElementStatus(qint64(cam), cam->getData().nStatus == 1);
+            ele->updateElementStatus(qint64(cam), cam->data().nStatus == 1);
             break;
         }
     }
