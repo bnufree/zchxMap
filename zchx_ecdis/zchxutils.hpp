@@ -607,7 +607,6 @@ class ZCHX_ECDIS_EXPORT ITF_AIS
 {
     std::vector<std::pair<double, double> > _path;
 public:
-public:
     enum TargetType
     {
         Target_NONE = 100,
