@@ -255,7 +255,7 @@ QList<QAction*> zchxRadarDataMgr::getRightMenuActions(const QPoint &pt)
             //目标确定为AIS,弹出对应的右键菜单
             RadarPointElement* ele = static_cast<RadarPointElement*>(item);
             if(ele){
-                list.append(addAction(tr("画中画"),this, SLOT(setPictureInPicture()), (void*) ele));
+                //list.append(addAction(tr("画中画"),this, SLOT(setPictureInPicture()), (void*) ele));
                 list.append(addAction(tr("实时轨迹"),this, SLOT(setRealTimeTraces()), (void*) ele));
                 list.append(addAction(tr("关注"),this, SLOT(setConcern()), (void*) ele));
                 list.append(addAction(tr("联动"),this, SLOT(invokeLinkageSpot()), (void*) ele));
