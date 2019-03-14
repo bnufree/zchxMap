@@ -16,7 +16,7 @@ void zchxCameraDataMgr::setCameraDevData(const QList<ZCHX::Data::ITF_CameraDev> 
         if(ele) {
             ele->setData(cam);
         } else {
-            m_CameraDev[cam.szCamName] = std::shared_ptr<CameraElement>(new CameraElement(cam, mDisplayWidget->framework()));
+            m_CameraDev[cam.szCamName] = std::shared_ptr<CameraElement>(new CameraElement(cam, mDisplayWidget));
         }
     }
 }

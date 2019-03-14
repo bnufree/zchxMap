@@ -8,7 +8,7 @@
 #include "zchxcameraviewdatamgr.h"
 #include "zchxvideotargetdatamgr.h"
 #include "zchxuserdefinesdatamgr.h"
-#include "zchxcameragridmgr.h"
+#include "zchxnetgridmgr.h"
 #include "zchxradarvideomgr.h"
 
 #endif // ZCHXDATAMANAGERS_H

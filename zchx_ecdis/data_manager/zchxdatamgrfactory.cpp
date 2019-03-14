@@ -85,8 +85,8 @@ void zchxDataMgrFactory::createManager(int type)
     case ZCHX::DATA_MGR_ISLANDLINE:
         mMgrList[type] = std::shared_ptr<zchxIslandLineDataMgr>(new zchxIslandLineDataMgr(mWidget));
         break;
-    case ZCHX::DATA_MGR_CAMERA_NET_GRID:
-        mMgrList[type] = std::shared_ptr<zchxCameraGridDataMgr>(new zchxCameraGridDataMgr(mWidget));
+    case ZCHX::DATA_MGR_NET_GRID:
+        mMgrList[type] = std::shared_ptr<zchxNetGridDataMgr>(new zchxNetGridDataMgr(mWidget));
         break;
     case ZCHX::DATA_MGR_SHIPALARM_ASCEND:
         mMgrList[type] = std::shared_ptr<zchxShipAlarmAscendDataMgr>(new zchxShipAlarmAscendDataMgr(mWidget));
@@ -222,9 +222,9 @@ zchxIslandLineDataMgr*   zchxDataMgrFactory::getIslandlineMgr()
     return static_cast<zchxIslandLineDataMgr*>(getManager(ZCHX::DATA_MGR_ISLANDLINE).get());
 }
 
-zchxCameraGridDataMgr*   zchxDataMgrFactory::getCameraGridMgr()
+zchxNetGridDataMgr*   zchxDataMgrFactory::getNetGridMgr()
 {
-    return static_cast<zchxCameraGridDataMgr*>(getManager(ZCHX::DATA_MGR_CAMERA_NET_GRID).get());
+    return static_cast<zchxNetGridDataMgr*>(getManager(ZCHX::DATA_MGR_NET_GRID).get());
 }
 
 zchxShipAlarmAscendDataMgr*   zchxDataMgrFactory::getShipAlarmAscendMgr()

@@ -13,7 +13,7 @@ public:
     void endDraw();
     void setCameraGridParam(const QString &id, const QSizeF &size);
 private:
-    ZCHX::Data::ITF_CameraNetGrid makeCameraGrid(const ZCHX::Data::LatLon &sll, const ZCHX::Data::LatLon &ell);
+    ZCHX::Data::ITF_NetGrid makeCameraGrid(const ZCHX::Data::LatLon &sll, const ZCHX::Data::LatLon &ell);
 
 signals:
 

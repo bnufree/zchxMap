@@ -26,6 +26,7 @@ public:
 
     Element* selectItem(const QPoint &pt)
     {
+        if(!MapLayerMgr::instance()->isLayerVisible(mLayerName)) return 0;
         for(std::shared_ptr<K> ele : mData)
         {
             //检查AIS图元本身是否选中
@@ -96,7 +97,7 @@ public:
 
     void updateData(const T &zone)
     {
-        K *zoneItem = item(zone.name.toStdString());
+        K *zoneItem = item(zone.getName().toStdString());
         //更新已有的
         if(zoneItem)
         {
@@ -104,14 +105,14 @@ public:
         }
         else
         {
-            mData.push_back(std::shared_ptr<K>(new K(zone, mDisplayWidget->framework())));
+            mData.push_back(std::shared_ptr<K>(new K(zone, mDisplayWidget/*->framework()*/)));
         }
     }
 
     void removeData(const T &zone)
     {
         for(std::shared_ptr<K> ele : mData){
-            if(zone.name == QString::fromStdString(ele->name()) || zone.id == ele->id())
+            if(zone.name == QString::fromStdString(ele->name())/* || zone.id == ele->id()*/)
             {
                 mData.removeOne(ele);
                 break;

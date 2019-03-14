@@ -30,6 +30,7 @@ public:
     const std::list<std::shared_ptr<MapLayer> > &getLayerTree();
     //获取图层是否可见
     bool isLayerVisible(const QString &type);
+    bool isLayerVisible(std::shared_ptr<MapLayer> layer);
     bool isAnyLayerVisible(const QString &type1,
                            const QString &type2,
                            const QString &type3 = QString(),

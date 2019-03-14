@@ -27,189 +27,11 @@ namespace qt{
 ////////////////////
 /// \brief 环岛线
 
-
-
-////////
-/// \brief EllipseElement::EllipseElement
-/// \param ele
-///
-
-EllipseElement::EllipseElement(const ZCHX::Data::ITF_EleEllipse &ele)
-    :Element(ele.ll.lat,ele.ll.lon, 0, ZCHX::Data::ELEELLIPSE)
-{
-    setEle(ele);
-}
-
-ZCHX::Data::ITF_EleEllipse EllipseElement::ele() const
-{
-    return m_ele;
-}
-
-void EllipseElement::setEle(const ZCHX::Data::ITF_EleEllipse &ele)
-{
-    m_ele = ele;
-}
-
-TriangleElement::TriangleElement(const ZCHX::Data::ITF_EleTriangle &ele)
-    :Element(ele.ll.lat,ele.ll.lon, 0, ZCHX::Data::ELETRIANGLE)
-{
-    setEle(ele);
-}
-
-ZCHX::Data::ITF_EleTriangle TriangleElement::ele() const
-{
-    return m_ele;
-}
-
-void TriangleElement::setEle(const ZCHX::Data::ITF_EleTriangle &ele)
-{
-    m_ele = ele;
-}
-
-LineElement::LineElement(const ZCHX::Data::ITF_EleLine &ele)
-    :Element(ele.ll1.lat,ele.ll1.lon, 0, ZCHX::Data::ELELINE)
-{
-    setEle(ele);
-}
-
-ZCHX::Data::ITF_EleLine LineElement::ele() const
-{
-    return m_ele;
-}
-
-void LineElement::setEle(const ZCHX::Data::ITF_EleLine &ele)
-{
-    m_ele = ele;
-}
-
-RectElement::RectElement(const ZCHX::Data::ITF_EleRect &ele)
-    :Element(ele.ll.lat,ele.ll.lon, 0, ZCHX::Data::ELERECT)
-{
-    setEle(ele);
-}
-
-ZCHX::Data::ITF_EleRect RectElement::ele() const
-{
-    return m_ele;
-}
-
-void RectElement::setEle(const ZCHX::Data::ITF_EleRect &ele)
-{
-    m_ele = ele;
-}
-
-
-
-
-
-
-
-
-LocalMark::LocalMark(const ZCHX::Data::ITF_LocalMark &data, zchxMapFrameWork* f)
-    :Element(data.ll.lat, data.ll.lon, f, ZCHX::Data::ELEMENT_LOCALMARK)
-{
-    setData(data);
-    uuid = data.uuid;
-}
-
-ZCHX::Data::ITF_LocalMark LocalMark::data() const
-{
-    return m_data;
-}
-
-void LocalMark::setData(const ZCHX::Data::ITF_LocalMark &data)
-{
-    m_data = data;
-    setIsUpdate(true);
-}
-
-
-Navigation::Navigation(const ZCHX::Data::ITF_Navigation &data)
-    :Element(data.lat,data.lon, 0)
-{
-
-    m_data = data;
-    uuid = data.uuid;
-}
-
-ZCHX::Data::ITF_Navigation Navigation::data() const
-{
-    return m_data;
-}
-
-void Navigation::setData(const ZCHX::Data::ITF_Navigation &data)
-{
-    m_data = data;
-}
-
-DangerousCircle::DangerousCircle(const ZCHX::Data::ITF_DangerousCircle &data, zchxMapFrameWork* f)
-    :Element(data.lat, data.lon, f, ZCHX::Data::ELEMENT_DANGREOUS)
-{
-    setData(data);
-}
-
-ZCHX::Data::ITF_DangerousCircle DangerousCircle::data() const
-{
-    return m_data;
-}
-
-void DangerousCircle::setData(const ZCHX::Data::ITF_DangerousCircle &data)
-{
-    m_data = data;
-    setIsUpdate(true);
-}
-
-RadarFeatureZoneElement::RadarFeatureZoneElement(const ZCHX::Data::ITF_RadarFeaturesZone &data, zchxMapFrameWork* f)
-    :Element(0, 0, f, ZCHX::Data::ELEMENT_RADAR_FEATURE_ZONE)
-{
-    setData(data);
-}
-
-ZCHX::Data::ITF_RadarFeaturesZone RadarFeatureZoneElement::data() const
-{
-   return m_data;
-}
-
-void RadarFeatureZoneElement::setData(const ZCHX::Data::ITF_RadarFeaturesZone &data)
-{
-    m_data = data;
-    setIsUpdate(true);
-}
-
-void RadarFeatureZoneElement::drawElement(QPainter *painter)
-{
-    if(!painter ||!MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_RADAR_FRETURE_AREA) || !m_framework) return;
-    QPolygonF polygon;
-    for(int i=0; i<m_data.pointList.size();++i)
-    {
-        QPointF pos = m_framework->LatLon2Pixel(m_data.pointList[i]).toPointF();
-        polygon.append(pos);
-        if(getIsActive())
-        {
-            PainterPair chk(painter);
-            painter->setPen(QPen(Qt::red,1,Qt::SolidLine));
-            painter->setBrush(Qt::white);
-            painter->drawEllipse(pos,5,5);
-        }
-    }
-    //封闭
-    if(polygon.first() != polygon.last())
-    {
-        polygon.append(polygon.first());
-    }
-    PainterPair chk(painter);
-    painter->setPen(QPen(QColor(Qt::red),1,Qt::DashLine));
-    painter->setBrush(QBrush(Qt::blue, Qt::Dense7Pattern));
-    painter->drawPolygon(polygon);
-    painter->drawText(polygon.boundingRect().center(), m_data.name);
-}
-
 RouteLine::RouteLine(const ZCHX::Data::RouteLine &ele)
-    :Element(0,0, 0)
+    :Element(0,0, 0, ZCHX::Data::ELE_ROUTE_LINE)
 {
     m_data = ele;
     m_backData = ele;
-    uuid = ele.routeID;
     m_bLinked = false;
     m_dLinkLat = 0;
     m_dLinkLon = 0;
@@ -233,7 +55,6 @@ void RouteLine::setNewChangeData(const ZCHX::Data::RouteLine &data)
 {
     m_data = data;
     m_backData = data;
-    uuid = data.routeID;
 }
 
 void RouteLine::setData(const ZCHX::Data::RouteLine &data)
@@ -440,11 +261,10 @@ void RouteLine::delPathPoint(int idx)
 }
 
 ShipPlanLine::ShipPlanLine(const ZCHX::Data::ShipPlanLine &ele)
-    :Element(0, 0, 0)
+    :Element(0, 0, 0, ZCHX::Data::ELE_PLAN_LINE)
 {
     m_data = ele;
     m_backData = ele;
-    uuid = ele.m_dShipPlanId;
     m_uDisplayFlag = 1;
 }
 
@@ -452,7 +272,6 @@ void ShipPlanLine::setNewChangeData(const ZCHX::Data::ShipPlanLine &data)
 {
     m_data = data;
     m_backData = data;
-    uuid = data.m_dShipPlanId;
 }
 
 void ShipPlanLine::setData(const ZCHX::Data::ShipPlanLine &data)
@@ -547,10 +366,9 @@ void ShipPlanLine::delPathPoint(int idx)
 }
 
 RouteCross::RouteCross(const ZCHX::Data::ITF_RouteCross &ele)
-    :Element(ele.m_fCrossLat, ele.m_fCrossLon, 0)
+    :Element(ele.m_fCrossLat, ele.m_fCrossLon, 0, ZCHX::Data::ELE_ROUTE_CROSS_POINT)
 {
     m_data = ele;
-    uuid = ele.m_uKeyID;
 }
 
 ZCHX::Data::ITF_RouteCross RouteCross::data() const
@@ -559,7 +377,7 @@ ZCHX::Data::ITF_RouteCross RouteCross::data() const
 }
 
 Multibeam::Multibeam(const ZCHX::Data::ITF_Multibeam &ele)
-    :Element(ele.m_dLat,ele.m_dLon, 0)
+    :Element(ele.m_dLat,ele.m_dLon, 0, ZCHX::Data::ELE_MULTIBEAM)
 {
     m_data = ele;
 }
@@ -575,7 +393,7 @@ void Multibeam::setData(const ZCHX::Data::ITF_Multibeam &data)
 }
 
 RadarVideoElement::RadarVideoElement(const ZCHX::Data::ITF_RadarVideo &ele, int uIndex)
-    :Element(ele.dCentreLat,ele.dCentreLon, 0),m_uMsgIndex(uIndex)
+    :Element(ele.dCentreLat,ele.dCentreLon, 0, ZCHX::Data::ELE_RADAR_ECHO),m_uMsgIndex(uIndex)
 {
     m_data = ele;
 }
@@ -602,16 +420,14 @@ int RadarVideoElement::getMsgIndex()
 }
 
 SpecialRouteLine::SpecialRouteLine(const ZCHX::Data::SpecialRouteLine &ele)
-    :Element(0, 0, 0)
+    :Element(0, 0, 0, ZCHX::Data::ELE_ROUTE_LINE)
 {
     m_data = ele;
-    uuid = ele.m_iId;
 }
 
 void SpecialRouteLine::setNewChangeData(const ZCHX::Data::SpecialRouteLine &data)
 {
     m_data = data;
-    uuid = data.m_iId;
 }
 
 void SpecialRouteLine::setData(const ZCHX::Data::SpecialRouteLine &data)

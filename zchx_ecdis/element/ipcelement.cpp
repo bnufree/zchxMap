@@ -3,8 +3,8 @@
 
 namespace qt
 {
-IPCElement::IPCElement(const ZCHX::Data::IPCastDevice &data, zchxMapFrameWork* f)
-    :Element(data.lat, data.lon, f, ZCHX::Data::ELEMENT_IPC)
+IPCElement::IPCElement(const ZCHX::Data::IPCastDevice &data, zchxMapWidget* f)
+    :Element(data.lat, data.lon, f, ZCHX::Data::ELE_IPC)
 {
     m_data = data;
 }

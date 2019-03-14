@@ -32,7 +32,7 @@ void zchxRodDataMgr::setRodData(const QList<ZCHX::Data::ITF_CameraRod> &list)
         if(ele) {
             ele->setData(rod);
         } else {
-            m_CameraRod[rod.szID] = std::shared_ptr<RodElement>(new RodElement(rod, mDisplayWidget->framework()));
+            m_CameraRod[rod.szID] = std::shared_ptr<RodElement>(new RodElement(rod, mDisplayWidget));
         }
     }
 }
@@ -60,7 +60,7 @@ void zchxRodDataMgr::updateCamera(const QList<ZCHX::Data::ITF_CameraDev>& list)
     foreach (ZCHX::Data::ITF_CameraDev cam, list) {
         std::shared_ptr<RodElement> ele = m_CameraRod[cam.mParentEleID];
         if(ele) {
-            std::shared_ptr<CameraElement> cam_ele(new CameraElement(cam, mDisplayWidget->framework()));
+            std::shared_ptr<CameraElement> cam_ele(new CameraElement(cam, mDisplayWidget));
             ele->addChild(cam_ele);
             ele->updateElementStatus(qint64(cam_ele.get()), cam.nStatus == 1);
         }
@@ -84,12 +84,12 @@ void zchxRodDataMgr::updateCameraStatus(const QString& rod, const QString& cam_n
     std::shared_ptr<RodElement> ele = m_CameraRod[rod];
     if(!ele) return;
 
-    std::list<std::shared_ptr<Element>> wklist = ele->getChildren(ZCHX::Data::ELEMENT_CAMERA);
+    std::list<std::shared_ptr<Element>> wklist = ele->getChildren(ZCHX::Data::ELE_CAMERA);
     foreach (std::shared_ptr<Element> ele_cam, wklist) {
         CameraElement *cam = static_cast<CameraElement*>(ele_cam.get());
-        if(cam && cam->getData().szCamName == cam_name) {
+        if(cam && cam->data().szCamName == cam_name) {
             cam->setStatus(status);
-            ele->updateElementStatus(qint64(cam), cam->getData().nStatus == 1);
+            ele->updateElementStatus(qint64(cam), cam->data().nStatus == 1);
             break;
         }
     }
@@ -112,7 +112,7 @@ void zchxRodDataMgr::updateIPCastDeviceList(const QList<ZCHX::Data::IPCastDevice
     foreach (ZCHX::Data::IPCastDevice ipc, list) {
         std::shared_ptr<RodElement> ele = m_CameraRod[ipc.rodID];
         if(ele) {
-            std::shared_ptr<IPCElement> ipc_ele(new IPCElement(ipc, mDisplayWidget->framework()));
+            std::shared_ptr<IPCElement> ipc_ele(new IPCElement(ipc, mDisplayWidget));
             ele->addChild(ipc_ele);
             ele->updateElementStatus(qint64(ipc_ele.get()), ipc.status != -1);
         }
@@ -124,7 +124,7 @@ void zchxRodDataMgr::updateIpcStatus(const QString &rod, const QString &ipc, int
     std::shared_ptr<RodElement> ele = m_CameraRod[rod];
     if(!ele) return;
 
-    std::list<std::shared_ptr<Element>> wklist = ele->getChildren(ZCHX::Data::ELEMENT_IPC);
+    std::list<std::shared_ptr<Element>> wklist = ele->getChildren(ZCHX::Data::ELE_IPC);
     foreach (std::shared_ptr<Element> ele_ipc, wklist) {
         IPCElement *ipc_ele = static_cast<IPCElement*>(ele_ipc.get());
         if(ipc_ele && ipc_ele->getData().name == ipc) {

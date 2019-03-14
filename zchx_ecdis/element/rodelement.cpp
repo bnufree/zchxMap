@@ -2,14 +2,14 @@
 #include "zchxmapframe.h"
 #include "cameraelement.h"
 #include "ipcelement.h"
+#include "zchxmapwidget.h"
 
 namespace qt
 {
-RodElement::RodElement(const ZCHX::Data::ITF_CameraRod &data,zchxMapFrameWork* f)
-    :Element(data.nLatLon.lat,data.nLatLon.lon, f, ZCHX::Data::ELEMENT_ROD)
+RodElement::RodElement(const ZCHX::Data::ITF_CameraRod &data,zchxMapWidget* f)
+    :Element(data.nLatLon.lat,data.nLatLon.lon, f, ZCHX::Data::ELE_ROD)
 {
     m_data = data;
-    uuid = data.nUUID;
 }
 
 ZCHX::Data::ITF_CameraRod RodElement::getData() const
@@ -25,11 +25,11 @@ void RodElement::setData(const ZCHX::Data::ITF_CameraRod &data)
 QList<ZCHX::Data::ITF_CameraDev> RodElement::getCameraList() const
 {
     QList<ZCHX::Data::ITF_CameraDev> list;
-    std::list<std::shared_ptr<Element>> wklist = getChildren(ZCHX::Data::ELEMENT_CAMERA);
+    std::list<std::shared_ptr<Element>> wklist = getChildren(ZCHX::Data::ELE_CAMERA);
     foreach (std::shared_ptr<Element> ele, wklist) {
         CameraElement *cam = static_cast<CameraElement*>(ele.get());
         if(cam) {
-            list.append(cam->getData());
+            list.append(cam->data());
         }
     }
     return list;
@@ -39,7 +39,7 @@ QList<ZCHX::Data::ITF_CameraDev> RodElement::getCameraList() const
 QList<ZCHX::Data::IPCastDevice> RodElement::getIPCList() const
 {
     QList<ZCHX::Data::IPCastDevice> list;
-    std::list<std::shared_ptr<Element>> wklist = getChildren(ZCHX::Data::ELEMENT_IPC);
+    std::list<std::shared_ptr<Element>> wklist = getChildren(ZCHX::Data::ELE_IPC);
     foreach (std::shared_ptr<Element> ele, wklist) {
         IPCElement *ipc = static_cast<IPCElement*>(ele.get());
         if(ipc) {
@@ -62,17 +62,16 @@ ZCHX::Data::CAMERAROD_STATUS RodElement::status() const
 
 void RodElement::drawElement(QPainter *painter)
 {
-    if(!painter) return;
-    if(!isLayervisible()) return;
+    if(!isDrawAvailable(painter)) return;
     /*绘制图片元素*/
-    int curScale = m_framework->GetDrawScale();
+    int curScale = mView->framework()->GetDrawScale();
     QPixmap cameraRadImg        = ZCHX::Utils::getImage(":/element/gan_normal.png", Qt::green, curScale);
     QPixmap cameraRodWarringImg = ZCHX::Utils::getImage(":/element/gan_bug.png", Qt::yellow, curScale);
     QPixmap cameraRodErrImg     = ZCHX::Utils::getImage(":/element/gan_error.png", Qt::red, curScale);
     QPixmap cameraRodFocus      = ZCHX::Utils::getImage(":/element/gan_bg.png", Qt::yellow, curScale);
 
     ZCHX::Data::ITF_CameraRod data =  this->getData();
-    ZCHX::Data::Point2D pos = m_framework->LatLon2Pixel(data.nLatLon.lat,data.nLatLon.lon);
+    ZCHX::Data::Point2D pos = mView->framework()->LatLon2Pixel(data.nLatLon.lat,data.nLatLon.lon);
     QRect rect(pos.x - cameraRadImg.width() / 2, pos.y - cameraRadImg.height() / 2, cameraRadImg.width(),cameraRadImg.height());
     if(getIsActive())
     {
@@ -86,7 +85,7 @@ void RodElement::drawElement(QPainter *painter)
         //通过推算经纬度计算半径
         ZCHX::Data::LatLon drll(0, 0);
         ZCHX::Utils::distbear_to_latlon(data.nLatLon.lat,data.nLatLon.lon,800,0,drll.lat,drll.lon);
-        ZCHX::Data::Point2D drPos = m_framework->LatLon2Pixel(drll);
+        ZCHX::Data::Point2D drPos = mView->framework()->LatLon2Pixel(drll);
         double dr = sqrt(abs(drPos.y - pos.y) * abs(drPos.y-pos.y) + abs(drPos.x - pos.x) * abs(drPos.x - pos.x));
         PainterPair chk(painter);
         painter->setBrush(QBrush(QColor(0,255,255,125)));

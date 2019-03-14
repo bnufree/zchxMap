@@ -165,4 +165,16 @@ void zchxMapFrameWork::Update()
 {
 
 }
+
+PPATH zchxMapFrameWork::convert2QtPonitList(const GPATH& path)
+{
+    PPATH pts;
+    for(int i = 0; i < path.size(); ++i)
+    {
+        GPNT ll = path[i];
+        pts.push_back(LatLon2Pixel(ll.first,ll.second).toPointF());
+    }
+    return pts;
+}
+
 }

@@ -64,7 +64,7 @@ QPixmap* zchxTileImageThread::loadImageFromUrl(const QString &url)
     }
     if(!sts)
     {
-        img->fill(Qt::transparent);
+        img->fill(QColor::fromRgb(255,251,191));
     }
     //qDebug()<<"end load image:"<<QDateTime::currentDateTime()<<" img:"<<url<<"sts:"<<sts;
     return img;

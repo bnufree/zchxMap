@@ -3,11 +3,10 @@
 #include "zchxmapframe.h"
 
 namespace qt {
-PastrolStationElement::PastrolStationElement(const ZCHX::Data::ITF_PastrolStation &data, zchxMapFrameWork* f)
-    :Element(data.ll.lat,data.ll.lon, f, ZCHX::Data::ELEMENT_PATROL_STATION)
+PastrolStationElement::PastrolStationElement(const ZCHX::Data::ITF_PastrolStation &data, zchxMapWidget* f)
+    :Element(data.ll.lat,data.ll.lon, f, ZCHX::Data::ELE_PATROL_STATION)
 {
     m_data = data;
-    uuid = data.uuid;
     setIsUpdate(true);
 }
 
@@ -40,9 +39,9 @@ void PastrolStationElement::drawElement(QPainter *painter)
     }
     if(!painter || !MapLayerMgr::instance()->isLayerVisible(layer_name)) return;
 
-    int curScale = m_framework->GetDrawScale();
+    int curScale = mView->framework()->GetDrawScale();
     QPixmap img = ZCHX::Utils::getImage(img_name, Qt::green, curScale);
-    ZCHX::Data::Point2D pos = m_framework->LatLon2Pixel(data().ll.lat,data().ll.lon);
+    ZCHX::Data::Point2D pos = mView->framework()->LatLon2Pixel(data().ll.lat,data().ll.lon);
     QRect rect(pos.x - img.width() / 2, pos.y - img.height() / 2, img.width(), img.height());
     if(getIsActive())
     {

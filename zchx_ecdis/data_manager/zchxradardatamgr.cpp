@@ -95,7 +95,7 @@ void zchxRadarDataMgr::setRadarPointData(const QList<ZCHX::Data::ITF_RadarPoint>
         QString id = QString::number(aisdata.trackNumber);
         std::shared_ptr<RadarPointElement> item = m_RadarPoint.value(id, 0);
         if(!item) {
-            item = std::shared_ptr<RadarPointElement>(new RadarPointElement(aisdata, mDisplayWidget->framework()));
+            item = std::shared_ptr<RadarPointElement>(new RadarPointElement(aisdata, mDisplayWidget));
             m_RadarPoint[id] = item;
         } else {
             item->setData(aisdata);
@@ -131,16 +131,28 @@ bool zchxRadarDataMgr::updateActiveItem(const QPoint &pt)
        !MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_RADAR) ||
        !MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_RADAR_CURRENT) ||
        !isPickupAvailable()) return false;
-    int type = mDisplayWidget->getCurPickupType();
-    if(!(type & ZCHX::Data::ECDIS_PICKUP_RADARPOINT)) return false;
+
+    Element* ele = selectItem(pt);
+    if(ele)
+    {
+        mDisplayWidget->setCurrentSelectedItem(ele);
+        return true;
+    }
+
+    return false;
+}
+
+Element* zchxRadarDataMgr::selectItem(const QPoint &pt)
+{
+    if( !MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_RADAR) || !MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_RADAR_CURRENT)) return 0;
 
     foreach (std::shared_ptr<RadarPointElement> item, m_RadarPoint) {
         if(item->contains(10, pt.x(), pt.y())){
-            mDisplayWidget->setCurrentSelectedItem(item.get());
-            return true;
+            return item.get();
         }
     }
-    return false;
+
+    return 0;
 }
 
 
@@ -238,7 +250,7 @@ QList<QAction*> zchxRadarDataMgr::getRightMenuActions(const QPoint &pt)
     if(mDisplayWidget)
     {
         Element* item = mDisplayWidget->getCurrentSelectedElement();
-        if(item && item->getElementType() == ZCHX::Data::ELEMENT_RADAR_POINT)
+        if(item && item->getElementType() == ZCHX::Data::ELE_RADAR_POINT)
         {
             //目标确定为AIS,弹出对应的右键菜单
             RadarPointElement* ele = static_cast<RadarPointElement*>(item);
@@ -288,8 +300,8 @@ void zchxRadarDataMgr::invokeLinkageSpot()
     data.mode = ZCHX::Data::ITF_CloudHotSpot::MODE_HANDLE;
     data.targetNumber = QString::number(ele->getData().trackNumber);
     data.targetType = 2;
-    data.targetLon = ele->getData().lon;
-    data.targetLat = ele->getData().lat;
+    data.targetLon = ele->getData().getLon();
+    data.targetLat = ele->getData().getLat();
     if(mDisplayWidget) mDisplayWidget->signalInvokeHotSpot(data);
 }
 

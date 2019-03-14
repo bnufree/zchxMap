@@ -168,7 +168,7 @@ public:
 
     //
     void itfToolBarCameraNetGridAdd(const QSizeF& size, const QString& camera);
-    void itfSetCameraNetGridList(const QList<ZCHX::Data::ITF_CameraNetGrid> & list);
+    void itfSetCameraNetGridList(const QList<ZCHX::Data::ITF_NetGrid> & list);
 
 
     //自定义显示样式
@@ -421,7 +421,7 @@ signals: //定义发送信号接口
     void sigLayerElementSelectionChanged();
 
     //相机网格
-    void itfSignalSendCameraNetGrid(const ZCHX::Data::ITF_CameraNetGrid& data);
+    void itfSignalSendCameraNetGrid(const ZCHX::Data::ITF_NetGrid& data);
 
     void itfSignalLoading();//发送开始加重地图
     void itfSignalLoadOver();//发送地图加载完毕

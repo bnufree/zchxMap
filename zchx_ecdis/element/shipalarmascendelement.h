@@ -1,5 +1,5 @@
-#ifndef SHIPALARMASCENDELEMENT_H
-#define SHIPALARMASCENDELEMENT_H
+#ifndef SHIPALARMASCENDELE_H
+#define SHIPALARMASCENDELE_H
 
 #include "IDrawElement.hpp"
 #include <QtCore>
@@ -9,13 +9,13 @@ namespace qt {
 class ShipAlarmAscendElement : public Element
 {
 public:
-    explicit ShipAlarmAscendElement(const ZCHX::Data::ITF_ShipAlarmAscend &ele, zchxMapFrameWork* f);
+    explicit ShipAlarmAscendElement(const ZCHX::Data::ITF_ShipAlarmAscend &ele, zchxMapWidget* f);
 
     void setData(const ZCHX::Data::ITF_ShipAlarmAscend &ele);
 
     ZCHX::Data::ITF_ShipAlarmAscend data() const;
 
-    void updateGeometry(QPointF, int){}
+    void updateGeometry(QPointF, qreal){}
     void drawElement(QPainter *painter);
     std::string name() const;
 
@@ -25,4 +25,4 @@ private:
 }
 
 
-#endif // SHIPALARMASCENDELEMENT_H
+#endif // SHIPALARMASCENDELE_H

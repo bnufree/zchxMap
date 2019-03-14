@@ -30,19 +30,13 @@ void zchxDrawCameraNetGridTool::show(QPainter *painter)
     {
         LatLon p1 = mWidget->framework()->Pixel2LatLon(mPoints[0]);
         LatLon p2 = mWidget->framework()->Pixel2LatLon(mPoints[1]);
-        ZCHX::Data::ITF_CameraNetGrid res = makeCameraGrid(p1, p2);
+        ZCHX::Data::ITF_NetGrid res = makeCameraGrid(p1, p2);
         if(res.mNetGridList.size() > 0)
         {
-            QList<std::shared_ptr<CameraGridElement>> list;
-            for(ZCHX::Data::ITF_NetGrid data : res.mNetGridList)
-            {
-                list.append(std::shared_ptr<CameraGridElement>(new CameraGridElement(data, mWidget->framework())));
-            }
-            for(std::shared_ptr<CameraGridElement> ele : list)
-            {
-                ele->drawElement(painter);
-            }
+            std::shared_ptr<GridElement> ele(new GridElement(res, mWidget));
+            ele->drawElement(painter);
         }
+
     }
 }
 
@@ -61,7 +55,6 @@ void zchxDrawCameraNetGridTool::endDraw()
         {
             LatLon p1 = mWidget->framework()->Pixel2LatLon(mPoints[0]);
             LatLon p2 = mWidget->framework()->Pixel2LatLon(mPoints[1]);
-            ZCHX::Data::ITF_CameraNetGrid res = makeCameraGrid(p1, p2);
             if(mWidget) mWidget->signalSendCameraNetGrid(makeCameraGrid(p1, p2));
         }
     }
@@ -75,7 +68,7 @@ void zchxDrawCameraNetGridTool::setCameraGridParam(const QString &id, const QSiz
     mSize = size;
 }
 
-ZCHX::Data::ITF_CameraNetGrid zchxDrawCameraNetGridTool::makeCameraGrid(const LatLon &sll, const LatLon &ell)
+ZCHX::Data::ITF_NetGrid zchxDrawCameraNetGridTool::makeCameraGrid(const LatLon &sll, const LatLon &ell)
 {
     //需要先判断方向
     int lon_positive = (ell.lon >= sll.lon ? 1 : -1);
@@ -101,8 +94,11 @@ ZCHX::Data::ITF_CameraNetGrid zchxDrawCameraNetGridTool::makeCameraGrid(const La
     latMeters *= lat_positive;
     //qDebug()<<"row col:"<<num_y<<num_x;
     int id = 0;
-    ZCHX::Data::ITF_CameraNetGrid res;
-    res.mCameraID = mCameraID;
+    ZCHX::Data::ITF_NetGrid res;
+    res.mColor = Qt::darkGray;
+    res.mName = mCameraID;
+    res.mType = ZCHX::Data::NetGrid_Camera;
+    res.mLayer = ZCHX::LAYER_CAMERANETGRID;
     for(int i=0; i<num_y; i++)
     {
         for(int k=0; k<num_x; k++)
@@ -123,14 +119,11 @@ ZCHX::Data::ITF_CameraNetGrid zchxDrawCameraNetGridTool::makeCameraGrid(const La
                 low_right_ll.lat = ell.lat;
             }
             id++;
-            ZCHX::Data::ITF_NetGrid grid;
+            ZCHX::Data::ITF_NetGridPolygon grid;
             grid.id = id;
             grid.name = QString("%1_%2").arg(mCameraID).arg(id);
-            grid.leftTopLat = top_left_ll.lat;
-            grid.leftTopLon = top_left_ll.lon;
-            grid.rightLowerLat = low_right_ll.lat;
-            grid.rightLowerLon = low_right_ll.lon;
-            //qDebug()<<grid.gridId<<grid.gridName<<grid.leftTopLat<<grid.leftTopLon<<grid.rightLowerLat<<grid.rightLowerLon<<k<<i<<sll.lat<<sll.lon;
+            grid.mLatLonList.append(top_left_ll);
+            grid.mLatLonList.append(low_right_ll);
             res.mNetGridList.append(grid);
         }
     }

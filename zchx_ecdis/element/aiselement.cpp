@@ -8,30 +8,18 @@
 
 #define     SHIP_INTERVAL_TIME  60 * 1000 // 1分钟
 
-namespace qt{
+using namespace qt;
 
-AisElement::AisElement(zchxMapWidget* view) : Element(0, 0, view, ZCHX::Data::ELEMENT_AIS)
+AisElement::AisElement(const ZCHX::Data::ITF_AIS &ele, zchxMapWidget* w)
+    : FixElement<ZCHX::Data::ITF_AIS>(ele, ZCHX::Data::ELE_AIS, ZCHX::LAYER_AIS, w)
 {
-    m_drawTargetInfo = true;
-    mRealtimeTailTrackList.clear();
-    mBigDisplayHistoryIndex = -1;
-    mHistoryTrackList.clear();
-    m_isExtrapolate = false;
-    m_ExtrapolateTime = 0.0;
-    initFromSettings();
-}
-
-AisElement::AisElement(const ZCHX::Data::ITF_AIS &ele, zchxMapWidget* view)
-    : Element(ele.lat,ele.lon, view, ZCHX::Data::ELEMENT_AIS, ele.warnStatusColor)
-    , m_data(ele)
-{
-    setID(m_data.id);
     mRealtimeTailTrackList.clear();
     mHistoryTrackList.clear();
     mBigDisplayHistoryIndex = -1;
     m_drawTargetInfo = true;
     m_isExtrapolate = false;
     m_ExtrapolateTime = 0.0;
+    updateFlashRegionColor(ele.warnStatusColor);
     initFromSettings();
 }
 
@@ -50,15 +38,10 @@ RADARTYPE AisElement::getType() const
     return (RADARTYPE)m_data.type;
 }
 
-const ZCHX::Data::ITF_AIS& AisElement::getData() const
-{
-    return m_data;
-}
-
 void AisElement::setData(const ZCHX::Data::ITF_AIS &data)
 {
-    m_data = data;
-    setStrID(m_data.id);
+    FixElement::setData(data);
+    setID(m_data.id);
     Element::setLatLon(data.lat, data.lon);
     Element::setDisplayLat(data.lat);
     Element::setDisplayLon(data.lon);
@@ -97,25 +80,25 @@ void AisElement::appendCamera(const ZCHX::Data::ITF_CameraDev &data)
 
 void AisElement::drawCPA(QPainter *painter)
 {
-    if(!painter)  return;
-    if(getData().cpaAttr.isEmpty()) return;
+    if(!isDrawAvailable(painter)) return;
+    if(m_data.cpaAttr.isEmpty()) return;
     QPoint pos = getCurrentPos().toPoint();
 
-    QStringList list = getData().cpaAttr.split(",");
+    QStringList list = m_data.cpaAttr.split(",");
     if(list.size() != 3) return;
 
     double lon = list.at(0).toDouble();
     double lat = list.at(1).toDouble();
     double distance = list.at(2).toDouble();
 
-    ZCHX::Data::Point2D CPApos = m_framework->LatLon2Pixel(lat, lon);
+    ZCHX::Data::Point2D CPApos = this->framework()->LatLon2Pixel(lat, lon);
     PainterPair chk(painter);
     //划线
     painter->setPen(QPen(QColor(210,210,90),2));
     painter->drawLine(QPointF(CPApos.x, CPApos.y), pos);
     painter->drawEllipse(CPApos.x-4, CPApos.y-4,8,8);
     //添加标注
-    int timer = qRound(distance/getData().sog*0.514); //节转米每秒
+    int timer = qRound(distance/m_data.sog*0.514); //节转米每秒
     int timerM = timer/60;
     int timerS = timer%60;
 
@@ -131,14 +114,14 @@ void AisElement::drawCPA(QPainter *painter)
 
 void AisElement::drawShipTriangle(QPainter *painter, const QColor& fillColor)
 {
-    if(!painter || needDrawImage()) return;
+    if(!isDrawAvailable(painter) || needDrawImage()) return;
     QPointF pos = getCurrentPos();
-    double angleFromNorth = m_framework->GetRotateAngle(); //计算当前正北方向的方向角
+    double angleFromNorth = this->framework()->GetRotateAngle(); //计算当前正北方向的方向角
     //绘制船舶的时候黑白船名单优先
-    int mark_type = getData().markType;
+    int mark_type = m_data.markType;
     //绘制船和方向线
     PainterPair chk(painter);
-    MapStyle colorType = m_framework->GetMapStyle();
+    MapStyle colorType = this->framework()->GetMapStyle();
     if(colorType == MapStyleEcdisNight || colorType == MapStyleEcdisDayDUSK)
     {
         painter->setPen(QPen(Qt::gray,1));
@@ -182,7 +165,7 @@ void AisElement::drawShipTriangle(QPainter *painter, const QColor& fillColor)
 
     //船舶没有相机，直接画三角形图标
     painter->drawPolygon(m_polygon);
-    if(getData().type == 3)
+    if(m_data.type == 3)
     {
         double size = 0;
         double shipSpace = 0;
@@ -240,7 +223,7 @@ void AisElement::drawHistoryTrackPoint(QPainter *painter)
     for(int i = 0; i < size; i++)
     {
         ZCHX::Data::ITF_AIS AisData = mHistoryTrackList[i];
-        ZCHX::Data::Point2D meetPos = m_framework->LatLon2Pixel(AisData.lat,AisData.lon);
+        ZCHX::Data::Point2D meetPos = mView->framework()->LatLon2Pixel(AisData.lat,AisData.lon);
         if(i == 0)
         {
             PreviousTime = AisData.UTC;
@@ -289,7 +272,7 @@ void AisElement::drawHistoryTrack(QPainter *painter)
     for(int i = 0; i < numberSize; i++)
     {
         ZCHX::Data::ITF_AIS AisData = mHistoryTrackList.at(i);
-        ZCHX::Data::Point2D pos =  m_framework->LatLon2Pixel(AisData.lat,AisData.lon);
+        ZCHX::Data::Point2D pos =  mView->framework()->LatLon2Pixel(AisData.lat,AisData.lon);
         pts.push_back(QPointF(pos.x, pos.y));
     }
     //画尾迹线段
@@ -343,12 +326,12 @@ void AisElement::drawRealtimeTailTrack(QPainter *painter)
     //绘制船舶尾迹
     if(mRealtimeTailTrackList.size() == 0) return;
     qint64 TimeValue=0;
-    int scale = m_framework->GetDrawScale();
+    int scale = mView->framework()->GetDrawScale();
     QPainterPath path;
     for(int j =0; j <mRealtimeTailTrackList.size(); ++j)
     {
         ZCHX::Data::ITF_AIS ItemData = mRealtimeTailTrackList.at(j);
-        ZCHX::Data::Point2D curPos = m_framework->LatLon2Pixel(ZCHX::Data::LatLon(ItemData.lat, ItemData.lon));
+        ZCHX::Data::Point2D curPos = mView->framework()->LatLon2Pixel(ZCHX::Data::LatLon(ItemData.lat, ItemData.lon));
         if(j == 0)
         {
             path.moveTo(curPos.x,curPos.y);
@@ -422,16 +405,16 @@ void AisElement::drawRealtimeTailTrack(QPainter *painter)
 
 void AisElement::drawExtrapolation(QPainter *painter)
 {
-    if(!painter || !getIsExtrapolate() || getExtrapolate() == 0) return;
+    if(!isDrawAvailable(painter) || !getIsExtrapolate() || getExtrapolate() == 0) return;
     //绘制外推点
-    ZCHX::Data::Point2D  curPos = m_framework->LatLon2Pixel(getData().lat, getData().lon);
+    ZCHX::Data::Point2D  curPos = this->framework()->LatLon2Pixel(m_data.getLat(),m_data.getLon());
 
     //第二点
     double lat = 0.0, lon = 0.0;
-    double Speed = getData().sog * 1852 /3600.0;
+    double Speed = data().sog * 1852 /3600.0;
     double Distance = getExtrapolate() * 60 * Speed;
-    ZCHX::Utils::distbear_to_latlon(getData().lat,getData().lon,Distance,getData().cog, lat, lon);
-    ZCHX::Data::Point2D nextPos = m_framework->LatLon2Pixel(lat, lon);
+    ZCHX::Utils::distbear_to_latlon(data().lat,data().lon,Distance,data().cog, lat, lon);
+    ZCHX::Data::Point2D nextPos = mView->framework()->LatLon2Pixel(lat, lon);
     PainterPair chk(painter);
     //画点
     painter->setPen(QPen(QColor(m_sPrepushTrackStyle),m_iPrepushTrackWidth,Qt::SolidLine));
@@ -448,13 +431,13 @@ void AisElement::drawElement(QPainter *painter)
     if(!painter)  return;
 
     Element::drawElement(painter);
-    int scale = m_framework->Zoom();
+    int scale = mView->framework()->Zoom();
     //填充颜色设定.默认是地图配置的颜色
     QColor fillColor = getFillingColor();
-    if(getData().onlineStatusColor.isValid())
+    if(data().onlineStatusColor.isValid())
     {
         //如果用户进行了外部配置,则使用户用户的颜色
-        fillColor = getData().onlineStatusColor;
+        fillColor = data().onlineStatusColor;
     }
     //如果用户进行了关注,则关注颜色优先
     if(getIsConcern())
@@ -489,11 +472,11 @@ void AisElement::drawShipImage(QPainter *painter)
     if(!painter)  return;
     if(!needDrawImage()) return;
 
-    double angleFromNorth = m_framework->GetRotateAngle(); //计算当前正北方向的方向角
+    double angleFromNorth = mView->framework()->GetRotateAngle(); //计算当前正北方向的方向角
     QPoint pos = getCurrentPos().toPoint();
     PainterPair chk(painter);
     painter->translate(pos.x(), pos.y());
-    int rotateAngle =((int)(getData().cog + angleFromNorth) % 360);
+    int rotateAngle =((int)(data().cog + angleFromNorth) % 360);
     painter->rotate(rotateAngle);
     painter->translate(-pos.x() , -pos.y());
     painter->drawPixmap(m_boundingRect.toRect(), getShipImage());
@@ -507,10 +490,10 @@ void AisElement::drawTargetInformation(int mode, QPainter *painter)
     if(!painter || !m_drawTargetInfo)
         return;
 
-    Element::drawElement(painter);
-    double angleFromNorth = m_framework->GetRotateAngle(); //计算当前正北方向的方向角
+    //Element::drawElement(painter);
+    double angleFromNorth = mView->framework()->GetRotateAngle(); //计算当前正北方向的方向角
     QPointF pos = getCurrentPos();
-    int scale = m_framework->Zoom();
+    int scale = mView->framework()->Zoom();
 
     if(scale < 10)
     {
@@ -521,7 +504,7 @@ void AisElement::drawTargetInformation(int mode, QPainter *painter)
     painter->setPen(QPen(Qt::black,1));
     painter->setBrush(QColor(255,127,39));//橙色
     QString Information ;
-    ZCHX::Data::ITF_AIS AisData = getData();
+    ZCHX::Data::ITF_AIS AisData = data();
     int sizeNumer = 0;
     if(!(mode & SHIP_ITEM_LABEL)) return;
 
@@ -582,7 +565,7 @@ void AisElement::drawTargetInformation(int mode, QPainter *painter)
 
 void AisElement::drawCollide(const ZCHX::Data::ITF_AIS &targetAis, QPainter *painter)
 {
-    ZCHX::Data::ITF_AIS AisData = getData();
+    ZCHX::Data::ITF_AIS AisData = data();
     QString warnName = ZCHX::Utils::getWarnName(AisData.warn_status);
 
     // 航道碰撞预警
@@ -591,10 +574,10 @@ void AisElement::drawCollide(const ZCHX::Data::ITF_AIS &targetAis, QPainter *pai
         QPointF pos = getCurrentPos();
 
         PainterPair chk(painter);
-        ZCHX::Data::Point2D objCollideD = m_framework->LatLon2Pixel(AisData.objCollide.lat, AisData.objCollide.lon);
+        ZCHX::Data::Point2D objCollideD = mView->framework()->LatLon2Pixel(AisData.objCollide.lat, AisData.objCollide.lon);
         QPointF objCollidePos = QPointF(objCollideD.x, objCollideD.y);
 
-        ZCHX::Data::Point2D targetD = m_framework->LatLon2Pixel(targetAis.lat, targetAis.lon);
+        ZCHX::Data::Point2D targetD = mView->framework()->LatLon2Pixel(targetAis.lat, targetAis.lon);
         QPointF targetPos = QPointF(targetD.x, targetD.y);
 
         painter->setPen(QPen(Qt::red, 1));
@@ -667,7 +650,7 @@ QPixmap AisElement::getShipImage()
         path = ":/element/boat.png";
     }    
 
-    m_shipImage = ZCHX::Utils::getImage(path, Qt::green, m_framework->Zoom());
+    m_shipImage = ZCHX::Utils::getImage(path, Qt::green, mView->framework()->Zoom());
     return m_shipImage;
 }
 
@@ -680,21 +663,21 @@ QPixmap AisElement::getCameraImage()
         path.append("_bug.png");
     else if(m_data.status == 0)
         path.append("_normal.png");
-    m_cameraImage = ZCHX::Utils::getImage(path, Qt::green, m_framework->Zoom());
+    m_cameraImage = ZCHX::Utils::getImage(path, Qt::green, mView->framework()->Zoom());
     return m_cameraImage;
 }
 
 std::vector<QPointF> AisElement::getTrack()
 {
-    return Element::convert2QtPonitList(m_data.getPath());
+    return mView->framework()->convert2QtPonitList(m_data.getPath());
 }
 
 std::vector<QPointF> AisElement::getTouchdown()
 {
-    return Element::convert2QtPonitList(m_data.getTouchdown());
+    return mView->framework()->convert2QtPonitList(m_data.getTouchdown());
 }
 
-void AisElement::updateGeometry(QPointF pos, int size)
+void AisElement::updateGeometry(QPointF pos, qreal size)
 {
     m_polygon = QPolygonF();
 
@@ -722,7 +705,7 @@ void AisElement::updateGeometry(QPointF pos, int size)
 
 bool AisElement::needDrawImage() const
 {
-    return (hasCamera() || (m_data.cargoType == 55) || m_forceImage || getData().is_fleet);
+    return (hasCamera() || (m_data.cargoType == 55) || isForceImage || m_data.is_fleet);
 }
 
 std::vector<ZCHX::Data::ITF_CameraDev> AisElement::getCameraData() const
@@ -743,7 +726,36 @@ void AisElement::initFromSettings()
     //qDebug()<<"ais ini seetings."<<getForceImage()<<mFillingColor.name()<<mTextColor.name()<<mConcernColor.name()<<mBorderColor.name();
 }
 
-void AisElement::doubleClickNow()
+void AisElement::clicked(bool isDouble)
 {
+    if(!mView) return;
+    if(isDouble)
+    {
+        mView->signalIsDoubleClicked4Ais(data());
+    } else
+    {
+        mView->signalIsSelected4Ais(data(), false, false);
+    }
 }
+
+void AisElement::showToolTip(const QPoint& pos)
+{
+    ZCHX::Data::ITF_AIS info = data();
+
+    QString base_text = QObject::tr("船名: ")+info.shipName+"\n";
+    base_text += QObject::tr("呼号: ")+info.callSign+"\n";
+    base_text += QObject::tr("MMSI: ")+QString::number(info.mmsi)+"\n";
+    base_text += QObject::tr("IMO: ")+QString::number(info.imo)+"\n";
+    base_text += QObject::tr("船长: ")+QString::number(info.shipLength)+"\n";
+    base_text += QObject::tr("船宽: ")+QString::number(info.shipWidth)+"\n";
+    base_text += QObject::tr("吃水: ")+QString::number(info.draught)+"\n";
+    base_text += QObject::tr("经度: ")+FLOAT_STRING(info.getLon(), 6)+"\n";
+    base_text += QObject::tr("纬度: ")+FLOAT_STRING(info.getLat(), 6)+"\n";
+    base_text += QObject::tr("船首向: ")+QString::number(info.heading)+"\n";
+    base_text += QObject::tr("航向: ")+QString::number(info.cog)+"\n";
+    base_text += QObject::tr("船速: ")+QString::number(info.sog)+"\n";
+    base_text += QObject::tr("目的地: ")+info.dest+"\n";
+    base_text += QObject::tr("到达时间: ")+info.eta+"\n";
+    base_text += QObject::tr("最新时间: ")+QDateTime::fromTime_t(info.UTC / 1000).toString("MM/dd/yyyy HH:mm:ss");
+    QToolTip::showText(pos,base_text);
 }

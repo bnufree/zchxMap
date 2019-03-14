@@ -1,6 +1,6 @@
 #include "IDrawElement.hpp"
 #include "zchxmapwidget.h"
-#include "map_layer/zchxMapLayer.h"
+#include "map_layer/zchxmaplayermgr.h"
 #include "zchxmapframe.h"
 #include "profiles.h"
 #include "zchxMapDatautils.h"
@@ -36,6 +36,7 @@ Element::Element(const double &lat, const double &lon, zchxMapWidget* view, ZCHX
     , mTextColor(QColor())
     , mBorderColor(QColor())
     , mFillingColor(QColor())
+    , m_layerName("")
 {
 
     Element::g_maxLineLength = Profiles::instance()->value(MAP_INDEX, MAX_LINE_LENGTH).toInt();
@@ -70,6 +71,7 @@ Element::Element(const Element &element)
     , mTextColor(element.mTextColor)
     , mBorderColor(element.mBorderColor)
     , mFillingColor(element.mFillingColor)
+    , m_layerName(element.m_layerName)
 {
 
 }
@@ -82,6 +84,14 @@ std::shared_ptr<MapLayer> Element::getLayer()
 {
     return m_layer;
 }
+
+void Element::setLayer(const QString& layer)
+{
+    //多次调用要导致崩溃
+    //m_layer.reset(MapLayerMgr::instance()->getLayer(layer).get());
+    m_layerName = layer;
+}
+
 
 std::pair<double, double> Element::getLatLon() const
 {
@@ -392,25 +402,6 @@ void Element::drawFlashRegion(QPainter *painter, QPointF pos, int status, QColor
     painter->drawEllipse(pos, radius, radius);
 }
 
-std::vector<QPointF> Element::convert2QtPonitList(const std::vector<std::pair<double, double> > &path)
-{
-    std::vector<QPointF> pts;
-    if(!mView || !mView->framework()) return pts;
-
-    for(int i = 0; i < path.size(); ++i)
-    {
-        std::pair<double, double> ll = path[i];
-        ZCHX::Data::Point2D pos = mView->framework()->LatLon2Pixel(ll.first,ll.second);
-        pts.push_back(QPointF(pos.x,pos.y));
-    }
-    return pts;
-}
-
-QPointF Element::convertToView(double lon, double lat)
-{
-    if(!mView || !mView->framework()) return QPointF();
-    return mView->framework()->LatLon2Pixel(lat, lon).toPointF();
-}
 
 qint64 Element::getUpdateUTC() const
 {
@@ -501,9 +492,33 @@ QPointF Element::getCurrentPos()
     return getViewPos();
 }
 
+bool Element::isViewAvailable() const
+{
+    if(!mView || !mView->framework()) return false;
+    return true;
+}
+
+zchxMapFrameWork* Element::framework() const
+{
+    if(mView) return mView->framework();
+    return 0;
+}
+
 bool Element::isLayervisible()
 {
     if(!m_layer) return false;
     return m_layer->visible();
 }
+
+bool Element::isDrawAvailable(QPainter* painter)
+{
+    if(!painter ||!MapLayerMgr::instance()->isLayerVisible(m_layerName) || !isViewAvailable()) return false;
+    return true;
+}
+
+void Element::setFlashColor(const QColor &color)
+{
+    mFlashColor = color;
+}
+
 }

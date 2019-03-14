@@ -7,6 +7,9 @@
 #include <QPixmap>
 #include "zchxutils.hpp"
 
+typedef         std::pair<double, double>           GPNT;
+typedef         std::vector<GPNT>                   GPATH;
+typedef         std::vector<QPointF>                PPATH;
 namespace qt {
 
 struct MapRangeData{

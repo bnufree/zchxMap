@@ -122,6 +122,7 @@ public:
     bool getEnableRouteHistogram() const {return mRouteHistogram;}
     //图元选择
     void setActiveDrawElement(const ZCHX::Data::Point2D &pos, bool dbClick = false);       //设置选中元素
+    void setHoverDrawElement(const ZCHX::Data::Point2D &pos);
     //目标跟踪(横琴)
     void setSelectedCameraTrackTarget(const ZCHX::Data::Point2D &pos);
     //目标导航
@@ -144,6 +145,7 @@ private:
     bool IsRouting(QMouseEvent * e);
     bool IsLocationEmulation(QMouseEvent * e);
 protected:
+    bool event(QEvent *);
     void paintEvent(QPaintEvent* e);
     void mousePressEvent(QMouseEvent * e) override;
     void mouseDoubleClickEvent(QMouseEvent * e) override;
@@ -845,7 +847,7 @@ signals: //发送外部信号
     void engineCreationFinished();
 
     //回传相机网格
-    void signalSendCameraNetGrid(const ZCHX::Data::ITF_CameraNetGrid& data);
+    void signalSendCameraNetGrid(const ZCHX::Data::ITF_NetGrid& data);
     void signalSendPTZLocation(double lat, double lon);
 
 public:

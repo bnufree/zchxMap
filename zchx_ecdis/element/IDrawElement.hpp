@@ -9,11 +9,11 @@ class QGeoCoordinate;
 namespace qt{
 class zchxMapWidget;
 class MapLayer;
+class zchxMapFrameWork;
 
 enum RADARTYPE{RADARSHIP,RADARPLAN,WARRINGZONE};
 
 //TODO: 由于使用了很多拷贝构造函数, 所以不能继承qobject
-template<typename T>
 class ZCHX_ECDIS_EXPORT Element// : public QObject
 {
 
@@ -27,6 +27,8 @@ public:
      * \note 有可能为空
      */
     std::shared_ptr<MapLayer> getLayer();
+    void                      setLayer(const QString& layer);
+    QString                      layerName() const {return m_layerName;}
 
     /*!
      * \brief 获取图元的经纬度
@@ -139,7 +141,8 @@ public:
     virtual void drawHover(QPainter *painter) {}
 
     //图元双击的处理
-    virtual void doubleClickNow() {}
+    virtual void clicked(bool isDouble ) {}
+    virtual void showToolTip(const QPoint& pos) {}
 
     void addChild(std::shared_ptr<Element> child);
     void removeChild(std::shared_ptr<Element> child);
@@ -170,15 +173,6 @@ public:
      */
     void drawFlashRegion(QPainter *painter, QPointF pos, int status, QColor color/* = QColor()*/, qreal radius = 0);
 
-    /*!
-     * \brief 把经纬度轨迹转化为屏幕坐标轨迹
-     */
-    std::vector<QPointF> convert2QtPonitList(const std::vector<std::pair<double, double>>& path);
-    /*!
-     * \brief 把经纬度点转化为屏幕坐标点
-     */
-    QPointF convertToView(double lon, double lat);
-
 
     qint64 getUpdateUTC() const;
     void setUpdateUTC(const qint64 &updateUTC);
@@ -194,8 +188,8 @@ public:
      */
     int getDrawScaleSize() const;
 
-    QString getStrID() const;
-    void setStrID(const QString &strID);
+//    QString getStrID() const;
+//    void setStrID(const QString &strID);
     //颜色初始化
     virtual void initFromSettings();
     //取得当前图元在屏幕坐标的位置
@@ -203,10 +197,16 @@ public:
     //
     std::shared_ptr<MapLayer> layer() {return m_layer;}
     zchxMapWidget* view() const {return mView;}
+
     void setView(zchxMapWidget* v) {mView = v;}
+    bool isViewAvailable() const;
+    zchxMapFrameWork* framework() const;
 
     //检查层设定是否显示
     bool isLayervisible();
+    bool isDrawAvailable(QPainter* painter = 0);
+    //设置报警颜色
+    void setFlashColor(const QColor& color);
 
 protected://TODO: 添加私有类, 实现成员变量对外隐藏, 且防止依赖扩展情况
     double                                  elelat;
@@ -232,6 +232,7 @@ protected://TODO: 添加私有类, 实现成员变量对外隐藏, 且防止依�
     std::list<std::shared_ptr<Element> >    m_children;
     std::shared_ptr<Element>                m_parent;
     std::shared_ptr<MapLayer>               m_layer;
+    QString                                 m_layerName;
     qint64                                  m_updateUTC;
 
     QRectF                                  m_boundingRectSmall;
@@ -243,9 +244,7 @@ protected://TODO: 添加私有类, 实现成员变量对外隐藏, 且防止依�
     QColor                                  mFillingColor;          //图元填充颜色
     QColor                                  mTextColor;             //图元文本颜色
     QColor                                  mConcernColor;          //图元关注颜色
-
-
-    static int          g_maxLineLength;
+    static int                              g_maxLineLength;
 
 public:
     friend class MapLayer;

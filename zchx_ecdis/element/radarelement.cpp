@@ -1,12 +1,13 @@
 #include "radarelement.h"
 #include "zchxmapframe.h"
 #include "profiles.h"
+#include "zchxmapwidget.h"
 
 
 namespace qt
 {
-RadarAreaElement::RadarAreaElement(double radarY, double radarX, int centerLineAngel, int radius, int maxScanRangeANgle, int numberofChannele, int maxWakePointsNumber)
-    :Element(radarY,radarX, 0, ZCHX::Data::ELEMENT_RADAR_AREA)
+RadarAreaElement::RadarAreaElement(double radarY, double radarX, int centerLineAngel, int radius, int maxScanRangeANgle, int numberofChannele, int maxWakePointsNumber, zchxMapWidget* v)
+    :Element(radarY,radarX, v, ZCHX::Data::ELE_RADAR_AREA)
 {
     setRadarX(radarX);
     setRadarY(radarY);
@@ -26,8 +27,8 @@ RadarAreaElement::RadarAreaElement(double radarY, double radarX, int centerLineA
     m_data.maxWakePointsNumber = maxWakePointsNumber;
 }
 
-RadarAreaElement::RadarAreaElement(const ZCHX::Data::ITF_RadarArea &ele)
-    :Element(ele.radarY,ele.radarX,0, ZCHX::Data::ELEMENT_RADAR_AREA)
+RadarAreaElement::RadarAreaElement(const ZCHX::Data::ITF_RadarArea &ele, zchxMapWidget* v)
+    :Element(ele.radarY,ele.radarX, v, ZCHX::Data::ELE_RADAR_AREA)
 {
     setRadarX(ele.radarY);
     setRadarY(ele.radarX);
@@ -37,8 +38,6 @@ RadarAreaElement::RadarAreaElement(const ZCHX::Data::ITF_RadarArea &ele)
     setNumberofChannele(ele.numberofChannele);
     setMaxWakePointsNumber(ele.maxWakePointsNumber);
     m_data = ele;
-
-    uuid = ele.uuid;
 }
 
 double RadarAreaElement::radarX() const
@@ -183,14 +182,14 @@ bool RadarAreaElement::contains(zchxMapFrameWork *framework, double angleFromNor
 }
 
 //雷达点
-RadarPointElement::RadarPointElement(const double &lat, const double &lon, zchxMapFrameWork* f)
-    :Element(lat,lon, f, ZCHX::Data::ELEMENT_RADAR_POINT),m_radar_type(RADARSHIP)
+RadarPointElement::RadarPointElement(const double &lat, const double &lon, zchxMapWidget* f)
+    :Element(lat,lon, f, ZCHX::Data::ELE_RADAR_POINT),m_radar_type(RADARSHIP)
 {
         initFromSettings();
 }
 
-RadarPointElement::RadarPointElement(const ZCHX::Data::ITF_RadarPoint &ele, zchxMapFrameWork* f)
-    :Element(ele.lat,ele.lon, f, ZCHX::Data::ELEMENT_RADAR_POINT, ele.warnStatusColor),m_path(ele.path),m_radar_type((RADARSHIP))
+RadarPointElement::RadarPointElement(const ZCHX::Data::ITF_RadarPoint &ele, zchxMapWidget* f)
+    :Element(ele.getLat(),ele.getLon(), f, ZCHX::Data::ELE_RADAR_POINT, ele.warnStatusColor),m_path(ele.path),m_radar_type((RADARSHIP))
 {
     if(!ele.path.empty())
     {
@@ -201,7 +200,6 @@ RadarPointElement::RadarPointElement(const ZCHX::Data::ITF_RadarPoint &ele, zchx
         displayLon = elelon;
     }
     m_data = ele;
-    uuid = ele.uuid;
     m_shan = true;
     initFromSettings();
 }
@@ -316,12 +314,12 @@ void RadarPointElement::drawElement(QPainter *painter)
     if(getPath().size() == 0) return;
     //取得当前图元对应的屏幕坐标位置
     QPointF pos = getCurrentPos();
-    int curScale = m_framework->Zoom() < 7 ? 5 : 10;
+    int curScale = mView->framework()->Zoom() < 7 ? 5 : 10;
     int sideLen = 10;
-    double angleFromNorth = m_framework->GetRotateAngle(); //计算当前正北方向的方向角
+    double angleFromNorth = mView->framework()->GetRotateAngle(); //计算当前正北方向的方向角
     QColor fillColor = getIsConcern() ? getConcernColor() : getFillingColor();
     //地图缩放比例小于10级的情况只画点
-    if(m_framework->Zoom() < 10)
+    if(mView->framework()->Zoom() < 10)
     {
         PainterPair chk(painter);
         painter->setPen(Qt::NoPen);
@@ -361,7 +359,7 @@ void RadarPointElement::drawElement(QPainter *painter)
         //qDebug()<<"draw as ais:"<<getDrawAsAis();
         if(getDrawAsAis()) //ship
         {
-            QPixmap shipPic = ZCHX::Utils::getImage(":/element/ship.png", Qt::yellow, m_framework->Zoom());
+            QPixmap shipPic = ZCHX::Utils::getImage(":/element/ship.png", Qt::yellow, mView->framework()->Zoom());
             shipRect.setSize(shipPic.size());
             shipRect.moveCenter(QPoint(pos.x(), pos.y()) );
             painter->drawPixmap(shipRect, shipPic);
@@ -404,7 +402,7 @@ void RadarPointElement::drawElement(QPainter *painter)
             for(int j = 0;j<getData().RadarMeetVec.size();j++)
             {
                 ZCHX::Data::RadarMeet meetItem = getData().RadarMeetVec.at(j);
-                ZCHX::Data::Point2D meetPos = m_framework->LatLon2Pixel(meetItem.lat,meetItem.lon);
+                ZCHX::Data::Point2D meetPos = mView->framework()->LatLon2Pixel(meetItem.lat,meetItem.lon);
                 uint time_hour = meetItem.UTC / 3600;
                 uint time_minute = meetItem.UTC / 60 - time_hour * 60;
                 uint time_second = meetItem.UTC % 60;
@@ -433,8 +431,8 @@ void RadarPointElement::drawElement(QPainter *painter)
 
 void RadarPointElement::drawText(QPainter *painter, QPointF pos, int sideLen)
 {
-    if(!m_framework) return;
-    double angleFromNorth = m_framework->GetRotateAngle(); //计算当前正北方向的方向角
+    if(!mView->framework()) return;
+    double angleFromNorth = mView->framework()->GetRotateAngle(); //计算当前正北方向的方向角
     PainterPair chk(painter);
     painter->setPen(mTextColor);
     QString radarName = QObject::tr("T%1").arg(QString::number(getData().trackNumber).right(4));
@@ -453,10 +451,34 @@ void RadarPointElement::drawTrack(QPainter *painter)
     const std::vector<std::pair<double, double>>& path = getPath();
     if(path.empty()) return;
 
-    std::vector<QPointF> pts = convert2QtPonitList(path);
+    std::vector<QPointF> pts = mView->framework()->convert2QtPonitList(path);
     PainterPair chk(painter);
     painter->setPen(QPen(Qt::black,1,Qt::DashLine));
     painter->drawPolyline(&pts[0],pts.size());
     return;
+}
+
+
+
+void RadarPointElement::clicked(bool isDouble)
+{
+    if(!mView) return;
+    if(isDouble) {
+        mView->signalIsDoubleClicked4RadarPoint(getData());
+    } else {
+        mView->signalIsSelected4RadarPoint(getData(), false);
+    }
+}
+
+void RadarPointElement::showToolTip(const QPoint &pos)
+{
+    ZCHX::Data::ITF_RadarPoint info = getData();
+    QString pos_text = QObject::tr("跟踪号: T%1\n").arg(info.trackNumber);
+    pos_text += QObject::tr("经度: %1\n").arg(FLOAT_STRING(info.wgs84PosLon, 6));
+    pos_text += QObject::tr("纬度: %1\n").arg(FLOAT_STRING(info.wgs84PosLat, 6));;
+    pos_text += QObject::tr("更新时间: %1\n").arg(QDateTime::currentDateTime().toString("MM/dd/yyyy HH:mm:ss"));
+    pos_text += QObject::tr("方位角: %1\n").arg(FLOAT_STRING(info.cog, 0));
+    pos_text += QObject::tr("速度: %1").arg(FLOAT_STRING(info.sog/3.6*1.852, 2));
+    QToolTip::showText(pos, pos_text);
 }
 }

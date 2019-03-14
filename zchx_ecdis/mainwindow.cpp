@@ -223,7 +223,7 @@ void MainWindow::initSignalConnect()
     connect(mMapWidget,SIGNAL(signalUpdateMooringZoneState(int,int)),this, SIGNAL(itfSignalUpdateMooringZoneState(int, int)));
     connect(mMapWidget,SIGNAL(signalUpdateCardMouthZoneState(int,int)),this, SIGNAL(itfSignalUpdateCardMouthZoneState(int, int)));
     connect(mMapWidget,SIGNAL(signalMapIsRoaming()),this, SIGNAL(itfSignalMapIsRoaming()));
-    connect(mMapWidget,SIGNAL(signalSendCameraNetGrid(ZCHX::Data::ITF_CameraNetGrid)), this, SIGNAL(itfSignalSendCameraNetGrid(ZCHX::Data::ITF_CameraNetGrid)));
+    connect(mMapWidget,SIGNAL(signalSendCameraNetGrid(ZCHX::Data::ITF_NetGrid)), this, SIGNAL(itfSignalSendCameraNetGrid(ZCHX::Data::ITF_NetGrid)));
     connect(mMapWidget,SIGNAL(signalSendPTZLocation(double, double)),this,SIGNAL(itfSignalSendPTZLocation(double, double)));
 }
 
@@ -278,8 +278,8 @@ void MainWindow::itfSetRadarAreaData(const QList<ZCHX::Data::ITF_RadarArea> &dat
     std::vector<RadarAreaElement> list;
     for(int i=0; i < data.count(); ++i)
     {
-        RadarAreaElement item(data.at(i));
-        list.push_back(item);
+        //RadarAreaElement item(data.at(i));
+        //list.push_back(item);
     }
     ZCHX_DATA_FACTORY->getRadarDataMgr()->setRadarAreaData(list);
 }
@@ -1765,9 +1765,9 @@ void MainWindow::itfToolBarCameraNetGridAdd(const QSizeF& size, const QString& c
     mMapWidget->setETool2DrawCameraNetGrid(size, camera);
 }
 
-void MainWindow::itfSetCameraNetGridList(const QList<ZCHX::Data::ITF_CameraNetGrid> & list)
+void MainWindow::itfSetCameraNetGridList(const QList<ZCHX::Data::ITF_NetGrid> & list)
 {
-    ZCHX_DATA_FACTORY->getCameraGridMgr()->setCameraNetGridList(list);
+    ZCHX_DATA_FACTORY->getNetGridMgr()->setData(list);
 }
 
 void MainWindow::itfAppendItemDataMgr(std::shared_ptr<zchxEcdisDataMgr> mgr)

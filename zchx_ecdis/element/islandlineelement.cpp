@@ -3,8 +3,8 @@
 #include "zchxmapframe.h"
 
 namespace qt {
-IslandLineElement::IslandLineElement(const ZCHX::Data::ITF_IslandLine &ele, zchxMapFrameWork* f)
-    : Element(0, 0, f, ZCHX::Data::ELEMENT_ISLAND_LINE)
+IslandLineElement::IslandLineElement(const ZCHX::Data::ITF_IslandLine &ele, zchxMapWidget* f)
+    : Element(0, 0, f, ZCHX::Data::ELE_ISLAND_LINE)
     , m_path(ele.path)
     , m_type((RADARTYPE)ele.type)
 {
@@ -14,7 +14,6 @@ IslandLineElement::IslandLineElement(const ZCHX::Data::ITF_IslandLine &ele, zchx
         elelon = ele.path.front().second;
     }
     m_data = ele;
-    uuid = ele.uuid;
     m_id = ele.id;
     m_name = ele.name.toStdString();
     m_content = ele.content.toStdString();
@@ -30,15 +29,15 @@ void IslandLineElement::setPath(const std::vector<std::pair<double, double> > &p
     m_data.path = path;
 }
 
-int IslandLineElement::id() const
-{
-    return m_id;
-}
+//int IslandLineElement::id() const
+//{
+//    return m_id;
+//}
 
-void IslandLineElement::setId(int id)
-{
-    m_id = id;
-}
+//void IslandLineElement::setId(int id)
+//{
+//    m_id = id;
+//}
 
 std::string IslandLineElement::name() const
 {
@@ -144,7 +143,7 @@ void IslandLineElement::drawElement(QPainter *painter)
     for(int i=0; i<tmp_path.size();++i)
     {
         std::pair<double, double> ll = tmp_path[i];
-        QPointF pos = m_framework->LatLon2Pixel(ll.first, ll.second).toPointF();
+        QPointF pos = mView->framework()->LatLon2Pixel(ll.first, ll.second).toPointF();
         if(0 == i)
         {
             polygon.moveTo(pos);

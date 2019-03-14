@@ -78,7 +78,6 @@ SOURCES += mainwindow.cpp \
     map_layer/zchxMapLayer.cpp \
     dialog/zchxcameralistdlg.cpp \
     element/aiselement.cpp \
-    element/cameraelement.cpp \
     element/radarelement.cpp \
     zchxroutedatamgr.cpp \
     zchxshipplandatamgr.cpp \
@@ -92,25 +91,15 @@ SOURCES += mainwindow.cpp \
     element/ipcelement.cpp \
     dialog/zchxecdisdlgmgr.cpp \
     dialog/defenceinfodialog.cpp \
-    element/cameraviewelement.cpp \
     element/videotargetelement.cpp \
     data_manager/zchxvideotargetdatamgr.cpp \
     data_manager/zchxcameraviewdatamgr.cpp \
     data_manager/zchxuserdefinesdatamgr.cpp \
-    element/warningzoneelement.cpp \
-    element/coastelement.cpp \
-    element/seabedpiplineelement.cpp \
     element/islandlineelement.cpp \
-    element/areanetelement.cpp \
-    element/cardmouthelement.cpp \
-    element/channelelement.cpp \
-    element/mooringelement.cpp \
     element/shipalarmascendelement.cpp \
     element/structureelement.cpp \
     element/moveelement.cpp \
     element/patrolstationelement.cpp \
-    element/cameragridelement.cpp \
-    data_manager/zchxcameragridmgr.cpp \
     draw_manager/zchxdrawareatool.cpp \
     draw_manager/zchxdrawtool.cpp \
     draw_manager/zchxdrawangletool.cpp \
@@ -124,7 +113,12 @@ SOURCES += mainwindow.cpp \
     dialog/channelinfodialog.cpp \
     dialog/mooringinfodialog.cpp \
     dialog/cardmouthinfodialog.cpp \
-    draw_manager/zchxeditzonetool.cpp
+    draw_manager/zchxeditzonetool.cpp \
+    element/zchxmoveelements.cpp \
+    element/zchxfixelements.cpp \
+    element/cameraelement.cpp \
+    element/gridelement.cpp \
+    data_manager/zchxnetgridmgr.cpp
 
 HEADERS  += mainwindow.h \
     zchxmapthread.h \
@@ -170,26 +164,16 @@ HEADERS  += mainwindow.h \
     element/rodelement.h \
     element/ipcelement.h \
     dialog/zchxecdisdlgmgr.h \
-    element/cameraviewelement.h \
     element/videotargetelement.h \
     data_manager/zchxcameraviewdatamgr.h \
     data_manager/zchxvideotargetdatamgr.h \
     data_manager/zchxuserdefinesdatamgr.h \
-    element/warningzoneelement.h \
-    element/coastelement.h \
-    element/seabedpiplineelement.h \
     element/islandlineelement.h \
-    element/areanetelement.h \
-    element/cardmouthelement.h \
-    element/channelelement.h \
-    element/mooringelement.h \
     element/shipalarmascendelement.h \
     element/structureelement.h \
     element/moveelement.h \
     element/patrolstationelement.h \
     data_manager/zchxtemplatedatamgr.h \
-    element/cameragridelement.h \
-    data_manager/zchxcameragridmgr.h \
     draw_manager/zchxecdismousedefines.h \
     draw_manager/zchxdrawareatool.h \
     draw_manager/zchxdrawtool.h \
@@ -205,7 +189,12 @@ HEADERS  += mainwindow.h \
     dialog/channelinfodialog.h \
     dialog/mooringinfodialog.h \
     dialog/cardmouthinfodialog.h \
-    draw_manager/zchxeditzonetool.h
+    draw_manager/zchxeditzonetool.h \
+    element/zchxmoveelements.h \
+    element/fixelement.h \
+    element/zchxfixelements.h \
+    element/gridelement.h \
+    data_manager/zchxnetgridmgr.h
 
 FORMS    += mainwindow.ui \
     coastdatainfodialog.ui \

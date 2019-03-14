@@ -6,8 +6,8 @@
 using namespace ZCHX::Data;
 
 namespace qt {
-RadarVideoGlowElement::RadarVideoGlowElement(const ZCHX::Data::ITF_RadarVideoGLow& data, zchxMapFrameWork* frame)
-    :Element(data.lat, data.lon, frame, ZCHX::Data::ELEMENT_RADAR_VIDEOGLOW)
+RadarVideoGlowElement::RadarVideoGlowElement(const ZCHX::Data::ITF_RadarVideoGLow& data, zchxMapWidget* frame)
+    :Element(data.lat, data.lon, frame, ZCHX::Data::ELE_RADAR_VIDEOGLOW)
 {
     setData(data);
 }
@@ -34,16 +34,16 @@ void RadarVideoGlowElement::drawOutline(QPainter *painter, const QPointF& center
 
 void RadarVideoGlowElement::drawElement(QPainter *painter)
 {
-    if(!painter || !MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_RADARVIDEO) || !framework() || !m_data.showvideo) return;
+    if(!painter || !MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_RADARVIDEO) || !mView->framework() || !m_data.showvideo) return;
 
     LatLon ll0 = ZCHX::Utils::distbear_to_latlon(data().lat, m_data.lon, m_data.distance, 0);
     LatLon ll90 = ZCHX::Utils::distbear_to_latlon(data().lat, m_data.lon, m_data.distance, 90);
     LatLon ll180 = ZCHX::Utils::distbear_to_latlon(data().lat, m_data.lon, m_data.distance, 180);
     LatLon ll270 = ZCHX::Utils::distbear_to_latlon(data().lat, m_data.lon, m_data.distance, 270);
-    Point2D pos0 = framework()->LatLon2Pixel(ll0);
-    Point2D pos90 = framework()->LatLon2Pixel(ll90);
-    Point2D pos180 = framework()->LatLon2Pixel(ll180);
-    Point2D pos270 = framework()->LatLon2Pixel(ll270);
+    Point2D pos0 = mView->framework()->LatLon2Pixel(ll0);
+    Point2D pos90 = mView->framework()->LatLon2Pixel(ll90);
+    Point2D pos180 = mView->framework()->LatLon2Pixel(ll180);
+    Point2D pos270 = mView->framework()->LatLon2Pixel(ll270);
 
     double dMinDrawX1 = fmin(pos0.x, pos90.x);
     double dMinDrawY1 = fmin(pos0.y, pos90.y);
@@ -61,7 +61,7 @@ void RadarVideoGlowElement::drawElement(QPainter *painter)
     double dWidth = qAbs(dMaxDrawX-dMinDrawX);
     double dHeight = qAbs(dMaxDrawY-dMinDrawY);
 
-    QPointF centerPos = m_framework->LatLon2Pixel(data().lat, data().lon).toPointF();
+    QPointF centerPos = mView->framework()->LatLon2Pixel(data().lat, data().lon).toPointF();
     double dRadiusIn = dWidth/2.0;
     double dRadiusOut = qSqrt(dRadiusIn*dRadiusIn + dRadiusIn*dRadiusIn);
     //绘制外圈
@@ -71,7 +71,7 @@ void RadarVideoGlowElement::drawElement(QPainter *painter)
         QRectF objRect(0, 0, dWidth, dHeight);
         objRect.moveCenter(centerPos);
         //绘制回波图片
-        double angleFromNorth = framework()->GetRotateAngle(); //计算当前正北方向的方向角
+        double angleFromNorth = mView->framework()->GetRotateAngle(); //计算当前正北方向的方向角
         PainterPair chk(painter);
         double translateX = objRect.x() + objRect.width()/2.0;
         double translateY = objRect.y() + objRect.height()/2.0;

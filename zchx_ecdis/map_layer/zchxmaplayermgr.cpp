@@ -147,6 +147,12 @@ bool MapLayerMgr::isLayerVisible(const QString &type)
     return (layer && layer->visible());
 }
 
+bool MapLayerMgr::isLayerVisible(std::shared_ptr<MapLayer> layer)
+{
+    if(!layer) return false;
+    return isLayerVisible(layer->type());
+}
+
 bool MapLayerMgr::isAnyLayerVisible(const QString &type1, const QString &type2, const QString &type3, const QString &type4, const QString &type5)
 {
     return (isLayerVisible(type1) || isLayerVisible(type2) || isLayerVisible(type3) || isLayerVisible(type4) || isLayerVisible(type5));

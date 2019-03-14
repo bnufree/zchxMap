@@ -3,29 +3,12 @@
 #include "map_layer/zchxmaplayermgr.h"
 #include <QPainter>
 
-namespace qt {
-CameraElement::CameraElement(const ZCHX::Data::ITF_CameraDev &data, zchxMapFrameWork* frame)
-    :Element(data.nLatLon.lat, data.nLatLon.lon, frame, ZCHX::Data::ELEMENT_CAMERA)
+using namespace qt ;
+
+CameraElement::CameraElement(const ZCHX::Data::ITF_CameraDev &data, zchxMapWidget* frame)
+    :FixElement<ZCHX::Data::ITF_CameraDev>(data, ZCHX::Data::ELE_CAMERA, ZCHX::LAYER_CAMERA, frame)
     ,mParent(0)
 {
-    m_data = data;
-    uuid = data.nUUID;
-}
-
-const ZCHX::Data::ITF_CameraDev &CameraElement::getData() const
-{
-    return m_data;
-}
-
-void CameraElement::setData(const ZCHX::Data::ITF_CameraDev &dev)
-{
-    m_data = dev;
-}
-
-int CameraElement::getParentID() const
-{
-    if(mParent) return mParent->getUuid();
-    return -1;
 }
 
 void CameraElement::setParent(Element *ele)
@@ -68,13 +51,11 @@ bool CameraElement::isError() const
     return m_data.nStatus == 512;
 }
 
-QPixmap CameraElement::getImage(zchxMapFrameWork *f) const
+QPixmap CameraElement::getImage() const
 {
-    if(!f)
-        f = m_framework;
-    if(f)
+    if(mView->framework())
     {
-        int curScale = f->Zoom();
+        int curScale = mView->framework()->Zoom();
         return ZCHX::Utils::getImage(m_data.nType, m_data.nStatus, curScale);
     }
     return QPixmap();
@@ -87,14 +68,12 @@ double CameraElement::getMaxTrackRange() const
 
 void CameraElement::drawElement(QPainter *painter)
 {
-    if(!painter || !MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_CAMERA)) return;
+    if(!isDrawAvailable(painter)) return;
     if(mParent) return; //当前目标悬挂在其他图元上不显示
-    //取得当前的地图层级
-    if(!m_framework) return;
     //开始显示
-    int curScale = m_framework->GetDrawScale();
-    QPointF pos = m_framework->LatLon2Pixel(lat(),lon()).toPointF();
-    QPixmap image = ZCHX::Utils::getImage(getData().nType, getData().nStatus, curScale);
+    int curScale = this->framework()->GetDrawScale();
+    QPointF pos = this->framework()->LatLon2Pixel(data().getLat(), data().getLon()).toPointF();
+    QPixmap image = ZCHX::Utils::getImage(data().nType, data().nStatus, curScale);
 
     QRectF rect(0,0, image.width(),image.height());
     rect.moveCenter(pos);
@@ -109,12 +88,21 @@ void CameraElement::drawElement(QPainter *painter)
     {
         //通过推算经纬度计算半径
         PainterPair chk(painter);
-        double dr = ZCHX::Utils::getDistanceByPixel(m_framework, lat(), lon(), getMaxTrackRange(), 0, pos);
+        double dr = ZCHX::Utils::getDistanceByPixel(mView->framework(), lat(), lon(), getMaxTrackRange(), 0, pos);
         painter->setBrush(QBrush(QColor(0,255,255,100)));
         painter->setPen(Qt::NoPen);
         painter->drawEllipse(pos, dr, dr);
     }
     painter->drawPixmap(rect.toRect(), image);
 }
+
+void CameraElement::clicked(bool isDouble)
+{
+    if(!mView) return;
+    if(isDouble) {
+        mView->signalIsDoubleClicked4CameraDev(data());
+    } else {
+        mView->signalIsSelected4CameraDev(data());
+    }
 }
 
