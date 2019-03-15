@@ -18,7 +18,8 @@ MainWindow::MainWindow(QWidget *parent) :
     mMapWidget(0),
     mStartLoad(false)
 {
-    ui->setupUi(this);    
+    ui->setupUi(this);
+    ui->ecdis_frame->setStyleSheet("background-color:rgb(255,251,191);");
     QPixmapCache::setCacheLimit(1);
     ui->statusBar->setVisible(false);
     ui->source->addItem(tr("TMS"), TILE_TMS);

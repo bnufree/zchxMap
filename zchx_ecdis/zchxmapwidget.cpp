@@ -37,6 +37,7 @@ zchxMapWidget::zchxMapWidget(QWidget *parent) : QWidget(parent),
     mShipPlanDataMgr(new zchxShipPlanDataMgr(this)),
     mToolPtr(0)
 {
+
     this->setMouseTracking(true);
     QTimer *timer = new QTimer;
     timer->setInterval(Profiles::instance()->value(MAP_INDEX, MAP_UPDATE_INTERVAL).toInt());
@@ -67,6 +68,7 @@ zchxMapWidget::zchxMapWidget(QWidget *parent) : QWidget(parent),
     }
     //数据选择默认为不能选择
     setCurPickupType(ZCHX::Data::ECDIS_PICKUP_TYPE::ECDIS_PICKUP_NONE);
+
 }
 
 zchxMapWidget::~zchxMapWidget()
@@ -122,7 +124,6 @@ void zchxMapWidget::paintEvent(QPaintEvent *e)
     if(!mFrameWork) return;
     QPainter painter(this);
     painter.setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform, true);
-    painter.fillRect(0,0,width(),height(), Qt::white);
     //显示地图
     double offset_x =  (-1) * mDx;
     double offset_y =  (-1) * mDy;
