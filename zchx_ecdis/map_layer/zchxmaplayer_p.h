@@ -18,14 +18,16 @@ public:
     MapLayerPrivate(zchxMapWidget *drawWidget, const QString &type, const QString &displayName, bool visible);
 
 private:
-    std::list<std::shared_ptr<MapLayer> > m_children;
-    std::list<std::shared_ptr<Element> > m_elements;
-    QString m_type;
-    QString m_displayName;
-    bool m_visible;
-    bool m_enableUpdate;
-    ZCHX::Data::ECDIS_PLUGIN_USE_MODELs m_mode;
+    std::list<std::shared_ptr<MapLayer> >           m_children;
+    std::list<std::shared_ptr<Element> >            m_elements;
+    QString                                         m_type;
+    QString                                         m_displayName;
+    bool                                            m_visible;
+    bool                                            m_enableUpdate;
+    bool                                            m_pickupAvailable;
+    std::shared_ptr<MapLayer>                       m_parent;
+    ZCHX::Data::ECDIS_PLUGIN_USE_MODELs             m_mode;
 
-    zchxMapWidget *m_drawWidget;
+    zchxMapWidget                                   *m_drawWidget;
 };
 }
