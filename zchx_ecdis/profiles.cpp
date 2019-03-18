@@ -53,6 +53,7 @@ void Profiles::initDefaultValues()
     setDefault(MAP_INDEX, MAP_SOURCE, 0);
     setDefault(MAP_INDEX, MAP_DISPLAY_MENU, true);
     setDefault(MAP_INDEX, MAP_FILE_DIR, QApplication::applicationDirPath() + "/data/");
+    setDefault(MAP_INDEX, MAP_BACK_GROUND, "rgb(203,199,131)");
     //Ais显示配置
     setDefault(AIS_DISPLAY_SETTING, AIS_FILL_COLOR, QColor(Qt::green).name());
     setDefault(AIS_DISPLAY_SETTING, AIS_TEXT_COLOR, QColor(Qt::black).name());

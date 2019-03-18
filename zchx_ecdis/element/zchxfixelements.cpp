@@ -224,4 +224,249 @@ void BigDipperElement::updateGeometry(QPointF pos, qreal size)
     Element::updateGeometry(pos, size);
 }
 
+void CameraRegionElement::drawRegion(QPainter *painter, const QColor& penColor, const QColor& brushColor)
+{
+     PainterPair chk(painter);
+     QPen pen = painter->pen();
+     pen.setColor(penColor);
+     painter->setPen(pen);
+     painter->setBrush(QBrush(brushColor,Qt::SolidPattern));//设置画刷形式
+     painter->drawPolygon(m_Region, Qt::FillRule::WindingFill);
+}
+
+void CameraRegionElement::drawText(QPainter *painter, bool adjust_text_pos, const QString &ststext, const QString &photoText)
+{
+    PainterPair chk(painter);
+
+    QFont font = painter->font();
+    font.setPointSize(16);
+    painter->setFont(font);
+
+    QPen textPen = painter->pen(); //文字画笔
+    textPen.setColor(Qt::black);
+    textPen.setWidth(10);
+    painter->setPen(textPen);
+
+    painter->setBrush(Qt::NoBrush);
+
+    QRect textRect = painter->fontMetrics().boundingRect(ststext);
+    if(m_boundingRect.width() >= textRect.width())
+    {
+        QPoint pos = getViewPos().toPoint();
+        if(adjust_text_pos) pos.setY(pos.y() - textRect.height());
+        textRect.moveCenter(pos);
+        painter->drawText(textRect, Qt::AlignCenter, ststext);
+        if(photoText.length() > 0)
+        {
+            QPoint center = textRect.center();
+            QPoint photoCenter = QPoint(center.x(), center.y() + textRect.height());
+            QRect photoTextRect =  painter->fontMetrics().boundingRect(photoText);
+            photoTextRect.moveCenter(photoCenter);
+            painter->drawText(photoTextRect, Qt::AlignCenter, photoText);
+        }
+    }
+
+}
+
+void CameraRegionElement::drawElement(QPainter *painter)
+{
+    if(!isDrawAvailable(painter)) return;
+    Element::drawElement(painter);
+    QPointF pos = getViewPos();
+    updateGeometry(pos, getDrawScaleSize());
+
+    PainterPair chk(painter);
+    switch (m_data.Status) {
+    case ZCHX::Data::DEFAULT:
+    {
+        drawRegion(painter, Qt::blue, QColor(0,0,255,255*0.6));
+        drawText(painter, false,  QObject::tr("未盘点"));
+        break;
+    }
+    case ZCHX::Data::PHOTO_FINISH:
+    {
+        drawRegion(painter, Qt::yellow, QColor(255,255,0,255*0.6));
+        drawText(painter, false, QObject::tr("拍照完成"), QObject::tr("照片数量：%1").arg(m_data.photoNumbers));
+        break;
+    }
+    case ZCHX::Data::CHECK_FINISH:
+    {
+        drawRegion(painter, Qt::green, QColor(0,255,0,255*0.6));
+        drawText(painter, false, QObject::tr("盘点完成"), QObject::tr("船舶数量：%1").arg(m_data.shipNumbers));
+        break;
+    }
+    case ZCHX::Data::CHECKING:
+    {
+        drawRegion(painter, Qt::red, QColor(255,0,255,255*0.6));
+        drawText(painter, false, QObject::tr("盘点中"));
+        break;
+    }
+    default:
+        break;
+    }
+
+    //泊位
+    drawText(painter, true, m_data.Berth);
+}
+
+void CameraRegionElement::updateGeometry(QPointF pos, qreal size)
+{
+    m_Region.clear();
+    foreach (ZCHX::Data::LatLon  point, m_data.CameraPointList)
+    {
+        m_Region.append(framework()->LatLon2Pixel(point).toPointF());
+    }
+    m_boundingRect = m_Region.boundingRect().adjusted(-1,-1,-1,-1);
+    Element::updateGeometry(pos, size);
+}
+
+void DramCircularElement::drawElement(QPainter *painter)
+{
+    if(!isDrawAvailable(painter)) return ;
+    QPointF pos = getViewPos();
+    updateGeometry(pos, getDrawScaleSize());
+    PainterPair chk(painter);
+    painter->setPen(QPen(Qt::black,1));
+    painter->setBrush(Qt::red);
+    painter->drawPolygon(m_polygon);
+}
+
+void DramCircularElement::updateGeometry(QPointF pos, qreal size)
+{
+    m_polygon.clear();
+    qreal half = size / 2.0;
+    m_polygon << QPointF(pos.x() - half , pos.y() + half )
+              << QPointF(pos.x() + half , pos.y() + half )
+              << QPointF(pos.x() + half , pos.y() - half )
+              << QPointF(pos.x() - half , pos.y() - half );
+
+    m_boundingRect =  m_polygon.boundingRect().normalized();
+    Element::updateGeometry(pos, size);
+
+}
+
+void VesselTargetElement::drawElement(QPainter *painter)
+{
+    if(!isDrawAvailable(painter)) return;
+    QPointF pos = getViewPos();
+    updateGeometry(pos, getDrawScaleSize());
+    PainterPair chk(painter);
+
+    switch (m_data.Status) {
+    case ZCHX::Data::NO_INDENTIFY:
+        painter->setBrush(Qt::yellow);
+        break;
+    case ZCHX::Data::INDENTIFY:
+        painter->setBrush(Qt::blue);
+        break;
+    case ZCHX::Data::UNABLE_INDENTIFY:
+        painter->setBrush(Qt::red);
+        break;
+    default:
+        painter->setBrush(Qt::red);
+        break;
+    }
+    Element::drawElement(painter);
+    painter->drawPolygon(m_polygon);
+}
+
+void VesselTargetElement::updateGeometry(QPointF pos, qreal size)
+{
+    m_polygon.clear();
+    qreal half = size / 2.0;
+    m_polygon << QPointF(pos.x() - half ,pos.y() + half)
+              << QPointF(pos.x() + half, pos.y() + half )
+              << QPointF(pos.x(), pos.y() - (half + 10));
+
+    m_boundingRect =  m_polygon.boundingRect().normalized();
+    Element::updateGeometry(pos, size);
+}
+
+
+void VesselTrackLineElement::drawElement(QPainter *painter)
+{
+    if(!isDrawAvailable(painter) || m_data.m_isHideen) return;
+
+    QPointF pos = getViewPos();
+    updateGeometry(pos, getDrawScaleSize());
+    PainterPair chk(painter);
+    painter->setPen(QPen(Qt::blue,2));
+    painter->drawPolyline(m_Line);
+}
+
+void VesselTrackLineElement::updateGeometry(QPointF pos, qreal size)
+{
+    m_Line.clear();
+    foreach (ZCHX::Data::ITF_TrackPointInfo info, m_data.m_trackPointList) {
+        m_Line.append(framework()->LatLon2Pixel(info.m_lat,info.m_lon).toPointF());
+    }
+    m_boundingRect =  m_Line.boundingRect().normalized();
+    Element::updateGeometry(pos, size);
+}
+
+
+void VesselTrackElement::drawElement(QPainter *painter)
+{
+    if(!isDrawAvailable(painter) || m_data.m_isHidden) return;
+    QPointF pos = getViewPos();
+    updateGeometry(pos, getDrawScaleSize());
+    PainterPair chk(painter);
+    painter->setPen(QPen(Qt::red,1));
+    painter->setBrush(QBrush(QColor(240,255,255),Qt::SolidPattern));
+
+    painter->drawEllipse(m_trackRect);
+}
+
+void VesselTrackElement::updateGeometry(QPointF pos, qreal size)
+{
+    m_trackRect = QRectF(0, 0, 8, 8);
+    m_trackRect.moveCenter(pos);
+    m_boundingRect =  m_trackRect.adjusted(-1,-1,1,1);
+    Element::updateGeometry(pos, size);
+}
+
+
+void HistoryTraceElement::drawElement(QPainter *painter)
+{
+    if(!isDrawAvailable(painter)) return;
+    PainterPair chk(painter);
+    Element::drawElement(painter);
+
+    painter->setBrush(Qt::NoBrush);
+    QPen  pen = QPen(QColor(Qt::GlobalColor::blue));
+    pen.setWidth(0.5);
+    painter->setPen(pen);
+    painter->drawEllipse(getViewPos(), 3, 3);
+    drawActive(painter);
+    drawFocus(painter);
+}
+
+
+void WeatherWindWavesElement::drawElement(QPainter *painter)
+{
+    if(!isDrawAvailable(painter)) return;
+    PainterPair chk(painter);
+    Element::drawElement(painter);
+
+    QPointF pos = getViewPos();
+    updateGeometry(pos, getDrawScaleSize());
+    painter->setBrush(Qt::NoBrush);
+    painter->drawPixmap(m_boundingRect.toRect(),weatherImg);
+    drawActive(painter);
+    drawFocus(painter);
+}
+
+
+void WeatherWindWavesElement::updateGeometry(QPointF pos, qreal size)
+{
+    m_boundingRect = QRectF(0,0,weatherImg.width(),weatherImg.height());
+    m_boundingRect.moveCenter(pos);
+    Element::updateGeometry(pos, size);
+}
+
+
+
+
+
+
 

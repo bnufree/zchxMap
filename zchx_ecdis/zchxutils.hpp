@@ -226,8 +226,15 @@ enum ELETYPE{
     ELE_GPS,
     ELE_AIS_BASE_STATION,
     ELE_AIS_FUSION,
+    ELE_AIS_HIRTORY,
     ELE_CDMA,
     ELE_BIG_DIPPER,
+    ELE_CAMERA_REGION,
+    ELE_DRAM_CIRCUAL,
+    ELE_VESSEL_TARGET,
+    ELE_VESSEL_TRACK,
+    ELE_VESSEL_TRACK_LINE,
+    ELE_WEATHER_WAVE,
 
 };
 
@@ -612,7 +619,9 @@ public:
         Target_NONE = 100,
         Target_AIS = 0,
         Target_BD = 1,
-        Target_CDMA =2
+        Target_CDMA = 2,
+        Target_Fusion = 3,
+
     };
 
     ITF_AIS();
@@ -1791,6 +1800,167 @@ typedef struct tagITF_AisBaseStation
     int                 status;
 } ITF_AISBASESTATION;
 
+/********************绘制盘点区域相关****************************/
+enum CameraRegionStatus
+{
+    DEFAULT = 0,       //0 默认 未盘点（蓝色）
+    PHOTO_FINISH = 1,   //1拍照完成（黄色）
+    CHECK_FINISH,    //2盘点完成（绿色）
+    CHECKING,         //3  盘点中（红色）
+};
+
+struct ITF_CameraRegion
+{
+    double getLat() const {return lat;}
+    double getLon() const {return lon;}
+    QString getName() const {return id;}
+
+    QString    id;     // id +_ +  区域id 1-1
+    QString    harbourId;     //港口id
+    QString    regionId;     // 区域id
+    QString    CameraBallName; //球机名称
+    QString    CameraGunName;//枪机名称
+    QString    Berth;      //泊位
+    CameraRegionStatus     Status;     //相机区域状态
+    double     lon;       //经度
+    double     lat;       //纬度
+    QString    photoNumbers;  //该区域盘点照片
+    QString    shipNumbers;  //船舶照片
+    QList<LatLon> CameraPointList;  //相机区域
+
+};
+
+struct ITF_DramCircular
+{
+    double getLat() const {return ll.lat;}
+    double getLon() const {return ll.lon;}
+    QString getName() const {return QString("%1-%2").arg(ship).arg(time);}
+
+    LatLon      ll;
+    QString     ship;
+    QString     time;
+};
+
+
+/********************绘制船舶目标相关****************************/
+enum  VesselStatus
+{
+    NO_INDENTIFY,       //0 默认 未识别（黄色）
+    INDENTIFY,   //1已经识别（蓝色）
+    UNABLE_INDENTIFY    //2无法识别（红色）
+};
+
+struct ITF_VesselTargetData
+{
+    double getLat() const {return lat;}
+    double getLon() const {return lon;}
+    QString getName() const {return QString::number(vtID);}
+
+    double                  lon;       //经度
+    double                  lat;       //纬度
+    int                     vtID;      //目标唯一id
+    int                     portID;    //港口id
+    int                     areaID;    //所属区域
+    VesselStatus            Status;     //船舶目标状态
+    QString                 photoUrl;       //照片地址
+    QString                 vesselName;       //目标船名，
+    QString                 Berth;      //泊位
+    QString                 photoTime;      //拍照时间
+    QString                 voyageID;    //航次id
+
+};
+
+/********************绘制船舶轨迹相关****************************/
+struct ITF_VesselTrackData
+{
+    double getLat() const {return m_lat;}
+    double getLon() const {return m_lon;}
+    QString getName() const {return QString::number(m_id);}
+
+    double     m_lon;       //经度
+    double     m_lat;       //纬度
+    qint64     m_time;      //时间
+    int        m_id;      //唯一id
+    bool       m_isHidden;//是否显示
+
+};
+struct ITF_vesselTrackLineData
+{
+    double getLat() const {return lat;}
+    double getLon() const {return lon;}
+    QString getName() const {return QString::number(m_targetId);}
+
+    int                             m_targetId;       //id
+    QList<ITF_VesselTrackData>      m_trackPointList;      //轨迹点列表
+    double     lon;       //经度
+    double     lat;       //纬度
+
+};
+
+
+//山东轨迹中的点
+typedef struct tagITF_TrackPointInfo
+{
+    qint64 m_time;
+    double m_lon;
+    double m_lat;
+    int    m_id;
+}ITF_TrackPointInfo;
+
+//山东一段轨迹
+typedef struct tagITF_VoyageTrackInfo
+{
+    double getLat() const {return m_lat;}
+    double getLon() const {return m_lon;}
+    QString getName() const {return QString::number(m_targetId);}
+
+    int                  m_targetId;
+    QList<ITF_TrackPointInfo>    m_trackPointList;
+    double                m_lat;
+    double                m_lon;
+    bool                  m_isHideen;  //是否显示
+}ITF_VoyageTrackInfo;
+
+//气象数据
+typedef struct tagITF_WeatherWindWaves
+{
+    double getLat() const {return lat;}
+    double getLon() const {return lon;}
+    QString getName() const {return fishing_ground_name;}
+
+    QString                   id;                      //ID号，唯一标识符
+    QString                   region;                  // 地区
+    QString                   publish_data;           // 发布日期（格式是2017-4-6 10:00:00）
+    QString                   flag;                    // 标识
+    QString                   fishing_ground_id;       //  渔场编号
+    QString                   fishing_ground_name;     // 渔场名称
+    QString                   effective_time ;         // 预报时效（48-72）
+    QString                   type;                    // 气象数据的类型 海风：wind; 海浪：waves
+    double                    lon;                      //经度
+    double                    lat;                      //纬度
+    QString                   initial_value;            // 风力/浪高初值起始值
+    QString                   revised_value;             // 风力/浪高初值修订值
+    QString                   transitionalwords;        // 风力/浪高变化转折词
+    QString                   c_initial_value;          // 风力/浪高变化值起始值
+    QString                   c_revised_value ;         // 风力/浪高变化值修订值
+    QString                   direction;                // 风向/浪向起始方向
+    QString                   c_direction;              // 风向/浪向变化方向
+    QString                   z_initial_value;          // 阵风风力/浪高初值起始值
+    QString                   z_revised_value;          // 阵风风力/浪高初值修订值
+    QString                   z_transitionalwords;      // 阵风风力/浪高变化转折词
+    QString                   zc_initial_value;         // 阵风风力/浪高变化值起始值
+    QString                   zc_revised_value;         // 阵风风力/浪高变化值修订值
+
+    QString                   initial_value_waves;            // 浪高初值起始值
+    QString                   revised_value_waves;             //浪高初值修订值
+    QString                   transitionalwords_waves;        // 浪高变化转折词
+    QString                   c_initial_value_waves;          // 浪高变化值起始值
+    QString                   c_revised_value_waves ;         // 浪高变化值修订值
+    QString                   direction_waves;                // 浪向起始方向
+    QString                   c_direction_waves;              // 浪向变化方向
+
+}ITF_WeatherWindWaves;
+
 }
 
 enum tagsFocus{
@@ -1940,6 +2110,11 @@ const char LAYER_AIS_Station[]          ="lay_ais_station";         //ais基站
 const char LAYER_AIS_FUSION[]          ="lay_ais_fusion";         //ais融合
 const char LAYER_TEN_GRID[]             = "lay_ten_gird";
 const char LAYER_THIRTY_GRID[]          = "lay_thirty_gird";
+const char LAYER_CAMERA_REGION[]        = "lay_manualcheck";
+const char LAYER_VESSEL_TARGET[]        = "lay_vesselTarget";
+const char LAYER_VESSEL_TRACK[]         = "lay_vesselTrack";
+const char LAYER_WEATHER[]              = "lay_real_time_weather";
+
 
 //layer translate
 const char TR_LAYER_TOWER_ROD[]           = QT_TRANSLATE_NOOP("TranslationManager", "Tower Rod");

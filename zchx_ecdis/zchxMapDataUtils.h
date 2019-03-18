@@ -193,6 +193,7 @@ Q_DECLARE_METATYPE(qt::TileImageList)
 #define             MAP_SOURCE                      "MapSource"                 //地图数据来源
 #define             MAP_DISPLAY_MENU                "DisplayRightMouseMenu"     //是狗显示右键菜单
 #define             MAP_FILE_DIR                    "MapFileDir"
+#define             MAP_BACK_GROUND                 "BackgroundColor"
 
 //Ais显示配置
 #define             AIS_DISPLAY_SETTING                         "AIS"

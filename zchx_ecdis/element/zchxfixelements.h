@@ -148,6 +148,120 @@ private:
     qreal m_oldCog; //上一次的航向
 };
 
+class CameraRegionElement : public FixElement<ZCHX::Data::ITF_CameraRegion>
+{
+public:
+    explicit CameraRegionElement(const ZCHX::Data::ITF_CameraRegion &data, zchxMapWidget* w)
+        :FixElement<ZCHX::Data::ITF_CameraRegion>(data, ZCHX::Data::ELE_CAMERA_REGION, ZCHX::LAYER_CAMERA_REGION, w)
+        ,m_isVisited(false)
+    {}
+
+    void drawElement(QPainter *painter) ;
+    void updateGeometry(QPointF pos, qreal size);
+    inline bool isVisited() const {return m_isVisited;}
+    inline void setIsVisited(bool isVisited) {m_isVisited = isVisited;}
+private:
+    void drawRegion(QPainter* painter, const QColor& pen, const QColor& brush);
+    void drawText(QPainter *painter, bool adjust_text_pos,  const QString& ststext, const QString& photoText = QString());
+
+private:
+    QPolygonF m_Region;
+    bool m_isVisited; //开始盘点后，标记此盘点区域是否被进入过
+
+};
+
+class DramCircularElement : public FixElement<ZCHX::Data::ITF_DramCircular>
+{
+public:
+    explicit DramCircularElement(const ZCHX::Data::ITF_DramCircular &data, zchxMapWidget* w)
+        :FixElement<ZCHX::Data::ITF_DramCircular>(data, ZCHX::Data::ELE_DRAM_CIRCUAL, ZCHX::LAYER_VESSEL_TARGET, w)
+    {}
+
+    void drawElement(QPainter *painter) ;
+    void updateGeometry(QPointF pos, qreal size);
+private:
+
+private:
+    QPolygonF m_polygon;
+
+};
+
+class VesselTargetElement : public FixElement<ZCHX::Data::ITF_VesselTargetData>
+{
+public:
+    explicit VesselTargetElement(const ZCHX::Data::ITF_VesselTargetData &data, zchxMapWidget* w)
+        :FixElement<ZCHX::Data::ITF_VesselTargetData>(data, ZCHX::Data::ELE_VESSEL_TARGET, ZCHX::LAYER_VESSEL_TARGET, w)
+    {}
+
+    void drawElement(QPainter *painter) ;
+    void updateGeometry(QPointF pos, qreal size);
+private:
+
+private:
+    QPolygonF m_polygon;
+
+};
+
+class VesselTrackElement : public FixElement<ZCHX::Data::ITF_VesselTrackData>
+{
+public:
+    explicit VesselTrackElement(const ZCHX::Data::ITF_VesselTrackData &data, zchxMapWidget* w)
+        :FixElement<ZCHX::Data::ITF_VesselTrackData>(data, ZCHX::Data::ELE_VESSEL_TRACK, ZCHX::LAYER_VESSEL_TRACK, w)
+    {}
+
+    void drawElement(QPainter *painter) ;
+    void updateGeometry(QPointF pos, qreal size);
+private:
+
+private:
+    QRectF m_trackRect;
+};
+
+class VesselTrackLineElement : public FixElement<ZCHX::Data::ITF_VoyageTrackInfo>
+{
+public:
+    explicit VesselTrackLineElement(const ZCHX::Data::ITF_VoyageTrackInfo &data, zchxMapWidget* w)
+        :FixElement<ZCHX::Data::ITF_VoyageTrackInfo>(data, ZCHX::Data::ELE_VESSEL_TRACK_LINE, ZCHX::LAYER_VESSEL_TRACK, w)
+    {}
+
+    void drawElement(QPainter *painter) ;
+    void updateGeometry(QPointF pos, qreal size);
+private:
+
+private:
+    QPolygonF m_Line;
+};
+
+class HistoryTraceElement : public FixElement<ZCHX::Data::ITF_AIS>
+{
+public:
+    explicit HistoryTraceElement(const ZCHX::Data::ITF_AIS &data, zchxMapWidget* w)
+        :FixElement<ZCHX::Data::ITF_AIS>(data, ZCHX::Data::ELE_AIS_HIRTORY, ZCHX::LAYER_AIS_TRACK, w)
+    {}
+
+    void drawElement(QPainter *painter) ;
+private:
+
+private:
+};
+
+class WeatherWindWavesElement : public FixElement<ZCHX::Data::ITF_WeatherWindWaves>
+{
+public:
+    explicit WeatherWindWavesElement(const ZCHX::Data::ITF_WeatherWindWaves &data, zchxMapWidget* w)
+        :FixElement<ZCHX::Data::ITF_WeatherWindWaves>(data, ZCHX::Data::ELE_WEATHER_WAVE, ZCHX::LAYER_WEATHER, w)
+    {
+        weatherImg.load(":/zchxemap/images/weather.png");
+    }
+
+    void drawElement(QPainter *painter) ;
+    void updateGeometry(QPointF pos, qreal size);
+
+private:
+   QPixmap weatherImg;
+
+};
+
 }
 
 #endif // ZCHXFIXELEMENTS_H
