@@ -329,10 +329,45 @@ void MapLayer::setMode(const ZCHX::Data::ECDIS_PLUGIN_USE_MODEL &mode, bool addO
         d->m_mode &= ~mode;
 }
 
+void MapLayer::setParentLayer(std::shared_ptr<MapLayer> parent)
+{
+    Q_D(MapLayer);
+    if(d->m_parent != parent)
+        d->m_parent.reset(parent.get());
+}
+
+std::shared_ptr<MapLayer> MapLayer::getParentLayer() const
+{
+    Q_D(const MapLayer);
+    return d->m_parent;
+}
+
+bool MapLayer::hasParentLayer() const
+{
+    Q_D(const MapLayer);
+    return d->m_parent != NULL;
+}
+
+void MapLayer::setPickupAvailable(bool sts)
+{
+    Q_D(MapLayer);
+    d->m_pickupAvailable = sts;
+}
+
+bool MapLayer::getPickupAvailable() const
+{
+    Q_D(const MapLayer);
+    if(!d->m_drawWidget) return false;
+    if(d->m_drawWidget->getCurPickupType() == ZCHX::Data::ECDIS_PICKUP_NONE) return false;
+    return d->m_pickupAvailable;
+}
+
 MapLayerPrivate::MapLayerPrivate()
     : m_visible(true)
     , m_enableUpdate(true)
     , m_drawWidget(0)
+    , m_parent(0)
+    , m_pickupAvailable(true)
 {
 
 }
@@ -343,6 +378,8 @@ MapLayerPrivate::MapLayerPrivate(const QString &type, const QString &displayName
     , m_visible(visible)
     , m_enableUpdate(true)
     , m_drawWidget(0)
+    , m_parent(0)
+    , m_pickupAvailable(true)
 {
 
 }
@@ -353,6 +390,8 @@ MapLayerPrivate::MapLayerPrivate(zchxMapWidget *drawWidget, const QString &type,
     , m_visible(visible)
     , m_enableUpdate(true)
     , m_drawWidget(drawWidget)
+    , m_parent(0)
+    , m_pickupAvailable(true)
 {
 
 }

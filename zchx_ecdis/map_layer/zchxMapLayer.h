@@ -65,6 +65,10 @@ public:
      */
     bool visible() const;
     void setVisible(bool visible);
+    //父图层获取更新
+    void setParentLayer(std::shared_ptr<MapLayer> parent);
+    std::shared_ptr<MapLayer> getParentLayer() const;
+    bool hasParentLayer() const;
 
     /*!
      * \brief 图层是否包含子图层
@@ -128,6 +132,9 @@ public:
     bool clearActiveState();
     bool clearFocusState();
     bool clearHoverState();
+    //图层是否可以选择
+    void setPickupAvailable(bool sts);
+    bool getPickupAvailable() const;
 
 signals:
     void visibleChanged(bool visible);
