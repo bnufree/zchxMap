@@ -16,7 +16,11 @@ public:
     }
 
     T data() const {return m_data;}
-    virtual void setData(const T& data) {m_data = data; setIsUpdate(true);}
+    virtual void setData(const T& data) {
+        m_data = data;
+        setIsUpdate(true);
+        setID(m_data.getName());
+    }
     std::string name() const {return m_data.getName().toStdString();}
     void updateGeometry(QPointF, qreal){}
 

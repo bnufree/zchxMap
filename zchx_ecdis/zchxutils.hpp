@@ -1153,6 +1153,17 @@ typedef struct tagITF_CameraView
 
 typedef struct tagITF_WarringZone
 {
+    tagITF_WarringZone()
+        : defType( 1 )
+        , id( 0 )
+        , DrawTime( QDateTime::currentMSecsSinceEpoch() )
+        , name("")
+        , tts("")
+        , warnFlash(2)
+        , warnWindows(2)
+        , warnVoice(2)
+    {}
+
     double getLat() const {return 0;}
     double getLon() const {return 0;}
     QString getName() const {return name;}
@@ -1180,6 +1191,19 @@ typedef struct tagITF_WarringZone
     QString  ascription;              // 归属
     QString  contactNum;              // 联系电话
     QString  remark;                  // 描述
+    QString  tts;
+    int         warnFlash;//报警闪烁 1:闪烁 2:不闪烁
+    int         warnWindows; //报警提示窗 1:提示 2:不提示
+    int         warnVoice; //报警声音是否提示 1:提示, 2: 不提示
+    int         warnLevel; //当前报警级别 1-3(0-2)
+    QString      llSet; //--->lon_lat经纬度集合
+    int defenceType; //防区类型 1:安全区 2:禁航区 3:警戒区 4:报告线 12345:userdefine
+    int bulletinPlan; //布防计划
+    int atutFlowTime; //自动跟踪时间(秒)
+    QList<TimeSpanVo> timespans;
+    float speed;//速度
+    float radius;//半径
+    qint64 DrawTime;
 
     std::vector<std::pair<double, double> > path;
 
@@ -1187,6 +1211,9 @@ typedef struct tagITF_WarringZone
     {
         return this->name == other.name;
     }
+
+
+
 
 }ITF_WarringZone;
 

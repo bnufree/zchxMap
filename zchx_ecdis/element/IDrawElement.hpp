@@ -245,6 +245,7 @@ protected://TODO: 添加私有类, 实现成员变量对外隐藏, 且防止依�
     QColor                                  mTextColor;             //图元文本颜色
     QColor                                  mConcernColor;          //图元关注颜色
     static int                              g_maxLineLength;
+    static int                              gSetFlashAlphaStep;
 
 public:
     friend class MapLayer;

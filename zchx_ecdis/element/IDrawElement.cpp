@@ -10,6 +10,7 @@ Q_LOGGING_CATEGORY(ecdis, "zchx.Ecdis")
 
 namespace qt {
 int Element::g_maxLineLength = 100;
+int Element::gSetFlashAlphaStep = 100;
 
 Element::Element(const double &lat, const double &lon, zchxMapWidget* view, ZCHX::Data::ELETYPE type, const QColor& flashColor)
     : elelat(lat)

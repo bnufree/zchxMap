@@ -103,6 +103,7 @@ public:
      * \brief 获取当前图层中的所有图元的列表, 最先添加的图层再列表最前面
      */
     std::list<std::shared_ptr<Element> > getElements();
+    Element*                             getElement(const QString& name);
 
     /*!
      * \brief 更新图层

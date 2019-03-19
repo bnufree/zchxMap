@@ -1,7 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "zchxmapthread.h"
-#include "zchxmapdownloadthread.h"
 #include "map_layer/zchxmaplayermgr.h"
 #include "data_manager/zchxdatamgrfactory.h"
 #include "zchxroutedatamgr.h"
@@ -35,20 +34,13 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(mMapWidget, SIGNAL(signalDisplayCurPos(double,double)), this, SLOT(slotUpdateCurrentPos(double,double)));
     connect(mMapWidget, SIGNAL(signalSendNewMap(double,double,int)), this, SLOT(slotDisplayMapCenterAndZoom(double,double,int)));
     initSignalConnect();
+    MapLayerMgr::instance()->setDrawWidget(mMapWidget);
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
 }
-
-
-void MainWindow::updateGridLayout(int x, int y)
-{
-    if(!mMapWidget) return;
-    if(mMapWidget) mMapWidget->clear();
-}
-
 
 void MainWindow::resizeEvent(QResizeEvent *e)
 {
@@ -68,10 +60,7 @@ void MainWindow::loadEcdis()
     if(mMapWidget) mMapWidget->setGeometry(0, 0, ui->ecdis_frame->size().width(), ui->ecdis_frame->size().height());
 }
 
-void MainWindow::slotRecvMapData(const QPixmap &data, int x, int y)
-{
-    if(mMapWidget) mMapWidget->append(data, x, y);
-}
+
 
 void MainWindow::on_load_clicked()
 {
@@ -97,12 +86,7 @@ void MainWindow::slotDisplayMapCenterAndZoom(double lon, double lat, int zoom)
 
 void MainWindow::on_download_clicked()
 {
-    ui->progressBar->setMaximum(18);
-    ui->progressBar->setValue(0);
-    zchxMapDownloadThread* thread = new zchxMapDownloadThread;
-    connect(thread, SIGNAL(signalDownloadFinished(int)), this, SLOT(slotUpdateDownloadProgress(int)));
-    connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
-    thread->start();
+
 }
 
 void MainWindow::slotUpdateDownloadProgress(int val)
@@ -228,6 +212,8 @@ void MainWindow::initSignalConnect()
     connect(mMapWidget,SIGNAL(signalMapIsRoaming()),this, SIGNAL(itfSignalMapIsRoaming()));
     connect(mMapWidget,SIGNAL(signalSendCameraNetGrid(ZCHX::Data::ITF_NetGrid)), this, SIGNAL(itfSignalSendCameraNetGrid(ZCHX::Data::ITF_NetGrid)));
     connect(mMapWidget,SIGNAL(signalSendPTZLocation(double, double)),this,SIGNAL(itfSignalSendPTZLocation(double, double)));
+    connect(mMapWidget, SIGNAL(sigElementHoverChanged(qt::Element*)), this, SIGNAL(sigLayerElementHoverChanged(qt::Element*)));
+    connect(mMapWidget,  SIGNAL(sigElementSelectionChanged(qt::Element*)), this, SIGNAL(sigLayerElementSelectionChanged(qt::Element*)));
 }
 
 void MainWindow::itfSetAisData(const QList<ZCHX::Data::ITF_AIS> &data)
@@ -1656,6 +1642,11 @@ void MainWindow::iftSetIsWarningType(bool bWarningType)
 void MainWindow::itfAddLayer(std::shared_ptr<MapLayer> layer, std::shared_ptr<MapLayer> parent)
 {
     MapLayerMgr::instance()->addLayer(layer, parent);
+}
+
+void MainWindow::itfAddLayer(const QString &curLayer, const QString &curDisplayName, bool curVisible, const QString &parentLayer)
+{
+    MapLayerMgr::instance()->addLayer(curLayer, curDisplayName, curVisible, parentLayer);
 }
 
 bool MainWindow::itfContainsLayer(const QString &type) const

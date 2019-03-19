@@ -14,12 +14,15 @@ class MapLayerMgr : public QObject
 public:
     ~MapLayerMgr();
     static MapLayerMgr *instance();
+    void setDrawWidget(zchxMapWidget* w) {m_drawWidget = w;}
+    zchxMapWidget * drawWidget() const {return m_drawWidget;}
 
     //地图图层管理
     //从配置文件加载地图图层配置文件,图层的顺序按照从上到下的顺序, 最上面为最顶层
     void loadLayers();
     //添加图层 layer 父图层, 默认为空
     void addLayer(std::shared_ptr<MapLayer> layer, std::shared_ptr<MapLayer> parent = 0);
+    void addLayer(const QString& curLayer, const QString& curDisplayName, bool curVisible, const QString& parentLayer = QString());
     //判断地图中是否包含 type 指定的图层
     bool containsLayer(const QString &type) const;
     //获取所有的图层的类型的列表
@@ -36,6 +39,8 @@ public:
                            const QString &type3 = QString(),
                            const QString &type4 = QString(),
                            const QString &type5 = QString());
+    //
+    void show(QPainter* painter);
 private:
     void _readMapLayerNode(QDomElement node, std::shared_ptr<MapLayer> parent = 0);
     explicit MapLayerMgr(QObject *parent = 0);
@@ -57,6 +62,7 @@ public slots:
 private:
     std::list<std::shared_ptr<MapLayer> > m_layerList;
     std::list<std::shared_ptr<MapLayer> > m_layerTree;
+    zchxMapWidget*                        m_drawWidget;
 };
 }
 

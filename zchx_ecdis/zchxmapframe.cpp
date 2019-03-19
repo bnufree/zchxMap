@@ -1,7 +1,10 @@
 #include "zchxmapframe.h"
 #include <QDebug>
+#include "zchxmaploadthread.h"
+#include <QPainter>
 
-namespace qt {
+using namespace qt;
+
 zchxMapFrameWork::zchxMapFrameWork(double center_lat, double center_lon, int zoom, int width, int height, int source,  int min_zoom, int max_zoom, QObject *parent) : QObject(parent),
   mViewWidth(0),
   mViewHeight(0),
@@ -9,11 +12,18 @@ zchxMapFrameWork::zchxMapFrameWork(double center_lat, double center_lon, int zoo
   mStyle(MapStyleEcdisDayBright),
   mMinZoom(min_zoom),
   mMaxZoom(max_zoom),
+  mMapThread(0),
   mOffset(0, 0)
 {
     SetZoom(zoom);
     UpdateCenter(center_lon, center_lat);
     SetViewSize(width, height);
+
+    mMapThread = new zchxMapLoadThread;
+    connect(mMapThread, SIGNAL(signalSendCurPixmap(QPixmap,int,int)), this, SLOT(append(QPixmap,int,int)));
+    connect(mMapThread, SIGNAL(signalSendNewMap(double, double, int, bool)), this, SLOT(slotRecvNewMap(double,double,int, bool)));
+    connect(mMapThread, SIGNAL(signalSendImgList(TileImageList)), this, SLOT(append(TileImageList)));
+    mMapThread->start();
 }
 
 void zchxMapFrameWork::setOffSet(int offset_x, int offset_y)
@@ -146,7 +156,7 @@ void zchxMapFrameWork::UpdateDisplayRange()
     setting.mResolution = mUnitMercatorLength;
     setting.mZoom = Zoom();
     setting.mCenter = mCenter;
-    emit UpdateMap(setting);
+    if(mMapThread) mMapThread->appendTask(setting);
 }
 
 void zchxMapFrameWork::ZoomIn()
@@ -177,4 +187,31 @@ PPATH zchxMapFrameWork::convert2QtPonitList(const GPATH& path)
     return pts;
 }
 
+void zchxMapFrameWork::updateEcdis(QPainter *painter, bool img_num)
+{
+    if(!painter) return;
+    foreach(TileImage data, mDataList)
+    {
+        int x = data.mPosX + mOffset.width();
+        int y = data.mPosY + mOffset.height();
+        painter->drawPixmap(x, y, data.mImg);
+        if(img_num)painter->drawText(x, y, data.mName);
+    }
+}
+
+void zchxMapFrameWork::slotRecvNewMap(double lon, double lat, int zoom, bool sync)
+{
+    emit signalSendCurMapinfo(lat, lon, zoom);
+    if(!sync) clear();
+}
+
+void zchxMapFrameWork::append(const QPixmap &img, int x, int y)
+{
+    mDataList.append(TileImage(img, x, y));
+}
+
+void zchxMapFrameWork::append(const TileImageList &list)
+{
+    mDataList = list;
+    setOffSet(0, 0);
 }

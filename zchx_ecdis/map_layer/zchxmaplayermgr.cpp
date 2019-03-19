@@ -5,7 +5,7 @@ namespace qt {
 MapLayerMgr* MapLayerMgr::minstance = 0;
 MapLayerMgr::MGarbage MapLayerMgr::Garbage;
 
-MapLayerMgr::MapLayerMgr(QObject *parent) : QObject(parent)
+MapLayerMgr::MapLayerMgr(QObject *parent) : QObject(parent), m_drawWidget(0)
 {
 
 }
@@ -100,6 +100,18 @@ void MapLayerMgr::addLayer(std::shared_ptr<MapLayer> layer, std::shared_ptr<MapL
     m_layerList.push_back(layer);
 }
 
+void MapLayerMgr::addLayer(const QString& curLayer, const QString& curDisplayName, bool curVisible, const QString &parentLayer)
+{
+    if(curLayer.isEmpty()) return;
+    //check curlayer exist or not
+    if(containsLayer(curLayer))
+    {
+        qDebug() << "Layer: " << curLayer << " had been added!";
+        return;
+    }
+    addLayer(std::shared_ptr<MapLayer>(new MapLayer(m_drawWidget, curLayer, curDisplayName, curVisible)), getLayer(parentLayer));
+}
+
 bool MapLayerMgr::containsLayer(const QString &type) const
 {
     for(std::shared_ptr<MapLayer> layer : m_layerList)
@@ -156,5 +168,16 @@ bool MapLayerMgr::isLayerVisible(std::shared_ptr<MapLayer> layer)
 bool MapLayerMgr::isAnyLayerVisible(const QString &type1, const QString &type2, const QString &type3, const QString &type4, const QString &type5)
 {
     return (isLayerVisible(type1) || isLayerVisible(type2) || isLayerVisible(type3) || isLayerVisible(type4) || isLayerVisible(type5));
+}
+
+void MapLayerMgr::show(QPainter *painter)
+{
+    for(std::shared_ptr<MapLayer> layer : m_layerList)
+    {
+        if(isLayerVisible(layer->type()))
+        {
+            layer->drawLayer(painter);
+        }
+    }
 }
 }

@@ -6,6 +6,7 @@
 #include "zchxMapDataUtils.h"
 
 namespace qt {
+class zchxMapLoadThread;
 class zchxMapFrameWork : public QObject
 {
     Q_OBJECT
@@ -44,10 +45,17 @@ public:
     void        SetRotateAngle(double ang) {mRotateAngle = ang;}
     //
     PPATH convert2QtPonitList(const GPATH &path);
+    //          画地图
+    void        updateEcdis(QPainter* painter, bool image_num = false);
 
 signals:
-    void        UpdateMap(const MapLoadSetting& set);
+    void        signalSendCurMapinfo(double lat, double lon, int zoom);
 public slots:
+    void append(const QPixmap& img, int x, int y);
+    void append(const TileImageList& list);
+    void clear() {mDataList.clear(); /*update();*/}
+    void slotRecvNewMap(double lon, double lat, int zoom, bool sync);
+
 private:
     MapRangeData        mMapRange;      //墨卡托坐标范围  左下最小  右上最大
     int                 mCurZoom;
@@ -61,6 +69,9 @@ private:
     MapStyle            mStyle;
     double              mRotateAngle;
     QSize               mOffset;
+    //地图图片更新
+    zchxMapLoadThread*          mMapThread;
+    TileImageList               mDataList;
 };
 }
 

@@ -69,6 +69,7 @@ public:
         m_data = data;
         updateOldPath();
         setIsUpdate(true);
+        setID(m_data.getName());
     }
     T data() const {return m_data;}
 

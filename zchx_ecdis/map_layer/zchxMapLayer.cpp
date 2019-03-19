@@ -115,7 +115,10 @@ void MapLayer::addElement(std::shared_ptr<Element> element)
     }
     element->layer().reset(this);
 //    element->m_layer = this;
-    element->setView(d->m_drawWidget);
+    if(d->m_drawWidget && d->m_drawWidget != element->view())
+    {
+        element->setView(d->m_drawWidget);
+    }
 
     bool contained = (std::find(d->m_elements.begin(), d->m_elements.end(), element) != d->m_elements.end());
     if(contained)
@@ -147,6 +150,22 @@ std::list<std::shared_ptr<Element> > MapLayer::getElements()
 {
     Q_D(MapLayer);
     return d->m_elements;
+}
+
+Element * MapLayer::getElement(const QString &name)
+{
+    Q_D(MapLayer);
+    for(std::shared_ptr<Element> element : d->m_elements)
+    {
+        if(!element) continue;
+
+        if(element->getID() == name)
+        {
+            return element.get();
+        }
+    }
+
+    return 0;
 }
 
 void MapLayer::update()

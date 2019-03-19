@@ -5,7 +5,7 @@
 
 namespace qt {
 //网格
-class GridElement : public FixElement<ZCHX::Data::ITF_NetGrid>
+class ZCHX_ECDIS_EXPORT GridElement : public FixElement<ZCHX::Data::ITF_NetGrid>
 {
 public:
     explicit GridElement(const ZCHX::Data::ITF_NetGrid& ele, zchxMapWidget* w)

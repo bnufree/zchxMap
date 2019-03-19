@@ -1,6 +1,5 @@
 #include "zchxmapwidget.h"
 #include "zchxmapframe.h"
-#include "zchxmaploadthread.h"
 #include "map_layer/zchxmaplayermgr.h"
 #include "data_manager/zchxdatamgrfactory.h"
 #include "draw_manager/zchxdrawtoolutil.h"
@@ -21,10 +20,7 @@ zchxMapWidget::zchxMapWidget(QWidget *parent) : QWidget(parent),
     mCurrentSelectElement(0),
     mUseRightKey(true),
     mFrameWork(0),
-    mMapThread(0),
     mDrag(0),
-    mDx(0),
-    mDy(0),
     mDisplayImageNum(false),
     mIsMapHidden(false),
     mIsNavigation(false),
@@ -51,12 +47,6 @@ zchxMapWidget::zchxMapWidget(QWidget *parent) : QWidget(parent),
     int min_zoom = Profiles::instance()->value(MAP_INDEX, MAP_MIN_ZOOM).toInt();
     int max_zoom = Profiles::instance()->value(MAP_INDEX, MAP_MAX_ZOOM).toInt();
     mFrameWork = new zchxMapFrameWork(lat, lon, zoom, width(), height(), source, min_zoom, max_zoom);
-    mMapThread = new zchxMapLoadThread;
-    connect(mFrameWork, SIGNAL(UpdateMap(MapLoadSetting)), mMapThread, SLOT(appendTask(MapLoadSetting)));
-    connect(mMapThread, SIGNAL(signalSendCurPixmap(QPixmap,int,int)), this, SLOT(append(QPixmap,int,int)));
-    connect(mMapThread, SIGNAL(signalSendNewMap(double, double, int, bool)), this, SLOT(slotRecvNewMap(double,double,int, bool)));
-    connect(mMapThread, SIGNAL(signalSendImgList(TileImageList)), this, SLOT(append(TileImageList)));
-    mMapThread->start();
     //地图状态初始化
     releaseDrawStatus();
     //
@@ -95,29 +85,6 @@ void zchxMapWidget::resizeEvent(QResizeEvent *e)
     QWidget::resizeEvent(e);
 }
 
-void zchxMapWidget::slotRecvNewMap(double lon, double lat, int zoom, bool sync)
-{
-    qDebug()<<"new map info:"<<lon<<lat<<zoom<<sync;
-    mCenter.lon = lon;
-    mCenter.lat = lat;
-    emit signalSendNewMap(lon, lat, zoom);
-    if(!sync) clear();
-}
-
-void zchxMapWidget::append(const QPixmap &img, int x, int y)
-{
-    mDataList.append(TileImage(img, x, y));
-    //update();
-}
-
-void zchxMapWidget::append(const TileImageList &list)
-{
-    qDebug()<<__FUNCTION__<<__LINE__;
-    mDataList = list;
-    mDx = 0;
-    mDy = 0;
-    //update();
-}
 
 void zchxMapWidget::paintEvent(QPaintEvent *e)
 {
@@ -125,18 +92,13 @@ void zchxMapWidget::paintEvent(QPaintEvent *e)
     QPainter painter(this);
     painter.setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform, true);
     //显示地图
-    double offset_x =  (-1) * mDx;
-    double offset_y =  (-1) * mDy;
-    foreach(TileImage data, mDataList)
-    {
-        painter.drawPixmap(data.mPosX + offset_x, data.mPosY + offset_y, data.mImg);
-        if(mDisplayImageNum)painter.drawText(data.mPosX + offset_x, data.mPosY + offset_y, data.mName);
-    }
-    mFrameWork->setOffSet(offset_x, offset_y);
+    mFrameWork->updateEcdis(&painter);
+
     //显示图元
     foreach (std::shared_ptr<zchxEcdisDataMgr> mgr, ZCHX_DATA_FACTORY->getManagers()) {
         mgr->show(&painter);
     }
+    MapLayerMgr::instance()->show(&painter);
     //显示用户的鼠标操作
     if(mToolPtr) mToolPtr->show(&painter);
 
@@ -800,8 +762,7 @@ void zchxMapWidget::mouseMoveEvent(QMouseEvent *e)
         {
             mDrag = true;
             QPoint pnt = e->pos();
-            mDx = mPressPnt.x() - pnt.x();
-            mDy = mPressPnt.y() - pnt.y();
+            mFrameWork->setOffSet(pnt.x() - mPressPnt.x(),pnt.y() - mPressPnt.y());
         }
         //update();
 

@@ -56,8 +56,6 @@ SOURCES += mainwindow.cpp \
     zchxtileimagethread.cpp \
     qhttpget.cpp \
     zchxmapwidget.cpp \
-    zchxmapdownloadthread.cpp \
-    zchxmapdownloadrunfunction.cpp \
     zchxmaploadthread.cpp \
     zchxutils.cpp \
     zchxMapDataUtils.cpp \    
@@ -125,8 +123,6 @@ HEADERS  += mainwindow.h \
     zchxtileimagethread.h \
     qhttpget.h \
     zchxmapwidget.h \
-    zchxmapdownloadthread.h \
-    zchxmapdownloadrunfunction.h \
     zchxmaploadthread.h \
     zchx_ecdis_global.h \
     zchxutils.hpp \

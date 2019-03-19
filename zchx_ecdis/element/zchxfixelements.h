@@ -82,7 +82,7 @@ public:
 };
 
 //AIS基站
-class AISBaseStationElement : public FixElement<ZCHX::Data::ITF_AISBASESTATION>
+class ZCHX_ECDIS_EXPORT AISBaseStationElement : public FixElement<ZCHX::Data::ITF_AISBASESTATION>
 {
 
 public:
@@ -99,7 +99,7 @@ private:
 };
 
 //AIS雷达融合
-class AISRadarFuseElement : public FixElement<ZCHX::Data::ITF_AIS>
+class ZCHX_ECDIS_EXPORT AISRadarFuseElement : public FixElement<ZCHX::Data::ITF_AIS>
 {
 public:
     explicit AISRadarFuseElement(const ZCHX::Data::ITF_AIS &data, zchxMapWidget* w)
@@ -113,7 +113,7 @@ private:
 };
 
 //CDMA设备
-class CDMAElement : public FixElement<ZCHX::Data::ITF_AIS>
+class ZCHX_ECDIS_EXPORT CDMAElement : public FixElement<ZCHX::Data::ITF_AIS>
 {
 public:
     explicit CDMAElement(const ZCHX::Data::ITF_AIS &data, zchxMapWidget* w)
@@ -132,7 +132,7 @@ private:
 };
 
 //北斗设备
-class BigDipperElement : public FixElement<ZCHX::Data::ITF_AIS>
+class ZCHX_ECDIS_EXPORT BigDipperElement : public FixElement<ZCHX::Data::ITF_AIS>
 {
 public:
     explicit BigDipperElement(const ZCHX::Data::ITF_AIS &data, zchxMapWidget* w)
@@ -148,7 +148,7 @@ private:
     qreal m_oldCog; //上一次的航向
 };
 
-class CameraRegionElement : public FixElement<ZCHX::Data::ITF_CameraRegion>
+class ZCHX_ECDIS_EXPORT CameraRegionElement : public FixElement<ZCHX::Data::ITF_CameraRegion>
 {
 public:
     explicit CameraRegionElement(const ZCHX::Data::ITF_CameraRegion &data, zchxMapWidget* w)
@@ -170,7 +170,7 @@ private:
 
 };
 
-class DramCircularElement : public FixElement<ZCHX::Data::ITF_DramCircular>
+class ZCHX_ECDIS_EXPORT DramCircularElement : public FixElement<ZCHX::Data::ITF_DramCircular>
 {
 public:
     explicit DramCircularElement(const ZCHX::Data::ITF_DramCircular &data, zchxMapWidget* w)
@@ -186,7 +186,7 @@ private:
 
 };
 
-class VesselTargetElement : public FixElement<ZCHX::Data::ITF_VesselTargetData>
+class ZCHX_ECDIS_EXPORT VesselTargetElement : public FixElement<ZCHX::Data::ITF_VesselTargetData>
 {
 public:
     explicit VesselTargetElement(const ZCHX::Data::ITF_VesselTargetData &data, zchxMapWidget* w)
@@ -202,7 +202,7 @@ private:
 
 };
 
-class VesselTrackElement : public FixElement<ZCHX::Data::ITF_VesselTrackData>
+class ZCHX_ECDIS_EXPORT VesselTrackElement : public FixElement<ZCHX::Data::ITF_VesselTrackData>
 {
 public:
     explicit VesselTrackElement(const ZCHX::Data::ITF_VesselTrackData &data, zchxMapWidget* w)
@@ -217,7 +217,7 @@ private:
     QRectF m_trackRect;
 };
 
-class VesselTrackLineElement : public FixElement<ZCHX::Data::ITF_VoyageTrackInfo>
+class ZCHX_ECDIS_EXPORT VesselTrackLineElement : public FixElement<ZCHX::Data::ITF_VoyageTrackInfo>
 {
 public:
     explicit VesselTrackLineElement(const ZCHX::Data::ITF_VoyageTrackInfo &data, zchxMapWidget* w)
@@ -232,7 +232,7 @@ private:
     QPolygonF m_Line;
 };
 
-class HistoryTraceElement : public FixElement<ZCHX::Data::ITF_AIS>
+class ZCHX_ECDIS_EXPORT HistoryTraceElement : public FixElement<ZCHX::Data::ITF_AIS>
 {
 public:
     explicit HistoryTraceElement(const ZCHX::Data::ITF_AIS &data, zchxMapWidget* w)
@@ -245,7 +245,7 @@ private:
 private:
 };
 
-class WeatherWindWavesElement : public FixElement<ZCHX::Data::ITF_WeatherWindWaves>
+class ZCHX_ECDIS_EXPORT WeatherWindWavesElement : public FixElement<ZCHX::Data::ITF_WeatherWindWaves>
 {
 public:
     explicit WeatherWindWavesElement(const ZCHX::Data::ITF_WeatherWindWaves &data, zchxMapWidget* w)
