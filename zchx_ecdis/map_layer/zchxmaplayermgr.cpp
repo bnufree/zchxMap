@@ -81,7 +81,8 @@ void MapLayerMgr::_readMapLayerNode(QDomElement node, std::shared_ptr<MapLayer> 
 
 void MapLayerMgr::addLayer(std::shared_ptr<MapLayer> layer, std::shared_ptr<MapLayer> parent)
 {
-    if(!layer) return;
+    if(!layer) return;    
+    qDebug()<<"layer:"<<layer->type()<<" parent:"<<(parent.get() ? "" : parent->type());
     if(containsLayer(layer->type()))
     {
         qDebug() << "Layer: " << layer->type() << " had been added!";
