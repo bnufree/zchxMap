@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<maplayers identifier="MapLayers" version="1.0.0" Save="false">
+    <MapLayer type="lay_island" tr="Island Line" visible="true"/>
+    <MapLayer type="lay_wirerod" tr="Wire rod" visible="true"/>
+	<MapLayer type="lay_camera" tr="Camera" visible="true"/>
+    <MapLayer type="lay_gdy" tr="Photoelectric instrument" visible="true"/>
+    <MapLayer type="lay_uav" tr="UAV" visible="true"/>
+    <MapLayer type="lay_defence" tr="Defence area" visible="true"/>
+    <MapLayer type="lay_local_mark" tr="Position mark" visible="true"/>
+    <MapLayer type="lay_warning_target" tr="Warning target" visible="true"/>
+    <MapLayer type="lay_patrol_radar_site" tr="Patrol and radar station" visible="true"/>
+    <MapLayer type="lay_ais" tr="AIS" visible="true">
+        <MapLayer type="lay_ais_current" tr="AIS current position" visible="true"/>
+        <MapLayer type="lay_ais_track" tr="AIS history track" visible="false"/>
+    </MapLayer>
+    <MapLayer type="lay_radar" tr="Radar" visible="true">
+        <MapLayer type="lay_radar_current" tr="Radar current position" visible="true"/>
+        <MapLayer type="lay_radar_track" tr="Historical track radar" visible="false"/>
+        <MapLayer type="lay_radar_area" tr="Radar area" visible="true"/>
+        <MapLayer type="lay_radar_echoes" tr="Radar echoes" visible="true"/>
+    </MapLayer>
+	<MapLayer type="lay_gps" tr="GPS" visible="true">
+        <MapLayer type="lay_gps_current" tr="GPS current position" visible="true"/>
+        <MapLayer type="lay_gps_track" tr="GPS history track" visible="false"/>
+    </MapLayer>
+</maplayers>
