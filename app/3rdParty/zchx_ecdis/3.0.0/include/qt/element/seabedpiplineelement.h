@@ -1,5 +1,5 @@
-#ifndef SEABEDPIPLINEELEMENT_H
-#define SEABEDPIPLINEELEMENT_H
+#ifndef SEABEDPIPLINEELE_H
+#define SEABEDPIPLINEELE_H
 
 #include "moveelement.h"
 
@@ -8,7 +8,7 @@ namespace qt {
 class SeabedPipeLineElement : public MoveElement
 {
 public:
-    explicit SeabedPipeLineElement(const ZCHX::Data::ITF_SeabedPipeLine &ele, zchxMapFrameWork* f);
+    explicit SeabedPipeLineElement(const ZCHX::Data::ITF_SeabedPipeLine &ele, zchxMapWidget* f);
     void setData(const ZCHX::Data::ITF_SeabedPipeLine &ele);
     ZCHX::Data::ITF_SeabedPipeLine data() const;
 
@@ -17,8 +17,8 @@ public:
     std::vector<std::pair<double, double> >& getPath();
     void updateOldPath();
 
-    int id() const;
-    void setId(int id);
+//    int id() const;
+//    void setId(int id);
 
     std::string name() const;
     void setName(const std::string &name);
@@ -34,4 +34,4 @@ private:
 }
 
 
-#endif // SEABEDPIPLINEELEMENT_H
+#endif // SEABEDPIPLINEELE_H

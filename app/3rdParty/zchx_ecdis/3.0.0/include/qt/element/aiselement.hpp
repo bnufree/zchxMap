@@ -1,11 +1,10 @@
-﻿#pragma once
+﻿#ifndef AISELEMENT_H
+#define AISELEMENT_H
 
-#include "IDrawElement.hpp"
-#include <QtCore>
+#include "fixelement.h"
 
 namespace qt
 {
-
 enum SHIP_ITEM {
     SHIP_ITEM_LABEL = 0x01,
     SHIP_ITEM_NAME = 0x02,
@@ -17,18 +16,16 @@ enum SHIP_ITEM {
     SHIP_ITEM_DEFAULT = SHIP_ITEM_LABEL | SHIP_ITEM_NAME | SHIP_ITEM_MMSI | SHIP_ITEM_LATLON | SHIP_ITEM_SOG | SHIP_ITEM_COG | SHIP_ITEM_MULTILINE,
 };
 
-class  AisElement: public Element
+class  AisElement : public FixElement<ZCHX::Data::ITF_AIS>
 {
 public:
-    AisElement(zchxMapFrameWork* frame);
-    AisElement(const ZCHX::Data::ITF_AIS &ele, zchxMapFrameWork* frame);
+    explicit  AisElement(const ZCHX::Data::ITF_AIS &ele, zchxMapWidget* w);
 
     const std::vector<std::pair<double, double> > &getPath() const;
     void setPath(const std::vector<std::pair<double, double> > &path);
 
     RADARTYPE getType() const;
 
-    const ZCHX::Data::ITF_AIS &getData() const;
     void setData(const ZCHX::Data::ITF_AIS &data);
 
     qint64 getUtc() const;
@@ -55,7 +52,7 @@ public:
     void drawExtrapolation(QPainter* painter);
 
     bool isEmpty() const;
-    void updateGeometry(QPointF pos, int size);
+    void updateGeometry(QPointF pos, qreal size);
 
     QPixmap getShipImage();
     QPixmap getCameraImage();
@@ -83,14 +80,11 @@ public:
 
     void setHistoryTrackStyle(const QString &color, const int lineWidth);
     void setPrepushTrackStyle(const QString &color, const int lineWidth);
-    //bool contains(QPointF pos) const;
-
-//    bool getFleet();
-//    void setFleet(bool val);
+    void clicked(bool isDouble);
+    void showToolTip(const QPoint& pos);
 private:
 
 private:
-    ZCHX::Data::ITF_AIS m_data;
     uint m_status; //0不闪，1闪
     QPolygonF m_polygon;
     QPixmap m_shipImage;
@@ -114,3 +108,5 @@ private:
     std::vector<ZCHX::Data::ITF_CameraDev> m_cameraDev; //船舶的相机列表
 };
 }
+
+#endif   //AISELEMENT_H

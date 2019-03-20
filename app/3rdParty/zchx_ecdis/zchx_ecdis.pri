@@ -33,7 +33,6 @@ exists( $${ZCHX_ECDIS_PATH} ) {
 
     warning("app path:" + $${IDE_APP_PATH})
 }
-
 !exists( $${ZCHX_ECDIS_PATH} ) {
     warning("Cann't find ZCHX_ECDIS DIR =======================" + $$ZCHX_ECDIS_PATH)
 }else{

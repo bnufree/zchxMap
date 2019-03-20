@@ -1,5 +1,5 @@
-#ifndef AREANETELEMENT_H
-#define AREANETELEMENT_H
+#ifndef AREANETELE_H
+#define AREANETELE_H
 
 #include "moveelement.h"
 
@@ -8,7 +8,7 @@ namespace qt {
 class AreaNetElement : public MoveElement
 {
 public:
-    explicit AreaNetElement(const ZCHX::Data::ITF_AreaNet &ele, zchxMapFrameWork* f);
+    explicit AreaNetElement(const ZCHX::Data::ITF_AreaNet &ele, zchxMapWidget* f);
 
     void setData(const ZCHX::Data::ITF_AreaNet &ele);
     ZCHX::Data::ITF_AreaNet data() const;
@@ -17,8 +17,8 @@ public:
     void setPath(const std::vector<std::pair<double, double> > &path);
     std::vector<std::pair<double, double> > & getPath();
     void updateOldPath();
-    int id() const;
-    void setId(int id);
+//    int id() const;
+//    void setId(int id);
 
     std::string name() const;
     void setName(const std::string &name);
@@ -34,4 +34,4 @@ private:
 }
 
 
-#endif // AREANETELEMENT_H
+#endif // AREANETELE_H

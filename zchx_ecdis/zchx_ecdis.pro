@@ -256,3 +256,7 @@ dlltarget.path = $$DESTDIRRoot/bin/$$CONFIG_NAME
 dlltarget.files =  $$DESTDIR/$${TARGET}.dll
 INSTALLS += dlltarget
 
+# 给release版本添加pdb信息方便调试
+QMAKE_CXXFLAGS_RELEASE *= $$QMAKE_CFLAGS_RELEASE_WITH_DEBUGINFO
+QMAKE_LFLAGS_RELEASE *= $$QMAKE_LFLAGS_RELEASE_WITH_DEBUGINFO
+

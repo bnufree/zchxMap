@@ -1,5 +1,5 @@
-#ifndef CARDMOUTHELEMENT_H
-#define CARDMOUTHELEMENT_H
+#ifndef CARDMOUTHELE_H
+#define CARDMOUTHELE_H
 
 #include "moveelement.h"
 
@@ -8,7 +8,7 @@ namespace qt {
 class CardMouthElement : public MoveElement
 {
 public:
-    explicit CardMouthElement(const ZCHX::Data::ITF_CardMouth &ele, zchxMapFrameWork* f);
+    explicit CardMouthElement(const ZCHX::Data::ITF_CardMouth &ele, zchxMapWidget* f);
     void setData(const ZCHX::Data::ITF_CardMouth &ele);
     ZCHX::Data::ITF_CardMouth data() const;
 
@@ -16,8 +16,8 @@ public:
     virtual void setPath(const std::vector<std::pair<double, double> > &path);
     virtual std::vector<std::pair<double, double> > & getPath();
 
-    int id() const;
-    void setId(int id);
+//    int id() const;
+//    void setId(int id);
 
     std::string name() const;
     void setName(const std::string &name);
@@ -33,4 +33,4 @@ private:
 }
 
 
-#endif // CARDMOUTHELEMENT_H
+#endif // CARDMOUTHELE_H

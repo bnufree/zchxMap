@@ -16,8 +16,6 @@ class TestMainWindow : public QMainWindow
 public:
     explicit TestMainWindow(QWidget *parent = 0);
     ~TestMainWindow();
-    void loadEcdis() {if(m_pEcdisWin) m_pEcdisWin->loadEcdis();}
-
 public slots:
     void slotTimerout();
 

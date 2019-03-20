@@ -1,5 +1,5 @@
-#ifndef RADARELEMENT_H
-#define RADARELEMENT_H
+#ifndef RADARELE_H
+#define RADARELE_H
 
 #include "IDrawElement.hpp"
 #include <QtCore>
@@ -9,8 +9,8 @@ namespace qt
 class  RadarPointElement: public Element
 {
 public:
-    RadarPointElement(const double &lat, const double &lon, zchxMapFrameWork* frame);
-    RadarPointElement(const ZCHX::Data::ITF_RadarPoint &ele, zchxMapFrameWork* frame);
+    RadarPointElement(const double &lat, const double &lon, zchxMapWidget* frame);
+    RadarPointElement(const ZCHX::Data::ITF_RadarPoint &ele, zchxMapWidget* frame);
     RadarPointElement(const RadarPointElement& pt);
 
     enum RADAR_SHARE{
@@ -44,13 +44,15 @@ public:
     bool getNeedDrawBox() const;
     void setNeedDrawBox(bool needDrawBox);
 
-    void updateGeometry(QPointF, int){}
+    void updateGeometry(QPointF, qreal){}
     virtual void initFromSettings();
     //目标描绘
     void drawElement(QPainter *painter);
     //绘制轨迹点
     void drawTrack(QPainter *painter);
     void drawText(QPainter *painter, QPointF pos, int sideLen);
+    void clicked(bool isDouble);
+    void showToolTip(const QPoint &pos);
 private:
     std::vector<std::pair<double, double>> m_path;
     RADARTYPE    m_radar_type;
@@ -65,8 +67,8 @@ private:
 class  RadarAreaElement: public Element
 {
 public:
-    explicit RadarAreaElement(double radarY,double radarX,int centerLineAngel,int radius, int maxScanRangeANgle, int numberofChannele, int maxWakePointsNumber);
-    explicit RadarAreaElement(const ZCHX::Data::ITF_RadarArea &ele);
+    explicit RadarAreaElement(double radarY,double radarX,int centerLineAngel,int radius, int maxScanRangeANgle, int numberofChannele, int maxWakePointsNumber, zchxMapWidget* v);
+    explicit RadarAreaElement(const ZCHX::Data::ITF_RadarArea &ele, zchxMapWidget* v);
     double radarX() const;
     void setRadarX(double radarX);
 
@@ -93,7 +95,7 @@ public:
     bool contains(zchxMapFrameWork *framework, double angleFromNorth, double x, double y) const;
     QPolygonF getShapePnts(zchxMapFrameWork *framework, double angleFromNorth);
 
-    void updateGeometry(QPointF, int){}
+    void updateGeometry(QPointF, qreal){}
 private:
     double m_radarX;
     double m_radarY;
@@ -106,4 +108,4 @@ private:
 };
 }
 
-#endif // RADARELEMENT_H
+#endif // RADARELE_H

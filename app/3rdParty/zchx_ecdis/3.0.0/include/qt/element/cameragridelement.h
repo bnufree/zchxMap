@@ -1,5 +1,5 @@
-#ifndef CAMERAGRIDELEMENT_H
-#define CAMERAGRIDELEMENT_H
+#ifndef CAMERAGRIDELE_H
+#define CAMERAGRIDELE_H
 
 #include "IDrawElement.hpp"
 #include <QtCore>
@@ -9,7 +9,7 @@ namespace qt {
 class CameraGridElement : public Element
 {
 public:
-    explicit CameraGridElement(const ZCHX::Data::ITF_NetGrid&ele, zchxMapFrameWork* f);
+    explicit CameraGridElement(const ZCHX::Data::ITF_NetGrid&ele, zchxMapWidget* f);
     void setData(const ZCHX::Data::ITF_NetGrid &ele);
     ZCHX::Data::ITF_NetGrid data() const;
 
@@ -29,4 +29,4 @@ private:
 }
 
 
-#endif // COASTELEMENT_H
+#endif // COASTELE_H

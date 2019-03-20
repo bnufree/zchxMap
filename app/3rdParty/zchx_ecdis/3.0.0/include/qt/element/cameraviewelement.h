@@ -1,5 +1,5 @@
-#ifndef CAMERAVIEWELEMENT_H
-#define CAMERAVIEWELEMENT_H
+#ifndef CAMERAVIEWELE_H
+#define CAMERAVIEWELE_H
 
 #include "IDrawElement.hpp"
 #include <QtCore>
@@ -8,7 +8,7 @@ namespace qt {
 class  CameraViewElement: public Element
 {
 public:
-    explicit CameraViewElement(const ZCHX::Data::ITF_CameraView &data, zchxMapFrameWork* f);
+    explicit CameraViewElement(const ZCHX::Data::ITF_CameraView &data, zchxMapWidget* f);
     ZCHX::Data::ITF_CameraView getData() const;
     void setData(const ZCHX::Data::ITF_CameraView &data);
     virtual void drawElement(QPainter *painter);
@@ -18,4 +18,4 @@ private:
 };
 }
 
-#endif // CAMERAVIEWELEMENT_H
+#endif // CAMERAVIEWELE_H

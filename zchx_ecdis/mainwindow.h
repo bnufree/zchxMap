@@ -20,7 +20,7 @@ public:
     ~MainWindow();
     void resizeEvent(QResizeEvent *e);
     void closeEvent(QCloseEvent *);
-    void loadEcdis();
+    //void loadEcdis();
     zchxMapWidget * getMapWidget()const {return mMapWidget;}
 public slots:
     void slotUpdateCurrentPos(double lon, double lat);
@@ -700,7 +700,7 @@ protected Q_SLOTS:
 private:
     Ui::MainWindow *ui;
     zchxMapWidget *mMapWidget;
-    bool          mStartLoad;
+    //bool          mStartLoad;
 };
 }
 

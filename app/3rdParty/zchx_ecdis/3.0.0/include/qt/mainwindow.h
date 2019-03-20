@@ -20,10 +20,9 @@ public:
     ~MainWindow();
     void resizeEvent(QResizeEvent *e);
     void closeEvent(QCloseEvent *);
-    void loadEcdis();
+    //void loadEcdis();
+    zchxMapWidget * getMapWidget()const {return mMapWidget;}
 public slots:
-    void updateGridLayout(int x, int y);
-    void slotRecvMapData(const QPixmap& data, int x, int y);
     void slotUpdateCurrentPos(double lon, double lat);
     void slotDisplayMapCenterAndZoom(double lon, double lat, int zoom);
     void slotUpdateDownloadProgress(int val);
@@ -168,7 +167,7 @@ public:
 
     //
     void itfToolBarCameraNetGridAdd(const QSizeF& size, const QString& camera);
-    void itfSetCameraNetGridList(const QList<ZCHX::Data::ITF_CameraNetGrid> & list);
+    void itfSetCameraNetGridList(const QList<ZCHX::Data::ITF_NetGrid> & list);
 
 
     //自定义显示样式
@@ -215,6 +214,7 @@ public:
          * \param parent 父图层, 默认为空
          */
     void itfAddLayer(std::shared_ptr<MapLayer> layer, std::shared_ptr<MapLayer> parent = 0);
+    void itfAddLayer(const QString& curLayer, const QString& curDisplayName, bool curVisible, const QString &parentLayer = QString());
     /*!
          * \brief 判断地图中是否包含 type 指定的图层
          */
@@ -418,10 +418,11 @@ signals: //定义发送信号接口
     /*!
          * \brief 图层中的元素的选中状态有变化
          */
-    void sigLayerElementSelectionChanged();
+    void sigLayerElementSelectionChanged(qt::Element* ele);
+    void sigLayerElementHoverChanged(qt::Element* ele);
 
     //相机网格
-    void itfSignalSendCameraNetGrid(const ZCHX::Data::ITF_CameraNetGrid& data);
+    void itfSignalSendCameraNetGrid(const ZCHX::Data::ITF_NetGrid& data);
 
     void itfSignalLoading();//发送开始加重地图
     void itfSignalLoadOver();//发送地图加载完毕
@@ -699,7 +700,7 @@ protected Q_SLOTS:
 private:
     Ui::MainWindow *ui;
     zchxMapWidget *mMapWidget;
-    bool          mStartLoad;
+    //bool          mStartLoad;
 };
 }
 

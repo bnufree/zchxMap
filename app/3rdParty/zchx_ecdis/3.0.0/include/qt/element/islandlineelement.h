@@ -1,5 +1,5 @@
-#ifndef ISLANDLINEELEMENT_H
-#define ISLANDLINEELEMENT_H
+#ifndef ISLANDLINEELE_H
+#define ISLANDLINEELE_H
 
 #include "IDrawElement.hpp"
 #include <QtCore>
@@ -9,7 +9,7 @@ namespace qt {
 class  IslandLineElement : public Element
 {
 public:
-    explicit IslandLineElement(const ZCHX::Data::ITF_IslandLine &ele, zchxMapFrameWork* f);
+    explicit IslandLineElement(const ZCHX::Data::ITF_IslandLine &ele, zchxMapWidget* f);
 
     ZCHX::Data::ITF_IslandLine data() const;
     void setData(const ZCHX::Data::ITF_IslandLine& data);
@@ -17,8 +17,8 @@ public:
     std::vector<std::pair<double, double> > path() const;
     void setPath(const std::vector<std::pair<double, double> > &path);
 
-    int id() const;
-    void setId(int id);
+//    int id() const;
+//    void setId(int id);
 
     std::string name() const;
     void setName(const std::string &name);
@@ -57,7 +57,7 @@ public:
 
     QString color() const;
     void setColor(QString color);
-    void updateGeometry(QPointF, int){}
+    void updateGeometry(QPointF, qreal){}
 
 //    bool contains(int range, double x, double y) const;
     void drawElement(QPainter *painter);
@@ -75,4 +75,4 @@ private:
 }
 
 
-#endif // ISLANDLINEELEMENT_H
+#endif // ISLANDLINEELE_H

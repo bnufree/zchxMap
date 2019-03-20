@@ -1,19 +1,13 @@
-#ifndef CAMERAELEMENT_H
-#define CAMERAELEMENT_H
+#ifndef CAMERAELE_H
+#define CAMERAELE_H
 
-#include "IDrawElement.hpp"
-#include <QtCore>
+#include "fixelement.h"
 
 namespace qt {
-class CameraElement : public Element
+class CameraElement : public FixElement<ZCHX::Data::ITF_CameraDev>
 {
 public:
-    explicit CameraElement(const ZCHX::Data::ITF_CameraDev & data, zchxMapFrameWork* frame);
-
-    const ZCHX::Data::ITF_CameraDev &getData() const;
-    void setData(const ZCHX::Data::ITF_CameraDev& dev);
-    int getParentID() const;
-
+    explicit CameraElement(const ZCHX::Data::ITF_CameraDev & data, zchxMapWidget* frame);
     ZCHX::Data::CAMERATYPE getType() const;
 
     uint getStatus() const;
@@ -23,19 +17,18 @@ public:
     bool isBug() const;
     bool isError() const;
 
-    QPixmap getImage(zchxMapFrameWork *f = 0) const;
+    QPixmap getImage() const;
     double getMaxTrackRange() const;
 
-    void updateGeometry(QPointF, int){}
+    void updateGeometry(QPointF, qreal){}
     void drawElement(QPainter *painter);
     void setParent(Element* ele);
     Element* getParent();
-
+    void clicked(bool isDouble);
 private:
-    ZCHX::Data::ITF_CameraDev m_data;
     Element     *mParent;               //相机悬挂的目标
 };
 
 }
 
-#endif // CAMERAELEMENT_H
+#endif // CAMERAELE_H

@@ -1,5 +1,5 @@
-#ifndef COASTELEMENT_H
-#define COASTELEMENT_H
+#ifndef COASTELE_H
+#define COASTELE_H
 
 #include "moveelement.h"
 
@@ -8,7 +8,7 @@ namespace qt {
 class CoastElement : public MoveElement
 {
 public:
-    explicit CoastElement(const ZCHX::Data::ITF_CoastData &ele, zchxMapFrameWork* f);
+    explicit CoastElement(const ZCHX::Data::ITF_CoastData &ele, zchxMapWidget* f);
     void setData(const ZCHX::Data::ITF_CoastData &ele);
     ZCHX::Data::ITF_CoastData data() const;
 
@@ -16,8 +16,8 @@ public:
     void setPath(const std::vector<std::pair<double, double> > &path);
     std::vector<std::pair<double, double> >& getPath();
     void updateOldPath();
-    int id() const;
-    void setId(int id);
+//    int id() const;
+//    void setId(int id);
 
     std::string name() const;
     void setName(const std::string &name);
@@ -33,4 +33,4 @@ private:
 }
 
 
-#endif // COASTELEMENT_H
+#endif // COASTELE_H

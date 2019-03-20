@@ -100,8 +100,8 @@ TestMainWindow::TestMainWindow(QWidget *parent) :
 //    connect(mTestTimer, SIGNAL(timeout()), this, SLOT(slotTimerout()));
 //    mTestTimer->setSingleShot(true);
 //    mTestTimer->start();
-    m_pEcdisWin->itfsetPluginUseModel(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL);
-    m_pEcdisWin->itfToolBarChannelAreaAdd();
+//    m_pEcdisWin->itfsetPluginUseModel(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL);
+//    m_pEcdisWin->itfToolBarChannelAreaAdd();
 }
 
 TestMainWindow::~TestMainWindow()
@@ -115,26 +115,27 @@ void TestMainWindow::slotTimerout()
     //Lon=110.12345678
     qsrand(QDateTime::currentDateTime().toTime_t());
     QList<ZCHX::Data::tagITF_RadarPoint> radarList;
+    QList<ZCHX::Data::ITF_AIS> aisList;
     for(int i=0; i<10; i++)
     {
-//        ZCHX::Data::ITF_AIS data;
-//        data.mmsi = i*100+1000;
-//        data.id = QString("AIS_%1").arg(data.mmsi);
-//        data.lat =  20.123456 + qrand() % 1000 * 0.0001;
-//        data.lon =  110.12345678 + qrand() % 1000 * 0.0001;
-//        data.type = qt::RADARSHIP;
-//        std::vector<std::pair<double, double> > path;
-//        path.push_back(std::pair<double, double>(data.lat, data.lon));
-//        data.setPath(path);
-//        aislist.append(data);
+        ZCHX::Data::ITF_AIS data;
+        data.mmsi = i*100+1000;
+        data.id = QString("AIS_%1").arg(data.mmsi);
+        data.lat =  20.123456 + qrand() % 1000 * 0.0001;
+        data.lon =  110.12345678 + qrand() % 1000 * 0.0001;
+        data.type = ZCHX::Data::ITF_AIS::Target_AIS;
+        std::vector<std::pair<double, double> > path;
+        path.push_back(std::pair<double, double>(data.lat, data.lon));
+        data.setPath(path);
+        aisList.append(data);
         ZCHX::Data::tagITF_RadarPoint item;
         //构建雷达的尾迹
 //        qDebug()<<"track point size:"<<data.tracks().tracks_size();
         double lat =  22.223456 + qrand() % 1000 * 0.0001;
         double lon =  113.08345678 + qrand() % 1000 * 0.0001;
         item.path.push_back(std::pair<double,double>(lat, lon));
-        item.lat = lat;
-        item.lon = lon;
+        item.wgs84PosLat = lat;
+        item.wgs84PosLon = lon;
         item.trackNumber = i*100+1000;
         item.cog = 110;
         item.sog = 1.2;
@@ -145,4 +146,5 @@ void TestMainWindow::slotTimerout()
     }
 
     m_pEcdisWin->itfSetRadarPointData(radarList);
+    m_pEcdisWin->itfSetAisData(aisList);
 }

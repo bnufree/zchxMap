@@ -1,5 +1,5 @@
-#ifndef CHANNELELEMENT_H
-#define CHANNELELEMENT_H
+#ifndef CHANNELELE_H
+#define CHANNELELE_H
 
 #include "moveelement.h"
 
@@ -8,7 +8,7 @@ namespace qt {
 class ChannelElement : public MoveElement
 {
 public:
-    explicit ChannelElement(const ZCHX::Data::ITF_Channel &ele, zchxMapFrameWork* f);
+    explicit ChannelElement(const ZCHX::Data::ITF_Channel &ele, zchxMapWidget* f);
 
     void setData(const ZCHX::Data::ITF_Channel &ele);
     ZCHX::Data::ITF_Channel data() const;
@@ -16,8 +16,8 @@ public:
     virtual std::vector<std::pair<double, double> > path() const;
     virtual void setPath(const std::vector<std::pair<double, double> > &path);
 
-    int id() const;
-    void setId(int id);
+//    int id() const;
+//    void setId(int id);
 
     std::string name() const;
     void setName(const std::string &name);
@@ -35,4 +35,4 @@ private:
 }
 
 
-#endif // CHANNELELEMENT_H
+#endif // CHANNELELE_H

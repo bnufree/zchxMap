@@ -1,5 +1,5 @@
-#ifndef WARNINGZONEELEMENT_H
-#define WARNINGZONEELEMENT_H
+#ifndef WARNINGZONEELE_H
+#define WARNINGZONEELE_H
 
 #include "moveelement.h"
 namespace qt {
@@ -8,7 +8,7 @@ namespace qt {
 class WarningZoneElement : public MoveElement
 {
 public:
-    explicit WarningZoneElement(const ZCHX::Data::ITF_WarringZone &ele, zchxMapFrameWork* f);
+    explicit WarningZoneElement(const ZCHX::Data::ITF_WarringZone &ele, zchxMapWidget* f);
 
     ZCHX::Data::ITF_WarringZone data() const;
     void setData(const ZCHX::Data::ITF_WarringZone &ele);
@@ -17,8 +17,8 @@ public:
     void setPath(const std::vector<std::pair<double, double> > &path);
     std::vector<std::pair<double, double> > & getPath();
 
-    int id() const;
-    void setId(int id);
+//    int id() const;
+//    void setId(int id);
 
     std::string name() const;
     void setName(const std::string &name);
@@ -43,4 +43,4 @@ private:
 }
 
 
-#endif // WARNINGZONEELEMENT_H
+#endif // WARNINGZONEELE_H

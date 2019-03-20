@@ -14,8 +14,7 @@ namespace qt {
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    mMapWidget(0),
-    mStartLoad(false)
+    mMapWidget(0)
 {
     ui->setupUi(this);
     QString style = QString("background-color:%1;").arg(Profiles::instance()->value(MAP_INDEX, MAP_BACK_GROUND).toString());
@@ -30,7 +29,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->load_frame->setVisible(false);
     ui->pos_frame->setVisible(false);
     ui->ctrl_frame->setVisible(false);
-    mMapWidget = new zchxMapWidget(ui->ecdis_frame);
+    mMapWidget = new zchxMapWidget(this);
+    ui->ecdis_frame->layout()->addWidget(mMapWidget);
     connect(mMapWidget, SIGNAL(signalDisplayCurPos(double,double)), this, SLOT(slotUpdateCurrentPos(double,double)));
     connect(mMapWidget, SIGNAL(signalSendNewMap(double,double,int)), this, SLOT(slotDisplayMapCenterAndZoom(double,double,int)));
     initSignalConnect();
@@ -45,20 +45,18 @@ MainWindow::~MainWindow()
 void MainWindow::resizeEvent(QResizeEvent *e)
 {
     QMainWindow::resizeEvent(e);
-    if(!mStartLoad) return;
-    if(!mMapWidget) return;
-    loadEcdis();
+    //loadEcdis();
     emit itfSignalIsEcdisResize();
 }
 
-void MainWindow::loadEcdis()
-{
-    if(!mStartLoad)
-    {
-        mStartLoad = true;
-    }
-    if(mMapWidget) mMapWidget->setGeometry(0, 0, ui->ecdis_frame->size().width(), ui->ecdis_frame->size().height());
-}
+//void MainWindow::loadEcdis()
+//{
+//    if(!mStartLoad)
+//    {
+//        mStartLoad = true;
+//    }
+//    if(mMapWidget) mMapWidget->setGeometry(0, 0, ui->ecdis_frame->size().width(), ui->ecdis_frame->size().height());
+//}
 
 
 

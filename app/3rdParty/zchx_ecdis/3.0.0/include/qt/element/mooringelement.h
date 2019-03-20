@@ -1,5 +1,5 @@
-#ifndef MOORINGELEMENT_H
-#define MOORINGELEMENT_H
+#ifndef MOORINGELE_H
+#define MOORINGELE_H
 
 #include "moveelement.h"
 
@@ -8,15 +8,15 @@ namespace qt {
 class MooringElement : public MoveElement
 {
 public:
-    explicit MooringElement(const ZCHX::Data::ITF_Mooring &ele, zchxMapFrameWork* f);
+    explicit MooringElement(const ZCHX::Data::ITF_Mooring &ele, zchxMapWidget* f);
 
     void setData(const ZCHX::Data::ITF_Mooring &ele);
 
     virtual std::vector<std::pair<double, double> > path() const;
     virtual void setPath(const std::vector<std::pair<double, double> > &path);
 
-    int id() const;
-    void setId(int id);
+//    int id() const;
+//    void setId(int id);
 
     std::string name() const;
     void setName(const std::string &name);
@@ -37,4 +37,4 @@ private:
 }
 
 
-#endif // MOORINGELEMENT_H
+#endif // MOORINGELE_H

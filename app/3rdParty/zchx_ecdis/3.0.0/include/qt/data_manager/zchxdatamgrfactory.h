@@ -41,7 +41,7 @@ public:
     zchxLocalMarkDataMgr*   getLocalmarkMgr();
     zchxDangerousDataMgr*   getDangerousMgr();
     zchxIslandLineDataMgr*  getIslandlineMgr();
-    zchxCameraGridDataMgr*  getCameraGridMgr();
+    zchxNetGridDataMgr*  getNetGridMgr();
     zchxShipAlarmAscendDataMgr* getShipAlarmAscendMgr();
     zchxRadarVideoMgr*          getRadarVideoMgr();
     zchxRadarFeatureZoneDataMgr* getRadarFeatureZoneMgr();

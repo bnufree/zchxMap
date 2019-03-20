@@ -7,20 +7,14 @@
 #include "radarelement.h"
 #include "ipcelement.h"
 #include "videotargetelement.h"
-#include "cameraviewelement.h"
-#include "warningzoneelement.h"
-#include "coastelement.h"
-#include "seabedpiplineelement.h"
 #include "islandlineelement.h"
-#include "areanetelement.h"
-#include "cardmouthelement.h"
-#include "channelelement.h"
-#include "mooringelement.h"
 #include "shipalarmascendelement.h"
 #include "structureelement.h"
 #include "patrolstationelement.h"
-#include "cameragridelement.h"
+#include "gridelement.h"
 #include "radarvideoelement.h"
+#include "zchxmoveelements.h"
+#include "zchxfixelements.h"
 #include <QtCore>
 
 namespace qt
@@ -94,7 +88,7 @@ public:
     void setActivePathPoint(int activePathPoint);
     void delPathPoint(int idx);
 
-    void updateGeometry(QPointF, int){}
+    void updateGeometry(QPointF, qreal){}
 
     //获取路由对应的项目ID
     int projectID() const { return data().projectID;}
@@ -199,7 +193,7 @@ public:
     void setActivePathPoint(int activePathPoint);
     void delPathPoint(int idx);
 
-    void updateGeometry(QPointF, int){}
+    void updateGeometry(QPointF, qreal){}
 private:
     ZCHX::Data::ShipPlanLine m_data;
     ZCHX::Data::ShipPlanLine m_backData;    //备份的数据
@@ -253,61 +247,7 @@ private:
     int m_uMsgIndex;//扇区索引
 };
 
-//海图绘制元素
-class EllipseElement : public Element
-{
-public:
-    explicit  EllipseElement(const ZCHX::Data::ITF_EleEllipse &ele);
-    ZCHX::Data::ITF_EleEllipse ele() const;
-    void setEle(const ZCHX::Data::ITF_EleEllipse &ele);
 
-    void updateGeometry(QPointF, int){}
-private:
-    ZCHX::Data::ITF_EleEllipse m_ele;
-
-};
-
-//三角形
-class TriangleElement : public Element
-{
-public:
-    explicit TriangleElement(const ZCHX::Data::ITF_EleTriangle &ele);
-
-    ZCHX::Data::ITF_EleTriangle ele() const;
-    void setEle(const ZCHX::Data::ITF_EleTriangle &ele);
-
-    void updateGeometry(QPointF, int){}
-private:
-    ZCHX::Data::ITF_EleTriangle m_ele;
-};
-
-//直线
-class LineElement : public Element
-{
-public:
-    explicit LineElement(const ZCHX::Data::ITF_EleLine &ele);
-
-    ZCHX::Data::ITF_EleLine ele() const;
-    void setEle(const ZCHX::Data::ITF_EleLine &ele);
-
-    void updateGeometry(QPointF, int){}
-private:
-    ZCHX::Data::ITF_EleLine m_ele;
-};
-
-//矩形
-class RectElement : public Element
-{
-public:
-    explicit  RectElement(const ZCHX::Data::ITF_EleRect &ele);
-
-    ZCHX::Data::ITF_EleRect ele() const;
-    void setEle(const ZCHX::Data::ITF_EleRect &ele);
-
-    void updateGeometry(QPointF, int){}
-private:
-    ZCHX::Data::ITF_EleRect m_ele;
-};
 /*标准图元*/
 
 class  PastrolStation : public Element
@@ -316,65 +256,11 @@ public:
     explicit PastrolStation(const ZCHX::Data::ITF_PastrolStation &data);
     ZCHX::Data::ITF_PastrolStation data() const;
 
-    void updateGeometry(QPointF, int){}
+    void updateGeometry(QPointF, qreal){}
 private:
     ZCHX::Data::ITF_PastrolStation m_data;
 };
 
-//位置标注
-class LocalMark :public Element
-{
-public:
-    explicit LocalMark(const ZCHX::Data::ITF_LocalMark & data, zchxMapFrameWork* f);
 
-    ZCHX::Data::ITF_LocalMark data() const;
-    void setData(const ZCHX::Data::ITF_LocalMark & data);
-    std::string name() const {return m_data.name.toStdString();}
-
-    void updateGeometry(QPointF, int){}
-private:
-    ZCHX::Data::ITF_LocalMark m_data;
-};
-
-//导航
-class  Navigation : public Element
-{
-public:
-    explicit Navigation(const ZCHX::Data::ITF_Navigation & data);
-    ZCHX::Data::ITF_Navigation data() const;
-    void setData(const ZCHX::Data::ITF_Navigation &data);
-
-    void updateGeometry(QPointF, int){}
-private:
-    ZCHX::Data::ITF_Navigation m_data;
-
-};
-
-//危险圈
-class DangerousCircle : public Element
-{
-public:
-    explicit DangerousCircle(const ZCHX::Data::ITF_DangerousCircle &data, zchxMapFrameWork* f);
-    ZCHX::Data::ITF_DangerousCircle data() const;
-    void setData(const ZCHX::Data::ITF_DangerousCircle &data);
-    std::string name() const {return m_data.name.toStdString();}
-
-    void updateGeometry(QPointF, int){}
-private:
-    ZCHX::Data::ITF_DangerousCircle  m_data;
-};
-
-class RadarFeatureZoneElement : public Element
-{
-public:
-    explicit RadarFeatureZoneElement(const ZCHX::Data::ITF_RadarFeaturesZone &data, zchxMapFrameWork* f);
-    ZCHX::Data::ITF_RadarFeaturesZone data() const;
-    void setData(const ZCHX::Data::ITF_RadarFeaturesZone &data);
-    void updateGeometry(QPointF, int){}
-    std::string name() const {return m_data.name.toStdString();}
-    void drawElement(QPainter *painter);
-private:
-    ZCHX::Data::ITF_RadarFeaturesZone  m_data;
-};
 //namespace end
 }

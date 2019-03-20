@@ -1,5 +1,5 @@
-#ifndef RODELEMENT_H
-#define RODELEMENT_H
+#ifndef RODELE_H
+#define RODELE_H
 
 #include "IDrawElement.hpp"
 #include <QtCore>
@@ -10,7 +10,7 @@ namespace qt
 class  RodElement : public Element
 {
 public:
-    explicit RodElement(const ZCHX::Data::ITF_CameraRod &data, zchxMapFrameWork* f);
+    explicit RodElement(const ZCHX::Data::ITF_CameraRod &data, zchxMapWidget* f);
     ZCHX::Data::ITF_CameraRod getData() const;
     void setData(const ZCHX::Data::ITF_CameraRod &data);
 
@@ -20,7 +20,7 @@ public:
     void setStatus(ZCHX::Data::CAMERAROD_STATUS st);
     ZCHX::Data::CAMERAROD_STATUS status() const;
     virtual void drawElement(QPainter *painter);
-    void updateGeometry(QPointF, int){}
+    void updateGeometry(QPointF, qreal){}
     void updateElementStatus(qint64 ele, bool sts);
 private:
     ZCHX::Data::ITF_CameraRod m_data;
@@ -30,4 +30,4 @@ private:
 };
 }
 
-#endif // RODELEMENT_H
+#endif // RODELE_H

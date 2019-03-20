@@ -65,6 +65,10 @@ public:
      */
     bool visible() const;
     void setVisible(bool visible);
+    //父图层获取更新
+    void setParentLayer(std::shared_ptr<MapLayer> parent);
+    std::shared_ptr<MapLayer> getParentLayer() const;
+    bool hasParentLayer() const;
 
     /*!
      * \brief 图层是否包含子图层
@@ -99,6 +103,7 @@ public:
      * \brief 获取当前图层中的所有图元的列表, 最先添加的图层再列表最前面
      */
     std::list<std::shared_ptr<Element> > getElements();
+    Element*                             getElement(const QString& name);
 
     /*!
      * \brief 更新图层
@@ -128,6 +133,9 @@ public:
     bool clearActiveState();
     bool clearFocusState();
     bool clearHoverState();
+    //图层是否可以选择
+    void setPickupAvailable(bool sts);
+    bool getPickupAvailable() const;
 
 signals:
     void visibleChanged(bool visible);
