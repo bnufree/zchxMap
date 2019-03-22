@@ -1,29 +1,77 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <maplayers identifier="MapLayers" version="1.0.0" Save="false">
-    <MapLayer type="lay_island" tr="Island Line" visible="true"/>
-    <MapLayer type="lay_wirerod" tr="Wire rod" visible="true"/>
-	<MapLayer type="lay_camera" tr="Camera" visible="true"/>
-    <MapLayer type="lay_gdy" tr="Photoelectric instrument" visible="true"/>
-    <MapLayer type="lay_uav" tr="UAV" visible="true"/>
-    <MapLayer type="lay_defence" tr="Defence area" visible="true"/>
-    <MapLayer type="lay_local_mark" tr="Position mark" visible="true"/>
-    <MapLayer type="lay_warning_target" tr="Warning target" visible="true"/>
-    <MapLayer type="lay_patrol_radar_site" tr="Patrol and radar station" visible="true"/>
-    <MapLayer type="lay_ais" tr="AIS" visible="true">
-        <MapLayer type="lay_ais_current" tr="AIS current position" visible="true"/>
-        <MapLayer type="lay_ais_track" tr="AIS history track" visible="false"/>
+    <MapLayer type="lay_island" tr="环岛线" visible="true"/>
+    <MapLayer type="lay_wirerod" tr="相机杆" visible="true"/>
+    <MapLayer type="lay_camera" tr="相机" visible="true"/>
+    <MapLayer type="lay_gdy" tr="光电仪" visible="true"/>
+    <MapLayer type="lay_uav" tr="无人机" visible="true"/>
+    <MapLayer type="lay_defence" tr="自定义防区" visible="true"/>
+    <MapLayer type="lay_local_mark" tr="关注点" visible="true"/>
+    <MapLayer type="lay_warning_target" tr="预警目标" visible="true"/>
+    <MapLayer type="lay_patrol_radar_site" tr="雷达巡逻站" visible="true">
+        <MapLayer type="lay_radar_site" tr="雷达站" visible="true"/>
+        <MapLayer type="lay_patrol_site" tr="巡逻站" visible="true"/>
     </MapLayer>
+    <MapLayer type="lay_ais" tr="AIS" visible="true">
+        <MapLayer type="lay_ais_current" tr="AIS目标" visible="true"/>
+        <MapLayer type="lay_law_enforcement_vessel" tr="执法船" visible="true"/>
+        <MapLayer type="lay_ais_construction" tr="施工船" visible="true"/>
+        <MapLayer type="lay_ais_history_track" tr="AIS历史轨迹" visible="false"/>、
+        <MapLayer type="lay_ais_realtime_tail_track" tr="AIS实时尾迹" visible="false"/>
+    </MapLayer>
+    <MapLayer type="lay_ais_cable_touchdown" tr="海缆轨迹" visible="true"/>
     <MapLayer type="lay_radar" tr="Radar" visible="true">
-        <MapLayer type="lay_radar_current" tr="Radar current position" visible="true"/>
-        <MapLayer type="lay_radar_track" tr="Historical track radar" visible="false"/>
-        <MapLayer type="lay_radar_area" tr="Radar area" visible="true"/>
-        <MapLayer type="lay_radar_echoes" tr="Radar echoes" visible="true"/>
+        <MapLayer type="lay_radar_current" tr="雷达目标点" visible="true"/>
+        <MapLayer type="lay_radar_realtime_track" tr="雷达尾迹点" visible="true"/>
+        <MapLayer type="lay_radar_history_track" tr="雷达历史轨迹点" visible="false"/>
+        <MapLayer type="lay_radar_area" tr="雷达区域" visible="true"/>
+        <MapLayer type="lay_radar_video" tr="雷达回波" visible="true"/>
     </MapLayer>
 	<MapLayer type="lay_gps" tr="GPS" visible="true">
-        <MapLayer type="lay_gps_current" tr="GPS current position" visible="true"/>
-        <MapLayer type="lay_gps_track" tr="GPS history track" visible="false"/>
+        <MapLayer type="lay_gps_current" tr="GPS实时" visible="true"/>
+        <MapLayer type="lay_gps_track" tr="GPS历史轨迹" visible="false"/>
     </MapLayer>
-    <MapLayer type="lay_rect" tr="矩形图元" visible="true"/>
+    <MapLayer type="lay_shipplan_line" tr="船舶计划" visible="true"/>
+    <MapLayer type="lay_cdma" tr="CDMA" visible="true">
+        <MapLayer type="lay_cdma_target" tr="CDMA实时目标点" visible="true"/>
+        <MapLayer type="lay_cdma_track" tr="CDMA历史轨迹" visible="true"/>
+    </MapLayer>
+    <MapLayer type="lay_big_dipper" tr="北斗" visible="true">
+        <MapLayer type="lay_big_dipper_target" tr="北斗实时目标点" visible="true"/>
+        <MapLayer type="lay_big_dipper_track" tr="北斗历史轨迹" visible="true"/>
+    </MapLayer>
+    <MapLayer type="lay_route_line" tr="路由线" visible="true"/>
+    <MapLayer type="lay_history_route_line" tr="历史路由线" visible="true"/>
+    <MapLayer type="lay_route_cross" tr="交越路由点" visible="true"/>
+    <MapLayer type="lay_multibeam" tr="多波束" visible="true"/>
+
+    <MapLayer type="lay_dangerous_cirle" tr="危险圈" visible="true"/>
+    <MapLayer type="lay_camera_view" tr="相机视场" visible="true"/>
+    <MapLayer type="lay_radar_feature_area" tr="雷达特征区域" visible="true"/>
+    <MapLayer type="lay_lonlat_gird" tr="经纬网格" visible="true"/>
+
+    <MapLayer type="lay_tower_rod" tr="塔杆" visible="true"/>
+    <MapLayer type="lay_navigation_mark" tr="航标" visible="true"/>
+    <MapLayer type="lay_special_routeline" tr="特殊路由" visible="true"/>
+    <MapLayer type="lay_high_level" tr="施工高层图" visible="true"/>
+    <MapLayer type="lay_image_map" tr="施工影像图" visible="true"/>
+
+    <MapLayer type="lay_coast_data" tr="岸线数据" visible="true"/>
+    <MapLayer type="lay_seabed_pipeline" tr="海底管线" visible="true"/>
+    <MapLayer type="lay_structure" tr="结构物" visible="true"/>
+    <MapLayer type="lay_area_net" tr="地理区域网格" visible="true"/>
+    <MapLayer type="lay_channel" tr="航道" visible="true"/>
+    <MapLayer type="lay_mooring" tr="锚泊" visible="true"/>
+    <MapLayer type="lay_defineZone" tr="自定义区域" visible="true"/>
+    <MapLayer type="lay_cardMouth" tr="卡口" visible="true"/>
+    <MapLayer type="lay_alarmAscend" tr="预警追溯轨迹线" visible="true"/>
+    <MapLayer type="camera_netGrid" tr="相机网格" visible="true"/>
+    <MapLayer type="lay_base" tr="基础图元" visible="true">
+        <MapLayer type="lay_ellipse" tr="圆形图元" visible="true"/>
+        <MapLayer type="lay_line" tr="线形图元" visible="true"/>
+        <MapLayer type="lay_triangle" tr="三角形图元" visible="true"/>
+        <MapLayer type="lay_rect" tr="矩形图元" visible="true"/>
+    </MapLayer>
     <MapLayer type="lay_ais_fusion" tr="AIS融合目标" visible="true"/>
     <MapLayer type="lay_ais_station" tr="AIS基站" visible="true"/>
     <MapLayer type="lay_ten_gird" tr="10分网格" visible="true"/>

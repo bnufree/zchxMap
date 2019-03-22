@@ -58,7 +58,7 @@ private:
     static MGarbage Garbage; // 定义一个静态成员，在程序结束时，系统会调用它的析构函数
 
 signals:
-
+    void signalDisplayNameChanged(const QString& type, const QString& displayName);
 public slots:
 private:
     std::list<std::shared_ptr<MapLayer> > m_layerList;

@@ -7,6 +7,19 @@
 #include "../zchxutils.hpp"
 
 namespace qt {
+struct MapLayerEleOptSetting{
+    int         mMaxOptNum;
+    bool        mReplaceWhenOver;
+    QStringList mOptIdList;
+
+    MapLayerEleOptSetting()
+    {
+        mMaxOptNum = INT_MAX;
+        mReplaceWhenOver = true;
+        mOptIdList.clear();
+    }
+};
+
 class MapLayer;
 class MapLayerPrivate : public QObjectPrivate
 {
@@ -27,7 +40,12 @@ private:
     bool                                            m_pickupAvailable;
     std::shared_ptr<MapLayer>                       m_parent;
     ZCHX::Data::ECDIS_PLUGIN_USE_MODELs             m_mode;
-
     zchxMapWidget                                   *m_drawWidget;
+    //关注,尾迹,历史轨迹,模拟外推等的设定
+    MapLayerEleOptSetting                           mConcernSetting;       //目标关注
+    MapLayerEleOptSetting                           mRealtimeTailTrackSetting;
+    MapLayerEleOptSetting                           mHistoryTrackSetting;
+    MapLayerEleOptSetting                           mExtrapolationSetting;
+
 };
 }

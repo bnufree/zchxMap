@@ -136,6 +136,10 @@ public:
     //图层是否可以选择
     void setPickupAvailable(bool sts);
     bool getPickupAvailable() const;
+    //关注
+    //尾迹
+    //历史轨迹
+    //预推
 
 signals:
     void visibleChanged(bool visible);
