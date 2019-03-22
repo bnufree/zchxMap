@@ -206,7 +206,8 @@ FORMS    += mainwindow.ui \
 RESOURCES += res/resources.qrc
 DISTFILES += \
     res/element/camera1.png \
-    res/element/camera2.png
+    res/element/camera2.png \
+    configuration/maplayers.xml
 RESOURCES += $$PWD/opengl/opengl.qrc
 
 #鐢熸垚瀹夎鏂囦欢鍒扮涓夋柟搴?
@@ -255,6 +256,10 @@ INSTALLS += LibFilesLib
 dlltarget.path = $$DESTDIRRoot/bin/$$CONFIG_NAME
 dlltarget.files =  $$DESTDIR/$${TARGET}.dll
 INSTALLS += dlltarget
+#8)install layerfile
+layertarget.path = $$DESTDIRRoot/bin/mapdata
+layertarget.files = $$PWD/configuration/*.*
+INSTALLS += layertarget
 
 # 给release版本添加pdb信息方便调试
 QMAKE_CXXFLAGS_RELEASE *= $$QMAKE_CFLAGS_RELEASE_WITH_DEBUGINFO
