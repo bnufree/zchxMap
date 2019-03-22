@@ -11,7 +11,7 @@ TestMainWindow::TestMainWindow(QWidget *parent) :
     ui->centralwidget->setLayout(new QVBoxLayout);
     m_pEcdisWin = new qt::MainWindow;
     ui->centralwidget->layout()->addWidget(m_pEcdisWin);
-
+#if 0
     //添加防区图层
     std::shared_ptr<qt::MapLayer> warningZoneLayer(new qt::MapLayer(ZCHX::LAYER_DEFENCE, ZCHX::TR_LAYER_DEFENCE, true));
     m_pEcdisWin->itfAddLayer(warningZoneLayer);
@@ -94,6 +94,7 @@ TestMainWindow::TestMainWindow(QWidget *parent) :
     //相机网格图层
     std::shared_ptr<qt::MapLayer> cameraGridLayer(new qt::MapLayer(ZCHX::LAYER_CAMERANETGRID, ZCHX::TR_LAYER_CAMERANETGRID, true));
     m_pEcdisWin->itfAddLayer(cameraGridLayer);
+#endif
 
 //    mTestTimer = new QTimer;
 //    mTestTimer->setInterval(3000);

@@ -35,6 +35,7 @@ void GridElement::drawCameraGrid(QPainter *painter)
         QRectF rectf(top_left, bottom_right);
         painter->drawRect(rectf);
 
+
         //画文字
         QPointF center = rectf.center();
         QString text = QString::number(poly.id);
@@ -47,6 +48,12 @@ void GridElement::drawCameraGrid(QPainter *painter)
 
         painter->drawText(txt_pos, text );
     }
+//    if(m_data.mNetGridList.size() > 0)
+//    {
+//        ZCHX::Data::ITF_NetGridPolygon poly = m_data.mNetGridList.last();
+//        qDebug()<<poly.id<<poly.name<<FLOAT_STRING(poly.mLatLonList.first().lat, 10)<<FLOAT_STRING(poly.mLatLonList.first().lon, 10)
+//                <<FLOAT_STRING(poly.mLatLonList.last().lat, 10) <<FLOAT_STRING(poly.mLatLonList.last().lon, 10);
+//    }
 }
 
 void GridElement::drawTenGrid(QPainter *painter)

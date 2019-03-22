@@ -35,7 +35,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(mMapWidget, SIGNAL(signalSendNewMap(double,double,int)), this, SLOT(slotDisplayMapCenterAndZoom(double,double,int)));
     initSignalConnect();
     MapLayerMgr::instance()->setDrawWidget(mMapWidget);
-    MapLayerMgr::instance()->loadLayers();
+    MapLayerMgr::instance()->loadEcdisLayers();
 }
 
 MainWindow::~MainWindow()

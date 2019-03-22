@@ -97,6 +97,7 @@ public:
 
     void updateData(const T &zone)
     {
+        qDebug()<<"current name:"<<zone.getName();
         K *zoneItem = item(zone.getName().toStdString());
         //更新已有的
         if(zoneItem)
@@ -126,6 +127,8 @@ public:
     {
         for(std::shared_ptr<K> ele : mData)
         {
+            if(!ele) continue;
+            qDebug()<<"ele:"<<QString::fromStdString(ele->name());
             if(ele->name().compare(name) == 0)
             {
                 return ele.get();

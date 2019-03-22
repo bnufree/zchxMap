@@ -920,6 +920,7 @@ private:
     MapUnit                         mUnit;
     //当前打开的项目ID
     int                             mCurrentProjectID;
+    QLabel                          *mZoomLbl;
 
 };
 }

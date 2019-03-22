@@ -119,7 +119,7 @@ public:
 class zchxAisBaseStationDataMgr : public zchxTemplateDataMgr<AISBaseStationElement, ZCHX::Data::ITF_AISBASESTATION>
 {
     explicit zchxAisBaseStationDataMgr(zchxMapWidget* w, QObject *parent = 0):
-        zchxTemplateDataMgr<AISBaseStationElement, ZCHX::Data::ITF_AISBASESTATION>(w, ZCHX::DATA_MGR_AIS_STATION, ZCHX::LAYER_AIS_Station, parent){}
+        zchxTemplateDataMgr<AISBaseStationElement, ZCHX::Data::ITF_AISBASESTATION>(w, ZCHX::DATA_MGR_AIS_STATION, ZCHX::LAYER_AIS_STATION, parent){}
 
 };
 

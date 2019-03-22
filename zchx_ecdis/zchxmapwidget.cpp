@@ -33,8 +33,10 @@ zchxMapWidget::zchxMapWidget(QWidget *parent) : QWidget(parent),
     mShipPlanDataMgr(new zchxShipPlanDataMgr(this)),
     mToolPtr(0)
 {
-
     this->setMouseTracking(true);
+    mZoomLbl = new QLabel(this);
+    mZoomLbl->setStyleSheet("background-color:transparent; border:none; color:black; font-size:20pt;");
+    mZoomLbl->setVisible(false);
     QTimer *timer = new QTimer;
     timer->setInterval(Profiles::instance()->value(MAP_INDEX, MAP_UPDATE_INTERVAL).toInt());
     connect(timer, SIGNAL(timeout()), this, SLOT(update()));
@@ -73,6 +75,7 @@ void zchxMapWidget::setUseRightKey(bool bUseRightKey)
 
 void zchxMapWidget::resizeEvent(QResizeEvent *e)
 {
+    QWidget::resizeEvent(e);
     QSize size = e->size();
     if(size.width() > 0 && size.height() > 0)
     {
@@ -82,7 +85,8 @@ void zchxMapWidget::resizeEvent(QResizeEvent *e)
             mFrameWork->SetViewSize(size.width(), size.height());
         }
     }
-    QWidget::resizeEvent(e);
+
+    mZoomLbl->setGeometry(10, 10, 100, 60);
 }
 
 
@@ -107,6 +111,8 @@ void zchxMapWidget::paintEvent(QPaintEvent *e)
 //    //qDebug()<<pnt.x<<pnt.y;
 //    painter.setBrush(QBrush(Qt::red));
 //    painter.drawEllipse(pnt.x, pnt.y, 5, 5);
+    mZoomLbl->setText(QString("zoom:%1").arg(mFrameWork->Zoom()));
+    updateCurrentPos(this->mapFromGlobal(QCursor::pos()));
 }
 
 bool zchxMapWidget::IsLeftButton(Qt::MouseButtons buttons)
@@ -260,6 +266,7 @@ void zchxMapWidget::mousePressEvent(QMouseEvent *e)
         //先更新当前鼠标点击的位置信息,给地图移动做准备
         updateCurrentPos(e->pos());
         mPressPnt = e->pos();
+        qDebug()<<"left mouse press event:"<<e->pos();
         //检查不同的情况进行处理,地图的其他操作优先处理
         if(isActiveETool) {
             //获取当前点的经纬度
@@ -609,6 +616,7 @@ void zchxMapWidget::mousePressEvent(QMouseEvent *e)
         //            setCursor(Qt::OpenHandCursor);
     } else if(IsRightButton(e) && mUseRightKey)
     {
+        qDebug()<<"right mouse press event:"<<e->pos();
         QMenu menu;
         if(mToolPtr) {
             menu.addActions(mToolPtr->getRightMenuActions(e->pos()));
@@ -1714,6 +1722,7 @@ void zchxMapWidget::invokeHotSpot()
     data.targetType = 0;
     data.targetLon = ll.lon;
     data.targetLat = ll.lat;
+    qDebug()<<"hot spot:"<<mPressPnt<<"lon- lat:"<<FLOAT_STRING(ll.lon, 10)<<FLOAT_STRING(ll.lat, 10);
     emit signalInvokeHotSpot(data);
 }
 

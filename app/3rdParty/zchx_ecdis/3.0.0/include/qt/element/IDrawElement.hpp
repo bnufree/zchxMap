@@ -26,7 +26,7 @@ public:
      * \brief 获取图元当前所在的图层
      * \note 有可能为空
      */
-    std::shared_ptr<MapLayer> getLayer();
+    //std::shared_ptr<MapLayer> getLayer();
     void                      setLayer(const QString& layer);
     QString                      layerName() const {return m_layerName;}
 
@@ -195,7 +195,7 @@ public:
     //取得当前图元在屏幕坐标的位置
     QPointF getCurrentPos();
     //
-    std::shared_ptr<MapLayer> layer() {return m_layer;}
+    //std::shared_ptr<MapLayer> layer() {return m_layer;}
     zchxMapWidget* view() const {return mView;}
 
     void setView(zchxMapWidget* v) {mView = v;}
@@ -203,7 +203,7 @@ public:
     zchxMapFrameWork* framework() const;
 
     //检查层设定是否显示
-    bool isLayervisible();
+    //bool isLayervisible();
     bool isDrawAvailable(QPainter* painter = 0);
     //设置报警颜色
     void setFlashColor(const QColor& color);
@@ -231,7 +231,7 @@ protected://TODO: 添加私有类, 实现成员变量对外隐藏, 且防止依�
 
     std::list<std::shared_ptr<Element> >    m_children;
     std::shared_ptr<Element>                m_parent;
-    std::shared_ptr<MapLayer>               m_layer;
+//    std::shared_ptr<MapLayer>               m_layer;
     QString                                 m_layerName;
     qint64                                  m_updateUTC;
 

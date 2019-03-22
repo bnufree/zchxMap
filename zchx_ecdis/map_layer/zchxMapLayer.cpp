@@ -109,11 +109,11 @@ void MapLayer::addElement(std::shared_ptr<Element> element)
         return;
 
     Q_D(MapLayer);
-    if(element->layer())
-    {
-        element->layer()->removeElement(element);
-    }
-    element->layer().reset(this);
+//    if(element->layer())
+//    {
+//        element->layer()->removeElement(element);
+//    }
+//    element->layer().reset(this);
 //    element->m_layer = this;
     if(d->m_drawWidget && d->m_drawWidget != element->view())
     {
@@ -135,10 +135,10 @@ void MapLayer::removeElement(std::shared_ptr<Element> element)
         return;
 
     Q_D(MapLayer);
-    element->layer().reset();
+//    element->layer().reset();
 
     bool contained = (std::find(d->m_elements.begin(), d->m_elements.end(), element) != d->m_elements.end());
-    if(contained)
+    if(!contained)
         return;
 
     d->m_elements.remove(element);

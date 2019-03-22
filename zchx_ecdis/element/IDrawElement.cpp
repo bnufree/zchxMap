@@ -28,7 +28,7 @@ Element::Element(const double &lat, const double &lon, zchxMapWidget* view, ZCHX
     , mID("")
     , m_element_type(type)
     , isForceImage(false)
-    , m_layer(0)
+//    , m_layer(0)
     , mView(view)
     , m_updateUTC(QDateTime::currentMSecsSinceEpoch())
     , m_geometryChanged(false)
@@ -60,7 +60,7 @@ Element::Element(const Element &element)
     , m_element_type(element.m_element_type)
     , isForceImage(element.isForceImage)
     , mFlashColor(element.mFlashColor)
-    , m_layer(element.m_layer)
+//    , m_layer(element.m_layer)
     , mView(element.mView)
     , m_updateUTC(element.m_updateUTC)
     , m_boundingRectSmall(element.m_boundingRectSmall)
@@ -81,10 +81,10 @@ Element::~Element()
 {
 }
 
-std::shared_ptr<MapLayer> Element::getLayer()
-{
-    return m_layer;
-}
+//std::shared_ptr<MapLayer> Element::getLayer()
+//{
+//    return m_layer;
+//}
 
 void Element::setLayer(const QString& layer)
 {
@@ -310,11 +310,11 @@ void Element::updateGeometry(QPointF pos, qreal size)
 void Element::addChild(std::shared_ptr<Element> child)
 {
     m_children.push_back(child);
-    if(m_layer)
-    {
-        //暂不加入
-//        d->layer->addElement(child);
-    }
+//    if(m_layer)
+//    {
+//        //暂不加入
+////        d->layer->addElement(child);
+//    }
 }
 
 void Element::removeChild(std::shared_ptr<Element> child)
@@ -505,11 +505,11 @@ zchxMapFrameWork* Element::framework() const
     return 0;
 }
 
-bool Element::isLayervisible()
-{
-    if(!m_layer) return false;
-    return m_layer->visible();
-}
+//bool Element::isLayervisible()
+//{
+//    if(!m_layer) return false;
+//    return m_layer->visible();
+//}
 
 bool Element::isDrawAvailable(QPainter* painter)
 {
