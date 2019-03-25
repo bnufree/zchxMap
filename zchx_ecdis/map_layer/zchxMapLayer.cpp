@@ -381,6 +381,216 @@ bool MapLayer::getPickupAvailable() const
     return d->m_pickupAvailable;
 }
 
+int MapLayer::getMaxConcernNum() const
+{
+    Q_D(const MapLayer);
+    return d->mConcernSetting.getMaxOptNum();
+}
+
+void MapLayer::setMaxConcernNum(int number)
+{
+    Q_D(MapLayer);
+    d->mConcernSetting.setMaxOptNum(number);
+}
+
+void MapLayer::removeConcern(const QString& id)
+{
+    Q_D(MapLayer);
+    d->mConcernSetting.remove(id);
+}
+
+bool MapLayer::isConcern(const QString& id) const
+{
+    Q_D(const MapLayer);
+    return d->mConcernSetting.isOpt(id);
+}
+
+QStringList MapLayer::getConcernList()const
+{
+    Q_D(const MapLayer);
+    return d->mConcernSetting.getList();
+}
+
+void MapLayer::setConcernReplace(bool replace)
+{
+    Q_D(MapLayer);
+    d->mConcernSetting.setAutoReplace(replace);
+}
+
+
+bool MapLayer::appendConcern(const QString &id)
+{
+    Q_D(MapLayer);
+    if(!d->mConcernSetting.append(id)){
+        QMessageBox::warning(0, QObject::tr("告警"), QObject::tr("最多显示%1个关注目标.\n%2未添加").arg(d->mConcernSetting.getMaxOptNum()).arg(id));
+        return false;
+    }
+    return true;
+}
+
+int MapLayer::getMaxRealtimeTrackNum() const
+{
+    Q_D(const MapLayer);
+    return d->mRealtimeTailTrackSetting.getMaxOptNum();
+}
+
+void MapLayer::setMaxRealtimeTrackNum(int number)
+{
+    Q_D(MapLayer);
+    d->mRealtimeTailTrackSetting.setMaxOptNum(number);
+}
+
+void MapLayer::removeRealtimeTrack(const QString& id)
+{
+    Q_D(MapLayer);
+    d->mRealtimeTailTrackSetting.remove(id);
+}
+
+bool MapLayer::isRealtimeTrack(const QString& id) const
+{
+    Q_D(const MapLayer);
+    return d->mRealtimeTailTrackSetting.isOpt(id);
+}
+
+QStringList MapLayer::getRealtimeTrackList()const
+{
+    Q_D(const MapLayer);
+    return d->mRealtimeTailTrackSetting.getList();
+}
+
+void MapLayer::setRealtimeTrackReplace(bool replace)
+{
+    Q_D(MapLayer);
+    d->mRealtimeTailTrackSetting.setAutoReplace(replace);
+}
+
+
+bool MapLayer::appendRealtimeTrack(const QString &id)
+{
+    Q_D(MapLayer);
+    if(!d->mRealtimeTailTrackSetting.append(id)){
+        QMessageBox::warning(0, QObject::tr("告警"), QObject::tr("最多显示%1个实时轨迹.\n%2未添加").arg(d->mRealtimeTailTrackSetting.getMaxOptNum()).arg(id));
+        return false;
+    }
+    return true;
+}
+
+int MapLayer::getMaxHistoryTrackNum() const
+{
+    Q_D(const MapLayer);
+    return d->mHistoryTrackSetting.getMaxOptNum();
+}
+
+void MapLayer::setMaxHistoryTrackNum(int number)
+{
+    Q_D(MapLayer);
+    d->mHistoryTrackSetting.setMaxOptNum(number);
+}
+
+void MapLayer::removeHistoryTrack(const QString& id)
+{
+    Q_D(MapLayer);
+    d->mHistoryTrackSetting.remove(id);
+}
+
+bool MapLayer::isHistoryTrack(const QString& id) const
+{
+    Q_D(const MapLayer);
+    return d->mHistoryTrackSetting.isOpt(id);
+}
+
+QStringList MapLayer::getHistoryTrackList()const
+{
+    Q_D(const MapLayer);
+    return d->mHistoryTrackSetting.getList();
+}
+
+void MapLayer::setHistoryTrackReplace(bool replace)
+{
+    Q_D(MapLayer);
+    d->mHistoryTrackSetting.setAutoReplace(replace);
+}
+
+
+bool MapLayer::appendHistoryTrack(const QString &id)
+{
+    Q_D(MapLayer);
+    if(!d->mHistoryTrackSetting.append(id)) {
+        QMessageBox::warning(0, QObject::tr("告警"), QObject::tr("最多显示%1条历史轨迹.\n%2未添加").arg(d->mHistoryTrackSetting.mMaxNum).arg(id));
+        return false;
+    }
+    return true;
+}
+
+int MapLayer::getMaxExtrapolationNum() const
+{
+    Q_D(const MapLayer);
+    return d->mExtrapolationSetting.getMaxOptNum();
+}
+
+void MapLayer::setMaxExtrapolationNum(int number)
+{
+    Q_D(MapLayer);
+    d->mExtrapolationSetting.setMaxOptNum(number);
+}
+
+
+bool MapLayer::isExtrapolation(const QString& id) const
+{
+    Q_D(const MapLayer);
+    return d->mExtrapolationSetting.isOpt(ZCHX::Data::ExtrapolateParam(id));
+}
+
+ZCHX::Data::ExtrapolateList MapLayer::getExtrapolationList() const
+{
+    Q_D(const MapLayer);
+    return d->mExtrapolationSetting.getList();
+}
+
+void MapLayer::setExtrapolationReplace(bool replace)
+{
+    Q_D(MapLayer);
+    d->mExtrapolationSetting.setAutoReplace(replace);
+}
+
+void MapLayer::removeExtrapolation(const QString& id)
+{
+    Q_D(MapLayer);
+    d->mExtrapolationSetting.remove(ZCHX::Data::ExtrapolateParam(id));
+}
+
+bool MapLayer::appendExtrapolation(const QString &id, double val)
+{
+    Q_D(MapLayer);\
+    if(!(d->mExtrapolationSetting.append(ZCHX::Data::ExtrapolateParam(id, val))))
+    {
+        QMessageBox::warning(0, QObject::tr("告警"), QObject::tr("最多显示%1个预推目标.\n%2未添加").arg(d->mExtrapolationSetting.getMaxOptNum()).arg(id));
+        return false;
+    }
+    return true;
+}
+
+
+double MapLayer::getExtrapolationTime(const QString& id) const
+{
+    Q_D(const MapLayer);
+    int index = d->mExtrapolationSetting.indexOf(ZCHX::Data::ExtrapolateParam(id));
+    if(index < 0) return 0;
+    ZCHX::Data::ExtrapolateParam param = d->mExtrapolationSetting.valueAt(index);
+    return param.mVal;
+}
+
+void MapLayer::updateExtrapolationTime(const QString& id, double val)
+{
+    Q_D(MapLayer);
+    int index = d->mExtrapolationSetting.indexOf(ZCHX::Data::ExtrapolateParam(id));
+    if(index < 0) return;
+    ZCHX::Data::ExtrapolateParam& param = d->mExtrapolationSetting.valueAt(index);
+    param.mVal = val;
+}
+
+
+
 MapLayerPrivate::MapLayerPrivate()
     : m_visible(true)
     , m_enableUpdate(true)

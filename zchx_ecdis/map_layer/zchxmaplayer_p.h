@@ -7,17 +7,49 @@
 #include "../zchxutils.hpp"
 
 namespace qt {
+template <typename T>
 struct MapLayerEleOptSetting{
-    int         mMaxOptNum;
-    bool        mReplaceWhenOver;
-    QStringList mOptIdList;
+public:
+    int             mMaxNum;
+    bool            mAutoReplace;
+    QList<T>        mList;
 
     MapLayerEleOptSetting()
     {
-        mMaxOptNum = INT_MAX;
-        mReplaceWhenOver = true;
-        mOptIdList.clear();
+        mMaxNum = INT_MAX;
+        mAutoReplace = true;
+        mList.clear();
+    }    
+    int             getMaxOptNum() const {return mMaxNum;}
+    void            setMaxOptNum(int number) {mMaxNum = number;}
+    bool            isOpt(const T& id) const {return mList.contains(id);}
+    QList<T>        getList() const {return mList;}
+    bool            append(const T& id)
+    {
+        if(isOpt(id)) return true;
+
+        //当前列表不存在对应的id,检查是否超限
+        if(mList.size() < mMaxNum) {
+            mList.append(id);
+            return true;
+        }
+
+        //超出最大值的情况
+        if(!mAutoReplace) return false;
+
+        remove(mList.first());
+        mList.append(id);
+        return true;
     }
+
+    void            remove(const T& id) {mList.removeOne(id);}
+    void            setAutoReplace(bool replace) {mAutoReplace = replace;}
+    bool            autoReplace() const {return mAutoReplace;}
+    int             indexOf(const T& val) const {return mList.indexOf(val);}
+    T&              valueAt(int index) {return mList[index];}
+    T               valueAt(int index) const {return mList[index];}
+
+
 };
 
 class MapLayer;
@@ -42,10 +74,10 @@ private:
     ZCHX::Data::ECDIS_PLUGIN_USE_MODELs             m_mode;
     zchxMapWidget                                   *m_drawWidget;
     //关注,尾迹,历史轨迹,模拟外推等的设定
-    MapLayerEleOptSetting                           mConcernSetting;       //目标关注
-    MapLayerEleOptSetting                           mRealtimeTailTrackSetting;
-    MapLayerEleOptSetting                           mHistoryTrackSetting;
-    MapLayerEleOptSetting                           mExtrapolationSetting;
+    MapLayerEleOptSetting<QString>                              mConcernSetting;       //目标关注
+    MapLayerEleOptSetting<QString>                              mRealtimeTailTrackSetting;
+    MapLayerEleOptSetting<QString>                              mHistoryTrackSetting;
+    MapLayerEleOptSetting<ZCHX::Data::ExtrapolateParam>         mExtrapolationSetting;
 
 };
 }

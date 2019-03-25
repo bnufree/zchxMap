@@ -136,10 +136,42 @@ public:
     //图层是否可以选择
     void setPickupAvailable(bool sts);
     bool getPickupAvailable() const;
-    //关注
-    //尾迹
-    //历史轨迹
-    //预推
+    //关注列表操作
+    int             getMaxConcernNum() const;
+    void            setMaxConcernNum(int number);
+    bool            isConcern(const QString& id) const;
+    QStringList     getConcernList() const;
+    bool            appendConcern(const QString& id);
+    void            removeConcern(const QString& id);
+    void            setConcernReplace(bool replace);
+
+    //实时尾迹列表操作
+    int             getMaxRealtimeTrackNum() const;
+    void            setMaxRealtimeTrackNum(int number);
+    bool            isRealtimeTrack(const QString& id) const;
+    QStringList     getRealtimeTrackList() const;
+    bool            appendRealtimeTrack(const QString& id);
+    void            removeRealtimeTrack(const QString& id);
+    void            setRealtimeTrackReplace(bool replace);
+
+    //历史轨迹列表操作
+    int             getMaxHistoryTrackNum() const;
+    void            setMaxHistoryTrackNum(int number);
+    bool            isHistoryTrack(const QString& id) const;
+    QStringList     getHistoryTrackList() const;
+    bool            appendHistoryTrack(const QString& id);
+    void            removeHistoryTrack(const QString& id);
+    void            setHistoryTrackReplace(bool replace);
+    //模拟外推操作
+    int             getMaxExtrapolationNum() const;
+    void            setMaxExtrapolationNum(int number);
+    bool            isExtrapolation(const QString& id) const;
+    ZCHX::Data::ExtrapolateList     getExtrapolationList() const;
+    void            setExtrapolationReplace(bool replace);
+    void            removeExtrapolation(const QString& id);
+    bool            appendExtrapolation(const QString &id, double val = 0);
+    double          getExtrapolationTime(const QString& id) const;
+    void            updateExtrapolationTime(const QString& id, double val);
 
 signals:
     void visibleChanged(bool visible);
