@@ -14,20 +14,18 @@ class zchxMapFrameWork;
 enum RADARTYPE{RADARSHIP,RADARPLAN,WARRINGZONE};
 
 //TODO: 由于使用了很多拷贝构造函数, 所以不能继承qobject
-class ZCHX_ECDIS_EXPORT Element// : public QObject
+class ZCHX_ECDIS_EXPORT Element : public QObject
 {
-
+    Q_OBJECT
 public:
-    Element(const double &lat, const double &lon, zchxMapWidget* view, ZCHX::Data::ELETYPE type, const QColor& flashColor = QColor());
-    Element(const Element &element);
+    Element(const double &lat, const double &lon, zchxMapWidget* view, ZCHX::Data::ELETYPE type, const QColor& flashColor = QColor(), QObject* parent = 0);
     virtual ~Element();
 
     /*!
      * \brief 获取图元当前所在的图层
      * \note 有可能为空
      */
-    //std::shared_ptr<MapLayer> getLayer();
-    void                      setLayer(const QString& layer);
+    void                         setLayer(const QString& layer);
     QString                      layerName() const {return m_layerName;}
 
     /*!
@@ -203,10 +201,23 @@ public:
     zchxMapFrameWork* framework() const;
 
     //检查层设定是否显示
-    //bool isLayervisible();
     bool isDrawAvailable(QPainter* painter = 0);
     //设置报警颜色
     void setFlashColor(const QColor& color);
+    //创建菜单关联
+    QAction *addAction(const QString &text, const QObject *obj, const char* slot, void* userData = 0);
+    //右键菜单
+    virtual QList<QAction*> getRightMenuAction() {}
+
+signals:
+
+public slots:
+    virtual void slotSetPictureInPicture() {}             //画中画
+    virtual void slotSetSimulationExtrapolation(){}      //目标预推
+    virtual void slotSetHistoryTraces(){}                //历史轨迹
+    virtual void slotSetRealTimeTraces(){}               //实时尾迹
+    virtual void slotInvokeLinkageSpot(){}               //联动跟踪
+    virtual void slotSetConcern(){}                      //目标关注
 
 protected://TODO: 添加私有类, 实现成员变量对外隐藏, 且防止依赖扩展情况
     double                                  elelat;
@@ -231,7 +242,6 @@ protected://TODO: 添加私有类, 实现成员变量对外隐藏, 且防止依�
 
     std::list<std::shared_ptr<Element> >    m_children;
     std::shared_ptr<Element>                m_parent;
-//    std::shared_ptr<MapLayer>               m_layer;
     QString                                 m_layerName;
     qint64                                  m_updateUTC;
 

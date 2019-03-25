@@ -68,8 +68,6 @@ SOURCES += mainwindow.cpp \
     localmarkdlg.cpp \
     structureinfodialog.cpp \
     warningzoneparadialog.cpp \
-    zchxdrawmultibeam.cpp \
-    zchxdrawradarvideo.cpp \
     element/IDrawElement.cpp \
     element/drawelement.cpp \
     map_layer/zchxmaplayermgr.cpp \
@@ -138,8 +136,6 @@ HEADERS  += mainwindow.h \
     localmarkdlg.h \
     structureinfodialog.h \
     warningzoneparadialog.h \
-    zchxdrawmultibeam.h \
-    zchxdrawradarvideo.h \
     map_layer/zchxmaplayermgr.h \
     map_layer/zchxmaplayer_p.h \
     map_layer/zchxMapLayer.h \

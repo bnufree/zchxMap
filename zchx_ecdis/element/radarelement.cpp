@@ -204,20 +204,6 @@ RadarPointElement::RadarPointElement(const ZCHX::Data::ITF_RadarPoint &ele, zchx
     initFromSettings();
 }
 
-RadarPointElement::RadarPointElement(const RadarPointElement &pt)
-    : Element(pt)
-    , m_path(pt.m_path)
-    , m_radar_type(pt.m_radar_type)
-    , m_data(pt.m_data)
-    , m_shan(pt.m_shan)
-    , m_needDrawBox(pt.m_needDrawBox)
-    , m_status(pt.m_status)
-    , mDrawAsAis(pt.mDrawAsAis)
-    , mRadarShapeAsRect(pt.mRadarShapeAsRect)
-{
-
-}
-
 std::pair<double, double> RadarPointElement::getPoint()
 {
     return std::pair<double, double>(elelat,elelon);

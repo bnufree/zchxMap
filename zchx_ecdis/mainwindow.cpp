@@ -263,11 +263,11 @@ void MainWindow::itfSetHistoryRadarPointData(const QList<ZCHX::Data::ITF_RadarPo
 
 void MainWindow::itfSetRadarAreaData(const QList<ZCHX::Data::ITF_RadarArea> &data)
 {
-    std::vector<RadarAreaElement> list;
+    std::vector<RadarAreaElement*> list;
     for(int i=0; i < data.count(); ++i)
     {
         //RadarAreaElement item(data.at(i));
-        //list.push_back(item);
+        //list.push_back(new RadarAreaElement(data.at(i)));
     }
     ZCHX_DATA_FACTORY->getRadarDataMgr()->setRadarAreaData(list);
 }
@@ -467,12 +467,11 @@ void MainWindow::itfSetRadarFeatureZoneDagta(const QList<ZCHX::Data::ITF_RadarFe
 
 void MainWindow::itfSetRouteLineData(const QList<ZCHX::Data::RouteLine> &data)
 {
-    std::vector<RouteLine> list;
+    std::vector<RouteLineElement*> list;
     for(int i=0; i< data.count(); ++i)
     {
         ZCHX::Data::RouteLine tmp = data.at(i);
-        RouteLine item(tmp);
-        list.push_back(item);
+        list.push_back(new RouteLineElement(tmp));
 
     }
     if(mMapWidget) mMapWidget->getRouteDataMgr()->setRouteLineData(list);
@@ -480,12 +479,11 @@ void MainWindow::itfSetRouteLineData(const QList<ZCHX::Data::RouteLine> &data)
 
 void MainWindow::itfSetALLSpecialRouteLineData(const QList<ZCHX::Data::SpecialRouteLine> &data)
 {
-    std::vector<SpecialRouteLine> list;
+    std::vector<SpecialRouteLineElement*> list;
     for(int i=0; i< data.count(); ++i)
     {
         ZCHX::Data::SpecialRouteLine tmp = data.at(i);
-        SpecialRouteLine item(tmp);
-        list.push_back(item);
+        list.push_back(new SpecialRouteLineElement(tmp));
     }
     if(mMapWidget) mMapWidget->getRouteDataMgr()->setALLSpecialRouteLineData(list);
 
@@ -493,12 +491,11 @@ void MainWindow::itfSetALLSpecialRouteLineData(const QList<ZCHX::Data::SpecialRo
 
 void MainWindow::itfSetSpacilRouteLineData(const QList<ZCHX::Data::SpecialRouteLine> &data)
 {
-    std::vector<SpecialRouteLine> list;
+    std::vector<SpecialRouteLineElement*> list;
     for(int i=0; i< data.count(); ++i)
     {
         ZCHX::Data::SpecialRouteLine tmp = data.at(i);
-        SpecialRouteLine item(tmp);
-        list.push_back(item);
+        list.push_back(new SpecialRouteLineElement(tmp));
 
     }
     if(mMapWidget) mMapWidget->getRouteDataMgr()->setSpacilRouteLineData(list);
@@ -511,12 +508,11 @@ void MainWindow::itfSetPickUpSpacilRoutePoint(const ZCHX::Data::SpecialRoutePoin
 
 void MainWindow::itfSetHistoryRouteLineData(const QList<ZCHX::Data::RouteLine> &data)
 {
-    std::vector<RouteLine> list;
+    std::vector<RouteLineElement*> list;
     for(int i=0; i< data.count(); ++i)
     {
         ZCHX::Data::RouteLine tmp = data.at(i);
-        RouteLine item(tmp);
-        list.push_back(item);
+        list.push_back(new RouteLineElement(tmp));
 
     }
     if(mMapWidget) mMapWidget->getRouteDataMgr()->setHistoryRouteLineData(list);
@@ -549,12 +545,11 @@ void MainWindow::itfDeleteRouteLineDataFromProjectID(const int uProjectID)
 
 void MainWindow::itfSetShipPlanLineData(const QList<ZCHX::Data::ShipPlanLine> &data)
 {
-    std::vector<ShipPlanLine> list;
+    std::vector<ShipPlanLineElement*> list;
     for(int i=0; i< data.count(); ++i)
     {
         ZCHX::Data::ShipPlanLine tmp = data.at(i);
-        ShipPlanLine item(tmp);
-        list.push_back(item);
+        list.push_back(new ShipPlanLineElement(tmp));
 
     }
     if(mMapWidget) mMapWidget->getShipPlanDataMgr()->setShipPlanLineData(list);
@@ -562,12 +557,11 @@ void MainWindow::itfSetShipPlanLineData(const QList<ZCHX::Data::ShipPlanLine> &d
 
 void MainWindow::itfSetAllProjectShipPlanLineData(const QList<ZCHX::Data::ShipPlanLine> &data)
 {
-    std::vector<ShipPlanLine> list;
+    std::vector<ShipPlanLineElement*> list;
     for(int i=0; i< data.count(); ++i)
     {
         ZCHX::Data::ShipPlanLine tmp = data.at(i);
-        ShipPlanLine item(tmp);
-        list.push_back(item);
+        list.push_back(new ShipPlanLineElement(tmp));
     }
 
     if(mMapWidget) mMapWidget->getShipPlanDataMgr()->setAllProjecrShipPlanLineData(list);
@@ -650,12 +644,11 @@ void MainWindow::itfSetMultibeamDataByImg(int iRouteID, const QPixmap &samplePix
 void MainWindow::itfSetAllProjectRouteLineData(const QList<ZCHX::Data::RouteLine> &data)
 {
 
-    std::vector<RouteLine> list;
+    std::vector<RouteLineElement*> list;
     for(int i=0; i< data.count(); ++i)
     {
         ZCHX::Data::RouteLine tmp = data.at(i);
-        RouteLine item(tmp);
-        list.push_back(item);
+        list.push_back(new RouteLineElement(tmp));
 
     }
 
@@ -665,12 +658,11 @@ void MainWindow::itfSetAllProjectRouteLineData(const QList<ZCHX::Data::RouteLine
 
 void MainWindow::itfSetRouteCrossData(const QList<ZCHX::Data::ITF_RouteCross> &data)
 {
-    std::vector<RouteCross> list;
+    std::vector<RouteCrossElement*> list;
     for(int i=0; i< data.count(); ++i)
     {
         ZCHX::Data::ITF_RouteCross tmp = data.at(i);
-        RouteCross item(tmp);
-        list.push_back(item);
+        list.push_back(new RouteCrossElement(tmp));
 
     }
 

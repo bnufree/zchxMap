@@ -59,9 +59,17 @@ bool MapLayer::visible() const
 void MapLayer::setVisible(bool visible)
 {
     Q_D(MapLayer);
-    if(visible == d->m_visible)
-        return;
-
+    //检查父层的状态
+    if(d->m_parent && !(d->m_parent->visible())) return;
+    //先改变子层的状态,如果父层不可见
+    if(d->m_children.size() > 0 && !visible){
+        for(std::shared_ptr<MapLayer> child : d->m_children)
+        {
+            child->setVisible(visible);
+        }
+    }
+    //改变当前层的状态
+    if(visible == d->m_visible) return;
     d->m_visible = visible;
     emit visibleChanged(d->m_visible);
 }

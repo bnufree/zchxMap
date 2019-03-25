@@ -15,11 +15,11 @@ public:
     Element* selectItem(const QPoint &pt);
 
     void    setRadarPointData(const QList<ZCHX::Data::ITF_RadarPoint> &data);
-    void    setHistoryRadarPointData(const std::vector<RadarPointElement> &data);
+    void    setHistoryRadarPointData(const std::vector<RadarPointElement*> &data);
     void    showRadarPoint(QPainter* painter);
 
     //雷达扫描区域
-    void    setRadarAreaData(const std::vector<RadarAreaElement> &data);
+    void    setRadarAreaData(const std::vector<RadarAreaElement*> &data);
 
     //鼠标右键菜单
     QList<QAction*> getRightMenuActions(const QPoint &pt);
@@ -35,12 +35,12 @@ public slots:
 
 private:
     QMap<QString, std::shared_ptr<RadarPointElement>>     m_RadarPoint;               //实时雷达目标数据
-    std::vector<RadarPointElement>     m_HistoryRadarPoint;        //雷达历史点数据
+    std::vector<RadarPointElement*>     m_HistoryRadarPoint;        //雷达历史点数据
     QMap<int, double>                               m_pRadarPointHistory;       //雷达的转向数据(历史数据使用)
     QMutex              mDataMutex;
 
     //雷达扫描区域点数据
-    std::vector<RadarAreaElement>      m_RadarArea;            //雷达扫描区域数据
+    std::vector<RadarAreaElement*>      m_RadarArea;            //雷达扫描区域数据
 };
 }
 

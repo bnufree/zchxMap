@@ -18,6 +18,7 @@ enum SHIP_ITEM {
 
 class  AisElement : public FixElement<ZCHX::Data::ITF_AIS>
 {
+    Q_OBJECT
 public:
     explicit  AisElement(const ZCHX::Data::ITF_AIS &ele, zchxMapWidget* w);
 
@@ -82,6 +83,20 @@ public:
     void setPrepushTrackStyle(const QString &color, const int lineWidth);
     void clicked(bool isDouble);
     void showToolTip(const QPoint& pos);
+    QList<QAction*> getRightMenuAction();
+signals:
+public slots:
+    void slotOpenCameraList();
+    void slotSetPictureInPicture();
+    void slotSetFleet();
+    void slotSetSimulationExtrapolation();
+    void slotSetHistoryTraces();
+    void slotSetRealTimeTraces();
+    void slotSetConcern();
+    void slotInvokeLinkageSpot();
+    void slotSetCPATrack();
+    void slotSetBlackList();
+    void slotSetWhiteList();
 private:
 
 private:

@@ -11,7 +11,6 @@ class  RadarPointElement: public Element
 public:
     RadarPointElement(const double &lat, const double &lon, zchxMapWidget* frame);
     RadarPointElement(const ZCHX::Data::ITF_RadarPoint &ele, zchxMapWidget* frame);
-    RadarPointElement(const RadarPointElement& pt);
 
     enum RADAR_SHARE{
         Radar_Rect = 0,

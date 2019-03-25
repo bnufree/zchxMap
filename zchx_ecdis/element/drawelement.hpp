@@ -21,10 +21,11 @@ namespace qt
 {
 
 //路由线
-class RouteLine:public Element
+class RouteLineElement:public Element
 {
+    Q_OBJECT
 public:
-    RouteLine(const ZCHX::Data::RouteLine &ele);
+    explicit RouteLineElement(const ZCHX::Data::RouteLine &ele);
     void setNewChangeData(const ZCHX::Data::RouteLine &data);   //设置新的从数据库获取的数据
     void setData(const ZCHX::Data::RouteLine &data);            //设置编辑数据
     ZCHX::Data::RouteLine data() const;
@@ -132,10 +133,10 @@ private:
 };
 
 //路由交越数据
-class RouteCross:public Element
+class RouteCrossElement:public Element
 {
 public:
-    RouteCross(const ZCHX::Data::ITF_RouteCross &ele);
+    explicit RouteCrossElement(const ZCHX::Data::ITF_RouteCross &ele);
     ZCHX::Data::ITF_RouteCross data() const;
 private:
     ZCHX::Data::ITF_RouteCross m_data;
@@ -152,10 +153,10 @@ private:
 };
 
 //船舶计划航线
-class ShipPlanLine:public Element
+class ShipPlanLineElement:public Element
 {
 public:
-    ShipPlanLine(const ZCHX::Data::ShipPlanLine &ele);
+    explicit ShipPlanLineElement(const ZCHX::Data::ShipPlanLine &ele);
     void setNewChangeData(const ZCHX::Data::ShipPlanLine &data);//设置新的从数据库获取的数据
     void setData(const ZCHX::Data::ShipPlanLine &data);         //设置编辑数据
     ZCHX::Data::ShipPlanLine data() const;
@@ -202,10 +203,10 @@ private:
 };
 
 //特殊路由(南方电网)
-class SpecialRouteLine:public Element
+class SpecialRouteLineElement:public Element
 {
 public:
-    SpecialRouteLine(const ZCHX::Data::SpecialRouteLine &ele);
+    explicit SpecialRouteLineElement(const ZCHX::Data::SpecialRouteLine &ele);
     void setNewChangeData(const ZCHX::Data::SpecialRouteLine &data);//设置新的从数据库获取的数据
     void setData(const ZCHX::Data::SpecialRouteLine &data);         //设置编辑数据
     ZCHX::Data::SpecialRouteLine data() const;

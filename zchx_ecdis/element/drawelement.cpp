@@ -27,7 +27,7 @@ namespace qt{
 ////////////////////
 /// \brief 环岛线
 
-RouteLine::RouteLine(const ZCHX::Data::RouteLine &ele)
+RouteLineElement::RouteLineElement(const ZCHX::Data::RouteLine &ele)
     :Element(0,0, 0, ZCHX::Data::ELE_ROUTE_LINE)
 {
     m_data = ele;
@@ -51,33 +51,33 @@ RouteLine::RouteLine(const ZCHX::Data::RouteLine &ele)
     m_fShowInforKP = 0;
 }
 
-void RouteLine::setNewChangeData(const ZCHX::Data::RouteLine &data)
+void RouteLineElement::setNewChangeData(const ZCHX::Data::RouteLine &data)
 {
     m_data = data;
     m_backData = data;
 }
 
-void RouteLine::setData(const ZCHX::Data::RouteLine &data)
+void RouteLineElement::setData(const ZCHX::Data::RouteLine &data)
 {
     m_data = data;
 }
 
-ZCHX::Data::RouteLine RouteLine::data() const
+ZCHX::Data::RouteLine RouteLineElement::data() const
 {
     return m_data;
 }
 
-ZCHX::Data::RouteLine RouteLine::backData() const
+ZCHX::Data::RouteLine RouteLineElement::backData() const
 {
     return m_backData;
 }
 
-void RouteLine::restoreBackData()
+void RouteLineElement::restoreBackData()
 {
     m_data = m_backData;
 }
 
-bool RouteLine::dataChanged()
+bool RouteLineElement::dataChanged()
 {
     if(m_data == m_backData)
     {
@@ -89,25 +89,25 @@ bool RouteLine::dataChanged()
     }
 }
 
-void RouteLine::setLinkInfor(bool bLinked, const double dLat, const double dLon)
+void RouteLineElement::setLinkInfor(bool bLinked, const double dLat, const double dLon)
 {
     m_bLinked = bLinked;
     m_dLinkLat = dLat;
     m_dLinkLon = dLon;
 }
 
-bool RouteLine::getLinked() const
+bool RouteLineElement::getLinked() const
 {
     return m_bLinked;
 }
 
-void RouteLine::getLinkLatLon(double &dLat, double &dLon) const
+void RouteLineElement::getLinkLatLon(double &dLat, double &dLon) const
 {
     dLat = m_dLinkLat;
     dLon = m_dLinkLon;
 }
 
-void RouteLine::setLinkShowInfor(const double dKp, bool bShowLength, const double dLength, bool bShowSlope, const double dSlope)
+void RouteLineElement::setLinkShowInfor(const double dKp, bool bShowLength, const double dLength, bool bShowSlope, const double dSlope)
 {
      m_dKp = dKp;
      m_bShowLength = bShowLength;
@@ -116,7 +116,7 @@ void RouteLine::setLinkShowInfor(const double dKp, bool bShowLength, const doubl
      m_dSlope = dSlope;
 }
 
-void RouteLine::getLinkShowInfor(double &dKp, bool &bShowLength, double &dLength, bool &bShowSlope, double &dSlope) const
+void RouteLineElement::getLinkShowInfor(double &dKp, bool &bShowLength, double &dLength, bool &bShowSlope, double &dSlope) const
 {
     dKp = m_dKp;
     bShowLength = m_bShowLength;
@@ -125,7 +125,7 @@ void RouteLine::getLinkShowInfor(double &dKp, bool &bShowLength, double &dLength
     dSlope = m_dSlope;
 }
 
-bool RouteLine::routeApprovaled()
+bool RouteLineElement::routeApprovaled()
 {
     if(m_data.routeAssessStatus == 0)
     {
@@ -137,12 +137,12 @@ bool RouteLine::routeApprovaled()
     }
 }
 
-void RouteLine::setRouteAssessStatus(int uAssessStatus)
+void RouteLineElement::setRouteAssessStatus(int uAssessStatus)
 {
     m_data.routeAssessStatus = uAssessStatus;
 }
 
-void RouteLine::setRouteConfigDisplay( bool bShowPoint,bool bShowType,bool bShowLine,bool bShowCable)
+void RouteLineElement::setRouteConfigDisplay( bool bShowPoint,bool bShowType,bool bShowLine,bool bShowCable)
 {
     mShowPoint = bShowPoint;
     mShowType = bShowType;
@@ -150,7 +150,7 @@ void RouteLine::setRouteConfigDisplay( bool bShowPoint,bool bShowType,bool bShow
     mShowCable = bShowCable;
 }
 
-void RouteLine::getRouteConfigDisplay(int& bShowPoint,int& bShowType,int& bShowLine,int& bShowCable) const
+void RouteLineElement::getRouteConfigDisplay(int& bShowPoint,int& bShowType,int& bShowLine,int& bShowCable) const
 {
     bShowPoint = mShowPoint;
     bShowType = mShowType;
@@ -158,59 +158,59 @@ void RouteLine::getRouteConfigDisplay(int& bShowPoint,int& bShowType,int& bShowL
     bShowCable = mShowCable;
 }
 
-void RouteLine::setRouteDisplayFlag(const int uFlag)
+void RouteLineElement::setRouteDisplayFlag(const int uFlag)
 {
     m_uRouteDisplayFlag = uFlag;
 }
 
-int RouteLine::getRouteDisplayFlag()const
+int RouteLineElement::getRouteDisplayFlag()const
 {
     return m_uRouteDisplayFlag;
 }
 
-void RouteLine::setIsPickupShowInfor(bool bPickupShowInfor)
+void RouteLineElement::setIsPickupShowInfor(bool bPickupShowInfor)
 {
     m_bPickupShowInfor = bPickupShowInfor;
 }
 
-bool RouteLine::getPickupShowInfor()const
+bool RouteLineElement::getPickupShowInfor()const
 {
     return m_bPickupShowInfor;
 }
 
-void RouteLine::setShowInforKP(float fShowInforKP)
+void RouteLineElement::setShowInforKP(float fShowInforKP)
 {
     m_fShowInforKP = fShowInforKP;
 }
 
-float RouteLine::getShowInforKP()const
+float RouteLineElement::getShowInforKP()const
 {
     return m_fShowInforKP;
 }
 
-void RouteLine::setPickupLonLat(double dLon, double dLat)
+void RouteLineElement::setPickupLonLat(double dLon, double dLat)
 {
     m_dLon = dLon;
     m_dLat = dLat;
 }
 
-void RouteLine::getPickupLonLat(double &dLon, double &dLat) const
+void RouteLineElement::getPickupLonLat(double &dLon, double &dLat) const
 {
     dLon = m_dLon;
     dLat = m_dLat;
 }
 
-void RouteLine::setPickupRoutePointIndex(int uPickupRoutePointIndex)
+void RouteLineElement::setPickupRoutePointIndex(int uPickupRoutePointIndex)
 {
     m_uPickupRoutePointIndex = uPickupRoutePointIndex;
 }
 
-int RouteLine::getPickupRoutePointIndex() const
+int RouteLineElement::getPickupRoutePointIndex() const
 {
     return m_uPickupRoutePointIndex;
 }
 
-bool RouteLine::getSelectedLatlonPoint(std::pair<double, double> &latlon)
+bool RouteLineElement::getSelectedLatlonPoint(std::pair<double, double> &latlon)
 {
     if(m_activePathPoint<0||m_activePathPoint>=m_data.points.size())
         return false;
@@ -222,7 +222,7 @@ bool RouteLine::getSelectedLatlonPoint(std::pair<double, double> &latlon)
     }
 }
 
-void RouteLine::changePathPoint(double lat, double lon)
+void RouteLineElement::changePathPoint(double lat, double lon)
 {
     if(0 <= m_activePathPoint  && m_activePathPoint < m_data.points.size())
     {
@@ -231,7 +231,7 @@ void RouteLine::changePathPoint(double lat, double lon)
     }
 }
 
-void RouteLine::moveTo(double lat, double lon)
+void RouteLineElement::moveTo(double lat, double lon)
 {
     for(int i= 0; i< m_data.points.size(); ++i)
     {
@@ -241,17 +241,17 @@ void RouteLine::moveTo(double lat, double lon)
 }
 
 
-int RouteLine::activePathPoint() const
+int RouteLineElement::activePathPoint() const
 {
     return m_activePathPoint;
 }
 
-void RouteLine::setActivePathPoint(int activePathPoint)
+void RouteLineElement::setActivePathPoint(int activePathPoint)
 {
     m_activePathPoint = activePathPoint;
 }
 
-void RouteLine::delPathPoint(int idx)
+void RouteLineElement::delPathPoint(int idx)
 {
     if(m_data.points.size() > idx)
     {
@@ -260,7 +260,7 @@ void RouteLine::delPathPoint(int idx)
     }
 }
 
-ShipPlanLine::ShipPlanLine(const ZCHX::Data::ShipPlanLine &ele)
+ShipPlanLineElement::ShipPlanLineElement(const ZCHX::Data::ShipPlanLine &ele)
     :Element(0, 0, 0, ZCHX::Data::ELE_PLAN_LINE)
 {
     m_data = ele;
@@ -268,33 +268,33 @@ ShipPlanLine::ShipPlanLine(const ZCHX::Data::ShipPlanLine &ele)
     m_uDisplayFlag = 1;
 }
 
-void ShipPlanLine::setNewChangeData(const ZCHX::Data::ShipPlanLine &data)
+void ShipPlanLineElement::setNewChangeData(const ZCHX::Data::ShipPlanLine &data)
 {
     m_data = data;
     m_backData = data;
 }
 
-void ShipPlanLine::setData(const ZCHX::Data::ShipPlanLine &data)
+void ShipPlanLineElement::setData(const ZCHX::Data::ShipPlanLine &data)
 {
     m_data = data;
 }
 
-ZCHX::Data::ShipPlanLine ShipPlanLine::data() const
+ZCHX::Data::ShipPlanLine ShipPlanLineElement::data() const
 {
     return m_data;
 }
 
-ZCHX::Data::ShipPlanLine ShipPlanLine::backData() const
+ZCHX::Data::ShipPlanLine ShipPlanLineElement::backData() const
 {
     return m_backData;
 }
 
-void ShipPlanLine::restoreBackData()
+void ShipPlanLineElement::restoreBackData()
 {
     m_data = m_backData;
 }
 
-bool ShipPlanLine::dataChanged()
+bool ShipPlanLineElement::dataChanged()
 {
     if(m_data == m_backData)
     {
@@ -306,17 +306,17 @@ bool ShipPlanLine::dataChanged()
     }
 }
 
-void ShipPlanLine::setShipDisplayFlag(const int uFlag)
+void ShipPlanLineElement::setShipDisplayFlag(const int uFlag)
 {
     m_uDisplayFlag = uFlag;
 }
 
-int ShipPlanLine::getShipDisplayFlag() const
+int ShipPlanLineElement::getShipDisplayFlag() const
 {
     return m_uDisplayFlag;
 }
 
-bool ShipPlanLine::getSelectedLatlonPoint(std::pair<double, double> &latlon)
+bool ShipPlanLineElement::getSelectedLatlonPoint(std::pair<double, double> &latlon)
 {
     if(m_activePathPoint<0||m_activePathPoint>=m_data.m_dShipPlanPoints.size())
         return false;
@@ -328,7 +328,7 @@ bool ShipPlanLine::getSelectedLatlonPoint(std::pair<double, double> &latlon)
     }
 }
 
-void ShipPlanLine::changePathPoint(double lat, double lon)
+void ShipPlanLineElement::changePathPoint(double lat, double lon)
 {
     if(0 <= m_activePathPoint  && m_activePathPoint < m_data.m_dShipPlanPoints.size())
     {
@@ -337,7 +337,7 @@ void ShipPlanLine::changePathPoint(double lat, double lon)
     }
 }
 
-void ShipPlanLine::moveTo(double lat, double lon)
+void ShipPlanLineElement::moveTo(double lat, double lon)
 {
     for(int i= 0; i< m_data.m_dShipPlanPoints.size(); ++i)
     {
@@ -346,17 +346,17 @@ void ShipPlanLine::moveTo(double lat, double lon)
     }
 }
 
-int ShipPlanLine::activePathPoint() const
+int ShipPlanLineElement::activePathPoint() const
 {
     return m_activePathPoint;
 }
 
-void ShipPlanLine::setActivePathPoint(int activePathPoint)
+void ShipPlanLineElement::setActivePathPoint(int activePathPoint)
 {
     m_activePathPoint = activePathPoint;
 }
 
-void ShipPlanLine::delPathPoint(int idx)
+void ShipPlanLineElement::delPathPoint(int idx)
 {
     if(m_data.m_dShipPlanPoints.size() > idx)
     {
@@ -365,13 +365,13 @@ void ShipPlanLine::delPathPoint(int idx)
     }
 }
 
-RouteCross::RouteCross(const ZCHX::Data::ITF_RouteCross &ele)
+RouteCrossElement::RouteCrossElement(const ZCHX::Data::ITF_RouteCross &ele)
     :Element(ele.m_fCrossLat, ele.m_fCrossLon, 0, ZCHX::Data::ELE_ROUTE_CROSS_POINT)
 {
     m_data = ele;
 }
 
-ZCHX::Data::ITF_RouteCross RouteCross::data() const
+ZCHX::Data::ITF_RouteCross RouteCrossElement::data() const
 {
     return m_data;
 }
@@ -419,28 +419,28 @@ int RadarVideoElement::getMsgIndex()
     return m_uMsgIndex;
 }
 
-SpecialRouteLine::SpecialRouteLine(const ZCHX::Data::SpecialRouteLine &ele)
+SpecialRouteLineElement::SpecialRouteLineElement(const ZCHX::Data::SpecialRouteLine &ele)
     :Element(0, 0, 0, ZCHX::Data::ELE_ROUTE_LINE)
 {
     m_data = ele;
 }
 
-void SpecialRouteLine::setNewChangeData(const ZCHX::Data::SpecialRouteLine &data)
+void SpecialRouteLineElement::setNewChangeData(const ZCHX::Data::SpecialRouteLine &data)
 {
     m_data = data;
 }
 
-void SpecialRouteLine::setData(const ZCHX::Data::SpecialRouteLine &data)
+void SpecialRouteLineElement::setData(const ZCHX::Data::SpecialRouteLine &data)
 {
     m_data = data;
 }
 
-ZCHX::Data::SpecialRouteLine SpecialRouteLine::data() const
+ZCHX::Data::SpecialRouteLine SpecialRouteLineElement::data() const
 {
     return m_data;
 }
 
-bool SpecialRouteLine::getSelectedLatlonPoint(std::pair<double, double> &latlon)
+bool SpecialRouteLineElement::getSelectedLatlonPoint(std::pair<double, double> &latlon)
 {
     if(m_activePathPoint<0||m_activePathPoint>=m_data.points.size())
         return false;
@@ -452,12 +452,12 @@ bool SpecialRouteLine::getSelectedLatlonPoint(std::pair<double, double> &latlon)
     }
 }
 
-int SpecialRouteLine::activePathPoint() const
+int SpecialRouteLineElement::activePathPoint() const
 {
     return m_activePathPoint;
 }
 
-void SpecialRouteLine::setActivePathPoint(int activePathPoint)
+void SpecialRouteLineElement::setActivePathPoint(int activePathPoint)
 {
     m_activePathPoint = activePathPoint;
 }

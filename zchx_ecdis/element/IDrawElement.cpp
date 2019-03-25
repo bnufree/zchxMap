@@ -12,8 +12,9 @@ namespace qt {
 int Element::g_maxLineLength = 100;
 int Element::gSetFlashAlphaStep = 100;
 
-Element::Element(const double &lat, const double &lon, zchxMapWidget* view, ZCHX::Data::ELETYPE type, const QColor& flashColor)
-    : elelat(lat)
+Element::Element(const double &lat, const double &lon, zchxMapWidget* view, ZCHX::Data::ELETYPE type, const QColor& flashColor, QObject* parent)
+    : QObject(parent)
+    , elelat(lat)
     , elelon(lon)
     , displayLat(lat)
     , displayLon(lon)
@@ -41,40 +42,6 @@ Element::Element(const double &lat, const double &lon, zchxMapWidget* view, ZCHX
 {
 
     Element::g_maxLineLength = Profiles::instance()->value(MAP_INDEX, MAX_LINE_LENGTH).toInt();
-}
-
-Element::Element(const Element &element)
-    : elelat(element.elelat)
-    , elelon(element.elelon)
-    , displayLat(element.displayLat)
-    , displayLon(element.displayLon)
-    , isActive(element.isActive)
-    , isHover(element.isHover)
-    , isFocus(element.isFocus)
-    , isConcern(element.isConcern)
-    , isRealtimeTailTrack(element.isRealtimeTailTrack)
-    , isHistroyTrack(element.isHistroyTrack)
-    , isOpenMeet(element.isOpenMeet)
-    , isUpdate(element.isUpdate)
-    , mID(element.mID)
-    , m_element_type(element.m_element_type)
-    , isForceImage(element.isForceImage)
-    , mFlashColor(element.mFlashColor)
-//    , m_layer(element.m_layer)
-    , mView(element.mView)
-    , m_updateUTC(element.m_updateUTC)
-    , m_boundingRectSmall(element.m_boundingRectSmall)
-    , m_boundingRect(element.m_boundingRect)
-    , m_activeRect(element.m_activeRect)
-    , m_focusRect(element.m_focusRect)
-    , m_geometryChanged(element.m_geometryChanged)
-    , mConcernColor(element.mConcernColor)
-    , mTextColor(element.mTextColor)
-    , mBorderColor(element.mBorderColor)
-    , mFillingColor(element.mFillingColor)
-    , m_layerName(element.m_layerName)
-{
-
 }
 
 Element::~Element()
@@ -520,6 +487,20 @@ bool Element::isDrawAvailable(QPainter* painter)
 void Element::setFlashColor(const QColor &color)
 {
     mFlashColor = color;
+}
+
+QAction* Element::addAction(const QString &text, const QObject *obj, const char* slot, void* userData)
+{
+    if(!obj || !slot || strlen(slot) == 0) return 0;
+
+    QAction *result(new QAction(text, this));
+    if(QString(slot).contains("(bool)"))
+        connect(result, SIGNAL(triggered(bool)), obj, slot);
+    else
+        connect(result,SIGNAL(triggered()),obj,slot);
+
+    if(userData) result->setData(QVariant::fromValue(userData));
+    return result;
 }
 
 }

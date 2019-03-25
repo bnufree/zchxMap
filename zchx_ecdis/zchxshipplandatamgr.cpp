@@ -13,12 +13,12 @@ zchxShipPlanDataMgr::zchxShipPlanDataMgr(zchxMapWidget* w, QObject *parent) : QO
 }
 
 
-void zchxShipPlanDataMgr::setAllProjecrShipPlanLineData(const std::vector<ShipPlanLine> &data)
+void zchxShipPlanDataMgr::setAllProjecrShipPlanLineData(const std::vector<ShipPlanLineElement*> &data)
 {
     m_AllShipPlanLines = data;
 }
 
-void zchxShipPlanDataMgr::setShipPlanLineData(const std::vector<ShipPlanLine> &data)
+void zchxShipPlanDataMgr::setShipPlanLineData(const std::vector<ShipPlanLineElement*> &data)
 {
     m_ShipPlanLine = data;
 #if 0
@@ -70,15 +70,15 @@ void zchxShipPlanDataMgr::setShipPlanLineData(const std::vector<ShipPlanLine> &d
 
     if(!m_ShipPlanLine.empty())
     {
-        ShipPlanLine objLine = data.at(0);
-        ZCHX::Data::ShipPlanLine objData = objLine.data();
+        ShipPlanLineElement* objLine = data.at(0);
+        ZCHX::Data::ShipPlanLine objData = objLine->data();
         m_uCurrentProjectID = objData.m_dProjectID;
     }
-    std::vector<ShipPlanLine>::iterator it;
+    std::vector<ShipPlanLineElement*>::iterator it;
     for(it = m_AllShipPlanLines.begin(); it != m_AllShipPlanLines.end(); ++it)
     {
-        ShipPlanLine ele = (*it);
-        ZCHX::Data::ShipPlanLine shipPlanLine = ele.data();
+        ShipPlanLineElement* ele = (*it);
+        ZCHX::Data::ShipPlanLine shipPlanLine = ele->data();
         if(shipPlanLine.m_dProjectID == m_uCurrentProjectID)
         {
             m_AllShipPlanLines.erase(it);
@@ -88,7 +88,7 @@ void zchxShipPlanDataMgr::setShipPlanLineData(const std::vector<ShipPlanLine> &d
     }
     for(int i = 0;i<m_ShipPlanLine.size();i++)
     {
-        ShipPlanLine objLine = data.at(i);
+        ShipPlanLineElement* objLine = data.at(i);
         m_AllShipPlanLines.push_back(objLine);
     }
 }

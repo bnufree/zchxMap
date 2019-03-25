@@ -4,6 +4,7 @@
 #include "zchxMapDatautils.h"
 #include "profiles.h"
 #include "zchxutils.hpp"
+#include "map_layer/zchxmaplayermgr.h"
 #include <QDebug>
 
 #define     SHIP_INTERVAL_TIME  60 * 1000 // 1分钟
@@ -759,3 +760,149 @@ void AisElement::showToolTip(const QPoint& pos)
     base_text += QObject::tr("最新时间: ")+QDateTime::fromTime_t(info.UTC / 1000).toString("MM/dd/yyyy HH:mm:ss");
     QToolTip::showText(pos,base_text);
 }
+
+
+QList<QAction*> AisElement::getRightMenuAction()
+{
+    QList<QAction*> list;
+    //获取当前选择的目标对象
+    if(this->isActive)
+    {
+        if(hasCamera())
+        {
+            list.append(addAction(tr("相机列表"),this, SLOT(slotOpenCameraList())));
+        }
+        //list.append(addAction(tr("画中画"),this, SLOT(setPictureInPicture())));
+        //list.append(addAction(tr("船队"),this, SLOT(setFleet())));
+        list.append(addAction(tr("模拟外推"),this, SLOT(slotSetSimulationExtrapolation())));
+        list.append(addAction(tr("历史轨迹"),this, SLOT(slotSetHistoryTraces())));
+        list.append(addAction(tr("实时轨迹"),this, SLOT(slotSetRealTimeTraces())));
+        list.append(addAction(tr("关注"),this, SLOT(slotSetConcern())));
+        list.append(addAction(tr("黑名单"),this, SLOT(slotSetBlackList())));
+        list.append(addAction(tr("白名单"),this, SLOT(slotSetWhiteList())));
+        //list.append(addAction(tr("CPA跟踪"),this, SLOT(setCPATrack())));
+        list.append(addAction(tr("联动"),this, SLOT(slotInvokeLinkageSpot())));
+    }
+    return list;
+}
+
+void AisElement::slotOpenCameraList()
+{
+
+}
+
+void AisElement::slotSetPictureInPicture()
+{
+    if(mView)
+    {
+        mView->signalSendPictureInPictureTarget(getElementType(), data().id);
+    }
+}
+
+void AisElement::slotSetFleet()
+{
+    if(mView)
+    {
+        emit mView->signalAddFleet(data());
+    }
+}
+
+void AisElement::slotSetSimulationExtrapolation()
+{
+    std::shared_ptr<MapLayer> layer = MapLayerMgr::instance()->getLayer(ZCHX::LAYER_AIS_CURRENT);
+    if(!layer) return;
+    QString id = data().id;
+    if(layer->isExtrapolation(id))
+    {
+        layer->removeExtrapolation(id);
+    } else
+    {
+        layer->appendExtrapolation(id);
+    }
+    if(mView){
+        mView->signalAddShipExtrapolation(id, layer->isExtrapolation(id));
+    }
+}
+
+void AisElement::slotSetHistoryTraces()
+{
+    std::shared_ptr<MapLayer> layer = MapLayerMgr::instance()->getLayer(ZCHX::LAYER_AIS_CURRENT);
+    if(!layer) return;
+    QString id = data().id;
+    if(layer->isHistoryTrack(id))
+    {
+        layer->removeHistoryTrack(id);
+    } else
+    {
+        layer->appendHistoryTrack(id);
+    }
+    if(mView) mView->signalSendHistoryTrail(id, layer->isHistoryTrack(id));
+}
+
+void AisElement::slotSetRealTimeTraces()
+{
+    std::shared_ptr<MapLayer> layer = MapLayerMgr::instance()->getLayer(ZCHX::LAYER_AIS_CURRENT);
+    if(!layer) return;
+    QString id = data().id;
+    if(layer->isRealtimeTrack(id))
+    {
+        layer->removeRealtimeTrack(id);
+    } else
+    {
+        layer->appendRealtimeTrack(id);
+    }
+    if(mView) mView->signalSendRealTimeTrail(id, layer->isRealtimeTrack(id));
+}
+
+void AisElement::slotSetBlackList()
+{
+    std::shared_ptr<MapLayer> layer = MapLayerMgr::instance()->getLayer(ZCHX::LAYER_AIS_CURRENT);
+    if(!layer) return;
+    QString id = data().id;
+    if(mView) mView->signalCreateBlackOrWhiteList(id, ZCHX::Data::SHIP_BW_BLACK);
+}
+
+void AisElement::slotSetWhiteList()
+{
+    std::shared_ptr<MapLayer> layer = MapLayerMgr::instance()->getLayer(ZCHX::LAYER_AIS_CURRENT);
+    if(!layer) return;
+    QString id = data().id;
+    if(mView) mView->signalCreateBlackOrWhiteList(id, ZCHX::Data::SHIP_BW_WHITE);
+}
+
+void AisElement::slotSetCPATrack()
+{
+    std::shared_ptr<MapLayer> layer = MapLayerMgr::instance()->getLayer(ZCHX::LAYER_AIS_CURRENT);
+    if(!layer) return;
+    QString id = data().id;
+    if(mView) mView->signalCreateCPATrack(id);
+}
+
+void AisElement::slotInvokeLinkageSpot()
+{
+    std::shared_ptr<MapLayer> layer = MapLayerMgr::instance()->getLayer(ZCHX::LAYER_AIS_CURRENT);
+    if(!layer) return;
+    ZCHX::Data::ITF_CloudHotSpot data;
+    data.fllow = ZCHX::Data::ITF_CloudHotSpot::FLLOW_TYPE_LINKAGE_TRACKING;
+    data.mode = ZCHX::Data::ITF_CloudHotSpot::MODE_HANDLE;
+    data.targetNumber = this->data().id;
+    data.targetType = 1;
+    data.targetLon = this->data().getLon();
+    data.targetLat = this->data().getLat();
+    if(mView) mView->signalInvokeHotSpot(data);
+}
+
+void AisElement::slotSetConcern()
+{
+    std::shared_ptr<MapLayer> layer = MapLayerMgr::instance()->getLayer(ZCHX::LAYER_AIS_CURRENT);
+    if(!layer) return;
+    QString id = data().id;
+    if(layer->isConcern(id))
+    {
+        layer->removeConcern(id);
+    } else
+    {
+        layer->appendConcern(id);
+    }
+}
+

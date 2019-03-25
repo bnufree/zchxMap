@@ -156,13 +156,13 @@ Element* zchxRadarDataMgr::selectItem(const QPoint &pt)
 }
 
 
-void zchxRadarDataMgr::setRadarAreaData(const std::vector<RadarAreaElement> &data)
+void zchxRadarDataMgr::setRadarAreaData(const std::vector<RadarAreaElement*> &data)
 {
     m_RadarArea = data;
 }
 
 
-void zchxRadarDataMgr::setHistoryRadarPointData(const std::vector<RadarPointElement> &data)
+void zchxRadarDataMgr::setHistoryRadarPointData(const std::vector<RadarPointElement*> &data)
 {
     //存储上一次雷达的转向(绘制雷达的当前转向)
     m_pRadarPointHistory.clear();
@@ -170,9 +170,9 @@ void zchxRadarDataMgr::setHistoryRadarPointData(const std::vector<RadarPointElem
     {
         for(int i=0; i < m_HistoryRadarPoint.size(); ++i)
         {
-            RadarPointElement &item  = m_HistoryRadarPoint[i];
-            double point = item.getData().cog;
-            int radar_number = item.getData().trackNumber;
+            RadarPointElement* item  = m_HistoryRadarPoint[i];
+            double point = item->getData().cog;
+            int radar_number = item->getData().trackNumber;
             m_pRadarPointHistory.insert(radar_number, point);
         }
     }
