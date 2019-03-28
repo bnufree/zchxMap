@@ -52,8 +52,8 @@ void zchxMapLoadThread::run()
         //取得当前视窗的显示范围
         MapBounds view_bounds = {task.mMapRange.mLowerLeft.mX, task.mMapRange.mLowerLeft.mY, task.mMapRange.mTopRight.mX, task.mMapRange.mTopRight.mY};
         double resolution = task.mResolution;
-        qDebug()<<"view_bounds:"<<FLOAT_STRING(view_bounds.min_x, 6)<<FLOAT_STRING(view_bounds.min_y, 6)<<FLOAT_STRING(view_bounds.max_x, 6)<<FLOAT_STRING(view_bounds.max_y, 6);
-        qDebug()<<"resolution:"<<task.mResolution<<task.mZoom;
+        //qDebug()<<"view_bounds:"<<FLOAT_STRING(view_bounds.min_x, 6)<<FLOAT_STRING(view_bounds.min_y, 6)<<FLOAT_STRING(view_bounds.max_x, 6)<<FLOAT_STRING(view_bounds.max_y, 6);
+        //qDebug()<<"resolution:"<<task.mResolution<<task.mZoom;
         //需要根据远点的不同位置计算瓦片的起始数据
         //谷歌XYZ：Z表示缩放层级，Z=zoom；XY的原点在左上角，X从左向右，Y从上向下。
         //TMS：开源产品的标准，Z的定义与谷歌相同；XY的原点在左下角，X从左向右，Y从下向上。
@@ -82,7 +82,7 @@ void zchxMapLoadThread::run()
             tile_start_y = bottom_tile_num;
             tile_end_y = total_tile_Y - top_tile_num - 1;
         }
-        qDebug()<<((view_bounds.min_x - total_bounds.min_x) / resolution) / MAP_IMG_SIZE<<"tile range:(x0, y0)--(x1, y1)"<<tile_start_x<<tile_start_y<<tile_end_x<<tile_end_y <<"total "<<total_tile_X<<total_tile_Y;
+        //qDebug()<<((view_bounds.min_x - total_bounds.min_x) / resolution) / MAP_IMG_SIZE<<"tile range:(x0, y0)--(x1, y1)"<<tile_start_x<<tile_start_y<<tile_end_x<<tile_end_y <<"total "<<total_tile_X<<total_tile_Y;
 
         //计算左上位置的第一张图片对应的墨卡托坐标位置
         ZCHX::Data::Mercator first_tile(0, 0);
@@ -92,7 +92,7 @@ void zchxMapLoadThread::run()
         ZCHX::Data::Point2D pos;
         pos.x = (first_tile.mX - view_bounds.min_x) / resolution;
         pos.y = (view_bounds.max_y - first_tile.mY) / resolution;
-        qDebug()<<"first tile mercator (x, y) = "<<FLOAT_STRING(first_tile.mX, 2)<<FLOAT_STRING(first_tile.mY, 2)<<" pix pos"<<pos.x<<pos.y;
+        //qDebug()<<"first tile mercator (x, y) = "<<FLOAT_STRING(first_tile.mX, 2)<<FLOAT_STRING(first_tile.mY, 2)<<" pix pos"<<pos.x<<pos.y;
 #if 0
         if(mOriginPos == TILE_ORIGIN_TOPLEFT)
         {

@@ -8,25 +8,25 @@ zchxRouteDataMgr::zchxRouteDataMgr(zchxMapWidget* w, QObject *parent) : QObject(
 {
 }
 
-void zchxRouteDataMgr::setALLSpecialRouteLineData(const std::vector<SpecialRouteLine> &data)
+void zchxRouteDataMgr::setALLSpecialRouteLineData(const std::vector<SpecialRouteLineElement*> &data)
 {
     m_AllProjectSpecialRoute = data;
 }
 
-void zchxRouteDataMgr::setSpacilRouteLineData(const std::vector<SpecialRouteLine> &data)
+void zchxRouteDataMgr::setSpacilRouteLineData(const std::vector<SpecialRouteLineElement*> &data)
 {
     m_SpecialRouteLine.clear();
     for(int i =0; i< data.size();++i)
     {
-        SpecialRouteLine TempData = data.at(i);
-        TempData.setActivePathPoint(-1);
-        TempData.setIsActive(false);
+        SpecialRouteLineElement* TempData = data.at(i);
+        TempData->setActivePathPoint(-1);
+        TempData->setIsActive(false);
         m_SpecialRouteLine.push_back(TempData);
     }
     if(!m_SpecialRouteLine.empty())
     {
-        SpecialRouteLine objLine = data.at(0);
-        ZCHX::Data::SpecialRouteLine objData = objLine.data();
+        SpecialRouteLineElement* objLine = data.at(0);
+        ZCHX::Data::SpecialRouteLine objData = objLine->data();
         m_uCurrentProjectID = objData.m_iProjectId;
     }
 }
@@ -35,16 +35,16 @@ void zchxRouteDataMgr::setPickUpSpacilRoutePoint(const ZCHX::Data::SpecialRouteP
 {
     if(m_SpecialRouteLine.size()>0)
     {
-        std::vector<SpecialRouteLine>::iterator it;
+        std::vector<SpecialRouteLineElement*>::iterator it;
         bool hasSelectedOne = false;
         for(it = m_SpecialRouteLine.begin(); it != m_SpecialRouteLine.end(); ++it)
         {
-            (*it).setIsActive(false);
-            (*it).setActivePathPoint(-1);
+            (*it)->setIsActive(false);
+            (*it)->setActivePathPoint(-1);
         }
         for(it = m_SpecialRouteLine.begin(); it != m_SpecialRouteLine.end(); ++it)
         {
-            ZCHX::Data::SpecialRouteLine objData = (*it).data();
+            ZCHX::Data::SpecialRouteLine objData = (*it)->data();
             std::vector<ZCHX::Data::SpecialRoutePoint> points = objData.points;
             if(points.size()<=1)
                 continue;
@@ -52,37 +52,37 @@ void zchxRouteDataMgr::setPickUpSpacilRoutePoint(const ZCHX::Data::SpecialRouteP
             if(objData.m_iId == data.m_iFileId)
             {
                 bOnLine = true;
-                (*it).setIsActive(true);
-                (*it).setActivePathPoint(data.m_iNumber);
+                (*it)->setIsActive(true);
+                (*it)->setActivePathPoint(data.m_iNumber);
             }
             if(!hasSelectedOne && bOnLine)
             {
 
-                (*it).setIsActive(true);
+                (*it)->setIsActive(true);
                 hasSelectedOne = true;
-                int pointNum = (*it).activePathPoint();
-                ZCHX::Data::SpecialRouteLine item = (*it).data();
+                int pointNum = (*it)->activePathPoint();
+                ZCHX::Data::SpecialRouteLine item = (*it)->data();
                 emit mDisplayWidget->signalIsSelectedSpecialRoutePoint(item.points.at(pointNum));
             }
             else
             {
-                (*it).setIsActive(false);
+                (*it)->setIsActive(false);
             }
         }
     }
 }
 
-void zchxRouteDataMgr::setRouteCrossData(const std::vector<RouteCross> &data)
+void zchxRouteDataMgr::setRouteCrossData(const std::vector<RouteCrossElement*> &data)
 {
     m_RouteCross = data;
 }
 
-void zchxRouteDataMgr::setAllProjectRouteLineData(const std::vector<RouteLine> &data)
+void zchxRouteDataMgr::setAllProjectRouteLineData(const std::vector<RouteLineElement*> &data)
 {
     m_AllProjectRouteLine = data;
 }
 
-void zchxRouteDataMgr::setRouteLineData(const std::vector<RouteLine> &data)
+void zchxRouteDataMgr::setRouteLineData(const std::vector<RouteLineElement*> &data)
 {
     //qDebug()<<__FUNCTION__<<__LINE__;
     m_RouteLine = data;
@@ -139,15 +139,15 @@ void zchxRouteDataMgr::setRouteLineData(const std::vector<RouteLine> &data)
 #endif
     if(!m_RouteLine.empty())
     {
-        RouteLine objLine = data.at(0);
-        ZCHX::Data::RouteLine objData = objLine.data();
+        RouteLineElement* objLine = data.at(0);
+        ZCHX::Data::RouteLine objData = objLine->data();
         m_uCurrentProjectID = objData.projectID;
     }
-    std::vector<RouteLine>::iterator it;
+    std::vector<RouteLineElement*>::iterator it;
     for(it=m_AllProjectRouteLine.begin(); it != m_AllProjectRouteLine.end(); ++it)
     {
-        RouteLine ele = (*it);
-        ZCHX::Data::RouteLine routeLine = ele.data();
+        RouteLineElement* ele = (*it);
+        ZCHX::Data::RouteLine routeLine = ele->data();
         if(routeLine.projectID == m_uCurrentProjectID)
         {
             m_AllProjectRouteLine.erase(it);
@@ -157,13 +157,13 @@ void zchxRouteDataMgr::setRouteLineData(const std::vector<RouteLine> &data)
     }
     for(int i = 0;i<m_RouteLine.size();i++)
     {
-        RouteLine objLine = data.at(i);
+        RouteLineElement* objLine = data.at(i);
         m_AllProjectRouteLine.push_back(objLine);
     }
 
 }
 
-void zchxRouteDataMgr::setHistoryRouteLineData(const std::vector<RouteLine> &data)
+void zchxRouteDataMgr::setHistoryRouteLineData(const std::vector<RouteLineElement*> &data)
 {
     m_historyRouteLine = data;
 }

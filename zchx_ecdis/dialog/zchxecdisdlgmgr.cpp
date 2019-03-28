@@ -29,7 +29,7 @@ void zchxEcdisDlgMgr::zchxOpenCameraListDlg(RodElement *item)
     }
     if(list.empty())
     {
-        qDebug()<<"No camera deivce on this Camera rod!"<<item->getData().szName;
+        qDebug()<<"No camera deivce on this Camera rod!"<<item->data().szName;
         return;
     }
     zchxOpenCameraListDlg(list, ZCHX::Data::LatLon(item->lat(), item->lon()));
@@ -56,7 +56,7 @@ void zchxEcdisDlgMgr::zchxOpenCameraListDlg(QList<ZCHX::Data::ITF_CameraDev>& li
     if((!mDisplayWidget) || list.empty()) return;
 
     ZCHXCameraListDlg d(list, mDisplayWidget->parentWidget());
-    d.setWindowFlags( Qt::SubWindow | Qt::Dialog | Qt::FramelessWindowHint);
+    d.setWindowFlags( Qt::SubWindow/* | Qt::Dialog | Qt::FramelessWindowHint*/);
     d.setWindowModality(Qt::ApplicationModal);
     connect(&d, &ZCHXCameraListDlg::cameraDevSelected,  this,   &zchxEcdisDlgMgr::signalIsSelected4CameraDev); //发送单击的相机信息
     connect(&d, &ZCHXCameraListDlg::cameraDevDoubleClicked, this, &zchxEcdisDlgMgr::signalCameraDoubleClicked);

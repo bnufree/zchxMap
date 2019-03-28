@@ -16,8 +16,8 @@ class zchxShipPlanDataMgr : public QObject
     Q_OBJECT
 public:
     explicit zchxShipPlanDataMgr(zchxMapWidget* w, QObject *parent = 0);
-    void setAllProjecrShipPlanLineData(const std::vector<ShipPlanLine> &data);
-    void setShipPlanLineData(const std::vector<ShipPlanLine> &data);
+    void setAllProjecrShipPlanLineData(const std::vector<ShipPlanLineElement*> &data);
+    void setShipPlanLineData(const std::vector<ShipPlanLineElement*> &data);
     void setShipPlanProjectID(const int ProjectID);
 
 signals:
@@ -27,8 +27,8 @@ public slots:
 
 private:
     zchxMapWidget       *mDisplayWidget;
-    std::vector<ShipPlanLine> m_ShipPlanLine;              //船舶计划(当前项目)
-    std::vector<ShipPlanLine> m_AllShipPlanLines;          //
+    std::vector<ShipPlanLineElement*> m_ShipPlanLine;              //船舶计划(当前项目)
+    std::vector<ShipPlanLineElement*> m_AllShipPlanLines;          //
     int m_uCurrentProjectID;                                            //当前项目ID
 };
 }

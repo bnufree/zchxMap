@@ -11,20 +11,22 @@ class EllipseElement : public FixElement<ZCHX::Data::ITF_EleEllipse>
 public:
     explicit  EllipseElement(const ZCHX::Data::ITF_EleEllipse &ele, zchxMapWidget* w)
         :FixElement<ZCHX::Data::ITF_EleEllipse>(ele, ZCHX::Data::ELE_ELLIPSE, ZCHX::LAYER_ELLIPSE, w) {}
+    void drawElement(QPainter* painter);
+
 };
 
 //三角形
 class TriangleElement : public FixElement<ZCHX::Data::ITF_EleTriangle>
 {
     explicit  TriangleElement(const ZCHX::Data::ITF_EleTriangle &ele, zchxMapWidget* w)
-        :FixElement<ZCHX::Data::ITF_EleTriangle>(ele, ZCHX::Data::ELE_TRIANGLE, ZCHX::LAYER_Triangle, w) {}
+        :FixElement<ZCHX::Data::ITF_EleTriangle>(ele, ZCHX::Data::ELE_TRIANGLE, ZCHX::LAYER_TRIANGLE, w) {}
 };
 
 //直线
 class LineElement : public FixElement<ZCHX::Data::ITF_EleLine>
 {
     explicit  LineElement(const ZCHX::Data::ITF_EleLine &ele, zchxMapWidget* w)
-        :FixElement<ZCHX::Data::ITF_EleLine>(ele, ZCHX::Data::ELE_LINE,ZCHX::LAYER_Line, w) {}
+        :FixElement<ZCHX::Data::ITF_EleLine>(ele, ZCHX::Data::ELE_LINE,ZCHX::LAYER_LINE, w) {}
 };
 
 
@@ -33,7 +35,7 @@ class LineElement : public FixElement<ZCHX::Data::ITF_EleLine>
 class RectElement : public FixElement<ZCHX::Data::ITF_EleRect>
 {
     explicit  RectElement(const ZCHX::Data::ITF_EleRect &ele, zchxMapWidget* w)
-        :FixElement<ZCHX::Data::ITF_EleRect>(ele, ZCHX::Data::ELE_RECT, ZCHX::LAYER_Rect, w) {}
+        :FixElement<ZCHX::Data::ITF_EleRect>(ele, ZCHX::Data::ELE_RECT, ZCHX::LAYER_RECT, w) {}
 };
 
 /*标准图元*/
@@ -45,6 +47,7 @@ class LocalMarkElement :public FixElement<ZCHX::Data::ITF_LocalMark>
 public:
     explicit  LocalMarkElement(const ZCHX::Data::ITF_LocalMark &ele, zchxMapWidget* w)
         :FixElement<ZCHX::Data::ITF_LocalMark>(ele, ZCHX::Data::ELE_LOCALMARK, ZCHX::LAYER_LOCALMARK,w) {}
+    void drawElement(QPainter *painter);
 };
 
 //导航
@@ -87,10 +90,9 @@ class ZCHX_ECDIS_EXPORT AISBaseStationElement : public FixElement<ZCHX::Data::IT
 
 public:
     explicit AISBaseStationElement(const ZCHX::Data::ITF_AISBASESTATION &data, zchxMapWidget* w)
-    :FixElement<ZCHX::Data::ITF_AISBASESTATION>(data, ZCHX::Data::ELE_AIS_BASE_STATION, ZCHX::LAYER_AIS_Station, w) {}
+    :FixElement<ZCHX::Data::ITF_AISBASESTATION>(data, ZCHX::Data::ELE_AIS_BASE_STATION, ZCHX::LAYER_AIS_STATION, w) {}
     void drawElement(QPainter *painter) ;
     void updateGeometry(QPointF pos, qreal size);
-    void setData(const ZCHX::Data::ITF_AISBASESTATION &data);
     virtual void clicked(bool isDouble ) {}
     virtual void showToolTip(const QPoint& pos);
 private:
@@ -106,7 +108,6 @@ public:
     :FixElement<ZCHX::Data::ITF_AIS>(data, ZCHX::Data::ELE_AIS_FUSION, ZCHX::LAYER_AIS_FUSION, w) {}
     void drawElement(QPainter *painter) ;
     void updateGeometry(QPointF pos, qreal size);
-    void setData(const ZCHX::Data::ITF_AIS &data);
 
 private:
     QPolygonF m_polygon;

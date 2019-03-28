@@ -46,7 +46,7 @@ public:
     //
     PPATH convert2QtPonitList(const GPATH &path);
     //          画地图
-    void        updateEcdis(QPainter* painter, bool image_num = false);
+    void        updateEcdis(QPainter* painter, QRect rect,  bool image_num = false);
 
 signals:
     void        signalSendCurMapinfo(double lat, double lon, int zoom);

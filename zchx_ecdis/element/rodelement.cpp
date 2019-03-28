@@ -4,49 +4,23 @@
 #include "ipcelement.h"
 #include "zchxmapwidget.h"
 
-namespace qt
-{
+using namespace qt;
+
 RodElement::RodElement(const ZCHX::Data::ITF_CameraRod &data,zchxMapWidget* f)
-    :Element(data.nLatLon.lat,data.nLatLon.lon, f, ZCHX::Data::ELE_ROD)
+    :FixElement<ZCHX::Data::ITF_CameraRod>(data, ZCHX::Data::ELE_ROD, ZCHX::LAYER_WIREROD, f)
 {
-    m_data = data;
 }
 
-ZCHX::Data::ITF_CameraRod RodElement::getData() const
-{
-    return m_data;
-}
-
-void RodElement::setData(const ZCHX::Data::ITF_CameraRod &data)
-{
-    m_data = data;
-}
 
 QList<ZCHX::Data::ITF_CameraDev> RodElement::getCameraList() const
 {
-    QList<ZCHX::Data::ITF_CameraDev> list;
-    std::list<std::shared_ptr<Element>> wklist = getChildren(ZCHX::Data::ELE_CAMERA);
-    foreach (std::shared_ptr<Element> ele, wklist) {
-        CameraElement *cam = static_cast<CameraElement*>(ele.get());
-        if(cam) {
-            list.append(cam->data());
-        }
-    }
-    return list;
+    return mCameraList;
 }
 
 
 QList<ZCHX::Data::IPCastDevice> RodElement::getIPCList() const
 {
-    QList<ZCHX::Data::IPCastDevice> list;
-    std::list<std::shared_ptr<Element>> wklist = getChildren(ZCHX::Data::ELE_IPC);
-    foreach (std::shared_ptr<Element> ele, wklist) {
-        IPCElement *ipc = static_cast<IPCElement*>(ele.get());
-        if(ipc) {
-            list.append(ipc->getData());
-        }
-    }
-    return list;
+    return mIpcList;
 }
 
 
@@ -60,37 +34,64 @@ ZCHX::Data::CAMERAROD_STATUS RodElement::status() const
     return m_data.nStatus;
 }
 
+void RodElement::updateCamera(const ZCHX::Data::ITF_CameraDev &data)
+{
+    bool found = false;
+    for(int i=0; i<mCameraList.size(); i++)
+    {
+        if(mCameraList[i].nDBID == data.nDBID)
+        {
+            mCameraList[i] = data;
+            found = true;
+            break;
+        }
+    }
+    if(!found) mCameraList.append(data);
+}
+
+void RodElement::updateIPC(const ZCHX::Data::IPCastDevice &data)
+{
+    bool found = false;
+    for(int i=0; i<mIpcList.size(); i++)
+    {
+        if(mIpcList[i].id == data.id)
+        {
+            mIpcList[i] = data;
+            found = true;
+            break;
+        }
+    }
+    if(!found) mIpcList.append(data);
+}
+
 void RodElement::drawElement(QPainter *painter)
 {
     if(!isDrawAvailable(painter)) return;
+    //这里不显示字图元 通过杆的操作才显示子图元
     /*绘制图片元素*/
-    int curScale = mView->framework()->GetDrawScale();
+    int curScale = getDrawScaleSize();
     QPixmap cameraRadImg        = ZCHX::Utils::getImage(":/element/gan_normal.png", Qt::green, curScale);
     QPixmap cameraRodWarringImg = ZCHX::Utils::getImage(":/element/gan_bug.png", Qt::yellow, curScale);
     QPixmap cameraRodErrImg     = ZCHX::Utils::getImage(":/element/gan_error.png", Qt::red, curScale);
     QPixmap cameraRodFocus      = ZCHX::Utils::getImage(":/element/gan_bg.png", Qt::yellow, curScale);
 
-    ZCHX::Data::ITF_CameraRod data =  this->getData();
-    ZCHX::Data::Point2D pos = mView->framework()->LatLon2Pixel(data.nLatLon.lat,data.nLatLon.lon);
-    QRect rect(pos.x - cameraRadImg.width() / 2, pos.y - cameraRadImg.height() / 2, cameraRadImg.width(),cameraRadImg.height());
-    if(getIsActive())
-    {
-        PainterPair chk(painter);
-        painter->setPen(QPen(Qt::red,2));
-        painter->drawRect(rect.x() -5, rect.y() -5, rect.width()+5, rect.height()+5);
-    }
-
+    ZCHX::Data::ITF_CameraRod data =  this->data();
+    QPointF pos = getCurrentPos();
+    QRect rect(0, 0, cameraRadImg.width(),cameraRadImg.height());
+    rect.moveCenter(pos.toPoint());
+    updateBouningRect(pos, cameraRadImg.width(), cameraRadImg.height());
+    updateGeometry(pos, getDrawScaleSize());
     if(getIsHover())
     {
         //通过推算经纬度计算半径
         ZCHX::Data::LatLon drll(0, 0);
         ZCHX::Utils::distbear_to_latlon(data.nLatLon.lat,data.nLatLon.lon,800,0,drll.lat,drll.lon);
         ZCHX::Data::Point2D drPos = mView->framework()->LatLon2Pixel(drll);
-        double dr = sqrt(abs(drPos.y - pos.y) * abs(drPos.y-pos.y) + abs(drPos.x - pos.x) * abs(drPos.x - pos.x));
+        double dr = sqrt(abs(drPos.y - pos.y()) * abs(drPos.y-pos.y()) + abs(drPos.x - pos.x()) * abs(drPos.x - pos.x()));
         PainterPair chk(painter);
         painter->setBrush(QBrush(QColor(0,255,255,125)));
         painter->setPen(Qt::NoPen);
-        painter->drawEllipse(QPointF(pos.x,pos.y),dr,dr);
+        painter->drawEllipse(pos,dr,dr);
     }
     if(getIsFocus()) //是否聚焦状态
     {
@@ -110,6 +111,8 @@ void RodElement::drawElement(QPainter *painter)
     {
         painter->drawPixmap(rect, cameraRadImg);
     }
+
+    drawActive(painter);
 }
 
 void RodElement::updateElementStatus(qint64 ele, bool sts)
@@ -126,5 +129,4 @@ void RodElement::updateElementStatus(qint64 ele, bool sts)
     } else {
         setStatus(ZCHX::Data::CAMERAROD_ERROR);
     }
-}
 }

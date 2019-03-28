@@ -74,7 +74,7 @@ bool MoveElement::contains(int range, double x, double y) const
     return false;
 }
 
-bool MoveElement::contains(const QPoint &pt) const
+bool MoveElement::contains(const QPoint &pt)
 {
     if(!isViewAvailable()) return false;
     std::vector<std::pair<double,double>> tmp_path = path();

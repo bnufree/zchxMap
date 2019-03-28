@@ -12,8 +12,9 @@ namespace qt {
 int Element::g_maxLineLength = 100;
 int Element::gSetFlashAlphaStep = 100;
 
-Element::Element(const double &lat, const double &lon, zchxMapWidget* view, ZCHX::Data::ELETYPE type, const QColor& flashColor)
-    : elelat(lat)
+Element::Element(const double &lat, const double &lon, zchxMapWidget* view, ZCHX::Data::ELETYPE type, const QColor& flashColor, QObject* parent)
+    : QObject(parent)
+    , elelat(lat)
     , elelon(lon)
     , displayLat(lat)
     , displayLon(lon)
@@ -28,7 +29,7 @@ Element::Element(const double &lat, const double &lon, zchxMapWidget* view, ZCHX
     , mID("")
     , m_element_type(type)
     , isForceImage(false)
-    , m_layer(0)
+//    , m_layer(0)
     , mView(view)
     , m_updateUTC(QDateTime::currentMSecsSinceEpoch())
     , m_geometryChanged(false)
@@ -38,53 +39,22 @@ Element::Element(const double &lat, const double &lon, zchxMapWidget* view, ZCHX
     , mBorderColor(QColor())
     , mFillingColor(QColor())
     , m_layerName("")
+    , isExtrapolate(false)
+    , dExtrapolateTime(0)
+    , m_fixelement(false)
 {
 
     Element::g_maxLineLength = Profiles::instance()->value(MAP_INDEX, MAX_LINE_LENGTH).toInt();
-}
-
-Element::Element(const Element &element)
-    : elelat(element.elelat)
-    , elelon(element.elelon)
-    , displayLat(element.displayLat)
-    , displayLon(element.displayLon)
-    , isActive(element.isActive)
-    , isHover(element.isHover)
-    , isFocus(element.isFocus)
-    , isConcern(element.isConcern)
-    , isRealtimeTailTrack(element.isRealtimeTailTrack)
-    , isHistroyTrack(element.isHistroyTrack)
-    , isOpenMeet(element.isOpenMeet)
-    , isUpdate(element.isUpdate)
-    , mID(element.mID)
-    , m_element_type(element.m_element_type)
-    , isForceImage(element.isForceImage)
-    , mFlashColor(element.mFlashColor)
-    , m_layer(element.m_layer)
-    , mView(element.mView)
-    , m_updateUTC(element.m_updateUTC)
-    , m_boundingRectSmall(element.m_boundingRectSmall)
-    , m_boundingRect(element.m_boundingRect)
-    , m_activeRect(element.m_activeRect)
-    , m_focusRect(element.m_focusRect)
-    , m_geometryChanged(element.m_geometryChanged)
-    , mConcernColor(element.mConcernColor)
-    , mTextColor(element.mTextColor)
-    , mBorderColor(element.mBorderColor)
-    , mFillingColor(element.mFillingColor)
-    , m_layerName(element.m_layerName)
-{
-
 }
 
 Element::~Element()
 {
 }
 
-std::shared_ptr<MapLayer> Element::getLayer()
-{
-    return m_layer;
-}
+//std::shared_ptr<MapLayer> Element::getLayer()
+//{
+//    return m_layer;
+//}
 
 void Element::setLayer(const QString& layer)
 {
@@ -231,23 +201,20 @@ void Element::setUseDisplayLatLon(bool value)
     useDisplayLatLon = value;
 }
 
-bool Element::contains(int range, double x, double y) const
-{
-    if(!mView || !mView->framework() || range <= 0) return false;
-    ZCHX::Data::Point2D gpos = mView->framework()->LatLon2Pixel(displayLat, displayLon);
-    QRectF rect(0, 0, 2*range, 2*range);
-    rect.moveCenter(QPointF(gpos.x, gpos.y));
-    return rect.contains(QPointF(x, y));
-}
+//bool Element::contains(int range, double x, double y)
+//{
+//    if(!LayerMgr->isLayerVisible(layerName())) return false;
+//    if(!mView || !mView->framework() || range <= 0) return false;
+//    ZCHX::Data::Point2D gpos = mView->framework()->LatLon2Pixel(displayLat, displayLon);
+//    QRectF rect(0, 0, 2*range, 2*range);
+//    rect.moveCenter(QPointF(gpos.x, gpos.y));
+//    return rect.contains(QPointF(x, y));
+//}
 
-bool Element::contains(const QPoint& pos) const
+bool Element::contains(const QPoint& pos)
 {
-    return false;
-}
-
-bool Element::contains(const QGeoCoordinate &geoPos) const
-{
-    return false;
+    if(!LayerMgr->isLayerVisible(layerName())) return false;
+    return m_boundingRect.contains(pos);
 }
 
 bool Element::isEmpty() const
@@ -297,29 +264,51 @@ void Element::drawFocus(QPainter *painter)
     }
 }
 
+void Element::updateBouningRect(QPointF pos, int width, int height)
+{
+    m_boundingRect.setWidth(width);
+    m_boundingRect.setHeight(height);
+    m_boundingRect.moveCenter(pos);
+}
+
 void Element::updateGeometry(QPointF pos, qreal size)
 {
-//    qreal maxVal = qMax(m_boundingRect.width(), m_boundingRect.height());
-    qreal half = size / 2.0;
-    size += 1;
-    m_activeRect = m_boundingRect.adjusted(-size,-size,size,size);
-    m_focusRect = m_activeRect.adjusted(-half,-half,half,half);
-    m_boundingRectSmall.setCoords(pos.x() - 2, pos.y() - 2, pos.x() + 2, pos.y() + 2);
+    if(m_boundingRect.size().isEmpty())
+    {
+        m_boundingRect.setSize(QSize(size, size));
+        m_boundingRect.moveCenter(pos);
+    }
+    int half = size / 2.0;
+    int active_size = size + 1;
+    m_activeRect = m_boundingRect.adjusted(-active_size,-active_size, active_size, active_size);
+    m_focusRect = m_activeRect.adjusted(-half,-half, half, half);
+    m_boundingRectSmall.setSize(QSizeF(4, 4));
+    m_boundingRectSmall.moveCenter(m_boundingRect.center());
 }
 
 void Element::addChild(std::shared_ptr<Element> child)
 {
     m_children.push_back(child);
-    if(m_layer)
-    {
-        //暂不加入
-//        d->layer->addElement(child);
-    }
+//    if(m_layer)
+//    {
+//        //暂不加入
+////        d->layer->addElement(child);
+//    }
 }
 
 void Element::removeChild(std::shared_ptr<Element> child)
 {
     m_children.remove(child);
+}
+
+void Element::removeChildren(ZCHX::Data::ELETYPE type)
+{
+    if(type == ZCHX::Data::ELE_NONE) return m_children.clear();
+    foreach (std::shared_ptr<Element> ele, m_children) {
+        if(ele->getElementType() == type){
+            m_children.remove(ele);
+        }
+    }
 }
 
 std::list<std::shared_ptr<Element> > Element::getChildren(ZCHX::Data::ELETYPE type) const
@@ -437,7 +426,7 @@ void Element::setGeometryChanged(bool geometryChanged)
 int Element::getDrawScaleSize() const
 {
     if(!mView || !mView->framework()) return 10;
-    int curScale = mView->framework()->Zoom() < 7 ? 5 : 10;
+    int curScale = mView->framework()->Zoom() < 7 ? 6 : 10;
     return curScale;
 }
 
@@ -505,11 +494,11 @@ zchxMapFrameWork* Element::framework() const
     return 0;
 }
 
-bool Element::isLayervisible()
-{
-    if(!m_layer) return false;
-    return m_layer->visible();
-}
+//bool Element::isLayervisible()
+//{
+//    if(!m_layer) return false;
+//    return m_layer->visible();
+//}
 
 bool Element::isDrawAvailable(QPainter* painter)
 {
@@ -521,5 +510,112 @@ void Element::setFlashColor(const QColor &color)
 {
     mFlashColor = color;
 }
+
+QAction* Element::addAction(const QString &text, const QObject *obj, const char* slot, void* userData)
+{
+    if(!obj || !slot || strlen(slot) == 0) return 0;
+
+    QAction *result(new QAction(text, this));
+    if(QString(slot).contains("(bool)"))
+        connect(result, SIGNAL(triggered(bool)), obj, slot);
+    else
+        connect(result,SIGNAL(triggered()),obj,slot);
+
+    if(userData) result->setData(QVariant::fromValue(userData));
+    return result;
+}
+
+void Element::slotSetPictureInPicture()
+{
+    if(mView)
+    {
+        mView->signalSendPictureInPictureTarget(getElementType(), getID());
+    }
+}
+
+void Element::slotSetSimulationExtrapolation()
+{
+    std::shared_ptr<MapLayer> layer = MapLayerMgr::instance()->getLayer(layerName());
+    if(!layer) return;
+    QString id = getID();
+    bool res = true;
+    if(layer->isExtrapolation(id))
+    {
+        layer->removeExtrapolation(id);
+    } else
+    {
+        res = layer->appendExtrapolation(id);
+    }
+    bool status = layer->isExtrapolation(id);
+    if(mView && res){
+        mView->signalElementExtrapolation(getElementType(), id, status);
+    }
+}
+
+void Element::slotSetHistoryTraces()
+{
+    std::shared_ptr<MapLayer> layer = MapLayerMgr::instance()->getLayer(layerName());
+    if(!layer) return;
+    QString id = getID();
+    bool res = true;
+    if(layer->isHistoryTrack(id))
+    {
+        layer->removeHistoryTrack(id);
+    } else
+    {
+        res = layer->appendHistoryTrack(id);
+    }
+    bool status = layer->isHistoryTrack(id);
+    if(mView && res){
+        mView->signalSendHistoryTrack(getElementType(), id, status);
+    }
+}
+
+void Element::slotSetRealTimeTraces()
+{
+    std::shared_ptr<MapLayer> layer = MapLayerMgr::instance()->getLayer(layerName());
+    if(!layer) return;
+    QString id = getID();
+    bool res = true;
+    if(layer->isRealtimeTrack(id))
+    {
+        layer->removeRealtimeTrack(id);
+    } else
+    {
+        res = layer->appendRealtimeTrack(id);
+    }
+    bool status = layer->isRealtimeTrack(id);
+    if(mView && res){
+        mView->signalSendRealtimeTrack(getElementType(), id, status);
+    }
+}
+
+void Element::slotInvokeLinkageSpot()
+{
+    ZCHX::Data::ITF_CloudHotSpot data;
+    data.fllow = ZCHX::Data::ITF_CloudHotSpot::FLLOW_TYPE_LINKAGE_TRACKING;
+    data.mode = ZCHX::Data::ITF_CloudHotSpot::MODE_HANDLE;
+    data.targetNumber = getID();
+    data.targetType = getElementType();
+    data.targetLon = elelon;
+    data.targetLat = elelat;
+    if(mView) mView->signalInvokeHotSpot(data);
+}
+
+void Element::slotSetConcern()
+{
+    std::shared_ptr<MapLayer> layer = MapLayerMgr::instance()->getLayer(layerName());
+    if(!layer) return;
+    QString id = getID();
+    if(layer->isConcern(id))
+    {
+        layer->removeConcern(id);
+    } else
+    {
+        layer->appendConcern(id);
+    }
+}
+
+
 
 }

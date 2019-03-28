@@ -1,6 +1,7 @@
 #include "zchxmoveelements.h"
 #include "zchxMapDataUtils.h"
 #include "zchxmapframe.h"
+#include "zchxmapwidget.h"
 
 using namespace qt;
 void WarningZoneElement::drawElement(QPainter *painter)
@@ -23,8 +24,12 @@ void WarningZoneElement::drawElement(QPainter *painter)
             painter->drawEllipse(pos, 5, 5);
         }
     }
-    //闭合图形
-    polygon.append(polygon.first());
+    if(m_data.shape != ZCHX::Data::ITF_WarringZone::ZONE_LINE){
+        if(polygon.first() != polygon.last())
+        {
+            polygon.append(polygon.first());
+        }
+    }
     PainterPair chk(painter);
     MapStyle colorType = this->framework()->GetMapStyle();
     if(colorType == MapStyleEcdisNight || colorType == MapStyleEcdisDayDUSK)
@@ -36,8 +41,27 @@ void WarningZoneElement::drawElement(QPainter *painter)
         painter->setPen(QPen(QColor(getDefenceColor()),2,Qt::DashLine));
     }
     painter->setBrush(QBrush(Qt::blue, Qt::Dense7Pattern));
-    painter->drawPolygon(polygon);
-    painter->drawText(polygon.boundingRect().center(),QString::fromStdString(name()));
+    if(m_data.shape != ZCHX::Data::ITF_WarringZone::ZONE_LINE){
+        painter->drawPolygon(polygon);
+        painter->drawText(polygon.boundingRect().center(), m_data.getName());
+    } else {
+        painter->drawPolyline(polygon);
+        painter->drawText(polygon.last(), m_data.getName());
+    }
+}
+
+void WarningZoneElement::clicked(bool isDouble)
+{
+    if(mView)
+    {
+        if(isDouble)
+        {
+            mView->signalIsDoubleClicked4WarringZone(data());
+        } else
+        {
+            mView->signalIsSelected4WarringZone(data());
+        }
+    }
 }
 
 void CoastElement::drawElement(QPainter *painter)
@@ -129,7 +153,6 @@ void SeabedPipeLineElement::drawElement(QPainter *painter)
     painter->drawText(polygon.boundingRect().center(),name);
 }
 
-
 void AreaNetElement::drawElement(QPainter *painter)
 {
     if(!this->isDrawAvailable(painter)) return;
@@ -207,6 +230,20 @@ void CardMouthElement::drawElement(QPainter *painter)
     painter->setBrush(Qt::NoBrush);
     painter->drawPath(polygon);
     painter->drawText(polygon.boundingRect().center(),name);
+}
+
+void CardMouthElement::clicked(bool isDouble)
+{
+    if(mView)
+    {
+        if(isDouble)
+        {
+            mView->signalIsDoubleClicked4CardMouthZone(data());
+        } else
+        {
+            mView->signalIsSelected4CardMouthZone(data());
+        }
+    }
 }
 
 void ChannelElement::setLineSelected(int i, bool selectStatus)
@@ -298,6 +335,20 @@ void ChannelElement::drawElement(QPainter *painter)
     }
 }
 
+void ChannelElement::clicked(bool isDouble)
+{
+    if(mView)
+    {
+        if(isDouble)
+        {
+            mView->signalIsDoubleClicked4ChannelZone(data());
+        } else
+        {
+            mView->signalIsSelected4ChannelZone(data());
+        }
+    }
+}
+
 void MooringElement::drawElement(QPainter *painter)
 {
     if(!this->isDrawAvailable(painter)) return;
@@ -334,5 +385,19 @@ void MooringElement::drawElement(QPainter *painter)
     painter->setOpacity(0.3);
     painter->drawPolygon(polygon);
     painter->drawText(polygon.boundingRect().center(),name);
+}
+
+void MooringElement::clicked(bool isDouble)
+{
+    if(mView)
+    {
+        if(isDouble)
+        {
+            mView->signalIsDoubleClicked4MooringZone(data());
+        } else
+        {
+            mView->signalIsSelected4MooringZone(data());
+        }
+    }
 }
 

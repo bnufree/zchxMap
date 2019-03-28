@@ -168,6 +168,14 @@ void zchxDrawMooringZoneTool::endDraw()
     zchxDrawZoneTool::endDraw();
 }
 
+void zchxDrawCardMouthTool::show(QPainter *painter)
+{
+    if(!isReady() || !painter) return;
+    PainterPair chk(painter);
+    painter->setPen(QPen(Qt::red,1,Qt::DashLine));
+    painter->setBrush(Qt::NoBrush);
+    painter->drawPolyline(QPolygonF(mPoints.toVector()));
+}
 
 void zchxDrawCardMouthTool::endDraw()
 {

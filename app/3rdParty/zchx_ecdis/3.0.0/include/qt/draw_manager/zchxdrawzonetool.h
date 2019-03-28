@@ -42,7 +42,6 @@ public:
     void endDraw();
 
 signals:
-    void signalCreateWarringZONE(const ZCHX::Data::ITF_WarringZone& zone);
 public slots:
 };
 
@@ -55,7 +54,6 @@ public:
     void endDraw();
 
 signals:
-    //void signalCreateWarringZONE(const ZCHX::Data::ITF_WarringZone& zone);
 public slots:
 };
 
@@ -68,7 +66,6 @@ public:
     void endDraw();
 
 signals:
-    //void signalCreateWarringZONE(const ZCHX::Data::ITF_WarringZone& zone);
 public slots:
 };
 
@@ -78,10 +75,10 @@ class zchxDrawCardMouthTool: public zchxDrawZoneTool
 public:
     explicit zchxDrawCardMouthTool(zchxMapWidget* w, QObject *parent = 0):
         zchxDrawZoneTool(w, qt::eTool::CARDMOUTHMANAGER, 3, parent) {}
+    void show(QPainter *painter);
     void endDraw();
 
 signals:
-    //void signalCreateWarringZONE(const ZCHX::Data::ITF_WarringZone& zone);
 public slots:
 };
 

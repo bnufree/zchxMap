@@ -1,18 +1,14 @@
 #ifndef VIDEOTARGETELE_H
 #define VIDEOTARGETELE_H
 
-#include "IDrawElement.hpp"
-#include <QtCore>
+#include "fixelement.h"
 
 namespace qt {
 //人车船
-class  VideoTargetElement : public Element
+class  VideoTargetElement : public FixElement<ZCHX::Data::ITF_VideoTarget>
 {
 public:
     explicit VideoTargetElement(const ZCHX::Data::ITF_VideoTarget & data, zchxMapWidget* work);
-
-    const ZCHX::Data::ITF_VideoTarget & getData() const;
-    void setData(const ZCHX::Data::ITF_VideoTarget& data);
 
     uint getTargetStatus() const;
     uint getTargetType() const;
@@ -21,9 +17,7 @@ public:
     QString getAlarmColor() const;
 
     void drawElement(QPainter* painter);
-    void updateGeometry(QPointF, qreal){}
 private:
-    ZCHX::Data::ITF_VideoTarget m_data;
     QStringList  mTargetIImgList;
 };
 

@@ -11,6 +11,7 @@ public:
     explicit GridElement(const ZCHX::Data::ITF_NetGrid& ele, zchxMapWidget* w)
         :FixElement<ZCHX::Data::ITF_NetGrid>(ele, ZCHX::Data::ELE_GRID, ele.mLayer, w) {}
     void drawElement(QPainter *painter);
+    void updateGeometry(QPointF pos, qreal size) {}
 
 private:
     void drawCameraGrid(QPainter* painter);

@@ -1124,6 +1124,7 @@ ITF_AIS::ITF_AIS()
     , icon_number(-1)
     , is_fleet(false)
     , is_construction_ship(false)
+    , id("")
 {
     _path.clear();
     _touchdown.clear();
@@ -1211,6 +1212,39 @@ bool tagITF_ChannelLine::operator ==(const tagITF_ChannelLine &other)
     else
     {
         return false;
+    }
+}
+
+QString ITF_CameraDev::getCameraTypeString() const
+{
+    QString res = QObject::tr("未知");
+    switch (nType) {
+    case ZCHX::Data::CAMERA_BALL:
+        res = QObject::tr("球机");
+        break;
+    case ZCHX::Data::CAMERA_GUN:
+        res = QObject::tr("枪机");
+        break;
+    case ZCHX::Data::CAMERA_GDY:
+        res = QObject::tr("光电仪");
+        break;
+    case ZCHX::Data::CAMERA_PANORAMA:
+        res = QObject::tr("全景相机");
+        break;
+    case ZCHX::Data::CAMERA_GAN_LEFT:
+        res = QObject::tr("向左枪机");
+        break;
+    case ZCHX::Data::CAMERA_GAN_RIGHT:
+        res = QObject::tr("向右枪机");
+        break;
+    case ZCHX::Data::CAMERA_NOPEOLEPLNA:
+        res = QObject::tr("无人机");
+        break;
+    case ZCHX::Data::CAMERA_FAKE_IPCAST:
+        res = QObject::tr("号角设备");
+        break;
+    default:
+        break;
     }
 }
 

@@ -13,6 +13,7 @@ public:
         : Element(0, 0, w, type), m_activePathPoint(-1)
     {
         setLayer(layer);
+        setFix(false);
     }
 
     virtual std::vector<std::pair<double, double> > path() const = 0;
@@ -46,7 +47,7 @@ public:
 
     //指定点是否在区域线上
     virtual bool contains(int range, double x, double y) const;
-    virtual bool contains(const QPoint &pt) const;
+    virtual bool contains(const QPoint &pt);
     virtual void drawElement(QPainter* painter) {}
     void updateGeometry(QPointF, qreal){}
 protected:

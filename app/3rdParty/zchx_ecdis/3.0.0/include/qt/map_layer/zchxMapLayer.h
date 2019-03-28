@@ -95,15 +95,19 @@ public:
      * \brief 添加一个图元到当前图层
      */
     void addElement(std::shared_ptr<Element> element);
+    void addElements(QList<std::shared_ptr<Element>> & list, bool check);
     /*!
      * \brief 从当前图层移除一个图元
      */
     void removeElement(std::shared_ptr<Element> element);
+    void removeElement(const QString& id);
+    //删除所有图元
+    void removeAllElement();
     /*!
      * \brief 获取当前图层中的所有图元的列表, 最先添加的图层再列表最前面
      */
     std::list<std::shared_ptr<Element> > getElements();
-    Element*                             getElement(const QString& name);
+    std::shared_ptr<Element>   getElement(const QString& name);
 
     /*!
      * \brief 更新图层
@@ -118,11 +122,13 @@ public:
     /*!
      * \brief 绘图图层及图层中的图元
      */
-    void drawLayer(QPainter *painter);
+    virtual void drawLayer(QPainter *painter);
 
-    std::shared_ptr<Element> pickUpElement(QPointF pos, const QGeoCoordinate &geoPos);
-    std::shared_ptr<Element> pickUpElement(QPointF pos);
+    //图元选择
+    std::shared_ptr<Element> pickUpElement(const QPoint& pos, const QGeoCoordinate &geoPos);
+    std::shared_ptr<Element> pickUpElement(const QPoint& pos);
     std::shared_ptr<Element> pickUpElement(const QString &id);
+    std::shared_ptr<Element> hoverElement(const QPoint& pos);
 
     /*!
      * \brief 将经纬度转化为当前窗体的屏幕坐标
@@ -136,6 +142,44 @@ public:
     //图层是否可以选择
     void setPickupAvailable(bool sts);
     bool getPickupAvailable() const;
+    //关注列表操作
+    int             getMaxConcernNum() const;
+    void            setMaxConcernNum(int number);
+    bool            isConcern(const QString& id) const;
+    QStringList     getConcernList() const;
+    bool            appendConcern(const QString& id);
+    void            removeConcern(const QString& id);
+    void            setConcernReplace(bool replace);
+
+    //实时尾迹列表操作
+    int             getMaxRealtimeTrackNum() const;
+    void            setMaxRealtimeTrackNum(int number);
+    bool            isRealtimeTrack(const QString& id) const;
+    QStringList     getRealtimeTrackList() const;
+    bool            appendRealtimeTrack(const QString& id);
+    void            removeRealtimeTrack(const QString& id);
+    void            setRealtimeTrackReplace(bool replace);
+
+    //历史轨迹列表操作
+    int             getMaxHistoryTrackNum() const;
+    void            setMaxHistoryTrackNum(int number);
+    bool            isHistoryTrack(const QString& id) const;
+    QStringList     getHistoryTrackList() const;
+    bool            appendHistoryTrack(const QString& id);
+    virtual void            removeHistoryTrack(const QString& id);
+    void            setHistoryTrackReplace(bool replace);
+    //模拟外推操作
+    int             getMaxExtrapolationNum() const;
+    void            setMaxExtrapolationNum(int number);
+    bool            isExtrapolation(const QString& id) const;
+    ZCHX::Data::ExtrapolateList     getExtrapolationList() const;
+    void            setExtrapolationReplace(bool replace);
+    void            removeExtrapolation(const QString& id);
+    bool            appendExtrapolation(const QString &id, double val = 0);
+    double          getExtrapolationTime(const QString& id) const;
+    void            updateExtrapolationTime(const QString& id, double val);
+    //获取画图控件
+    zchxMapWidget*  getDrawWidget() const;
 
 signals:
     void visibleChanged(bool visible);

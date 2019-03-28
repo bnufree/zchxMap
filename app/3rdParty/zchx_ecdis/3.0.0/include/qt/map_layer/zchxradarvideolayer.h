@@ -1,18 +1,19 @@
-#ifndef ZCHXRADARVIDEODMGR_H
-#define ZCHXRADARVIDEODMGR_H
+#ifndef ZCHXRADARVIDEOLAYER_H
+#define ZCHXRADARVIDEOLAYER_H
 
-#include "zchxtemplatedatamgr.h"
+#include "zchxMapLayer.h"
 
 namespace qt {
-class zchxRadarVideoMgr : public zchxTemplateDataMgr<RadarVideoGlowElement, ZCHX::Data::ITF_RadarVideoGLow>
+class zchxRadarVideoLayer : public MapLayer
 {
     Q_OBJECT
 public:
-    explicit zchxRadarVideoMgr(zchxMapWidget* w, QObject *parent = 0);
+    explicit zchxRadarVideoLayer(zchxMapWidget *drawWidget, bool visible, QObject *parent = 0);
     void    setIsDisplay(bool sts);
     void    setRadarVideoData(double dCentreLon, double dCentreLat, double dDistance, int uDisplayType,int uLoopNum);
     void    setRadarVideoPixmap(int uIndex, const QPixmap &objPixmap, const QPixmap &prePixmap);
     void    setCurrentRadarVideoPixmap(const QPixmap &objPixmap);
+    void    update();
 signals:
 
 
@@ -26,4 +27,4 @@ private:
 };
 }
 
-#endif // ZCHXRADARVIDEODMGR_H
+#endif // ZCHXRADARVIDEOLAYER_H

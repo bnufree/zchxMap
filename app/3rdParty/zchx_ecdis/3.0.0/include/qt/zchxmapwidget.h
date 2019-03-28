@@ -763,7 +763,7 @@ signals: //发送外部信号
     void signalIsSelected4ChannelZone(const ZCHX::Data::ITF_Channel &info);//选中的航道
     void signalIsSelected4MooringZone(const ZCHX::Data::ITF_Mooring &info);//选中的锚泊
     void signalIsSelected4CardMouthZone(const ZCHX::Data::ITF_CardMouth &info);//选中的卡口
-    void signalIsSelected4PastrolStation(const ZCHX::Data::ITF_PastrolStation &info);
+    void signalIsSelected4PastrolStation(const ZCHX::Data::ITF_PastrolRadarStation &info);
     void signalIsSelected4LocalMark(const ZCHX::Data::ITF_LocalMark &info);
     void signalIsSelected4IslandLine(const ZCHX::Data::ITF_IslandLine &info); //选中的环岛线
     void signalIsSelected4CameraVideoWarn(const ZCHX::Data::ITF_VideoTarget &info); //选中了视频分析目标
@@ -775,7 +775,7 @@ signals: //发送外部信号
     void signalIsDoubleClicked4RadarArea(const ZCHX::Data::ITF_RadarArea &info); //雷达区域双击
     void signalIsDoubleClicked4CameraRod(const ZCHX::Data::ITF_CameraRod &info);//相机杆双击
     void signalIsDoubleClicked4WarringZone(const ZCHX::Data::ITF_WarringZone &info);//防区双击
-    void signalIsDoubleClicked4PastrolStation(const ZCHX::Data::ITF_PastrolStation &info);//巡逻站双击
+    void signalIsDoubleClicked4PastrolStation(const ZCHX::Data::ITF_PastrolRadarStation &info);//巡逻站双击
     void signalIsDoubleClicked4LocalMark(const ZCHX::Data::ITF_LocalMark &info);    //关注点双击
     void signalIsDoubleClicked4IslandLine(const ZCHX::Data::ITF_IslandLine &info); //环岛线双击
     void signalIsDoubleClicked4CameraVideoWarn(const ZCHX::Data::ITF_VideoTarget &info); //双击了视频分析目标
@@ -826,9 +826,9 @@ signals: //发送外部信号
     void signalSendReferencePos(const double Lat, const double Lon);
     void signalShowLocationMarkOrReferencePos(bool result);
     void signalInvokeHotSpot(const ZCHX::Data::ITF_CloudHotSpot & data);
-    void signalAddShipExtrapolation(const QString &data,bool result); //result true add  or result false delete
-    void signalSendHistoryTrail(const QString &Id, bool states);
-    void signalSendRealTimeTrail(const QString &Id, bool states);
+    void signalElementExtrapolation(int type, const QString &id, bool status);
+    void signalSendHistoryTrack(int type, const QString &Id, bool states);
+    void signalSendRealtimeTrack(int type, const QString &Id, bool states);
 
     void signalIsSelectedSpecialRoutePoint(const ZCHX::Data::SpecialRoutePoint &data); //发送选中的特殊点
     void signalCreateBlackOrWhiteList(const QString shipId,const int Type);
@@ -848,37 +848,6 @@ signals: //发送外部信号
     void sigElementSelectionChanged(qt::Element* ele);
     void sigElementHoverChanged(qt::Element* ele);
 
-public:
-//    static std::vector<std::pair<double, double>> convertLatLonPath(const std::vector<LatLon> &path);
-//    static void convertLatLonPath(const std::vector<LatLon> &path, std::vector<std::pair<double, double>> &retPath);
-//    static void convertLatLonPath(const std::vector<LatLon> &path, QList<ZCHX::Data::LatLon> &retPath);
-
-//    bool getIsAtiAdaptor() const;
-//    /*!
-//           * \brief 设置是否采用ATI显卡的地图引擎初始化方式
-//           * 地图框架默认会自动根据显卡型号判断使用哪种方式
-//           * 一下情况下可以使用此接口或者配置文件（IsAtiAdapter字段）强制制定显卡：
-//           * 1. 地图框架识别显卡型号失败（从data目录下的log文件分析是否出现此情况）
-//           * 2. 测试或者特殊需要下，强制指定
-//           */
-//    void setIsAtiAdaptor(bool isAtiAdaptor);
-private:
-//    //路由显示综合
-//    void   drawRouteLineItem(QPainter *painter, const RouteLine &ele, const QStringList& lonlat = QStringList());
-//    bool   isCurrentPointDraw(int index, int size, bool ac);
-//    void   zchxDrawRoutePoint(const QPointF& pnt, int type, const QString& name, bool isActive, QPainter* painter);
-//    void   zchxDrawRouteLine(const QLineF &line, const QColor& color,Qt::PenStyle style, int width, QPainter *painter);
-//    void   zchxDrawRouteText(const QPointF& pos, const QString& text, const QColor& color, QPainter* painter);
-//    void   zchxDrawLonLatText(const QPointF& pos, double lon, double lat, const QColor& color, QPainter* painter);
-//    void   zchxDrawOverlapLine(const POLYLINES& polylines,QPainter* painter);
-//    POLYLINES  parseRouteWarnOverlapSegments(const QStringList& lonlat);
-//    void   zchxDrawRoutePickUpInfo(const RouteLine &ele);
-//    void   zchxRoutePickupInfo(QString& text, int& width, int& height, const ZCHX::Data::RoutePoint& point, const QFont& font);
-//    int    widthOfTextList(const QStringList& list, const QFont& font);
-//    //绘制备份路由
-//    void   zchxDrawBackUpRoutePoints(const std::vector<ZCHX::Data::RoutePoint>& pnts, bool active, QPainter* painter);
-//    void   zchxDrawRoutePoints(const std::vector<ZCHX::Data::RoutePoint>& pnts, const QString& routeName, const QColor& nameColor, int stage, bool active, QPainter* painter);
-//    void   zchxDrawRouteLinkedInfo(const RouteLine &ele, QPainter* painter);
 private:
     zchxMapFrameWork*           mFrameWork;
     qint64                      mLastWheelTime;
@@ -920,6 +889,7 @@ private:
     MapUnit                         mUnit;
     //当前打开的项目ID
     int                             mCurrentProjectID;
+    QLabel                          *mZoomLbl;
 
 };
 }

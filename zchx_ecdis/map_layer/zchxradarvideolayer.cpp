@@ -1,9 +1,9 @@
-#include "zchxradarvideomgr.h"
+#include "zchxradarvideolayer.h"
 #include "zchxmapframe.h"
 
 namespace qt {
-zchxRadarVideoMgr::zchxRadarVideoMgr(zchxMapWidget *w, QObject *parent):
-    zchxTemplateDataMgr<RadarVideoGlowElement, ZCHX::Data::ITF_RadarVideoGLow>(w, ZCHX::DATA_MGR_RADAR_VIDEO, ZCHX::LAYER_RADARVIDEO, parent)
+zchxRadarVideoLayer::zchxRadarVideoLayer(zchxMapWidget *drawWidget, bool visible, QObject *parent)
+    :MapLayer(drawWidget, ZCHX::LAYER_RADARVIDEO, ZCHX::TR_LAYER_RADARVIDEO, visible, parent)
 {
     mRadarVideoData.afterglowType = 3;
     mRadarVideoData.type = ZCHX::Data::ITF_RadarVideoGLow::RadarVideo;
@@ -17,26 +17,31 @@ zchxRadarVideoMgr::zchxRadarVideoMgr(zchxMapWidget *w, QObject *parent):
         QPixmap nullPixmap;
         mRadarVideoData.afterglowPixmap[i] = nullPixmap;
     }
-    setData(mRadarVideoData);
+    update();
 }
 
-void zchxRadarVideoMgr::setIsDisplay(bool sts)
+void zchxRadarVideoLayer::update()
+{
+    addElement(std::shared_ptr<RadarVideoGlowElement>(new RadarVideoGlowElement(mRadarVideoData, getDrawWidget())));
+}
+
+void zchxRadarVideoLayer::setIsDisplay(bool sts)
 {
     mRadarVideoData.showvideo = sts;
-    setData(mRadarVideoData);
+    update();
 }
 
-void zchxRadarVideoMgr::setRadarVideoData(double dCentreLon, double dCentreLat, double dDistance, int uDisplayType,int uLoopNum)
+void zchxRadarVideoLayer::setRadarVideoData(double dCentreLon, double dCentreLat, double dDistance, int uDisplayType,int uLoopNum)
 {
     mRadarVideoData.lat = dCentreLat;
     mRadarVideoData.lon = dCentreLon;
     mRadarVideoData.distance = dDistance;
     mRadarVideoData.type = ZCHX::Data::ITF_RadarVideoGLow::RadarVideoGLowType(uDisplayType);
     mRadarVideoData.afterglowType = ((uLoopNum > 12) ? 12 : uLoopNum);
-    setData(mRadarVideoData);
+    update();
 }
 
-void zchxRadarVideoMgr::setRadarVideoPixmap(int uIndex, const QPixmap &objPixmap, const QPixmap &prePixmap)
+void zchxRadarVideoLayer::setRadarVideoPixmap(int uIndex, const QPixmap &objPixmap, const QPixmap &prePixmap)
 {
     if(mRadarVideoData.type == ZCHX::Data::ITF_RadarVideoGLow::RadarVideo)
     {
@@ -54,10 +59,10 @@ void zchxRadarVideoMgr::setRadarVideoPixmap(int uIndex, const QPixmap &objPixmap
         mRadarVideoData.afterglowPixmap[4] = prePixmap;
     }
     mRadarVideoData.showvideo = true;
-    setData(mRadarVideoData);
+    update();
 }
 
-void zchxRadarVideoMgr::setCurrentRadarVideoPixmap(const QPixmap &objPixmap)
+void zchxRadarVideoLayer::setCurrentRadarVideoPixmap(const QPixmap &objPixmap)
 {
     if(mRadarVideoData.type == ZCHX::Data::ITF_RadarVideoGLow::RadarVideo)
     {
@@ -67,7 +72,7 @@ void zchxRadarVideoMgr::setCurrentRadarVideoPixmap(const QPixmap &objPixmap)
         mRadarVideoData.afterglowIndex = 5;
     }
     mRadarVideoData.showvideo = true;
-    setData(mRadarVideoData);
+    update();
 }
 
 }
