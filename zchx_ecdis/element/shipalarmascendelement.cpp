@@ -4,28 +4,6 @@
 
 namespace qt {
 
-ShipAlarmAscendElement::ShipAlarmAscendElement(const ZCHX::Data::ITF_ShipAlarmAscend &ele, zchxMapWidget* f)
-    :Element(ele.lat, ele.lon, f, ZCHX::Data::ELE_SHIP_ALARM_ASCEND)
-{
-    setData(ele);
-    setIsUpdate(true);
-}
-
-void ShipAlarmAscendElement::setData(const ZCHX::Data::ITF_ShipAlarmAscend &ele)
-{
-    m_data = ele;
-    setIsUpdate(true);
-}
-
-ZCHX::Data::ITF_ShipAlarmAscend ShipAlarmAscendElement::data() const
-{
-    return m_data;
-}
-
-std::string ShipAlarmAscendElement::name() const
-{
-    return m_data.getName().toStdString();
-}
 void ShipAlarmAscendElement::drawElement(QPainter *painter)
 {
     if(!painter || !MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_ALARMASCEND)) return;
@@ -34,8 +12,11 @@ void ShipAlarmAscendElement::drawElement(QPainter *painter)
     if (m_data.alarmType > 0)
     {
         QPixmap pixmap(ZCHX::Utils::getAlarmImg(m_data.alarmType));
+        updateBouningRect(point, pixmap.width(), pixmap.height());
+        updateGeometry(point, getDrawScaleSize());
         painter->drawPixmap(point.x() - pixmap.width() / 2, point.y() - pixmap.height() / 2,
                             pixmap.width(), pixmap.height(), pixmap);
+        drawActive(painter);
     }
 }
 }

@@ -1,4 +1,4 @@
-﻿#include "aiselement.hpp"
+#include "aiselement.hpp"
 #include "zchxmapframe.h"
 #include "zchxmapwidget.h"
 #include "zchxMapDatautils.h"
@@ -11,17 +11,165 @@
 
 using namespace qt;
 
+AisHistoryElement::AisHistoryElement(const ZCHX::Data::ITF_AIS_TRACK &ele, zchxMapWidget *w)
+    :FixElement<ZCHX::Data::ITF_AIS_TRACK>(ele, ZCHX::Data::ELE_AIS_HISTORY_TRACK, ZCHX::LAYER_HISTORY_AIS, w)
+{
+    mBigDisplayHistoryIndex = -1;
+    m_sHistoryTrackStyle = QColor(Qt::yellow).name();
+    m_iHistoryTrackWidth = 1;
+
+}
+
+void AisHistoryElement::setHistoryTrackStyle(const QString &color, const int lineWidth)
+{
+    m_sHistoryTrackStyle = color;
+    m_iHistoryTrackWidth = lineWidth;
+}
+
+void AisHistoryElement::drawHistoryTrackPolyLine(std::vector<QPointF>& pts, QPainter* painter)
+{
+    if(pts.size() == 0 || !painter) return;
+    //画尾迹线段
+    PainterPair chk(painter);
+    painter->setPen(QPen(QColor(m_sHistoryTrackStyle), m_iHistoryTrackWidth, Qt::SolidLine));
+    painter->drawPolyline(&pts[0], pts.size());
+}
+
+void AisHistoryElement::drawHistoryTrackPoint(QPainter *painter)
+{
+    int size = m_data.size();
+    if(size == 0 || !painter) return;
+    //画尾迹点
+    PainterPair chk(painter);
+    QColor color(230, 230, 230);
+    painter->setPen(QPen(color, 3, Qt::SolidLine));
+    qint64 PreviousTime = 0;
+    for(int i = 0; i < size; i++)
+    {
+        ZCHX::Data::ITF_AIS AisData = m_data[i];
+        ZCHX::Data::Point2D meetPos = mView->framework()->LatLon2Pixel(AisData.getLat(),AisData.getLon());
+        if(i == 0)
+        {
+            PreviousTime = AisData.UTC;
+            painter->setPen(QPen(color, 3, Qt::SolidLine));
+        }
+        else if(i == size - 1 && ((i + 1) % 5 > 0))
+        {
+            PreviousTime = m_data[i].UTC;
+            painter->drawEllipse(meetPos.x - 4, meetPos.y - 4, 8, 8);
+        }
+        else
+        {
+            if(AisData.UTC >= PreviousTime + SHIP_INTERVAL_TIME)
+            {
+                if((i + 1) % 5 > 0)
+                {
+                    PreviousTime = AisData.UTC;
+                    painter->drawEllipse(meetPos.x - 4, meetPos.y - 4, 8, 8);
+                }
+                else
+                {
+                    PreviousTime = AisData.UTC;
+                    PainterPair chk1(painter);
+                    painter->setBrush(color);
+                    painter->setPen(QPen(color, 3, Qt::SolidLine));
+                    painter->drawEllipse(meetPos.x - 8, meetPos.y - 8, 16, 16);
+                }
+            }
+        }
+    }
+}
+
+bool AisHistoryElement::contains(const QPoint &pt)
+{
+    //检查轨迹是否选中
+    int size = m_data.size();
+    for(int i = 0; i < size; ++i)
+    {
+        ZCHX::Data::ITF_AIS ais = m_data[i];
+        ZCHX::Data::Point2D pos =  mView->framework()->LatLon2Pixel(ais.getLat(),ais.getLon());
+        QRect rect(0, 0, 16, 16);
+        rect.moveCenter(pos.toPoint());
+        if(rect.contains(pt))
+        {
+            mBigDisplayHistoryIndex = i;
+            return true;
+        }
+    }
+    return false;
+}
+
+void AisHistoryElement::drawActive(QPainter *painter)
+{
+    if(!getIsActive() || !painter) return;
+    if( mBigDisplayHistoryIndex >= 0 &&  mBigDisplayHistoryIndex < m_data.size())
+    {
+        ZCHX::Data::ITF_AIS data = m_data[mBigDisplayHistoryIndex];
+        QPointF PickPos = framework()->LatLon2Pixel(data.getLat(), data.getLon()).toPointF();
+        {
+            QRectF RectPos(0, 0, 20, 20);
+            RectPos.moveCenter(PickPos);
+            PainterPair chk(painter);
+            QPen pen(Qt::red,2,Qt::DotLine);
+            painter->setBrush(Qt::NoBrush);
+            painter->setPen(pen);
+            painter->drawRect(RectPos);
+        }
+
+        {
+            PainterPair chk(painter);
+            QColor color(230, 230, 230);
+            painter->setPen(QPen(color, 1, Qt::SolidLine));
+            painter->drawRect(PickPos.x() + 30, PickPos.y() - 50, 124, 20);
+            painter->drawLine(PickPos.x(), PickPos.y(), PickPos.x()+30, PickPos.y()-50);
+        }
+
+        {
+            PainterPair chk(painter);
+            painter->setPen(QPen(Qt::black,1,Qt::SolidLine));
+            QDateTime ArriveTime;
+            ArriveTime.setMSecsSinceEpoch(data.UTC);
+            QString TimeStr = ArriveTime.toString("yyyy-MM-dd,hh:mm:ss");
+            QFont objFont = painter->font();
+
+            objFont = QFont("微软雅黑",9,QFont::Normal,true);
+            painter->setFont(objFont);
+            painter->drawText(PickPos.x()+29,PickPos.y()-50,120,20,0,TimeStr);
+        }
+    }
+}
+
+void AisHistoryElement::drawElement(QPainter *painter)
+{
+    if(!isDrawAvailable(painter)) return;
+    int size = m_data.size();
+    if(size == 0) return;
+    std::vector<QPointF> pts;
+
+
+    //转换所有的点 转换为屏幕坐标点 绘制线段
+    for(int i = 0; i < size; i++)
+    {
+        ZCHX::Data::ITF_AIS AisData = m_data.at(i);
+        ZCHX::Data::Point2D pos =  mView->framework()->LatLon2Pixel(AisData.lat,AisData.lon);
+        pts.push_back(QPointF(pos.x, pos.y));
+    }
+    //画尾迹线段
+    drawHistoryTrackPolyLine(pts, painter);
+    drawHistoryTrackPoint(painter);
+    //绘制拾取的点
+    drawActive(painter);
+}
+
 AisElement::AisElement(const ZCHX::Data::ITF_AIS &ele, zchxMapWidget* w)
     : FixElement<ZCHX::Data::ITF_AIS>(ele, ZCHX::Data::ELE_AIS, ZCHX::LAYER_AIS, w)
 {
+    mLabelDisplayMode = SHIP_ITEM::SHIP_ITEM_DEFAULT;
     mRealtimeTailTrackList.clear();
-    mHistoryTrackList.clear();
-    mBigDisplayHistoryIndex = -1;
     m_drawTargetInfo = true;
-    m_isExtrapolate = false;
-    m_ExtrapolateTime = 0.0;
     updateFlashRegionColor(ele.warnStatusColor);
     initFromSettings();
+    setUpdateUTC(QDateTime::currentMSecsSinceEpoch());
 }
 
 const std::vector<std::pair<double, double> >& AisElement::getPath() const
@@ -191,11 +339,6 @@ void AisElement::drawShipTriangle(QPainter *painter, const QColor& fillColor)
     }
 }
 
-void AisElement::setHistoryTrackStyle(const QString &color, const int lineWidth)
-{
-    m_sHistoryTrackStyle = color;
-    m_iHistoryTrackWidth = lineWidth;
-}
 
 void AisElement::setPrepushTrackStyle(const QString &color, const int lineWidth)
 {
@@ -203,121 +346,13 @@ void AisElement::setPrepushTrackStyle(const QString &color, const int lineWidth)
     m_iPrepushTrackWidth = lineWidth;
 }
 
-void AisElement::drawHistoryTrackPolyLine(std::vector<QPointF>& pts, QPainter* painter)
+void AisElement::setHistoryTrackStyle(const QString& style,  int lineWidth)
 {
-    if(pts.size() == 0 || !painter) return;
-    //画尾迹线段
-    PainterPair chk(painter);
-    painter->setPen(QPen(QColor(m_sHistoryTrackStyle), m_iHistoryTrackWidth, Qt::SolidLine));
-    painter->drawPolyline(&pts[0], pts.size());
-}
-
-void AisElement::drawHistoryTrackPoint(QPainter *painter)
-{
-    int size = mHistoryTrackList.size();
-    if(size == 0 || !painter) return;
-    //画尾迹点
-    PainterPair chk(painter);
-    QColor color(230, 230, 230);
-    painter->setPen(QPen(color, 3, Qt::SolidLine));
-    qint64 PreviousTime = 0;
-    for(int i = 0; i < size; i++)
-    {
-        ZCHX::Data::ITF_AIS AisData = mHistoryTrackList[i];
-        ZCHX::Data::Point2D meetPos = mView->framework()->LatLon2Pixel(AisData.lat,AisData.lon);
-        if(i == 0)
-        {
-            PreviousTime = AisData.UTC;
-            painter->setPen(QPen(color, 3, Qt::SolidLine));
-        }
-        else if(i == size - 1 && ((i + 1) % 5 > 0))
-        {
-            PreviousTime = mHistoryTrackList[i].UTC;
-            painter->drawEllipse(meetPos.x - 4, meetPos.y - 4, 8, 8);
-        }
-        else
-        {
-            if(AisData.UTC >= PreviousTime + SHIP_INTERVAL_TIME)
-            {
-                if((i + 1) % 5 > 0)
-                {
-                    PreviousTime = AisData.UTC;
-                    //painter->setPen(QPen(QColor(150,47,54),2,Qt::SolidLine));
-                    painter->drawEllipse(meetPos.x - 4, meetPos.y - 4, 8, 8);
-                }
-                else
-                {
-                    PreviousTime = AisData.UTC;
-                    PainterPair chk1(painter);
-                    painter->setBrush(color);
-                    painter->setPen(QPen(color, 3, Qt::SolidLine));
-                    painter->drawEllipse(meetPos.x - 8, meetPos.y - 8, 16, 16);
-                }
-            }
-        }
-    }
-}
-
-void AisElement::drawHistoryTrack(QPainter *painter)
-{
-    if(!painter || !getIsHistoryTrack()) return;
-    //绘制船舶轨迹
-    int numberSize = mHistoryTrackList.size();
-    if(numberSize == 0) return;
-
-    int aisIndex = mBigDisplayHistoryIndex;
-    std::vector<QPointF> pts;
-
-
-    //转换所有的点 转换为屏幕坐标点 绘制线段
-    for(int i = 0; i < numberSize; i++)
-    {
-        ZCHX::Data::ITF_AIS AisData = mHistoryTrackList.at(i);
-        ZCHX::Data::Point2D pos =  mView->framework()->LatLon2Pixel(AisData.lat,AisData.lon);
-        pts.push_back(QPointF(pos.x, pos.y));
-    }
-    //画尾迹线段
-    drawHistoryTrackPolyLine(pts, painter);
-    drawHistoryTrackPoint(painter);
-    //绘制拾取的点
-    if(pts.size() > aisIndex && aisIndex >= 0)
-    {
-       QPointF PickPos = pts.at(aisIndex);
-       QRectF RectPos;
-       RectPos.setX(PickPos.x() - 10);
-       RectPos.setY(PickPos.y() - 10);
-       RectPos.setWidth(20);
-       RectPos.setHeight(20);
-
-       {
-           PainterPair chk(painter);
-           QPen pen(Qt::red,2,Qt::DotLine);
-           painter->setBrush(Qt::NoBrush);
-           painter->setPen(pen);
-           painter->drawRect(RectPos);
-       }
-
-       {
-           PainterPair chk(painter);
-           QColor color(230, 230, 230);
-           painter->setPen(QPen(color, 1, Qt::SolidLine));
-           painter->drawRect(PickPos.x() + 30, PickPos.y() - 50, 124, 20);
-           painter->drawLine(PickPos.x(), PickPos.y(), PickPos.x()+30, PickPos.y()-50);
-       }
-
-       {
-           PainterPair chk(painter);
-           painter->setPen(QPen(Qt::black,1,Qt::SolidLine));
-           ZCHX::Data::ITF_AIS AisData1 = mHistoryTrackList.at(aisIndex);
-           QDateTime ArriveTime;
-           ArriveTime.setMSecsSinceEpoch(AisData1.UTC);
-           QString TimeStr = ArriveTime.toString("yyyy-MM-dd,hh:mm:ss");
-           QFont objFont = painter->font();
-
-           objFont = QFont("微软雅黑",9,QFont::Normal,true);
-           painter->setFont(objFont);
-           painter->drawText(PickPos.x()+29,PickPos.y()-50,120,20,0,TimeStr);
-       }
+    //取得历史轨迹子图元
+    std::list<std::shared_ptr<Element>> children = getChildren(ZCHX::Data::ELE_AIS_HISTORY_TRACK);
+    foreach (std::shared_ptr<Element> ele, children) {
+        AisHistoryElement *item = dynamic_cast<AisHistoryElement*>(ele.get());
+        if(item) item->setHistoryTrackStyle(style, lineWidth);
     }
 }
 
@@ -406,14 +441,14 @@ void AisElement::drawRealtimeTailTrack(QPainter *painter)
 
 void AisElement::drawExtrapolation(QPainter *painter)
 {
-    if(!isDrawAvailable(painter) || !getIsExtrapolate() || getExtrapolate() == 0) return;
+    if(!isDrawAvailable(painter) || !getIsExtrapolate() || getExtrapolateTime() == 0) return;
     //绘制外推点
-    ZCHX::Data::Point2D  curPos = this->framework()->LatLon2Pixel(m_data.getLat(),m_data.getLon());
+    ZCHX::Data::Point2D  curPos = framework()->LatLon2Pixel(m_data.getLat(),m_data.getLon());
 
     //第二点
     double lat = 0.0, lon = 0.0;
     double Speed = data().sog * 1852 /3600.0;
-    double Distance = getExtrapolate() * 60 * Speed;
+    double Distance = getExtrapolateTime() * 60 * Speed;
     ZCHX::Utils::distbear_to_latlon(data().lat,data().lon,Distance,data().cog, lat, lon);
     ZCHX::Data::Point2D nextPos = mView->framework()->LatLon2Pixel(lat, lon);
     PainterPair chk(painter);
@@ -429,43 +464,89 @@ void AisElement::drawExtrapolation(QPainter *painter)
 
 void AisElement::drawElement(QPainter *painter)
 {
-    if(!painter)  return;
-
+    if(!isDrawAvailable(painter))  return;
     Element::drawElement(painter);
-    int scale = mView->framework()->Zoom();
+    QPointF pos = getCurrentPos();
+    if(!mView->rect().contains(pos.toPoint())) return;
+    updateGeometry(pos, getDrawScaleSize());
+    //根据船舶的类型进行不同的显示
+    ZCHX::Data::ITF_AIS::TargetType target_type = m_data.type;
+    if(target_type != ZCHX::Data::ITF_AIS::Target_AIS) return;
+    int cargo_type = m_data.cargoType;
+    if(cargo_type == ZCHX::Data::ITF_AIS::Cargo_LAW || cargo_type == ZCHX::Data::ITF_AIS::Cargo_Construction)
+    {
+        //执法船或者施工船
+        setForceImage(true);
+    }
+    //预警输出
+    drawFlashRegion(painter, pos, m_data.warn_status, m_data.warnStatusColor);
+    //目标本身
+    int scale = framework()->Zoom();
     //填充颜色设定.默认是地图配置的颜色
     QColor fillColor = getFillingColor();
-    if(data().onlineStatusColor.isValid())
-    {
-        //如果用户进行了外部配置,则使用户用户的颜色
-        fillColor = data().onlineStatusColor;
-    }
+    //如果用户进行了外部配置,则使用户用户的颜色
+    if(m_data.onlineStatusColor.isValid())  fillColor = m_data.onlineStatusColor;
     //如果用户进行了关注,则关注颜色优先
-    if(getIsConcern())
-    {
-        fillColor = getConcernColor();
-    }
-
+    if(getIsConcern()) fillColor = getConcernColor();
     if(scale < 10)
     {
+        //直接画小矩形
         PainterPair chk(painter);
         painter->setPen(Qt::NoPen);
         painter->setBrush(fillColor);
         painter->drawRect(m_boundingRectSmall);
         return;
     }
+    //开始具体化图形
     //CPA
     drawCPA(painter);
     //画船舶三角形
-    drawShipTriangle(painter, fillColor);
-    //画船舶图片显示
-    drawShipImage(painter);
-    //画历史轨迹
-    drawHistoryTrack(painter);
+    if(!needDrawImage()){
+        drawShipTriangle(painter, fillColor);
+    } else {
+        drawShipImage(painter);
+    }
     //画实时尾迹
     drawRealtimeTailTrack(painter);
     //画预推点
     drawExtrapolation(painter);
+    //显示框选
+    drawActive(painter);
+    //显示聚焦
+    drawFocus(painter);
+    //显示文本
+    drawTargetInformation(painter);
+    //显示碰撞信息
+    drawCollide(painter);
+
+    //绘制交汇
+    drawMeet(painter);
+}
+
+void AisElement::drawMeet(QPainter *painter)
+{
+    if((!isDrawAvailable(painter)) || m_data.RadarMeetVec.size() == 0 || !mView->getIsOpenMeet()) return;
+
+    PainterPair chk2(painter);
+    QPen pen(Qt::red,2,Qt::DashLine);
+    painter->setPen(pen);
+    uint time_hour = 0;
+    uint time_minute = 0;
+    uint time_second = 0;
+    QPoint pos = getViewPos().toPoint();
+    for(int j = 0; j < m_data.RadarMeetVec.size(); j++)
+    {
+        ZCHX::Data::RadarMeet meetItem = m_data.RadarMeetVec.at(j);
+        ZCHX::Data::Point2D meetPos = framework()->LatLon2Pixel(meetItem.lat, meetItem.lon);
+        time_hour = meetItem.UTC / 3600;
+        time_minute = meetItem.UTC / 60 - time_hour * 60;
+        time_second = meetItem.UTC % 60;
+        QString str = tr("Time ")+QString::number(time_hour)+tr("H ") + QString::number(time_minute)+ tr("M ")+ \
+                QString::number(time_second)+tr("S; Distance: ")+QString::number(meetItem.disrance,'f',3)+"m";
+
+        painter->drawLine(pos.x(),pos.y(),meetPos.x,meetPos.y);
+        painter->drawText(pos.x()-10,pos.y()-5, str);
+    }
 }
 
 void AisElement::drawShipImage(QPainter *painter)
@@ -486,12 +567,10 @@ void AisElement::drawShipImage(QPainter *painter)
 
 
 
-void AisElement::drawTargetInformation(int mode, QPainter *painter)
+void AisElement::drawTargetInformation(QPainter *painter)
 {
-    if(!painter || !m_drawTargetInfo)
-        return;
-
-    //Element::drawElement(painter);
+    if(!painter || !m_drawTargetInfo) return;
+    int mode = mLabelDisplayMode;
     double angleFromNorth = mView->framework()->GetRotateAngle(); //计算当前正北方向的方向角
     QPointF pos = getCurrentPos();
     int scale = mView->framework()->Zoom();
@@ -564,22 +643,18 @@ void AisElement::drawTargetInformation(int mode, QPainter *painter)
 
 }
 
-void AisElement::drawCollide(const ZCHX::Data::ITF_AIS &targetAis, QPainter *painter)
+void AisElement::drawCollide(QPainter *painter)
 {
-    ZCHX::Data::ITF_AIS AisData = data();
-    QString warnName = ZCHX::Utils::getWarnName(AisData.warn_status);
+    if(mCollideAis.id.isEmpty()) return;
+    QString warnName = ZCHX::Utils::getWarnName(m_data.warn_status);
 
     // 航道碰撞预警
-    if(!warnName.isEmpty() && AisData.warn_status == ZCHX::Data::WARN_CHANNEL_COLLISION)
+    if(!warnName.isEmpty() && m_data.warn_status == ZCHX::Data::WARN_CHANNEL_COLLISION)
     {
         QPointF pos = getCurrentPos();
-
         PainterPair chk(painter);
-        ZCHX::Data::Point2D objCollideD = mView->framework()->LatLon2Pixel(AisData.objCollide.lat, AisData.objCollide.lon);
-        QPointF objCollidePos = QPointF(objCollideD.x, objCollideD.y);
-
-        ZCHX::Data::Point2D targetD = mView->framework()->LatLon2Pixel(targetAis.lat, targetAis.lon);
-        QPointF targetPos = QPointF(targetD.x, targetD.y);
+        QPointF objCollidePos = framework()->LatLon2Pixel(m_data.objCollide.lat, m_data.objCollide.lon).toPointF();
+        QPointF targetPos = framework()->LatLon2Pixel(mCollideAis.getLat(), mCollideAis.getLon()).toPointF();
 
         painter->setPen(QPen(Qt::red, 1));
         painter->drawLine(pos, objCollidePos);
@@ -594,7 +669,7 @@ void AisElement::drawCollide(const ZCHX::Data::ITF_AIS &targetAis, QPainter *pai
         float rotateAngle = atan2(objCollidePos.y() - pos.y(), objCollidePos.x() - pos.x()) / 3.1415926 * 180 + 180;
         painter->translate(objCollidePos.x(), objCollidePos.y());
         painter->rotate(rotateAngle);
-        painter->drawText(20, -3, QString("%1米 %2分钟").arg(AisData.objCollide.disrance).arg(AisData.objCollide.collideTime));
+        painter->drawText(20, -3, QString("%1米 %2分钟").arg(m_data.objCollide.disrance).arg(m_data.objCollide.collideTime));
         painter->rotate(-rotateAngle);
         painter->translate(-objCollidePos.x(), -objCollidePos.y());
     }
@@ -681,14 +756,12 @@ std::vector<QPointF> AisElement::getTouchdown()
 void AisElement::updateGeometry(QPointF pos, qreal size)
 {
     m_polygon = QPolygonF();
-
     if(needDrawImage() )
     {
         getShipImage();
         getCameraImage();
         m_cameraPos = QPointF(pos.x() - m_cameraImage.width()/2., pos.y() + m_cameraImage.height()/2.);
-        m_boundingRect = QRectF(0,0,m_shipImage.width(),m_shipImage.height());
-        m_boundingRect.moveCenter(pos);
+        updateBouningRect(pos, m_shipImage.width(), m_shipImage.height());
     }
     else
     {
@@ -766,7 +839,7 @@ QList<QAction*> AisElement::getRightMenuAction()
 {
     QList<QAction*> list;
     //获取当前选择的目标对象
-    if(this->isActive)
+    if(this->getIsActive())
     {
         if(hasCamera())
         {
@@ -790,15 +863,6 @@ void AisElement::slotOpenCameraList()
 {
 
 }
-
-void AisElement::slotSetPictureInPicture()
-{
-    if(mView)
-    {
-        mView->signalSendPictureInPictureTarget(getElementType(), data().id);
-    }
-}
-
 void AisElement::slotSetFleet()
 {
     if(mView)
@@ -807,102 +871,18 @@ void AisElement::slotSetFleet()
     }
 }
 
-void AisElement::slotSetSimulationExtrapolation()
-{
-    std::shared_ptr<MapLayer> layer = MapLayerMgr::instance()->getLayer(ZCHX::LAYER_AIS_CURRENT);
-    if(!layer) return;
-    QString id = data().id;
-    if(layer->isExtrapolation(id))
-    {
-        layer->removeExtrapolation(id);
-    } else
-    {
-        layer->appendExtrapolation(id);
-    }
-    if(mView){
-        mView->signalAddShipExtrapolation(id, layer->isExtrapolation(id));
-    }
-}
-
-void AisElement::slotSetHistoryTraces()
-{
-    std::shared_ptr<MapLayer> layer = MapLayerMgr::instance()->getLayer(ZCHX::LAYER_AIS_CURRENT);
-    if(!layer) return;
-    QString id = data().id;
-    if(layer->isHistoryTrack(id))
-    {
-        layer->removeHistoryTrack(id);
-    } else
-    {
-        layer->appendHistoryTrack(id);
-    }
-    if(mView) mView->signalSendHistoryTrail(id, layer->isHistoryTrack(id));
-}
-
-void AisElement::slotSetRealTimeTraces()
-{
-    std::shared_ptr<MapLayer> layer = MapLayerMgr::instance()->getLayer(ZCHX::LAYER_AIS_CURRENT);
-    if(!layer) return;
-    QString id = data().id;
-    if(layer->isRealtimeTrack(id))
-    {
-        layer->removeRealtimeTrack(id);
-    } else
-    {
-        layer->appendRealtimeTrack(id);
-    }
-    if(mView) mView->signalSendRealTimeTrail(id, layer->isRealtimeTrack(id));
-}
-
 void AisElement::slotSetBlackList()
 {
-    std::shared_ptr<MapLayer> layer = MapLayerMgr::instance()->getLayer(ZCHX::LAYER_AIS_CURRENT);
-    if(!layer) return;
-    QString id = data().id;
-    if(mView) mView->signalCreateBlackOrWhiteList(id, ZCHX::Data::SHIP_BW_BLACK);
+    if(mView) mView->signalCreateBlackOrWhiteList(getID(), ZCHX::Data::SHIP_BW_BLACK);
 }
 
 void AisElement::slotSetWhiteList()
 {
-    std::shared_ptr<MapLayer> layer = MapLayerMgr::instance()->getLayer(ZCHX::LAYER_AIS_CURRENT);
-    if(!layer) return;
-    QString id = data().id;
-    if(mView) mView->signalCreateBlackOrWhiteList(id, ZCHX::Data::SHIP_BW_WHITE);
+    if(mView) mView->signalCreateBlackOrWhiteList(getID(), ZCHX::Data::SHIP_BW_WHITE);
 }
 
 void AisElement::slotSetCPATrack()
 {
-    std::shared_ptr<MapLayer> layer = MapLayerMgr::instance()->getLayer(ZCHX::LAYER_AIS_CURRENT);
-    if(!layer) return;
-    QString id = data().id;
-    if(mView) mView->signalCreateCPATrack(id);
-}
-
-void AisElement::slotInvokeLinkageSpot()
-{
-    std::shared_ptr<MapLayer> layer = MapLayerMgr::instance()->getLayer(ZCHX::LAYER_AIS_CURRENT);
-    if(!layer) return;
-    ZCHX::Data::ITF_CloudHotSpot data;
-    data.fllow = ZCHX::Data::ITF_CloudHotSpot::FLLOW_TYPE_LINKAGE_TRACKING;
-    data.mode = ZCHX::Data::ITF_CloudHotSpot::MODE_HANDLE;
-    data.targetNumber = this->data().id;
-    data.targetType = 1;
-    data.targetLon = this->data().getLon();
-    data.targetLat = this->data().getLat();
-    if(mView) mView->signalInvokeHotSpot(data);
-}
-
-void AisElement::slotSetConcern()
-{
-    std::shared_ptr<MapLayer> layer = MapLayerMgr::instance()->getLayer(ZCHX::LAYER_AIS_CURRENT);
-    if(!layer) return;
-    QString id = data().id;
-    if(layer->isConcern(id))
-    {
-        layer->removeConcern(id);
-    } else
-    {
-        layer->appendConcern(id);
-    }
+    if(mView) mView->signalCreateCPATrack(getID());
 }
 

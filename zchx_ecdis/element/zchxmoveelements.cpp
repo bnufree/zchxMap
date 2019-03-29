@@ -23,8 +23,12 @@ void WarningZoneElement::drawElement(QPainter *painter)
             painter->drawEllipse(pos, 5, 5);
         }
     }
-    //闭合图形
-    polygon.append(polygon.first());
+    if(m_data.shape != ZCHX::Data::ITF_WarringZone::ZONE_LINE){
+        if(polygon.first() != polygon.last())
+        {
+            polygon.append(polygon.first());
+        }
+    }
     PainterPair chk(painter);
     MapStyle colorType = this->framework()->GetMapStyle();
     if(colorType == MapStyleEcdisNight || colorType == MapStyleEcdisDayDUSK)
@@ -36,8 +40,13 @@ void WarningZoneElement::drawElement(QPainter *painter)
         painter->setPen(QPen(QColor(getDefenceColor()),2,Qt::DashLine));
     }
     painter->setBrush(QBrush(Qt::blue, Qt::Dense7Pattern));
-    painter->drawPolygon(polygon);
-    painter->drawText(polygon.boundingRect().center(),QString::fromStdString(name()));
+    if(m_data.shape != ZCHX::Data::ITF_WarringZone::ZONE_LINE){
+        painter->drawPolygon(polygon);
+        painter->drawText(polygon.boundingRect().center(), m_data.getName());
+    } else {
+        painter->drawPolyline(polygon);
+        painter->drawText(polygon.last(), m_data.getName());
+    }
 }
 
 void CoastElement::drawElement(QPainter *painter)

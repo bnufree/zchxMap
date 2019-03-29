@@ -1,23 +1,18 @@
 #ifndef RADARVIDEOELE_H
 #define RADARVIDEOELE_H
 
-#include "IDrawElement.hpp"
-#include <QtCore>
+#include "fixelement.h"
 
 namespace qt {
-class RadarVideoGlowElement : public Element
+class RadarVideoGlowElement : public FixElement<ZCHX::Data::ITF_RadarVideoGLow>
 {
 public:
-    explicit RadarVideoGlowElement(const ZCHX::Data::ITF_RadarVideoGLow& data, zchxMapWidget* frame);
-
-    const ZCHX::Data::ITF_RadarVideoGLow &data() const;
-    void setData(const ZCHX::Data::ITF_RadarVideoGLow& dev);
+    explicit RadarVideoGlowElement(const ZCHX::Data::ITF_RadarVideoGLow& data, zchxMapWidget* frame)
+        :FixElement<ZCHX::Data::ITF_RadarVideoGLow>(data, ZCHX::Data::ELE_RADAR_VIDEOGLOW, ZCHX::LAYER_RADARVIDEO, frame) {}
     void drawElement(QPainter *painter);
     void drawOutline(QPainter *painter, const QPointF& center, double in, double out);
-    std::string name () const {return m_data.name.toStdString();}
 
 private:
-    ZCHX::Data::ITF_RadarVideoGLow  m_data;
 };
 
 }

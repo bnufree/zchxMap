@@ -11,6 +11,8 @@ class EllipseElement : public FixElement<ZCHX::Data::ITF_EleEllipse>
 public:
     explicit  EllipseElement(const ZCHX::Data::ITF_EleEllipse &ele, zchxMapWidget* w)
         :FixElement<ZCHX::Data::ITF_EleEllipse>(ele, ZCHX::Data::ELE_ELLIPSE, ZCHX::LAYER_ELLIPSE, w) {}
+    void drawElement(QPainter* painter);
+
 };
 
 //三角形
@@ -45,6 +47,7 @@ class LocalMarkElement :public FixElement<ZCHX::Data::ITF_LocalMark>
 public:
     explicit  LocalMarkElement(const ZCHX::Data::ITF_LocalMark &ele, zchxMapWidget* w)
         :FixElement<ZCHX::Data::ITF_LocalMark>(ele, ZCHX::Data::ELE_LOCALMARK, ZCHX::LAYER_LOCALMARK,w) {}
+    void drawElement(QPainter *painter);
 };
 
 //导航
@@ -90,7 +93,6 @@ public:
     :FixElement<ZCHX::Data::ITF_AISBASESTATION>(data, ZCHX::Data::ELE_AIS_BASE_STATION, ZCHX::LAYER_AIS_STATION, w) {}
     void drawElement(QPainter *painter) ;
     void updateGeometry(QPointF pos, qreal size);
-    void setData(const ZCHX::Data::ITF_AISBASESTATION &data);
     virtual void clicked(bool isDouble ) {}
     virtual void showToolTip(const QPoint& pos);
 private:
@@ -106,7 +108,6 @@ public:
     :FixElement<ZCHX::Data::ITF_AIS>(data, ZCHX::Data::ELE_AIS_FUSION, ZCHX::LAYER_AIS_FUSION, w) {}
     void drawElement(QPainter *painter) ;
     void updateGeometry(QPointF pos, qreal size);
-    void setData(const ZCHX::Data::ITF_AIS &data);
 
 private:
     QPolygonF m_polygon;

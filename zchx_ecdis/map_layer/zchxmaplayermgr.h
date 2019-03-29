@@ -7,6 +7,9 @@
 
 namespace qt {
 class zchxMapWidget;
+class zchxAisMapLayer;
+
+#define         LayerMgr          MapLayerMgr::instance()
 
 class MapLayerMgr : public QObject
 {
@@ -16,6 +19,8 @@ public:
     static MapLayerMgr *instance();
     void setDrawWidget(zchxMapWidget* w) {m_drawWidget = w;}
     zchxMapWidget * drawWidget() const {return m_drawWidget;}
+    zchxAisMapLayer* getAisLayer();
+
 
     //地图图层管理
     //从配置文件加载地图图层配置文件,图层的顺序按照从上到下的顺序, 最上面为最顶层

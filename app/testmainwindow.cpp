@@ -96,11 +96,11 @@ TestMainWindow::TestMainWindow(QWidget *parent) :
     m_pEcdisWin->itfAddLayer(cameraGridLayer);
 #endif
 
-//    mTestTimer = new QTimer;
-//    mTestTimer->setInterval(3000);
-//    connect(mTestTimer, SIGNAL(timeout()), this, SLOT(slotTimerout()));
+    mTestTimer = new QTimer;
+    mTestTimer->setInterval(3000);
+    connect(mTestTimer, SIGNAL(timeout()), this, SLOT(slotTimerout()));
 //    mTestTimer->setSingleShot(true);
-//    mTestTimer->start();
+    mTestTimer->start();
 //    m_pEcdisWin->itfsetPluginUseModel(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL);
 //    m_pEcdisWin->itfToolBarChannelAreaAdd();
 }
@@ -147,5 +147,5 @@ void TestMainWindow::slotTimerout()
     }
 
     m_pEcdisWin->itfSetRadarPointData(radarList);
-    m_pEcdisWin->itfSetAisData(aisList);
+//    m_pEcdisWin->itfSetAisData(aisList);
 }

@@ -5,6 +5,41 @@
 
 using namespace qt;
 
+void EllipseElement::drawElement(QPainter *painter)
+{
+    if(!isDrawAvailable(painter)) return;
+    PainterPair chk(painter);
+    painter->setPen(m_data.pen);
+    painter->setBrush(m_data.brush);
+    QPointF pos = getCurrentPos();
+    painter->drawEllipse(pos, m_data.rx, m_data.ry);
+    if(m_data.showCircleCenter)
+    {
+        painter->setBrush(Qt::red);
+        painter->drawEllipse(pos, 2, 2);
+    }
+    painter->drawText(pos, m_data.name);
+    updateBouningRect(pos, m_data.rx * 2, m_data.ry * 2);
+    updateGeometry(pos, getDrawScaleSize());
+    if(getIsActive()) drawActive(painter);
+}
+
+void LocalMarkElement::drawElement(QPainter *painter)
+{
+    if(!isDrawAvailable(painter)) return;
+    PainterPair chk(painter);
+    QSvgRenderer svg(QString(":/mouseCursor/mousecursor/positionMark.svg"));
+    QPointF pos = getCurrentPos();
+    QRectF rectF(0, 0, 20, 20);
+    rectF.moveCenter(pos);
+    svg.render(painter, rectF);
+    painter->setPen(Qt::red);
+    painter->drawText(pos.x() + 11, pos.y(), m_data.name);
+    updateBouningRect(pos, 20, 20);
+    updateGeometry(pos, getDrawScaleSize());
+    if(getIsActive()) drawActive(painter);
+}
+
 void RadarFeatureZoneElement::drawElement(QPainter *painter)
 {
     if(!isDrawAvailable(painter)) return;
@@ -45,9 +80,8 @@ void AISBaseStationElement::drawElement(QPainter *painter)
         painter->setBrush(Qt::yellow);
     else
         painter->setBrush(Qt::gray);
-
-    Element::drawElement(painter);
     painter->drawPolygon(m_polygon);
+    drawActive(painter);
 }
 
 void AISBaseStationElement::updateGeometry(QPointF pos, qreal size)
@@ -61,15 +95,6 @@ void AISBaseStationElement::updateGeometry(QPointF pos, qreal size)
 
     m_boundingRect =  m_polygon.boundingRect().normalized();
     Element::updateGeometry(pos, size);
-}
-
-void AISBaseStationElement::setData(const ZCHX::Data::ITF_AISBASESTATION &data)
-{
-    FixElement::setData(data);
-    setID(m_data.aisId);
-    Element::setLatLon(m_data.getLat(),m_data.getLon());
-    Element::setDisplayLat(m_data.getLat());
-    Element::setDisplayLon(m_data.getLon());
 }
 
 void AISBaseStationElement::showToolTip(const QPoint &pos)
@@ -94,6 +119,18 @@ void AISRadarFuseElement::drawElement(QPainter *painter)
     drawFlashRegion(painter, pos, m_data.warn_status, m_data.warnStatusColor);
     painter->setBrush(Qt::NoBrush);
 
+    painter->translate(pos.x(), pos.y());
+    painter->rotate(m_data.cog);
+    painter->translate(-pos.x(), -pos.y());
+    //绘制三角形
+    QPolygonF ais;
+    ais.append(QPointF(pos.x()  , pos.y()-8.5 ));
+    ais.append(QPointF(pos.x()-5.5  , pos.y()+8.5 ));
+    ais.append(QPointF(pos.x()+5.5  , pos.y()+8.5 ));
+    ais.append(QPointF(pos.x()  , pos.y()-8.5 ));
+    painter->setPen(QPen(QColor(0,0,64)));
+    painter->drawPolygon(ais);
+
     //绘制正方形
     QPolygonF radar;
     radar.append(QPointF(pos.x()-2  , pos.y()+4.5 ));
@@ -103,15 +140,6 @@ void AISRadarFuseElement::drawElement(QPainter *painter)
     radar.append(QPointF(pos.x()-2  , pos.y()+4.5 ));
     painter->setPen(QPen(QColor(255,0,255)));
     painter->drawPolygon(radar);
-
-    //绘制三角形
-    QPolygonF ais;
-    ais.append(QPointF(pos.x()  , pos.y()-8.5 ));
-    ais.append(QPointF(pos.x()-5.5  , pos.y()+8.5 ));
-    ais.append(QPointF(pos.x()+5.5  , pos.y()+8.5 ));
-    ais.append(QPointF(pos.x()  , pos.y()-8.5 ));
-    painter->setPen(QPen(QColor(0,0,64)));
-    painter->drawPolygon(ais);
     drawActive(painter);
     drawFocus(painter);
 }
@@ -129,15 +157,6 @@ void AISRadarFuseElement::updateGeometry(QPointF pos, qreal size)
     Element::updateGeometry(pos, size);
 }
 
-void AISRadarFuseElement::setData(const ZCHX::Data::ITF_AIS &data)
-{
-    FixElement::setData(data);
-    setID(data.id);
-    Element::setLatLon(m_data.getLat(),m_data.getLon());
-    Element::setDisplayLat(m_data.getLat());
-    Element::setDisplayLon(m_data.getLon());
-
-}
 
 void CDMAElement::drawElement(QPainter *painter)
 {
@@ -151,7 +170,11 @@ void CDMAElement::drawElement(QPainter *painter)
     if(MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_CDMA_TRACK)){
         PainterPair chk(painter);
         painter->setBrush(Qt::NoBrush);
-        painter->setPen(QPen(Qt::black));
+        if(getIsActive()){
+            painter->setPen(Qt::red);
+        } else {
+            painter->setPen(QPen(Qt::black));
+        }
         painter->drawPolygon(QPolygonF(QVector<QPointF>::fromStdVector(framework()->convert2QtPonitList(m_data.getPath()))));
     }
     {
@@ -195,7 +218,11 @@ void BigDipperElement::drawElement(QPainter *painter)
     //先画轨迹
     if(MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_BIGDIPPER)){
         PainterPair chk(painter);
-        painter->setPen(QPen(Qt::black));
+        if(getIsActive()){
+            painter->setPen(Qt::red);
+        } else {
+            painter->setPen(QPen(Qt::black));
+        }
         painter->drawPolygon(QPolygonF(QVector<QPointF>::fromStdVector(framework()->convert2QtPonitList(m_data.getPath()))));
     }
     {
@@ -307,6 +334,7 @@ void CameraRegionElement::drawElement(QPainter *painter)
 
     //泊位
     drawText(painter, true, m_data.Berth);
+    drawActive(painter);
 }
 
 void CameraRegionElement::updateGeometry(QPointF pos, qreal size)
@@ -329,6 +357,7 @@ void DramCircularElement::drawElement(QPainter *painter)
     painter->setPen(QPen(Qt::black,1));
     painter->setBrush(Qt::red);
     painter->drawPolygon(m_polygon);
+    drawActive(painter);
 }
 
 void DramCircularElement::updateGeometry(QPointF pos, qreal size)
@@ -368,6 +397,7 @@ void VesselTargetElement::drawElement(QPainter *painter)
     }
     Element::drawElement(painter);
     painter->drawPolygon(m_polygon);
+    drawActive(painter);
 }
 
 void VesselTargetElement::updateGeometry(QPointF pos, qreal size)
@@ -392,6 +422,7 @@ void VesselTrackLineElement::drawElement(QPainter *painter)
     PainterPair chk(painter);
     painter->setPen(QPen(Qt::blue,2));
     painter->drawPolyline(m_Line);
+    drawActive(painter);
 }
 
 void VesselTrackLineElement::updateGeometry(QPointF pos, qreal size)
@@ -400,8 +431,8 @@ void VesselTrackLineElement::updateGeometry(QPointF pos, qreal size)
     foreach (ZCHX::Data::ITF_TrackPointInfo info, m_data.m_trackPointList) {
         m_Line.append(framework()->LatLon2Pixel(info.m_lat,info.m_lon).toPointF());
     }
-    m_boundingRect =  m_Line.boundingRect().normalized();
-    Element::updateGeometry(pos, size);
+//    m_boundingRect =  m_Line.boundingRect().normalized();
+//    Element::updateGeometry(pos, size);
 }
 
 
@@ -413,8 +444,8 @@ void VesselTrackElement::drawElement(QPainter *painter)
     PainterPair chk(painter);
     painter->setPen(QPen(Qt::red,1));
     painter->setBrush(QBrush(QColor(240,255,255),Qt::SolidPattern));
-
     painter->drawEllipse(m_trackRect);
+    drawActive(painter);
 }
 
 void VesselTrackElement::updateGeometry(QPointF pos, qreal size)

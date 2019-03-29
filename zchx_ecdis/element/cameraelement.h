@@ -20,11 +20,11 @@ public:
     QPixmap getImage() const;
     double getMaxTrackRange() const;
 
-    void updateGeometry(QPointF, qreal){}
     void drawElement(QPainter *painter);
     void setParent(Element* ele);
     Element* getParent();
     void clicked(bool isDouble);
+    void showToolTip(const QPoint &pos);
 private:
     Element     *mParent;               //相机悬挂的目标
 };

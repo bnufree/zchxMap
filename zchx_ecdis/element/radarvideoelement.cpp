@@ -6,23 +6,6 @@
 using namespace ZCHX::Data;
 
 namespace qt {
-RadarVideoGlowElement::RadarVideoGlowElement(const ZCHX::Data::ITF_RadarVideoGLow& data, zchxMapWidget* frame)
-    :Element(data.lat, data.lon, frame, ZCHX::Data::ELE_RADAR_VIDEOGLOW)
-{
-    setData(data);
-}
-
-const ZCHX::Data::ITF_RadarVideoGLow &RadarVideoGlowElement::data() const
-{
-    return m_data;
-}
-
-void RadarVideoGlowElement::setData(const ZCHX::Data::ITF_RadarVideoGLow &dev)
-{
-    m_data = dev;
-    setIsUpdate(true);
-
-}
 
 void RadarVideoGlowElement::drawOutline(QPainter *painter, const QPointF& center, double in, double out)
 {
@@ -34,7 +17,7 @@ void RadarVideoGlowElement::drawOutline(QPainter *painter, const QPointF& center
 
 void RadarVideoGlowElement::drawElement(QPainter *painter)
 {
-    if(!painter || !MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_RADARVIDEO) || !mView->framework() || !m_data.showvideo) return;
+    if(!isDrawAvailable(painter) || !m_data.showvideo) return;
 
     LatLon ll0 = ZCHX::Utils::distbear_to_latlon(data().lat, m_data.lon, m_data.distance, 0);
     LatLon ll90 = ZCHX::Utils::distbear_to_latlon(data().lat, m_data.lon, m_data.distance, 90);

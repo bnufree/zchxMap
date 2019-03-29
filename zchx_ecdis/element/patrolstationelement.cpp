@@ -21,11 +21,6 @@ void PastrolStationElement::setData(const ZCHX::Data::ITF_PastrolStation &data)
     setIsUpdate(true);
 }
 
-//bool PastrolStationElement::contains(int range, double x, double y) const
-//{
-//    return false;
-//}
-
 void PastrolStationElement::drawElement(QPainter *painter)
 {
     QString layer_name, img_name;

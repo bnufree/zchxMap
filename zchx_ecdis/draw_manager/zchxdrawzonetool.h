@@ -42,7 +42,6 @@ public:
     void endDraw();
 
 signals:
-    void signalCreateWarringZONE(const ZCHX::Data::ITF_WarringZone& zone);
 public slots:
 };
 
@@ -55,7 +54,6 @@ public:
     void endDraw();
 
 signals:
-    //void signalCreateWarringZONE(const ZCHX::Data::ITF_WarringZone& zone);
 public slots:
 };
 
@@ -68,7 +66,6 @@ public:
     void endDraw();
 
 signals:
-    //void signalCreateWarringZONE(const ZCHX::Data::ITF_WarringZone& zone);
 public slots:
 };
 
@@ -81,7 +78,6 @@ public:
     void endDraw();
 
 signals:
-    //void signalCreateWarringZONE(const ZCHX::Data::ITF_WarringZone& zone);
 public slots:
 };
 

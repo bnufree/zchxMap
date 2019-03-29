@@ -1,7 +1,7 @@
 #include "zchxmapwidget.h"
 #include "zchxmapframe.h"
 #include "map_layer/zchxmaplayermgr.h"
-#include "data_manager/zchxdatamgrfactory.h"
+#include "map_layer/zchxMapLayer.h"
 #include "draw_manager/zchxdrawtoolutil.h"
 #include "zchxroutedatamgr.h"
 #include "zchxshipplandatamgr.h"
@@ -9,6 +9,7 @@
 #include <QDebug>
 #include <QDomDocument>
 #include "profiles.h"
+#include "zchxutils.hpp"
 
 //#define     DEFAULT_LON         113.093664
 //#define     DEFAULT_LAT         22.216150
@@ -51,13 +52,6 @@ zchxMapWidget::zchxMapWidget(QWidget *parent) : QWidget(parent),
     mFrameWork = new zchxMapFrameWork(lat, lon, zoom, width(), height(), source, min_zoom, max_zoom);
     //地图状态初始化
     releaseDrawStatus();
-    //
-    //创建数据管理容器
-    ZCHX_DATA_FACTORY->setDisplayWidget(this);
-    for(int i= ZCHX::DATA_MGR_UNKNOWN + 1; i< ZCHX::DATA_MGR_USER_DEFINE; i = i<<1)
-    {
-        ZCHX_DATA_FACTORY->createManager(i);
-    }
     //数据选择默认为不能选择
     setCurPickupType(ZCHX::Data::ECDIS_PICKUP_TYPE::ECDIS_PICKUP_NONE);
 
@@ -99,9 +93,6 @@ void zchxMapWidget::paintEvent(QPaintEvent *e)
     mFrameWork->updateEcdis(&painter);
 
     //显示图元
-    foreach (std::shared_ptr<zchxEcdisDataMgr> mgr, ZCHX_DATA_FACTORY->getManagers()) {
-        mgr->show(&painter);
-    }
     MapLayerMgr::instance()->show(&painter);
     //显示用户的鼠标操作
     if(mToolPtr) mToolPtr->show(&painter);
@@ -158,8 +149,10 @@ void zchxMapWidget::setActiveDrawElement(const ZCHX::Data::Point2D &pos, bool db
     setCurrentSelectedItem(0);
 
     //检查各个数据管理类,获取当前选择的目标
-    foreach (std::shared_ptr<zchxEcdisDataMgr> mgr, ZCHX_DATA_FACTORY->getManagers()) {
-        if(mgr->updateActiveItem(pos.toPoint())){
+    foreach (std::shared_ptr<MapLayer> layer, MapLayerMgr::instance()->getLayerTree()) {
+        if(!layer) continue;
+        if(!layer->visible()) continue;
+        if(layer->pickUpElement(pos.toPoint())){
             Element* ele = getCurrentSelectedElement();
             if(ele)
             {
@@ -178,8 +171,8 @@ void zchxMapWidget::setSelectedCameraTrackTarget(const ZCHX::Data::Point2D &pos)
     if(ZCHX::Data::ECDIS_PICKUP_NONE == mCurPickupType) return;
     //检查当前选中的东西
     Element *ele = 0;
-    foreach (std::shared_ptr<zchxEcdisDataMgr> mgr, ZCHX_DATA_FACTORY->getManagers()) {
-        ele = mgr->selectItem(pos.toPoint());
+    foreach (std::shared_ptr<MapLayer> mgr, MapLayerMgr::instance()->getLayerTree()) {
+        ele = mgr->pickUpElement(pos.toPoint()).get();
         if(ele) break;
     }
     ZCHX::Data::ITF_CameraTrackTarget target;
@@ -196,7 +189,7 @@ void zchxMapWidget::setSelectedCameraTrackTarget(const ZCHX::Data::Point2D &pos)
             //选中雷达点(radar)轨迹元素
             RadarPointElement *item = static_cast<RadarPointElement*>(ele);
             if(!item) return;
-            ZCHX::Data::ITF_RadarPoint radar = item->getData();
+            ZCHX::Data::ITF_RadarPoint radar = item->data();
             target.id = QString::number(radar.trackNumber);
             target.lon = radar.getLon();
             target.lat = radar.getLat();
@@ -220,38 +213,30 @@ void zchxMapWidget::setSelectedCameraTrackTarget(const ZCHX::Data::Point2D &pos)
 void zchxMapWidget::setPickUpNavigationTarget(const ZCHX::Data::Point2D &pos)
 {
     if(ZCHX::Data::ECDIS_PICKUP_AIS !=  mCurPickupType) return;
-    Element *ele = 0;
-    foreach (std::shared_ptr<zchxEcdisDataMgr> mgr, ZCHX_DATA_FACTORY->getManagers()) {
-        if(mgr->getType() != ZCHX::DATA_MGR_AIS) continue;
-        ele = mgr->selectItem(pos.toPoint());
-        if(ele) break;
-    }
+    std::shared_ptr<MapLayer> layer = MapLayerMgr::instance()->getLayer(ZCHX::LAYER_AIS);
+    if(!layer) return;
+    Element *ele = layer->pickUpElement(pos.toPoint()).get();
     if(!ele) return;
-    AisElement *item = static_cast<AisElement*>(ele);
-    ZCHX_DATA_FACTORY->getAisDataMgr()->setFocusID(item->data().id);
+    AisElement *item = dynamic_cast<AisElement*>(ele);
+    //ZCHX_DATA_FACTORY->getAisDataMgr()->setFocusID(item->data().id);
     emit signalIsSelected4TrackRadarOrbit(item->data(), true);
 }
 
 void zchxMapWidget::getPointNealyCamera(const ZCHX::Data::Point2D &pos)
 {
     if(ZCHX::Data::ECDIS_PICKUP_RADARPOINT !=  mCurPickupType) return;
-    Element *ele = 0;
-    foreach (std::shared_ptr<zchxEcdisDataMgr> mgr, ZCHX_DATA_FACTORY->getManagers()) {
-        if(mgr->getType() != ZCHX::DATA_MGR_RADAR) continue;
-        ele = mgr->selectItem(pos.toPoint());
-        if(ele) break;
-    }
+    std::shared_ptr<MapLayer> layer = MapLayerMgr::instance()->getLayer(ZCHX::LAYER_RADAR);
+    if(!layer) return;
+    Element *ele = layer->pickUpElement(pos.toPoint()).get();
+    if(!ele) return;
 
     ZCHX::Data::LatLon ll = zchxUtilToolLL4CurPoint(pos.toPointF());
     int trackNum = 0;
-    if(ele)
-    {
-        RadarPointElement *item = static_cast<RadarPointElement*>(ele);
-        if(!item) return;
-        trackNum = item->getData().trackNumber;
-        ll.lat = item->getData().getLat();
-        ll.lon = item->getData().getLon();
-    }
+    RadarPointElement *item = dynamic_cast<RadarPointElement*>(ele);
+    if(!item) return;
+    trackNum = item->data().trackNumber;
+    ll.lat = item->data().getLat();
+    ll.lon = item->data().getLon();
 
     emit signalSendPointNealyCamera(trackNum, ll.lat,ll.lon);
 }
@@ -627,12 +612,11 @@ void zchxMapWidget::mousePressEvent(QMouseEvent *e)
             {
                 menu.addAction(tr("平移"),this,SLOT(releaseDrawStatus()));
                 //处于显示模式时.对各个数据对象进行检查,如果当前选择了目标,且当前鼠标位置在对应的目标范围内,则弹出目标对应的菜单,否则只显示基本的右键菜单
-                foreach (std::shared_ptr<zchxEcdisDataMgr> mgr, ZCHX_DATA_FACTORY->getManagers()) {
-                    QList<QAction*> list =  mgr->getRightMenuActions(e->pos());
+                if(mCurrentSelectElement){
+                    QList<QAction*> list = mCurrentSelectElement->getRightMenuAction();
                     if(list.size() > 0)
                     {
                         menu.addActions(list);
-                        break;
                     }
                 }
 
@@ -1056,11 +1040,6 @@ ZCHX::Data::ECDIS_PICKUP_TYPEs zchxMapWidget::getCurPickupType() const
 void zchxMapWidget::setCurPickupType(const ZCHX::Data::ECDIS_PICKUP_TYPEs &curPickupType)
 {
     mCurPickupType = curPickupType;
-    //设定各个数据类是否可以选择
-    //编辑模式下不显示图元
-    foreach (std::shared_ptr<zchxEcdisDataMgr> mgr, ZCHX_DATA_FACTORY->getManagers()) {
-        mgr->setPickUpAvailable(mgr->getType() & curPickupType);
-    }
 }
 
 Element* zchxMapWidget::getCurrentSelectedElement()
@@ -1071,6 +1050,7 @@ Element* zchxMapWidget::getCurrentSelectedElement()
 void zchxMapWidget::setCurrentSelectedItem(Element* item)
 {
     mCurrentSelectElement = item;
+    emit sigElementSelectionChanged(item);
 }
 
 //GPS数据接口
@@ -1115,7 +1095,10 @@ void zchxMapWidget::setIsWarningType(bool bWarningType)
 
 void zchxMapWidget::setFleet(const QMap<QString, ZCHX::Data::ITF_Fleet> &fleetMap)
 {
-    QList<ZCHX::Data::ITF_DangerousCircle> list;
+    std::shared_ptr<MapLayer> layer = LayerMgr->getLayer(ZCHX::LAYER_DANGEROUS_CIRLE);
+    if(!layer) return;
+
+    QList<std::shared_ptr<Element>> list;
     // 设置危险圈
     QMap<QString, ZCHX::Data::ITF_Fleet>::const_iterator fleetIt = fleetMap.begin();
     for (; fleetIt != fleetMap.end(); ++fleetIt)
@@ -1124,10 +1107,11 @@ void zchxMapWidget::setFleet(const QMap<QString, ZCHX::Data::ITF_Fleet> &fleetMa
         if (fleetInfo.dangerCircleRadius > 0)
         {
             ZCHX::Data::ITF_DangerousCircle circle = {fleetIt.key(), {0, 0}, 0, fleetInfo.dangerCircleRadius};
-            list.push_back(circle);
+            list.append(std::shared_ptr<DangerousCircleElement>(new DangerousCircleElement(circle, this)));
         }
     }
-    ZCHX_DATA_FACTORY->getDangerousMgr()->setData(list);
+    //update to layer
+    layer->addElements(list, true);
 }
 
 void zchxMapWidget::ScalePlus()
@@ -1750,378 +1734,10 @@ bool zchxMapWidget::event(QEvent *e)
 void zchxMapWidget::setHoverDrawElement(const ZCHX::Data::Point2D &pos)
 {
     //检查各个数据管理类,获取当前选择的目标
-    foreach (std::shared_ptr<zchxEcdisDataMgr> mgr, ZCHX_DATA_FACTORY->getManagers()) {
-        Element *ele = mgr->selectItem(pos.toPoint());
+    foreach (std::shared_ptr<MapLayer> mgr, LayerMgr->getLayerTree()) {
+        Element *ele = mgr->hoverElement(pos.toPoint()).get();
         if(ele) ele->showToolTip(mapToGlobal(pos.toPoint()));
     }
-#if 0
-    //     qDebug()<<"zhangxiaolei..........................toolTip";
-    //     m_hoverEventLabel.setText(QString("%1\n%2").arg(pos.x).arg(pos.y));
-    //     m_hoverEventLabel.setStyleSheet("QLabel{background:rgba(39,39,39,172); color:#00FF00; font-size:8pt;}");
-    //    QString str = "<font style=\"color:#00FF00; font-size:8pt;\">lon:%1\nlat:%2</font>";
-    //    QToolTip::showText(QPoint(pos.x, pos.y),str.arg(pos.x).arg(pos.y));
-
-    //无人机
-    if(isLayerVisible(ZCHX::LAYER_UAV) )
-    {
-        bool planisFind = false;
-        for(int i = 0; i< m_CameraPlanDev.size(); ++i)
-        {
-            DrawElement::CameraDev &item =  m_CameraPlanDev[i];
-            std::pair<double, double> ll = item.getLatLon();
-            m2::PointD gpos = m_framework->GtoP(MercatorBounds::FromLatLon(ll.first,ll.second));
-            if(!planisFind && gpos.x-10 < pos.x && pos.x < gpos.x+10 && gpos.y-10 <pos.y && pos.y <gpos.y+10)
-            {
-                planisFind = true;
-                item.setIsHover(true);
-                ZCHX::Data::ITF_CameraDev info = item.data();
-
-                QString pos_text = tr("Number: ")+QString::number(info.nDBID)+"\n";
-                pos_text += tr("Name: ")+info.szCamName+"\n";
-                pos_text += tr("Longitude: ")+QString::number(info.nLatLon.lon)+"\n";
-                pos_text += tr("Latitude: ")+QString::number(info.nLatLon.lat);
-                QToolTip::showText(QPoint(pos.x, pos.y), pos_text);
-            }
-            else
-            {
-                item.setIsHover(false);
-            }
-
-        }
-        if(planisFind)
-        {
-            return;
-        }
-    }
-
-    //光电仪
-    if(isLayerVisible(ZCHX::LAYER_GDY) )
-    {
-        bool gdbisFind = false;
-        for(int i = 0; i< m_CameraGdyDev.size(); ++i)
-        {
-            DrawElement::CameraDev &item =  m_CameraGdyDev[i];
-            if(!gdbisFind && item.contains(m_framework.get(), 10, pos.x, pos.y))
-            {
-                gdbisFind = true;
-                item.setIsHover(true);
-                ZCHX::Data::ITF_CameraDev info = item.data();
-
-                QString pos_text = tr("Number: ")+QString::number(info.nDBID)+"\n";
-                pos_text += tr("Name: ")+info.szCamName+"\n";
-                pos_text += tr("Longitude: ")+QString::number(info.nLatLon.lon)+"\n";
-                pos_text += tr("Latitude: ")+QString::number(info.nLatLon.lat);
-                QToolTip::showText(QPoint(pos.x, pos.y), pos_text);
-            }
-            else
-            {
-                item.setIsHover(false);
-
-            }
-        }
-        if(gdbisFind)
-        {
-            return;
-        }
-    }
-
-    //电线杆
-    if(isLayerVisible(ZCHX::LAYER_WIREROD) )
-    {
-        bool ganIsFind = false;
-        for(int i = 0; i < m_CameraRod.size(); ++i)
-        {
-            DrawElement::CameraRod &item =  m_CameraRod[i];
-            std::pair<double, double> ll = item.getLatLon();
-            m2::PointD gpos = m_framework->GtoP(MercatorBounds::FromLatLon(ll.first,ll.second));
-            if(!ganIsFind && gpos.x-10 < pos.x && pos.x < gpos.x+10 && gpos.y-10 <pos.y && pos.y <gpos.y+10)
-            {
-                ganIsFind = true;
-                item.setIsHover(true);
-                ZCHX::Data::ITF_CameraRod info = item.data();
-
-                QString pos_text = tr("Number: ")+info.szID+"\n";
-                pos_text += tr("Name: ")+info.szName+"\n";
-                pos_text += tr("Longitude: ")+QString::number(info.nLatLon.lon)+"\n";
-                pos_text += tr("Latitude: ")+QString::number(info.nLatLon.lat);
-
-                QToolTip::showText(QPoint(pos.x, pos.y), pos_text);
-            }
-            else
-            {
-                item.setIsHover(false);
-            }
-        }
-        if(ganIsFind)
-        {
-            return;
-        }
-    }
-
-    if(isLayerVisible(ZCHX::LAYER_AIS) )
-    {
-        QHash<QString, DrawElement::AisElement*>::iterator it = m_aisMap.begin();
-        for(;it != m_aisMap.end(); ++it)
-        {
-            DrawElement::AisElement *item = it.value();
-            if(item->contains(m_framework.get(), 10, pos.x, pos.y))
-            {
-                ZCHX::Data::ITF_AIS info =  item->getData();
-
-                QString base_text = tr("Ship Name: ")+info.shipName+"\n";
-                base_text += tr("Call sign: ")+info.callSign+"\n";
-                base_text += tr("MMSI: ")+QString::number(info.mmsi)+"\n";
-                base_text += tr("IMO: ")+QString::number(info.imo)+"\n";
-                //base_text += tr("Navigational State: ")+QString::number(info.navStatus)+"\n";
-                base_text += tr("Ship length: ")+QString::number(info.shipLength)+"\n";
-                base_text += tr("Ship Width: ")+QString::number(info.shipWidth)+"\n";
-                base_text += tr("Draught: ")+QString::number(info.draught)+"\n";
-                base_text += tr("Longitude: ")+DOUBLE2STRING(item->lon())+"\n";
-                base_text += tr("Latitude: ")+DOUBLE2STRING(item->lat())+"\n";
-                base_text += tr("Ship Head Direction: ")+QString::number(info.heading)+"\n";
-                base_text += tr("Track Direction: ")+QString::number(info.cog)+"\n";
-                base_text += tr("Ship Speed: ")+QString::number(info.sog)+"\n";
-                base_text += tr("Destination: ")+info.dest+"\n";
-                base_text += tr("Arrival Time: ")+info.eta+"\n";
-                base_text += tr("Last Time: ")+QDateTime::fromTime_t(info.UTC / 1000).toString("MM/dd/yyyy HH:mm:ss");
-                QToolTip::showText(mapToGlobal(QPoint(pos.x, pos.y)),base_text);
-
-//                QFont objFont = this->font();
-//                QFontMetrics fontMetrics(objFont);
-//                QRect boundingRect = fontMetrics.boundingRect(base_text);
-//                QToolTip::showText(QPoint(pos.x, pos.y),base_text,this,boundingRect,10000);
-
-                //                    QString base_text ="<span style=\" font-size:8pt;\">船名：</span><span style=\" font-size:8pt; font-weight:600; color:#333333;\">"+info.shipName+"</span><br>";
-                //                    base_text += "<span style=\" font-size:8pt;\">呼号:   </span><span style=\" font-size:8pt; font-weight:600; color:#333333;\">" + info.callSign+"</span><br>";
-                //                    base_text += "<span style=\" font-size:8pt;\">nMMSI:   </span><span style=\" font-size:8pt; font-weight:600; color:#333333;\">" + QString::number(info.mmsi)+"</span><br>";
-                //                    base_text += "<span style=\" font-size:8pt;\">IMO:    </span><span style=\" font-size:8pt; font-weight:600; color:#333333;\">" + QString::number(info.imo)+"</span><br>";
-                //                    //base_text += "<span style=\" font-size:8pt;\">航行状态:</span><span style=\" font-size:8pt; font-weight:600; color:#333333;\">" + QString::number(info.navStatus)+"</span><br>";
-                //                    base_text += "<span style=\" font-size:8pt;\">船长:    </span><span style=\" font-size:8pt; font-weight:600; color:#333333;\">" + QString::number(info.shipLength)+"</span><br>";
-                //                    base_text += "<span style=\" font-size:8pt;\">船宽:    </span><span style=\" font-size:8pt; font-weight:600; color:#333333;\">" + QString::number(info.shipWidth)+"</span><br>";
-                //                    base_text += "<span style=\" font-size:8pt;\">吃水:    </span><span style=\" font-size:8pt; font-weight:600; color:#333333;\">" + QString::number(info.draught)+"</span><br>";
-
-                //                    QString pos_text = "<span style=\" font-size:8pt;\">经度:     </span><span style=\" font-size:8pt; font-weight:600; color:#333333;\">" + QString::number(info.path.back().second)+"</span><br>";
-                //                    pos_text +=  "<span style=\" font-size:8pt;\">纬度:     </span><span style=\" font-size:8pt; font-weight:600; color:#333333;\">" + QString::number(info.path.back().first)+"</span><br>";
-                //                    pos_text += "<span style=\" font-size:8pt;\">航首向:   </span><span style=\" font-size:8pt; font-weight:600; color:#333333;\">" + QString::number(info.heading)+"</span><br>";
-                //                    pos_text += "<span style=\" font-size:8pt;\">航迹向:   </span><span style=\" font-size:8pt; font-weight:600; color:#333333;\">" + QString::number(info.cog)+"</span><br>";
-                //                    pos_text +=  "<span style=\" font-size:8pt;\">船速度:   </span><span style=\" font-size:8pt; font-weight:600; color:#333333;\">" + QString::number(info.sog)+"</span><br>";
-                //                    pos_text += "<span style=\" font-size:8pt;\">目的地:   </span><span style=\" font-size:8pt; font-weight:600; color:#333333;\">" + info.dest+"</span><br>";
-                //                    pos_text += "<span style=\" font-size:8pt;\">预到时间: </span><span style=\" font-size:8pt; font-weight:600; color:#333333;\">" + info.eta+"</span><br>";
-                //                    pos_text += "<span style=\" font-size:8pt;\">最后时间: </span><span style=\" font-size:8pt; font-weight:600; color:#333333;\">" + QDateTime::currentDateTime().toString("MM/dd/yyyy HH:mm:ss")+"</span>";
-                //                    QToolTip::showText(QPoint(pos.x, pos.y),base_text + pos_text);
-                //                }
-                return;
-            }
-        }
-    }
-
-    if(isLayerVisible(ZCHX::LAYER_HISTORY_AIS))
-    {
-        QHash<QString, DrawElement::AisElement*>::iterator it = m_historyAisMap.begin();
-        for(;it != m_historyAisMap.end(); ++it)
-        {
-            DrawElement::AisElement *item = it.value();
-            if(item->contains(m_framework.get(), 10, pos.x, pos.y))
-            {
-                ZCHX::Data::ITF_AIS info =  item->getData();
-
-                QString base_text = tr("Ship Name: ")+info.shipName+"\n";
-                base_text += tr("Call sign: ")+info.callSign+"\n";
-                base_text += tr("MMSI: ")+QString::number(info.mmsi)+"\n";
-                base_text += tr("IMO: ")+QString::number(info.imo)+"\n";
-                //base_text += tr("Navigational State: ")+QString::number(info.navStatus)+"\n";
-                base_text += tr("Ship length: ")+QString::number(info.shipLength)+"\n";
-                base_text += tr("Ship Width: ")+QString::number(info.shipWidth)+"\n";
-                base_text += tr("Draught: ")+QString::number(info.draught)+"\n";
-                base_text += tr("Longitude: ")+DOUBLE2STRING(item->lon())+"\n";
-                base_text += tr("Latitude: ")+DOUBLE2STRING(item->lat())+"\n";
-                base_text += tr("Ship Head Direction: ")+QString::number(info.heading)+"\n";
-                base_text += tr("Track Direction: ")+QString::number(info.cog)+"\n";
-                base_text += tr("Ship Speed: ")+QString::number(info.sog)+"\n";
-                base_text += tr("Destination: ")+info.dest+"\n";
-                base_text += tr("Arrival Time: ")+info.eta+"\n";
-                base_text += tr("Last Time: ")+QDateTime::fromTime_t(info.UTC / 1000).toString("MM/dd/yyyy HH:mm:ss");
-                QToolTip::showText(mapToGlobal(QPoint(pos.x, pos.y)),base_text);
-                return;
-            }
-        }
-    }
-    if(isLayerVisible(ZCHX::LAYER_RADAR_CURRENT) )
-    {
-        for(int i=0; i< m_RadarPoint.size(); ++i)
-        {
-            DrawElement::RadarPoint &item = m_RadarPoint[i];
-            std::pair<double, double> ll = item.getLatLon();
-            m2::PointD gpos = m_framework->GtoP(MercatorBounds::FromLatLon(ll.first,ll.second));
-            if(gpos.x-10 < pos.x && pos.x < gpos.x+10 && gpos.y-10 <pos.y && pos.y <gpos.y+10)
-            {
-                ZCHX::Data::ITF_RadarPoint info = item.getData();
-                QString sTemp = "T";
-                QString temp_number(QString::number(info.trackNumber).right(4));
-                sTemp.append(temp_number);
-
-
-                QString pos_text = tr("Tracking Number: ")+sTemp/*QString::number(info.trackNumber)*/+"\n";
-                pos_text += tr("Longitude: ")+DOUBLE2STRING(ll.second/*info.wgs84PosLat*/)+"\n";
-                pos_text += tr("Latitude: ")+DOUBLE2STRING(ll.first/*info.wgs84PosLong*/)+"\n";
-                pos_text += tr("Time: ")+QDateTime::currentDateTime().toString("MM/dd/yyyy HH:mm:ss")+"\n";
-                pos_text += tr("Azimuth: ")+QString::number(info.cog)+"\n";
-                pos_text += tr("Speed: ")+QString::number(info.sog/3.6*1.852);
-                QToolTip::showText(mapToGlobal(QPoint(pos.x, pos.y)), pos_text);
-
-                return;
-            }
-        }
-    }
-
-    if(isLayerVisible(ZCHX::LAYER_HISTORY_RADAR) )
-    {
-        for(int i=0; i< m_HistoryRadarPoint.size(); ++i)
-        {
-            DrawElement::RadarPoint &item = m_HistoryRadarPoint[i];
-            std::pair<double, double> ll = item.getLatLon();
-            m2::PointD gpos = m_framework->GtoP(MercatorBounds::FromLatLon(ll.first,ll.second));
-            if(gpos.x-10 < pos.x && pos.x < gpos.x+10 && gpos.y-10 <pos.y && pos.y <gpos.y+10)
-            {
-                ZCHX::Data::ITF_RadarPoint info = item.getData();
-                QString sTemp = "T";
-                QString temp_number(QString::number(info.trackNumber).right(4));
-                sTemp.append(temp_number);
-
-
-                QString pos_text = tr("Tracking Number: ")+sTemp/*QString::number(info.trackNumber)*/+"\n";
-                pos_text += tr("Longitude: ")+DOUBLE2STRING(ll.second/*info.wgs84PosLat*/)+"\n";
-                pos_text += tr("Latitude: ")+DOUBLE2STRING(ll.first/*info.wgs84PosLong*/)+"\n";
-                pos_text += tr("Time: ")+QDateTime::currentDateTime().toString("MM/dd/yyyy HH:mm:ss")+"\n";
-                pos_text += tr("Azimuth: ")+QString::number(info.cog)+"\n";
-                pos_text += tr("Speed: ")+QString::number(info.sog/3.6*1.852);
-                QToolTip::showText(QPoint(pos.x, pos.y), pos_text);
-
-                return;
-            }
-        }
-    }
-    if(isLayerVisible(ZCHX::LAYER_PATROL_RADAR_SITE) )
-    {
-        for(int i=0; i < m_PastrolStation.size(); ++i)
-        {
-            DrawElement::PastrolStation &item = m_PastrolStation[i];
-            std::pair<double, double> ll = item.getLatLon();
-            m2::PointD gpos = m_framework->GtoP(MercatorBounds::FromLatLon(ll.first,ll.second));
-            if(gpos.x-10 < pos.x && pos.x < gpos.x+10 && gpos.y-10 <pos.y && pos.y <gpos.y+10)
-            {
-                ZCHX::Data::ITF_PastrolStation info = item.data();
-
-                QString pos_text = tr("Location: ")+info.name+"\n";
-                pos_text += tr("Longitude: ")+DOUBLE2STRING(info.ll.lon)+"\n";
-                pos_text += tr("Latitude: ")+DOUBLE2STRING(info.ll.lat);
-
-                QToolTip::showText(mapToGlobal(QPoint(pos.x, pos.y)), pos_text);
-                return;
-            }
-        }
-    }
-
-    if(isLayerVisible(ZCHX::LAYER_LOCALMARK) )
-    {
-        for(int i=0; i< m_LocalMark.size();++i)
-        {
-            DrawElement::LocalMark &item =  m_LocalMark[i];
-            std::pair<double, double> ll = item.getLatLon();
-            m2::PointD gpos = m_framework->GtoP(MercatorBounds::FromLatLon(ll.first,ll.second));
-            if(gpos.x-10 < pos.x && pos.x < gpos.x+10 && gpos.y-10 <pos.y && pos.y <gpos.y+10)
-            {
-                ZCHX::Data::ITF_LocalMark info = item.data();
-
-
-                QString pos_text = tr("Name: ")+info.localName+"\n";
-                pos_text += tr("Longitude: ")+DOUBLE2STRING(info.ll.lon)+"\n";
-                pos_text += tr("Latitude: ")+DOUBLE2STRING(info.ll.lat)+"\n";
-                pos_text += tr("Remarks : ")+info.localMark;
-                QToolTip::showText(mapToGlobal(QPoint(pos.x, pos.y)), pos_text);
-                return;
-            }
-        }
-    }
-
-    if(isLayerVisible(ZCHX::LAYER_CAMERA) )
-    {
-        bool camisFind = false;
-        for(int i = 0; i< m_CameraDev.size(); ++i)
-        {
-            DrawElement::CameraDev &item =  m_CameraDev[i];
-            if(!camisFind && item.contains(m_framework.get(), 10, pos.x, pos.y))
-            {
-                camisFind = true;
-                item.setIsHover(true);
-                ZCHX::Data::ITF_CameraDev info = item.data();
-
-                QString pos_text = tr("Number: ")+QString::number(info.nDBID)+"\n";
-                pos_text += tr("Name: ")+info.szCamName+"\n";
-                pos_text += tr("Longitude: ")+DOUBLE2STRING(info.nLatLon.lon)+"\n";
-                pos_text += tr("Latitude: ")+DOUBLE2STRING(info.nLatLon.lat);
-                QToolTip::showText(mapToGlobal(QPoint(pos.x, pos.y)), pos_text);
-            }
-            else
-            {
-                item.setIsHover(false);
-
-            }
-        }
-        if(camisFind)
-        {
-            return;
-        }
-    }
-
-    if(isLayerVisible(ZCHX::LAYER_AIS) && !m_aisMap.isEmpty() )
-    {
-        QHash<QString, DrawElement::AisElement*>::iterator it = m_aisMap.begin();
-        for(;it != m_aisMap.end(); ++it)
-        {
-            it.value()->setIsHover(false);
-        }
-        for(it = m_aisMap.begin(); it != m_aisMap.end(); ++it)
-        {
-            DrawElement::AisElement *item = it.value();
-            if(item->contains(m_framework.get(), 10, pos.x, pos.y))
-            {
-                item->setIsHover(true);
-
-                QString pos_text = tr("MMSI: ")+QString::number(item->getData().mmsi)+"\n";
-                pos_text += tr("Name: ")+item->getData().shipName+"\n";
-                pos_text += tr("Longitude: ")+DOUBLE2STRING(item->getData().lon)+"\n";
-                pos_text += tr("Latitude: ")+DOUBLE2STRING(item->getData().lat);
-                QToolTip::showText(mapToGlobal(QPoint(pos.x, pos.y)), pos_text);
-            }
-        }
-    }
-    if(isLayerVisible(ZCHX::LAYER_HISTORY_AIS) && !m_historyAisMap.isEmpty() )
-    {
-        QHash<QString, DrawElement::AisElement*>::iterator it = m_historyAisMap.begin();
-        for(;it != m_historyAisMap.end(); ++it)
-        {
-            it.value()->setIsHover(false);
-        }
-        for(it = m_historyAisMap.begin(); it != m_historyAisMap.end(); ++it)
-        {
-            DrawElement::AisElement *item = it.value();
-            if(item->contains(m_framework.get(), 10, pos.x, pos.y))
-            {
-                item->setIsHover(true);
-
-                QString pos_text = tr("MMSI: ")+QString::number(item->getData().mmsi)+"\n";
-                pos_text += tr("Name: ")+item->getData().shipName+"\n";
-                pos_text += tr("Longitude: ")+DOUBLE2STRING(item->getData().lon)+"\n";
-                pos_text += tr("Latitude: ")+DOUBLE2STRING(item->getData().lat);
-                QToolTip::showText(mapToGlobal(QPoint(pos.x, pos.y)), pos_text);
-            }
-        }
-    }
-}
-#endif
-
-
 }
 
 

@@ -63,7 +63,6 @@ SOURCES += mainwindow.cpp \
     zchxmapframe.cpp \
     slider_ctrl.cpp \
     proxystyle.cpp \
-    coastdatainfodialog.cpp \
     info_dialog.cpp \
     localmarkdlg.cpp \
     structureinfodialog.cpp \
@@ -77,20 +76,11 @@ SOURCES += mainwindow.cpp \
     element/radarelement.cpp \
     zchxroutedatamgr.cpp \
     zchxshipplandatamgr.cpp \
-    data_manager/zchxecdisdatamgr.cpp \
-    data_manager/zchxaisdatamgr.cpp \
-    data_manager/zchxradardatamgr.cpp \
-    data_manager/zchxdatamgrfactory.cpp \
-    data_manager/zchxcameradatamgr.cpp \
-    data_manager/zchxroddatamgr.cpp \
     element/rodelement.cpp \
     element/ipcelement.cpp \
     dialog/zchxecdisdlgmgr.cpp \
     dialog/defenceinfodialog.cpp \
     element/videotargetelement.cpp \
-    data_manager/zchxvideotargetdatamgr.cpp \
-    data_manager/zchxcameraviewdatamgr.cpp \
-    data_manager/zchxuserdefinesdatamgr.cpp \
     element/islandlineelement.cpp \
     element/shipalarmascendelement.cpp \
     element/structureelement.cpp \
@@ -102,7 +92,6 @@ SOURCES += mainwindow.cpp \
     draw_manager/zchxdrawdistool.cpp \
     draw_manager/zchxdrawlocalmarktool.cpp \
     draw_manager/zchxdrawcameranetgridtool.cpp \
-    data_manager/zchxradarvideomgr.cpp \
     element/radarvideoelement.cpp \
     dialog/radarfeaturezone.cpp \
     draw_manager/zchxdrawzonetool.cpp \
@@ -114,7 +103,10 @@ SOURCES += mainwindow.cpp \
     element/zchxfixelements.cpp \
     element/cameraelement.cpp \
     element/gridelement.cpp \
-    data_manager/zchxnetgridmgr.cpp
+    map_layer/zchxaismaplayer.cpp \
+    dialog/coastdatainfodialog.cpp \
+    map_layer/zchxradarvideolayer.cpp \
+    map_layer/zchxshipalarmascendlayer.cpp
 
 HEADERS  += mainwindow.h \
     zchxmapthread.h \
@@ -131,7 +123,6 @@ HEADERS  += mainwindow.h \
     zchxmapframe.h \
     slider_ctrl.hpp \
     proxystyle.hpp \
-    coastdatainfodialog.h \
     info_dialog.hpp \
     localmarkdlg.h \
     structureinfodialog.h \
@@ -146,26 +137,15 @@ HEADERS  += mainwindow.h \
     element/radarelement.h \
     zchxroutedatamgr.h \
     zchxshipplandatamgr.h \
-    data_manager/zchxecdisdatamgr.h \
-    data_manager/zchxaisdatamgr.h \
-    data_manager/zchxradardatamgr.h \
-    data_manager/zchxdatamgrfactory.h \
-    data_manager/zchxdatamanagers.h \
-    data_manager/zchxcameradatamgr.h \
-    data_manager/zchxroddatamgr.h \
     element/rodelement.h \
     element/ipcelement.h \
     dialog/zchxecdisdlgmgr.h \
     element/videotargetelement.h \
-    data_manager/zchxcameraviewdatamgr.h \
-    data_manager/zchxvideotargetdatamgr.h \
-    data_manager/zchxuserdefinesdatamgr.h \
     element/islandlineelement.h \
     element/shipalarmascendelement.h \
     element/structureelement.h \
     element/moveelement.h \
     element/patrolstationelement.h \
-    data_manager/zchxtemplatedatamgr.h \
     draw_manager/zchxecdismousedefines.h \
     draw_manager/zchxdrawareatool.h \
     draw_manager/zchxdrawtool.h \
@@ -174,7 +154,6 @@ HEADERS  += mainwindow.h \
     draw_manager/zchxdrawlocalmarktool.h \
     draw_manager/zchxdrawcameranetgridtool.h \
     draw_manager/zchxdrawtoolutil.h \
-    data_manager/zchxradarvideomgr.h \
     element/radarvideoelement.h \
     dialog/radarfeaturezone.h \
     draw_manager/zchxdrawzonetool.h \
@@ -186,10 +165,12 @@ HEADERS  += mainwindow.h \
     element/fixelement.h \
     element/zchxfixelements.h \
     element/gridelement.h \
-    data_manager/zchxnetgridmgr.h
+    map_layer/zchxaismaplayer.h \
+    dialog/coastdatainfodialog.h \
+    map_layer/zchxradarvideolayer.h \
+    map_layer/zchxshipalarmascendlayer.h
 
 FORMS    += mainwindow.ui \
-    coastdatainfodialog.ui \
     localmarkdlg.ui \
     structureinfodialog.ui \
     warningzoneparadialog.ui \
@@ -197,7 +178,8 @@ FORMS    += mainwindow.ui \
     dialog/defenceinfodialog.ui \
     dialog/channelinfodialog.ui \
     dialog/mooringinfodialog.ui \
-    dialog/cardmouthinfodialog.ui
+    dialog/cardmouthinfodialog.ui \
+    dialog/coastdatainfodialog.ui
 
 RESOURCES += res/resources.qrc
 DISTFILES += \

@@ -22,11 +22,11 @@ public:
     }    
     int             getMaxOptNum() const {return mMaxNum;}
     void            setMaxOptNum(int number) {mMaxNum = number;}
-    bool            isOpt(const T& id) const {return mList.contains(id);}
+    bool            contains(const T& id) const {return mList.contains(id);}
     QList<T>        getList() const {return mList;}
     bool            append(const T& id)
     {
-        if(isOpt(id)) return true;
+        if(contains(id)) return true;
 
         //当前列表不存在对应的id,检查是否超限
         if(mList.size() < mMaxNum) {
@@ -64,7 +64,7 @@ public:
 
 private:
     std::list<std::shared_ptr<MapLayer> >           m_children;
-    std::list<std::shared_ptr<Element> >            m_elements;
+    QMap<QString, std::shared_ptr<Element> >        m_elements;
     QString                                         m_type;
     QString                                         m_displayName;
     bool                                            m_visible;

@@ -14,7 +14,6 @@ public:
     void setData(const ZCHX::Data::ITF_PastrolStation &data);
 
     void updateGeometry(QPointF, qreal){}
-//    bool contains(int range, double x, double y) const;
     void drawElement(QPainter *painter);
     std::string name() const {return m_data.name.toStdString();}
 

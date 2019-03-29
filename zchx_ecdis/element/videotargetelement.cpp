@@ -6,23 +6,12 @@
 
 namespace qt {
 VideoTargetElement::VideoTargetElement(const ZCHX::Data::ITF_VideoTarget &data, zchxMapWidget* work)
-    :Element(data.objectMapPosY, data.objectMapPosX, work, ZCHX::Data::ELE_VIDEO_TARGET)
+    :FixElement<ZCHX::Data::ITF_VideoTarget>(data, ZCHX::Data::ELE_VIDEO_TARGET, ZCHX::LAYER_WARNING_TARGET, work)
 {
-    m_data = data;
     mTargetIImgList<< ":/element/ren.png"
                       << ":/element/che.png"
                       << ":/element/chuan.png"
                       << ":/element/no.png";
-}
-
-const ZCHX::Data::ITF_VideoTarget &VideoTargetElement::getData() const
-{
-    return m_data;
-}
-
-void VideoTargetElement::setData(const ZCHX::Data::ITF_VideoTarget &data)
-{
-    m_data = data;
 }
 
 uint VideoTargetElement::getTargetStatus() const
@@ -52,8 +41,7 @@ QString VideoTargetElement::getAlarmColor() const
 
 void VideoTargetElement::drawElement(QPainter *painter)
 {
-    if(!painter || !MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_WARNING_TARGET)) return ;
-    if(!mView->framework()) return;
+    if(!isDrawAvailable(painter)) return ;
 
     QPixmap image   = ZCHX::Utils::getImage(mTargetIImgList.value(getTargetType()), Qt::green, mView->framework()->GetDrawScale());
     std::pair<double, double> ll = getLatLon();
@@ -61,15 +49,12 @@ void VideoTargetElement::drawElement(QPainter *painter)
     ZCHX::Data::Point2D pos = mView->framework()->LatLon2Pixel(ll.first,ll.second);
     QRect rect(0,0,image.width(),image.height());
     rect.moveCenter(QPoint(pos.x, pos.y));
+    updateBouningRect(pos.toPointF(), image.width(), image.height());
+    updateGeometry(pos.toPointF(), getDrawScaleSize());
 
     painter->drawPixmap(rect, image);
-    if(getIsActive())
-    {
-        PainterPair chk(painter);
-        painter->setPen(QPen(Qt::red,2));
-        painter->drawRect(rect.x() -5, rect.y() -5, rect.width()+10, rect.height()+10);
-    }
     painter->drawText(QPointF(rect.x() + rect.width() +3,rect.y()),getObjId());
+    drawActive(painter);
 }
 }
 

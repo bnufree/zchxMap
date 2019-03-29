@@ -1,24 +1,20 @@
 #ifndef IPCELE_H
 #define IPCELE_H
 
-#include "IDrawElement.hpp"
-#include <QtCore>
+#include "fixelement.h"
 
 namespace qt
 {
 
-class  IPCElement : public Element
+class  IPCElement : public FixElement<ZCHX::Data::IPCastDevice>
 {
 public:
     explicit IPCElement(const ZCHX::Data::IPCastDevice &data, zchxMapWidget* f);
-    ZCHX::Data::IPCastDevice getData() const;
-    void setData(const ZCHX::Data::IPCastDevice &data);
     void setStatus(int sts);
     int status() const;
-    virtual void drawElement(QPainter *painter);
-    void updateGeometry(QPointF, qreal){}
+    virtual void drawElement(QPainter *painter) {}
+    void updateGeometry(QPointF pos, qreal size) {}
 private:
-    ZCHX::Data::IPCastDevice m_data;
 };
 }
 

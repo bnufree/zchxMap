@@ -2,6 +2,8 @@
 #include "zchxmaplayer_p.h"
 #include "zchxmapframe.h"
 #include <QGeoCoordinate>
+#include "element/fixelement.h"
+#include "element/moveelement.h"
 
 namespace qt {
 MapLayer::MapLayer(const QString &type, const QString &displayName, bool visible, QObject *parent)
@@ -113,28 +115,66 @@ std::shared_ptr<MapLayer> MapLayer::getChildLayer(const QString &type)
 
 void MapLayer::addElement(std::shared_ptr<Element> element)
 {
-    if(!element)
-        return;
+    if(!element) return;
 
     Q_D(MapLayer);
-//    if(element->layer())
-//    {
-//        element->layer()->removeElement(element);
-//    }
-//    element->layer().reset(this);
-//    element->m_layer = this;
+    //确保图元对应element
     if(d->m_drawWidget && d->m_drawWidget != element->view())
     {
         element->setView(d->m_drawWidget);
     }
+    //检查图元是否添加过
+    element->setLayer(d->m_type);
+    if(d->m_elements.contains(element->getID()) && d->m_drawWidget){
+        std::shared_ptr<Element> old = d->m_elements[element->getID()];
+        if(old.get() == d->m_drawWidget->getCurrentSelectedElement())
+        {
+            d->m_drawWidget->setCurrentSelectedItem(element.get());
+        }
+    }
 
-    bool contained = (std::find(d->m_elements.begin(), d->m_elements.end(), element) != d->m_elements.end());
-    if(contained)
-        return;
+    d->m_elements[element->getID()] = element;
+}
 
-    d->m_elements.push_back(element);
+void MapLayer::addElements(QList<std::shared_ptr<Element> > &list, bool check)
+{
+//    qDebug()<<"total element size:"<<list.size()<<QDateTime::currentDateTime().toString("hh:mm:ss zzz");
+//    QTime t;
+//    t.start();
+    Q_D(MapLayer);
+    if(check)
+    {
+        //先将旧的图元设定为不刷新
+        for(std::shared_ptr<Element> ele : d->m_elements)
+        {
+            ele->setIsUpdate(false);
+        }
+    }
+    for(std::shared_ptr<Element> ele : list) {
+        addElement(ele);
+    }
+    //删除没有更新的图元
+    for(std::shared_ptr<Element> ele : d->m_elements)
+    {
+        if(!ele->getIsUpdate())
+        {
+            //qDebug()<<"remove element:"<<ele->getElementType()<<ele->getID();
+            //删除数据之前，检查数据是否在其他地方是否被使用
+            removeConcern(ele->getID());
+            removeRealtimeTrack(ele->getID());
+            removeHistoryTrack(ele->getID());
+            removeExtrapolation(ele->getID());
+            removeElement(ele);
+        }
+    }
 
-//    update();
+//    qDebug()<<"total elements size:"<<d->m_elements.size();
+
+//    for(std::shared_ptr<Element> ele : d->m_elements)
+//    {
+//        qDebug()<<"element:"<<ele->getID()<<FLOAT_STRING(ele->elelat, 6)<<FLOAT_STRING(ele->elelon, 6);
+//    }
+//    qDebug()<<"total element size:"<<list.size()<<QDateTime::currentDateTime().toString("hh:mm:ss zzz")<<t.elapsed();
 }
 
 void MapLayer::removeElement(std::shared_ptr<Element> element)
@@ -143,37 +183,54 @@ void MapLayer::removeElement(std::shared_ptr<Element> element)
         return;
 
     Q_D(MapLayer);
-//    element->layer().reset();
+    //检查是否是当前选择的图元
+    if( d->m_drawWidget && element.get() == d->m_drawWidget->getCurrentSelectedElement())
+    {
+        d->m_drawWidget->setCurrentSelectedItem(0);
+    }
+    d->m_elements.remove(element->getID());
 
-    bool contained = (std::find(d->m_elements.begin(), d->m_elements.end(), element) != d->m_elements.end());
-    if(!contained)
-        return;
+//    bool contained = (std::find(d->m_elements.begin(), d->m_elements.end(), element) != d->m_elements.end());
+//    if(!contained) return;
 
-    d->m_elements.remove(element);
 
-//    update();
+
+//    d->m_elements.remove(element);
+}
+
+void MapLayer::removeElement(const QString &id)
+{
+    Q_D(MapLayer);
+    removeElement(getElement(id));
+}
+
+void MapLayer::removeAllElement()
+{
+    Q_D(MapLayer);
+    d->m_elements.clear();
 }
 
 std::list<std::shared_ptr<Element> > MapLayer::getElements()
 {
     Q_D(MapLayer);
-    return d->m_elements;
+    return d->m_elements.values().toStdList();
 }
 
-Element * MapLayer::getElement(const QString &name)
+std::shared_ptr<Element> MapLayer::getElement(const QString &name)
 {
     Q_D(MapLayer);
-    for(std::shared_ptr<Element> element : d->m_elements)
-    {
-        if(!element) continue;
+    return d->m_elements[name];
+//    for(std::shared_ptr<Element> element : d->m_elements)
+//    {
+//        if(!element) continue;
 
-        if(element->getID() == name)
-        {
-            return element.get();
-        }
-    }
+//        if(element->getID() == name)
+//        {
+//            return element;
+//        }
+//    }
 
-    return 0;
+//    return 0;
 }
 
 void MapLayer::update()
@@ -191,30 +248,60 @@ void MapLayer::update()
 void MapLayer::drawLayer(QPainter *painter)
 {
     Q_D(MapLayer);
-    for(std::shared_ptr<Element> element : d->m_elements)
+    if(!visible()) return;
+    //开始画当前图层的图元
+    for(std::shared_ptr<Element> item : d->m_elements)
     {
-        if(element.get())
-            element->drawElement(painter);
+        if(!item) continue;
+        //更新各个element的状态
+        QString id = item->getID();
+        if(isConcern(id)){
+            item->setIsConcern(true);
+        } else {
+            item->setIsConcern(false);
+        }
+        if(isRealtimeTrack(id)){
+            item->setIsRealtimeTailTrack(true);
+        } else {
+            item->setIsRealtimeTailTrack(false);
+        }
+        if(isHistoryTrack(id)){
+            item->setIsHistoryTrack(true);
+        } else {
+            item->setIsHistoryTrack(false);
+        }
+        if(d->m_drawWidget && item.get() == d->m_drawWidget->getCurrentSelectedElement()) {
+            item->setIsActive(true);
+        } else {
+            item->setIsActive(false);
+        }
+        if(isExtrapolation(id)){
+            item->setIsExtrapolate(true);
+            item->setExtrapolateTime(getExtrapolationTime(id));
+        } else {
+            item->setIsExtrapolate(false);
+        }
+
+        if(item->isEmpty()) continue;
+        item->drawElement(painter);
     }
 }
 
-std::shared_ptr<Element> MapLayer::pickUpElement(QPointF pos, const QGeoCoordinate &geoPos)
+std::shared_ptr<Element> MapLayer::pickUpElement(const QPoint& pos, const QGeoCoordinate &geoPos)
 {
     Q_D(MapLayer);
-    for(std::shared_ptr<Element> element : d->m_elements)
+    if(visible() && d->m_drawWidget && d->m_drawWidget->framework())
     {
-        if(!element)
-            continue;
+        d->m_drawWidget->setCurrentSelectedItem(0);
+        for(std::shared_ptr<Element> element : d->m_elements)
+        {
+            if(!element) continue;
 
-        if(geoPos.isValid() )
-        {
-            if(element->contains(geoPos))
+            if(element->contains(pos) || element->contains(d->m_drawWidget->framework()->LatLon2Pixel(geoPos.latitude(), geoPos.longitude()).toPoint()))
+            {
+                d->m_drawWidget->setCurrentSelectedItem(element.get());
                 return element;
-        }
-        else
-        {
-            if(element->contains(QPoint(pos.x(), pos.y())))
-                return element;
+            }
         }
     }
     return NULL;
@@ -223,30 +310,49 @@ std::shared_ptr<Element> MapLayer::pickUpElement(QPointF pos, const QGeoCoordina
 std::shared_ptr<Element> MapLayer::pickUpElement(const QString &id)
 {
     Q_D(MapLayer);
-    for(std::shared_ptr<Element> element : d->m_elements)
+    if(visible() && d->m_drawWidget && d->m_drawWidget->framework())
     {
-        if(!element)
-            continue;
-
-        if(element->getID() == id)
+        d->m_drawWidget->setCurrentSelectedItem(0);
+        for(std::shared_ptr<Element> element : d->m_elements)
         {
-            return element;
+            if(!element) continue;
+
+            if(element->getID() == id)
+            {
+                d->m_drawWidget->setCurrentSelectedItem(element.get());
+                std::pair<double, double> ll = element->getLatLon();
+                d->m_drawWidget->setCenterAtTargetLL(ll.first, ll.second);
+                return element;
+            }
         }
     }
     return NULL;
 }
 
-std::shared_ptr<Element> MapLayer::pickUpElement(QPointF pos)
+std::shared_ptr<Element> MapLayer::pickUpElement(const QPoint& pos)
 {
     Q_D(MapLayer);
-    if(d->m_drawWidget->framework())
+    if(visible() && d->m_drawWidget && d->m_drawWidget->framework())
+    {
+        d->m_drawWidget->setCurrentSelectedItem(0);
+        std::shared_ptr<Element> ele = hoverElement(pos);
+        if(ele) {
+            d->m_drawWidget->setCurrentSelectedItem(ele.get());
+        }
+        return ele;
+    }
+    return NULL;
+}
+
+std::shared_ptr<Element> MapLayer::hoverElement(const QPoint& pos)
+{
+    Q_D(MapLayer);
+    if(visible() && d->m_drawWidget && d->m_drawWidget->framework())
     {
         for(std::shared_ptr<Element> element : d->m_elements)
         {
-            if(!element)
-                return element;
-
-            if(element->contains(10, pos.x(), pos.y()) )
+            if(!element) continue;
+            if(element->contains(pos))
             {
                 return element;
             }
@@ -254,6 +360,7 @@ std::shared_ptr<Element> MapLayer::pickUpElement(QPointF pos)
     }
     return NULL;
 }
+
 
 QPointF MapLayer::convertToView(double lon, double lat)
 {
@@ -404,13 +511,13 @@ void MapLayer::setMaxConcernNum(int number)
 void MapLayer::removeConcern(const QString& id)
 {
     Q_D(MapLayer);
-    d->mConcernSetting.remove(id);
+    if(d->mConcernSetting.contains(id)) d->mConcernSetting.remove(id);
 }
 
 bool MapLayer::isConcern(const QString& id) const
 {
     Q_D(const MapLayer);
-    return d->mConcernSetting.isOpt(id);
+    return d->mConcernSetting.contains(id);
 }
 
 QStringList MapLayer::getConcernList()const
@@ -451,13 +558,13 @@ void MapLayer::setMaxRealtimeTrackNum(int number)
 void MapLayer::removeRealtimeTrack(const QString& id)
 {
     Q_D(MapLayer);
-    d->mRealtimeTailTrackSetting.remove(id);
+    if(d->mRealtimeTailTrackSetting.contains(id)) d->mRealtimeTailTrackSetting.remove(id);
 }
 
 bool MapLayer::isRealtimeTrack(const QString& id) const
 {
     Q_D(const MapLayer);
-    return d->mRealtimeTailTrackSetting.isOpt(id);
+    return d->mRealtimeTailTrackSetting.contains(id);
 }
 
 QStringList MapLayer::getRealtimeTrackList()const
@@ -498,13 +605,13 @@ void MapLayer::setMaxHistoryTrackNum(int number)
 void MapLayer::removeHistoryTrack(const QString& id)
 {
     Q_D(MapLayer);
-    d->mHistoryTrackSetting.remove(id);
+    if(d->mHistoryTrackSetting.contains(id)) d->mHistoryTrackSetting.remove(id);
 }
 
 bool MapLayer::isHistoryTrack(const QString& id) const
 {
     Q_D(const MapLayer);
-    return d->mHistoryTrackSetting.isOpt(id);
+    return d->mHistoryTrackSetting.contains(id);
 }
 
 QStringList MapLayer::getHistoryTrackList()const
@@ -546,7 +653,7 @@ void MapLayer::setMaxExtrapolationNum(int number)
 bool MapLayer::isExtrapolation(const QString& id) const
 {
     Q_D(const MapLayer);
-    return d->mExtrapolationSetting.isOpt(ZCHX::Data::ExtrapolateParam(id));
+    return d->mExtrapolationSetting.contains(ZCHX::Data::ExtrapolateParam(id));
 }
 
 ZCHX::Data::ExtrapolateList MapLayer::getExtrapolationList() const
@@ -564,7 +671,10 @@ void MapLayer::setExtrapolationReplace(bool replace)
 void MapLayer::removeExtrapolation(const QString& id)
 {
     Q_D(MapLayer);
-    d->mExtrapolationSetting.remove(ZCHX::Data::ExtrapolateParam(id));
+    if(d->mExtrapolationSetting.contains(ZCHX::Data::ExtrapolateParam(id)))
+    {
+        d->mExtrapolationSetting.remove(ZCHX::Data::ExtrapolateParam(id));
+    }
 }
 
 bool MapLayer::appendExtrapolation(const QString &id, double val)
@@ -595,6 +705,12 @@ void MapLayer::updateExtrapolationTime(const QString& id, double val)
     if(index < 0) return;
     ZCHX::Data::ExtrapolateParam& param = d->mExtrapolationSetting.valueAt(index);
     param.mVal = val;
+}
+
+zchxMapWidget* MapLayer::getDrawWidget() const
+{
+    Q_D(const MapLayer);
+    return d->m_drawWidget;
 }
 
 

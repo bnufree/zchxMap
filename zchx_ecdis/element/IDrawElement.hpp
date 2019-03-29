@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "../zchxutils.hpp"
 #include "../zchx_ecdis_global.h"
@@ -112,6 +112,12 @@ public:
     void setUseDisplayLatLon(bool value);
     void updateFlashRegionColor(const QColor& color);
 
+    /*
+     * 更新图元的大小bounding rect.
+    */
+    virtual void updateBouningRect(QPointF pos, int width, int height);
+    virtual void updateGeometry(QPointF pos, qreal size);
+
     /*!
      * \brief 判断 x y 构成的坐标点在不在宽度为 2 * range 的矩形内
      * 以自身经纬度为中心, 构造 2 * range大小正方形, 并判断是否包含x,y
@@ -121,9 +127,9 @@ public:
      * \param y 坐标点
      * \return 如果在矩形内则返回true, 否则返回false
      */
-    virtual bool contains(int range, double x, double y) const;
-    virtual bool contains(const QPoint& pos) const;
-    virtual bool contains(const QGeoCoordinate &geoPos) const;
+
+//    virtual bool contains(int range, double x, double y);
+    virtual bool contains(const QPoint& pos);
     virtual bool isEmpty() const;
 
     QPointF getViewPos();
@@ -135,7 +141,6 @@ public:
     virtual void drawElement(QPainter *painter);
     virtual void drawActive(QPainter *painter);
     virtual void drawFocus(QPainter *painter);
-    virtual void updateGeometry(QPointF pos, qreal size);
     virtual void drawHover(QPainter *painter) {}
 
     //图元双击的处理
@@ -144,6 +149,7 @@ public:
 
     void addChild(std::shared_ptr<Element> child);
     void removeChild(std::shared_ptr<Element> child);
+    void removeChildren(ZCHX::Data::ELETYPE type = ZCHX::Data::ELE_NONE);
     std::list<std::shared_ptr<Element> > getChildren(ZCHX::Data::ELETYPE type = ZCHX::Data::ELE_NONE) const;
 
     std::shared_ptr<Element> parent();
@@ -208,16 +214,24 @@ public:
     QAction *addAction(const QString &text, const QObject *obj, const char* slot, void* userData = 0);
     //右键菜单
     virtual QList<QAction*> getRightMenuAction() {}
+    //预推操作
+    bool    getIsExtrapolate() const { return isExtrapolate;}
+    void    setIsExtrapolate(bool sts) {isExtrapolate = sts;}
+    double  getExtrapolateTime() const {return dExtrapolateTime;}
+    void    setExtrapolateTime(double time) {dExtrapolateTime = time;}
+    //element 是否固定
+    bool    isFixElement() const {return m_fixelement;}
+    void    setFix(bool fix) {m_fixelement = fix;}
 
 signals:
 
 public slots:
-    virtual void slotSetPictureInPicture() {}             //画中画
-    virtual void slotSetSimulationExtrapolation(){}      //目标预推
-    virtual void slotSetHistoryTraces(){}                //历史轨迹
-    virtual void slotSetRealTimeTraces(){}               //实时尾迹
-    virtual void slotInvokeLinkageSpot(){}               //联动跟踪
-    virtual void slotSetConcern(){}                      //目标关注
+    virtual void slotSetPictureInPicture();             //画中画
+    virtual void slotSetSimulationExtrapolation();      //目标预推
+    virtual void slotSetHistoryTraces();                //历史轨迹
+    virtual void slotSetRealTimeTraces();               //实时尾迹
+    virtual void slotInvokeLinkageSpot();               //联动跟踪
+    virtual void slotSetConcern();                      //目标关注
 
 protected://TODO: 添加私有类, 实现成员变量对外隐藏, 且防止依赖扩展情况
     double                                  elelat;
@@ -234,6 +248,8 @@ protected://TODO: 添加私有类, 实现成员变量对外隐藏, 且防止依�
     bool                                    isOpenMeet;          //是否开启会遇显示
     bool                                    isUpdate;            //是否更新过
     bool                                    isForceImage;       //目标是否强制显示
+    bool                                    isExtrapolate;      //图元是否进行预推操作
+    double                                  dExtrapolateTime;   //预推时间
     QString                                 mID;               //目标标识
     ZCHX::Data::ELETYPE                     m_element_type;      //图元类型
     QColor                                  mFlashColor;        //目标报警时的图元填充颜色
@@ -256,6 +272,7 @@ protected://TODO: 添加私有类, 实现成员变量对外隐藏, 且防止依�
     QColor                                  mConcernColor;          //图元关注颜色
     static int                              g_maxLineLength;
     static int                              gSetFlashAlphaStep;
+    bool                                    m_fixelement;
 
 public:
     friend class MapLayer;

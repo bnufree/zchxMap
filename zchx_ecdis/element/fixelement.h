@@ -13,6 +13,7 @@ public:
     {
         setData(data);
         setLayer(layer);
+        setFix(true);
     }
 
     T data() const {return m_data;}
@@ -22,7 +23,12 @@ public:
         setID(m_data.getName());
     }
     std::string name() const {return m_data.getName().toStdString();}
-    void updateGeometry(QPointF, qreal){}
+//    void updateGeometry(QPointF pos, QSize size)
+//    {
+//        m_boundingRect.setSize(size);
+//        m_boundingRect.moveCenter(pos);
+//        Element::updateGeometry(pos, size);
+//    }
 
 protected:
     T       m_data;

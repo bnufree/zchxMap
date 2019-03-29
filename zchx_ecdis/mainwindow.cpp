@@ -2,13 +2,21 @@
 #include "ui_mainwindow.h"
 #include "zchxmapthread.h"
 #include "map_layer/zchxmaplayermgr.h"
-#include "data_manager/zchxdatamgrfactory.h"
+#include "map_layer/zchxaismaplayer.h"
+#include "map_layer/zchxradarvideolayer.h"
+
 #include "zchxroutedatamgr.h"
 #include "zchxshipplandatamgr.h"
 #include <QDebug>
 #include <QLabel>
 #include <QHBoxLayout>
 #include <QSpacerItem>
+#include "profiles.h"
+
+#include "dialog/coastdatainfodialog.h"
+#include "dialog/cardmouthinfodialog.h"
+#include "dialog/channelinfodialog.h"
+#include "dialog/mooringinfodialog.h"
 
 namespace qt {
 MainWindow::MainWindow(QWidget *parent) :
@@ -18,7 +26,6 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     QString style = QString("background-color:%1;").arg(Profiles::instance()->value(MAP_INDEX, MAP_BACK_GROUND).toString());
-    qDebug()<<"style:"<<style;
     ui->ecdis_frame->setStyleSheet(style);
     QPixmapCache::setCacheLimit(1);
     ui->statusBar->setVisible(false);
@@ -217,33 +224,33 @@ void MainWindow::initSignalConnect()
 
 void MainWindow::itfSetAisData(const QList<ZCHX::Data::ITF_AIS> &data)
 {
-    ZCHX_DATA_FACTORY->getAisDataMgr()->setAisData(data);
+    MapLayerMgr::instance()->getAisLayer()->setAisData(data, true);
 }
 
 bool MainWindow::itfSetSingleAisData(QString id, const QList<ZCHX::Data::ITF_AIS> &data)
 {
-    return ZCHX_DATA_FACTORY->getAisDataMgr()->setSingleAisData(id, data);
+    MapLayerMgr::instance()->getAisLayer()->setSingleAisData(id, data);
 }
 
 void MainWindow::itfRemoveAisHistoryData(QString id)
 {
-    ZCHX_DATA_FACTORY->getAisDataMgr()->removeAisHistoryData(id);
+    MapLayerMgr::instance()->getAisLayer()->removeAisHistoryData(id);
 }
 
 void MainWindow::itfSetHistoryAisData(const QList<ZCHX::Data::ITF_AIS> &data)
 {
-    ZCHX_DATA_FACTORY->getAisDataMgr()->setHistoryAisData(data);
+    MapLayerMgr::instance()->getAisLayer()->setHistoryAisData(data);
 }
 
 void MainWindow::itfSetClearHistoryData(bool states)
 {
-    ZCHX_DATA_FACTORY->getAisDataMgr()->setClearHistoryData(states);
+    //MapLayerMgr::instance()->getAisLayer()->setClearHistoryData(states);
     //if(mMapWidget) mMapWidget->getRadarDataMgr()->setClearHistoryData(states);
 }
 
 void MainWindow::itfSetConsAisData(const ZCHX::Data::ITF_AIS &data)
 {
-    ZCHX_DATA_FACTORY->getAisDataMgr()->setConsAisData(data);
+    MapLayerMgr::instance()->getAisLayer()->setConsAisData(data);
 }
 
 void MainWindow::itfSetRadarEchoData(const QMap<QDateTime, ZCHX::Data::ITF_RadarEchoMap> &data)
@@ -252,40 +259,69 @@ void MainWindow::itfSetRadarEchoData(const QMap<QDateTime, ZCHX::Data::ITF_Radar
 }
 void MainWindow::itfSetRadarPointData(const QList<ZCHX::Data::ITF_RadarPoint> &data)
 {
-    ZCHX_DATA_FACTORY->getRadarDataMgr()->setRadarPointData(data);
+    std::shared_ptr<MapLayer> layer = MapLayerMgr::instance()->getLayer(ZCHX::LAYER_RADAR);
+    if(!layer) return;
+    QList<std::shared_ptr<Element>> res;
+    foreach (ZCHX::Data::ITF_RadarPoint item, data) {
+        res.append(std::shared_ptr<RadarPointElement>(new RadarPointElement(item, mMapWidget)));
+    }
+    layer->addElements(res, true);
 }
 
 void MainWindow::itfSetHistoryRadarPointData(const QList<ZCHX::Data::ITF_RadarPoint> &data)
 {
-    //ZCHX_DATA_FACTORY->getRadarDataMgr()->setHistoryRadarPointData(list);
+    itfSetRadarPointData(data);
 }
 
 
 void MainWindow::itfSetRadarAreaData(const QList<ZCHX::Data::ITF_RadarArea> &data)
 {
-    std::vector<RadarAreaElement*> list;
+    std::shared_ptr<MapLayer> layer = MapLayerMgr::instance()->getLayer(ZCHX::LAYER_RADAR_AREA);
+    if(!layer) return;
+    QList<std::shared_ptr<Element>> list;
     for(int i=0; i < data.count(); ++i)
     {
-        //RadarAreaElement item(data.at(i));
-        //list.push_back(new RadarAreaElement(data.at(i)));
+        list.append(std::shared_ptr<RadarAreaElement>(new RadarAreaElement(data[i], mMapWidget)));
     }
-    ZCHX_DATA_FACTORY->getRadarDataMgr()->setRadarAreaData(list);
+    layer->addElements(list, true);
 }
 
 void MainWindow::itfSetCameraRodData(const QList<ZCHX::Data::ITF_CameraRod> &data)
 {
-    ZCHX_DATA_FACTORY->getRodDataMgr()->setRodData(data);
+    std::shared_ptr<MapLayer> layer = MapLayerMgr::instance()->getLayer(ZCHX::LAYER_WIREROD);
+    if(!layer) return;
+    QList<std::shared_ptr<Element>> list;
+    for(int i=0; i < data.count(); ++i)
+    {
+        list.append(std::shared_ptr<RodElement>(new RodElement(data[i], mMapWidget)));
+    }
+    layer->addElements(list, true);
 }
 
 void MainWindow::itfSetCameraDevData(const QList<ZCHX::Data::ITF_CameraDev> &data, ZCHX::Data::ITF_CameraDev::ITF_CAMERA_PARENT parent)
 {
     if(!mMapWidget) return;
     if(parent == ZCHX::Data::ITF_CameraDev::PARENT_ROD){
-        ZCHX_DATA_FACTORY->getRodDataMgr()->updateCamera(data);
+        std::shared_ptr<MapLayer> layer = MapLayerMgr::instance()->getLayer(ZCHX::LAYER_WIREROD);
+        if(!layer) return;
+        foreach (ZCHX::Data::ITF_CameraDev item, data) {
+            //获取相机对应的杆
+            RodElement *rod = dynamic_cast<RodElement*>(layer->getElement(item.mParentEleID).get());
+            if(rod){
+                rod->updateCamera(item);
+            }
+        }
+
     } else if(parent == ZCHX::Data::ITF_CameraDev::PARENT_AIS) {
-        ZCHX_DATA_FACTORY->getAisDataMgr()->updateCamera(data);
+        MapLayerMgr::instance()->getAisLayer()->updateCamera(data);
     } else if(parent == ZCHX::Data::ITF_CameraDev::PARENT_NONE) {
-        ZCHX_DATA_FACTORY->getCameraDataMgr()->setCameraDevData(data);
+        std::shared_ptr<MapLayer> layer = MapLayerMgr::instance()->getLayer(ZCHX::LAYER_CAMERA);
+        if(!layer) return;
+        QList<std::shared_ptr<Element>> res;
+        foreach (ZCHX::Data::ITF_CameraDev item, data) {
+            res.append(std::shared_ptr<CameraElement>(new CameraElement(item, mMapWidget)));
+        }
+        layer->addElements(res, true);
     }
 }
 
@@ -296,12 +332,24 @@ void MainWindow::itfSetAisCameraDevData(const QList<ZCHX::Data::ITF_CameraDev> &
 
 void MainWindow::itfSetPastrolStation(const QList<ZCHX::Data::ITF_PastrolStation> &data)
 {
-    ZCHX_DATA_FACTORY->getPastrolStationMgr()->setData(data);
+    std::shared_ptr<MapLayer> layer = MapLayerMgr::instance()->getLayer(ZCHX::LAYER_PATROL_SITE);
+    if(!layer) return;
+    QList<std::shared_ptr<Element>> res;
+    foreach (ZCHX::Data::ITF_PastrolStation item, data) {
+        res.append(std::shared_ptr<PastrolStationElement>(new PastrolStationElement(item, mMapWidget)));
+    }
+    layer->addElements(res, true);
 }
 
 void MainWindow::itfSetWarringZoneData(const QList<ZCHX::Data::ITF_WarringZone> &data)
 {
-    ZCHX_DATA_FACTORY->getWarningZoneMgr()->setData(data);
+    std::shared_ptr<MapLayer> layer = MapLayerMgr::instance()->getLayer(ZCHX::LAYER_DEFENCE);
+    if(!layer) return;
+    QList<std::shared_ptr<Element>> res;
+    foreach (ZCHX::Data::ITF_WarringZone item, data) {
+        res.append(std::shared_ptr<WarningZoneElement>(new WarningZoneElement(item, mMapWidget)));
+    }
+    layer->addElements(res, true);
 }
 
 void MainWindow::itfSetShipSiumtionData(const std::vector<std::pair<double, double> > &data)
@@ -316,82 +364,265 @@ void MainWindow::itfSetAISDataToSiumtion(const QList<ZCHX::Data::ITF_AIS> &data)
 
 void MainWindow::itfSetCoastData(const QList<ZCHX::Data::ITF_CoastData> &data)
 {
-    ZCHX_DATA_FACTORY->getCoastMgr()->setData(data);
+    std::shared_ptr<MapLayer> layer = MapLayerMgr::instance()->getLayer(ZCHX::LAYER_COASTDATA);
+    if(!layer) return;
+    QList<std::shared_ptr<Element>> res;
+    foreach (ZCHX::Data::ITF_CoastData item, data) {
+        res.append(std::shared_ptr<CoastElement>(new CoastElement(item, mMapWidget)));
+    }
+    layer->addElements(res, true);
 }
 
 void MainWindow::itfImportCoastData(const std::vector<std::pair<double, double> > & data)
 {
-    ZCHX_DATA_FACTORY->getCoastMgr()->importData(data);
+    ZCHX::Data::ITF_CoastData zone;
+    zone.path = data;
+    zone.id = 0;
+    zone.beachLength = zchxMapDataUtils::getTotalDistance(data);
+
+    CoastDataInfoDialog dlg;
+    if (dlg.exec() == QDialog::Accepted)
+    {
+        zone.name = dlg.getName();
+        zone.manageOrganization = dlg.getOrg();
+        zone.responsibilityAccount = dlg.getAccount();
+        zone.height = dlg.getHeight();
+
+        if(!zone.name.isEmpty())
+        {
+            emit itfCreateCoastDataLine(zone);
+        }
+    }
 }
 
 void MainWindow::itfSetSeabedPipeLine(const QList<ZCHX::Data::ITF_SeabedPipeLine> &data)
 {
-    ZCHX_DATA_FACTORY->getSeabedPiplineMgr()->setData(data);
+    std::shared_ptr<MapLayer> layer = MapLayerMgr::instance()->getLayer(ZCHX::LAYER_SEABEDPIPELINE);
+    if(!layer) return;
+    QList<std::shared_ptr<Element>> res;
+    foreach (ZCHX::Data::ITF_SeabedPipeLine item, data) {
+        res.append(std::shared_ptr<SeabedPipeLineElement>(new SeabedPipeLineElement(item, mMapWidget)));
+    }
+    layer->addElements(res, true);
 }
 
 void MainWindow::itfImportSeabedPipeLine(const std::vector<std::pair<double, double> > & data)
 {
-    ZCHX_DATA_FACTORY->getSeabedPiplineMgr()->importData(data);
+    ZCHX::Data::ITF_SeabedPipeLine zone;
+    zone.path = data;
+    zone.id = 0;
+    zone.lineLength = zchxMapDataUtils::getTotalDistance(data);
+
+    CoastDataInfoDialog dlg;
+    if (dlg.exec() == QDialog::Accepted)
+    {
+        zone.name = dlg.getName();
+        zone.manageOrganization = dlg.getOrg();
+        zone.responsibilityAccount = dlg.getAccount();
+        zone.depth = dlg.getHeight();
+
+        if(!zone.name.isEmpty())
+        {
+            emit itfCreateSeabedPipeLineLine(zone);
+        }
+    }
 }
 
 void MainWindow::itfSetStructure(const QList<ZCHX::Data::ITF_Structure> &data)
 {
-    ZCHX_DATA_FACTORY->getStructureMgr()->setData(data);
+    std::shared_ptr<MapLayer> layer = MapLayerMgr::instance()->getLayer(ZCHX::LAYER_STRUCTURE);
+    if(!layer) return;
+    QList<std::shared_ptr<Element>> res;
+    foreach (ZCHX::Data::ITF_Structure item, data) {
+        res.append(std::shared_ptr<StructureElement>(new StructureElement(item, mMapWidget)));
+    }
+    layer->addElements(res, true);
 }
 
 void MainWindow::itfImportStructure(const std::vector<std::pair<double, double> > &data)
 {
-    ZCHX_DATA_FACTORY->getStructureMgr()->importData(data);
+//    ZCHX_DATA_FACTORY->getStructureMgr()->importData(data);
 }
 
 void MainWindow::itfSetAreaNet(const QList<ZCHX::Data::ITF_AreaNet> &data)
 {
-    ZCHX_DATA_FACTORY->getAreanetMgr()->setData(data);
+    std::shared_ptr<MapLayer> layer = MapLayerMgr::instance()->getLayer(ZCHX::LAYER_AREANET);
+    if(!layer) return;
+    QList<std::shared_ptr<Element>> res;
+    foreach (ZCHX::Data::ITF_AreaNet item, data) {
+        res.append(std::shared_ptr<AreaNetElement>(new AreaNetElement(item, mMapWidget)));
+    }
+    layer->addElements(res, true);
 }
 
 void MainWindow::itfImportAreaNet(const std::vector<std::pair<double, double> > &data)
 {
-    ZCHX_DATA_FACTORY->getAreanetMgr()->importData(data);
+    ZCHX::Data::ITF_AreaNet zone;
+    zone.path = data;
+    zone.id = 0;
+    zone.area = zchxMapDataUtils::getTotalArea(data);
+
+    QInputDialog input_dialog;
+    input_dialog.setCancelButtonText(tr("Cancel"));
+    input_dialog.setOkButtonText(tr("OK"));
+    input_dialog.setWindowTitle(tr("WARRING ZONE"));
+    input_dialog.setLabelText(tr("(Default 5 minute warning)Name:"));
+    if (input_dialog.exec())
+    {
+        zone.name = input_dialog.textValue();
+    }
+
+    if(!zone.name.isEmpty())
+    {
+        emit itfCreateAreaNetZone(zone);
+    }
 }
 
 void MainWindow::itfSetChannel(const QList<ZCHX::Data::ITF_Channel> &data)
 {
-    ZCHX_DATA_FACTORY->getChannelMgr()->setData(data);
+    std::shared_ptr<MapLayer> layer = MapLayerMgr::instance()->getLayer(ZCHX::LAYER_CHANNEL);
+    if(!layer) return;
+    QList<std::shared_ptr<Element>> res;
+    foreach (ZCHX::Data::ITF_Channel item, data) {
+        res.append(std::shared_ptr<ChannelElement>(new ChannelElement(item, mMapWidget)));
+    }
+    layer->addElements(res, true);
 }
 
 void MainWindow::itfImportChannel(const std::vector<std::pair<double, double> > &data)
 {
-    ZCHX_DATA_FACTORY->getChannelMgr()->importData(data);
+    ZCHX::Data::ITF_Channel zone;
+    zone.path = data;
+    zone.id = 0;
+
+    ChannelInfoDialog dlg;
+    if (dlg.exec() == QDialog::Accepted)
+    {
+        zone.name = dlg.getName();
+        zone.courseType = dlg.getChannelType();
+        zone.isWarn = dlg.getChannelStatus();
+        zone.speedLimit = dlg.getMaxSpeed();
+        zone.collisionThreshold = dlg.getCollisionMaxDis();
+        zone.yawThreshold = dlg.getYawMinDis();
+        zone.overtakThreshold = dlg.getOvertak();
+        zone.dropAnchorThreshold = dlg.getDropAnchor();
+        zone.overtakShortDis = dlg.getOvertakShortDis();
+        zone.overtakVerticalDis = dlg.getOvertakVerticalDis();
+        zone.acceleraThreshold = dlg.getAcceleraThreshold();
+        zone.acceleraDfference = dlg.getAcceleraDfference();
+        zone.isConverseWarn = dlg.isConverseWarn();
+        zone.isOverloadWarn = dlg.isOverloadWarn();
+
+        zone.fillColor = dlg.getColor();
+    }
+
+    if(!zone.name.isEmpty())
+    {
+        emit itfCreateChannelZone(zone);
+    }
 }
 
-void MainWindow::itfSelectChannelLine(int channelId, const ZCHX::Data::ITF_ChannelLine & line)
+void MainWindow::itfSelectChannelLine(const QString& name, const ZCHX::Data::ITF_ChannelLine & line)
 {
-    ZCHX_DATA_FACTORY->getChannelMgr()->selectChannelLine(channelId, line);
+    std::shared_ptr<MapLayer> layer = MapLayerMgr::instance()->getLayer(ZCHX::LAYER_CHANNEL);
+    if(!layer) return;
+
+    ChannelElement* ele = dynamic_cast<ChannelElement*>(layer->getElement(name).get());
+    if(!ele) return;
+    ZCHX::Data::ITF_Channel item = ele->data();
+    for (int j = 0; j < item.lineList.size(); j++)
+    {
+        if (item.lineList[j] == line)
+        {
+            ele->setLineSelected(j, true);
+        }
+        else
+        {
+            ele->setLineSelected(j, false);
+        }
+    }
 }
 
-void MainWindow::itfCancelChannelLine(int channelId)
+void MainWindow::itfCancelChannelLine(const QString& name)
 {
-    ZCHX_DATA_FACTORY->getChannelMgr()->cancelChannelLine(channelId);
+    std::shared_ptr<MapLayer> layer = MapLayerMgr::instance()->getLayer(ZCHX::LAYER_CHANNEL);
+    if(!layer) return;
+
+    ChannelElement* ele = dynamic_cast<ChannelElement*>(layer->getElement(name).get());
+    if(!ele) return;
+    ZCHX::Data::ITF_Channel item = ele->data();
+    for (int j = 0; j < item.lineList.size(); j++)
+    {
+        ele->setLineSelected(j, false);
+    }
 }
 
 void MainWindow::itfSetMooring(const QList<ZCHX::Data::ITF_Mooring> &data)
 {
-    ZCHX_DATA_FACTORY->getMooringMgr()->setData(data);
+    std::shared_ptr<MapLayer> layer = MapLayerMgr::instance()->getLayer(ZCHX::LAYER_MOORING);
+    if(!layer) return;
+    QList<std::shared_ptr<Element>> res;
+    foreach (ZCHX::Data::ITF_Mooring item, data) {
+        res.append(std::shared_ptr<MooringElement>(new MooringElement(item, mMapWidget)));
+    }
+    layer->addElements(res, true);
 }
 
 void MainWindow::itfImportMooring(const std::vector<std::pair<double, double> > &data)
 {
-    ZCHX_DATA_FACTORY->getMooringMgr()->importData(data);
+    ZCHX::Data::ITF_Mooring zone;
+    zone.path = data;
+    zone.id = 0;
+
+    MooringInfoDialog dlg;
+    if (dlg.exec() == QDialog::Accepted)
+    {
+        zone.name = dlg.getName();
+        zone.anchorType = dlg.getMooringType();
+        zone.isWarn = dlg.getMooringStatus();
+        zone.fillColor = dlg.getColor();
+        zone.displaceDis = dlg.getDisplaceDis();
+        zone.displaceCycle = dlg.getDisplaceCycle();
+    }
+
+    if(!zone.name.isEmpty())
+    {
+        emit itfCreateMooringZone(zone);
+    }
 }
 
 void MainWindow::itfSetCardMouth(const QList<ZCHX::Data::ITF_CardMouth> &data)
 {
-    ZCHX_DATA_FACTORY->getCardmouthMgr()->setData(data);
+    std::shared_ptr<MapLayer> layer = MapLayerMgr::instance()->getLayer(ZCHX::LAYER_CARDMOUTH);
+    if(!layer) return;
+    QList<std::shared_ptr<Element>> res;
+    foreach (ZCHX::Data::ITF_CardMouth item, data) {
+        res.append(std::shared_ptr<CardMouthElement>(new CardMouthElement(item, mMapWidget)));
+    }
+    layer->addElements(res, true);
 }
 
-void MainWindow::itfImportCardMouth(const std::vector<std::pair<double, double> > &data)
+void MainWindow::itfImportCardMouth(const std::vector<std::pair<double, double> > &path)
 {
-    ZCHX_DATA_FACTORY->getCardmouthMgr()->importData(data);
+    ZCHX::Data::ITF_CardMouth zone;
+    zone.path = path;
+    zone.id = 0;
+
+    CardMouthInfoDialog dlg;
+    if (dlg.exec() == QDialog::Accepted)
+    {
+        zone.name = dlg.getName();
+        zone.caMouCapConType = dlg.getType();
+        zone.isAisUnopened = dlg.isAisUnopened();
+        zone.isWarn = dlg.getWarning();
+        zone.fillColor = dlg.getColor();
+        zone.overlength = dlg.getOverlength();
+    }
+
+    if(!zone.name.isEmpty())
+    {
+        emit itfCreateCardMouthZone(zone);
+    }
 }
 
 void MainWindow::itfSetFleet(const QList<ZCHX::Data::ITF_Fleet> &data)
@@ -404,54 +635,109 @@ void MainWindow::itfSetFleet(const QList<ZCHX::Data::ITF_Fleet> &data)
     if(mMapWidget) mMapWidget->setFleet(fleetMap);
 }
 
-void MainWindow::itfSetShipAlarmAscendMap(const QMap<QString, ZCHX::Data::ITF_ShipAlarmAscend> &shipAlarmAscendMap)
+void MainWindow::itfSetShipAlarmAscendMap(const QMap<QString, ZCHX::Data::ITF_ShipAlarmAscend> &map)
 {
-    ZCHX_DATA_FACTORY->getShipAlarmAscendMgr()->setData(shipAlarmAscendMap.values());
+    std::shared_ptr<MapLayer> layer = MapLayerMgr::instance()->getLayer(ZCHX::LAYER_ALARMASCEND);
+    if(!layer) return;
+    QList<std::shared_ptr<Element>> res;
+    foreach (ZCHX::Data::ITF_ShipAlarmAscend item, map) {
+        res.append(std::shared_ptr<ShipAlarmAscendElement>(new ShipAlarmAscendElement(item, mMapWidget)));
+    }
+    layer->addElements(res, true);
 }
 
 void MainWindow::itfUpdateWarringZone(const QList<ZCHX::Data::ITF_WarringZone> &data)
 {
-    ZCHX_DATA_FACTORY->getWarningZoneMgr()->updateData(data);
+    std::shared_ptr<MapLayer> layer = MapLayerMgr::instance()->getLayer(ZCHX::LAYER_DEFENCE);
+    if(!layer) return;
+    QList<std::shared_ptr<Element>> res;
+    foreach (ZCHX::Data::ITF_WarringZone item, data) {
+        res.append(std::shared_ptr<WarningZoneElement>(new WarningZoneElement(item, mMapWidget)));
+    }
+    layer->addElements(res, false);
 }
 
 void MainWindow::itfUpdateWarringZone(const ZCHX::Data::ITF_WarringZone &zone)
 {
-    ZCHX_DATA_FACTORY->getWarningZoneMgr()->updateData(zone);
+    itfUpdateWarringZone(QList<ZCHX::Data::ITF_WarringZone>() << zone);
 }
 
 void MainWindow::removeWarrningZone(const ZCHX::Data::ITF_WarringZone &zone)
 {
-    ZCHX_DATA_FACTORY->getWarningZoneMgr()->removeData(zone);
+    std::shared_ptr<MapLayer> layer = MapLayerMgr::instance()->getLayer(ZCHX::LAYER_DEFENCE);
+    if(!layer) return;
+    layer->removeElement(zone.getName());
 }
 
 QList<ZCHX::Data::ITF_WarringZone> MainWindow::getAllWarrningZone() const
 {
-    return ZCHX_DATA_FACTORY->getWarningZoneMgr()->getData();
+    QList<ZCHX::Data::ITF_WarringZone> res;
+    std::shared_ptr<MapLayer> layer = MapLayerMgr::instance()->getLayer(ZCHX::LAYER_DEFENCE);
+    if(!layer) return res;
+    std::list<std::shared_ptr<Element>> list = layer->getElements();
+    for(std::shared_ptr<Element> ele : list)
+    {
+        WarningZoneElement* item = dynamic_cast<WarningZoneElement*>(ele.get());
+        if(item){
+            res.append(item->data());
+        }
+    }
+    return res;
 }
 
 void MainWindow::itfSetIslandLineData(const QList<ZCHX::Data::ITF_IslandLine> &data)
 {
-    ZCHX_DATA_FACTORY->getIslandlineMgr()->setData(data);
+    std::shared_ptr<MapLayer> layer = MapLayerMgr::instance()->getLayer(ZCHX::LAYER_ISLAND);
+    if(!layer) return;
+    QList<std::shared_ptr<Element>> res;
+    foreach (ZCHX::Data::ITF_IslandLine item, data) {
+        res.append(std::shared_ptr<IslandLineElement>(new IslandLineElement(item, mMapWidget)));
+    }
+    layer->addElements(res, true);
 }
 
 void MainWindow::itfSetLocalMarkData(const QList<ZCHX::Data::ITF_LocalMark> &data)
 {
-    ZCHX_DATA_FACTORY->getLocalmarkMgr()->setData(data);
+    std::shared_ptr<MapLayer> layer = MapLayerMgr::instance()->getLayer(ZCHX::LAYER_LOCALMARK);
+    if(!layer) return;
+    QList<std::shared_ptr<Element>> res;
+    foreach (ZCHX::Data::ITF_LocalMark item, data) {
+        res.append(std::shared_ptr<LocalMarkElement>(new LocalMarkElement(item, mMapWidget)));
+    }
+    layer->addElements(res, true);
 }
 
 void MainWindow::itfSetCameraGdyData(const QList<ZCHX::Data::ITF_CameraDev> &data)
 {
-    ZCHX_DATA_FACTORY->getCameraDataMgr()->setCameraDevData(data);
+    std::shared_ptr<MapLayer> layer = MapLayerMgr::instance()->getLayer(ZCHX::LAYER_GDY);
+    if(!layer) return;
+    QList<std::shared_ptr<Element>> res;
+    foreach (ZCHX::Data::ITF_CameraDev item, data) {
+        res.append(std::shared_ptr<CameraElement>(new CameraElement(item, mMapWidget)));
+    }
+    layer->addElements(res, true);
 }
 
 void MainWindow::itfSetCameraPlanData(const QList<ZCHX::Data::ITF_CameraDev> &data)
 {
-    ZCHX_DATA_FACTORY->getCameraDataMgr()->setCameraDevData(data);
+    std::shared_ptr<MapLayer> layer = MapLayerMgr::instance()->getLayer(ZCHX::LAYER_UAV);
+    if(!layer) return;
+    QList<std::shared_ptr<Element>> res;
+    foreach (ZCHX::Data::ITF_CameraDev item, data) {
+        res.append(std::shared_ptr<CameraElement>(new CameraElement(item, mMapWidget)));
+    }
+    layer->addElements(res, true);
 }
 
 void MainWindow::itfSetDangerousCircleData(const QList<ZCHX::Data::ITF_DangerousCircle> &data)
 {
-    ZCHX_DATA_FACTORY->getDangerousMgr()->setData(data);
+    std::shared_ptr<MapLayer> layer = MapLayerMgr::instance()->getLayer(ZCHX::LAYER_DANGEROUS_CIRLE);
+    if(!layer) return;
+    QList<std::shared_ptr<Element>> res;
+    foreach (ZCHX::Data::ITF_DangerousCircle item, data) {
+        res.append(std::shared_ptr<DangerousCircleElement>(new DangerousCircleElement(item, mMapWidget)));
+    }
+    layer->addElements(res, true);
 }
 
 void MainWindow::itfSetDangerousCircleRange(const double range)
@@ -462,7 +748,13 @@ void MainWindow::itfSetDangerousCircleRange(const double range)
 
 void MainWindow::itfSetRadarFeatureZoneDagta(const QList<ZCHX::Data::ITF_RadarFeaturesZone> &data)
 {
-    ZCHX_DATA_FACTORY->getRadarFeatureZoneMgr()->setData(data);
+    std::shared_ptr<MapLayer> layer = MapLayerMgr::instance()->getLayer(ZCHX::LAYER_RADAR_FRETURE_AREA);
+    if(!layer) return;
+    QList<std::shared_ptr<Element>> res;
+    foreach (ZCHX::Data::ITF_RadarFeaturesZone item, data) {
+        res.append(std::shared_ptr<RadarFeatureZoneElement>(new RadarFeatureZoneElement(item, mMapWidget)));
+    }
+    layer->addElements(res, true);
 }
 
 void MainWindow::itfSetRouteLineData(const QList<ZCHX::Data::RouteLine> &data)
@@ -604,23 +896,29 @@ void MainWindow::itfSetSimulateLocation(float fCurSimulateKP)
 
 void MainWindow::itfSetCameraObservationZoneData(const QList<ZCHX::Data::ITF_CameraView> &data)
 {
-    ZCHX_DATA_FACTORY->getCameraViewMgr()->setData(data);
+    std::shared_ptr<MapLayer> layer = MapLayerMgr::instance()->getLayer(ZCHX::LAYER_CAMERA_VIEW);
+    if(!layer) return;
+    QList<std::shared_ptr<Element>> res;
+    foreach (ZCHX::Data::ITF_CameraView item, data) {
+        res.append(std::shared_ptr<CameraViewElement>(new CameraViewElement(item, mMapWidget)));
+    }
+    layer->addElements(res, true);
 }
 
 void MainWindow::itfSetRadarVideoData(double dCentreLon, double dCentreLat, double dDistance, int uType, int uLoopNum)
 {
 
-    ZCHX_DATA_FACTORY->getRadarVideoMgr()->setRadarVideoData(dCentreLon,dCentreLat,dDistance,uType,uLoopNum);
+    ((zchxRadarVideoLayer*)(LayerMgr->getLayer(ZCHX::LAYER_RADARVIDEO).get()))->setRadarVideoData(dCentreLon,dCentreLat,dDistance,uType,uLoopNum);
 }
 
 void MainWindow::itfSetRadarVideoPixmap(int uIndex, const QPixmap &objPixmap, const QPixmap &prePixmap)
 {
-    ZCHX_DATA_FACTORY->getRadarVideoMgr()->setRadarVideoPixmap(uIndex,objPixmap,prePixmap);
+    ((zchxRadarVideoLayer*)(LayerMgr->getLayer(ZCHX::LAYER_RADARVIDEO).get()))->setRadarVideoPixmap(uIndex,objPixmap,prePixmap);
 }
 
 void MainWindow::itfSetCurrentRadarVideoPixmap(const QPixmap &objPixmap)
 {
-    ZCHX_DATA_FACTORY->getRadarVideoMgr()->setCurrentRadarVideoPixmap(objPixmap);
+    ((zchxRadarVideoLayer*)(LayerMgr->getLayer(ZCHX::LAYER_RADARVIDEO).get())) ->setCurrentRadarVideoPixmap(objPixmap);
 }
 
 //void MainWindow::itfSetMultibeamData(const QList<ZCHX::Data::ITF_Multibeam> &data, const double dMinLon, const double dMinLat, const double dMaxLon, const double dMaxLat, const double dMinX, const double dMinY, const double dMinZ, const double dMaxX, const double dMaxY, const double dMaxZ)
@@ -670,7 +968,13 @@ void MainWindow::itfSetRouteCrossData(const QList<ZCHX::Data::ITF_RouteCross> &d
 }
 void MainWindow::itfSetCameraVideoWarnData(const QList<ZCHX::Data::ITF_VideoTarget> &data)
 {
-    ZCHX_DATA_FACTORY->getVideoDataMgr()->setData(data);
+    std::shared_ptr<MapLayer> layer = MapLayerMgr::instance()->getLayer(ZCHX::LAYER_WARNING_TARGET);
+    if(!layer) return;
+    QList<std::shared_ptr<Element>> res;
+    foreach (ZCHX::Data::ITF_VideoTarget item, data) {
+        res.append(std::shared_ptr<VideoTargetElement>(new VideoTargetElement(item, mMapWidget)));
+    }
+    layer->addElements(res, true);
 }
 
 void MainWindow::itfAppendElementItem(const ZCHX::Data::ITF_EleEllipse &item)
@@ -711,7 +1015,7 @@ void MainWindow::itfSetPickUpRadarInfo(qint32 tracknumber)
 
 void MainWindow::itfSetPickUpAisInfo(QString id)
 {
-    ZCHX_DATA_FACTORY->getAisDataMgr()->SetPickUpAisInfo(id);
+    MapLayerMgr::instance()->getAisLayer()->setPickUpAisInfo(id);
 }
 
 void MainWindow::itfSetPickUpPosition(QString id)
@@ -731,23 +1035,23 @@ void MainWindow::itfSetPickUpRouteCross(const int id)
 
 void MainWindow::itfUpdateShipSimulationExtrapolationData(const QString &id, int time)
 {
-    ZCHX_DATA_FACTORY->getAisDataMgr()->updateExtrapolationTime(id, time);
+    MapLayerMgr::instance()->getLayer(ZCHX::LAYER_AIS)->updateExtrapolationTime(id, time);
 }
 
 void MainWindow::itfAppendShipSimulationExtrapolationData(const QString &id, int time)
 {
-    ZCHX_DATA_FACTORY->getAisDataMgr()->appendExtrapolationList(QStringList()<<id, false);
-    ZCHX_DATA_FACTORY->getAisDataMgr()->updateExtrapolationTime(id, time);
+    MapLayerMgr::instance()->getLayer(ZCHX::LAYER_AIS)->appendExtrapolation(id, time);
+    MapLayerMgr::instance()->getLayer(ZCHX::LAYER_AIS)->updateExtrapolationTime(id, time);
 }
 
 void MainWindow::itfDeleteShipSimulationExtrapolationData(const QString &id)
 {
-    ZCHX_DATA_FACTORY->getAisDataMgr()->removeExtrapolation(id);
+    MapLayerMgr::instance()->getLayer(ZCHX::LAYER_AIS)->removeExtrapolation(id);
 }
 
 ZCHX::Data::ExtrapolateList MainWindow::itfGetShipSimulationExtrapolationData()
 {
-    return ZCHX_DATA_FACTORY->getAisDataMgr()->getExtrapolationList();
+    return MapLayerMgr::instance()->getLayer(ZCHX::LAYER_AIS)->getExtrapolationList();
 }
 
 void MainWindow::itfSetRealTimeShipTrailDatas(const QMap<QString, QList<ZCHX::Data::ITF_AIS> > &DataList)
@@ -755,7 +1059,7 @@ void MainWindow::itfSetRealTimeShipTrailDatas(const QMap<QString, QList<ZCHX::Da
     QMap<QString, QList<ZCHX::Data::ITF_AIS> >::const_iterator it = DataList.begin();
     for(; it != DataList.end(); it++)
     {
-        ZCHX_DATA_FACTORY->getAisDataMgr()->setRealtimeTailTrack(it.key(), it.value());
+        MapLayerMgr::instance()->getAisLayer()->setRealtimeTailTrack(it.key(), it.value());
     }
 
 }
@@ -823,7 +1127,7 @@ void MainWindow::itfSetEnableRouteHistogram(bool b)
 
 void MainWindow::itfSetEnableShipTag(int tag)
 {
-    ZCHX_DATA_FACTORY->getAisDataMgr()->SetEnableShipTag(tag);
+    MapLayerMgr::instance()->getAisLayer()->SetEnableShipTag(tag);
 }
 
 void MainWindow::itfSetEnableTooBarVisable(bool visible)
@@ -896,19 +1200,46 @@ Element* MainWindow::getCurrentSelectedElement()
     return mMapWidget->getCurrentSelectedElement();
 }
 
-void MainWindow::itfChannelZoneData4id(int uuid, ZCHX::Data::tagITF_Channel &info, bool &ok)
+void MainWindow::itfChannelZoneData4id(int id, ZCHX::Data::tagITF_Channel &info, bool &ok)
 {
-    ok = ZCHX_DATA_FACTORY->getChannelMgr()->data4id(uuid, info);
+    std::shared_ptr<MapLayer> layer = LayerMgr->getLayer(ZCHX::LAYER_CHANNEL);
+    if(layer){
+        ChannelElement* ele = dynamic_cast<ChannelElement*>(layer->getElement(QString::number(id)).get());
+        if(ele){
+            info = ele->data();
+            ok = true;
+            return;
+        }
+    }
+    ok = false;
 }
 
-void MainWindow::itfMooringZoneData4id(int uuid, ZCHX::Data::tagITF_Mooring &info, bool &ok)
+void MainWindow::itfMooringZoneData4id(int id, ZCHX::Data::tagITF_Mooring &info, bool &ok)
 {
-    ok = ZCHX_DATA_FACTORY->getMooringMgr()->data4id(uuid, info);
+    std::shared_ptr<MapLayer> layer = LayerMgr->getLayer(ZCHX::LAYER_MOORING);
+    if(layer){
+        MooringElement* ele = dynamic_cast<MooringElement*>(layer->getElement(QString::number(id)).get());
+        if(ele){
+            info = ele->data();
+            ok = true;
+            return;
+        }
+    }
+    ok = false;
 }
 
-void MainWindow::itfCardMouthZoneData4id(int uuid, ZCHX::Data::tagITF_CardMouth &info, bool &ok)
+void MainWindow::itfCardMouthZoneData4id(int id, ZCHX::Data::tagITF_CardMouth &info, bool &ok)
 {
-    ok = ZCHX_DATA_FACTORY->getCardmouthMgr()->data4id(uuid, info);
+    std::shared_ptr<MapLayer> layer = LayerMgr->getLayer(ZCHX::LAYER_CARDMOUTH);
+    if(layer){
+        CardMouthElement* ele = dynamic_cast<CardMouthElement*>(layer->getElement(QString::number(id)).get());
+        if(ele){
+            info = ele->data();
+            ok = true;
+            return;
+        }
+    }
+    ok = false;
 }
 
 bool MainWindow::getIsAtiAdaptor() const
@@ -1171,12 +1502,12 @@ void MainWindow::itfSetShipPlanWaterDepth(QList<ZCHX::Data::ITF_WaterDepth> &Wat
 
 void MainWindow::itfSetHistoryTrackStyle(const QString &color, const int lineWidth)
 {
-    ZCHX_DATA_FACTORY->getAisDataMgr()->setHistoryTrackStyle(color, lineWidth);
+    MapLayerMgr::instance()->getAisLayer()->setHistoryTrackStyle(color, lineWidth);
 }
 
 void MainWindow::itfSetPrepushTrackStyle(const QString &color, const int lineWidth)
 {
-    ZCHX_DATA_FACTORY->getAisDataMgr()->setPrepushTrackStyle(color, lineWidth);
+    MapLayerMgr::instance()->getAisLayer()->setPrepushTrackStyle(color, lineWidth);
 }
 
 void MainWindow::itfSetMapUnit(const MapUnit& uint)
@@ -1602,22 +1933,29 @@ void MainWindow::itfToolBarColorModelChanged(ZCHX::Data::ECDISCOLOR mod)
 
 void MainWindow::itfWarringZoneData4id(int uuid, ZCHX::Data::ITF_WarringZone &info, bool &ok)
 {
-    ok = ZCHX_DATA_FACTORY->getWarningZoneMgr()->data4id(uuid, info);
+    std::shared_ptr<MapLayer> layer = LayerMgr->getLayer(ZCHX::LAYER_DEFENCE);
+    if(layer){
+        WarningZoneElement* ele = dynamic_cast<WarningZoneElement*>(layer->getElement(QString::number(uuid)).get());
+        if(ele){
+            info = ele->data();
+            ok = true;
+        }
+    }
+    ok = false;
 }
 
-bool MainWindow::itfWarringZoneDataByName(const QString &name, ZCHX::Data::ITF_WarringZone &info)
+void MainWindow::itfIslandData4id(int id,  ZCHX::Data::ITF_IslandLine &info, bool &ok)
 {
-    return ZCHX_DATA_FACTORY->getWarningZoneMgr()->dataByName(name, info);
-}
-
-bool MainWindow::itfWarringZoneDataByName(const std::string &name, ZCHX::Data::ITF_WarringZone &info)
-{
-    return ZCHX_DATA_FACTORY->getWarningZoneMgr()->dataByName(name, info);
-}
-
-void MainWindow::itfIslandData4id(int uuid, ZCHX::Data::ITF_IslandLine &info, bool &ok)
-{
-    ok = ZCHX_DATA_FACTORY->getIslandlineMgr()->data4id(uuid, info);
+    std::shared_ptr<MapLayer> layer = LayerMgr->getLayer(ZCHX::LAYER_ISLAND);
+    if(layer){
+        IslandLineElement* ele = dynamic_cast<IslandLineElement*>(layer->getElement(QString::number(id)).get());
+        if(ele){
+            info = ele->data();
+            ok = true;
+            return;
+        }
+    }
+    ok = false;
 }
 
 void MainWindow::iftSetElementFlashStep(int step)
@@ -1661,8 +1999,16 @@ const std::list<std::shared_ptr<MapLayer> > &MainWindow::itfGetLayerTree()
 }
 
 void MainWindow::itfUpdateIPCastDeviceList(const QList<ZCHX::Data::IPCastDevice>& list)
-{
-    ZCHX_DATA_FACTORY->getRodDataMgr()->updateIPCastDeviceList(list);
+{    
+    std::shared_ptr<MapLayer> layer = MapLayerMgr::instance()->getLayer(ZCHX::LAYER_WIREROD);
+    if(!layer) return;
+    foreach (ZCHX::Data::IPCastDevice item, list) {
+        //获取相机对应的杆
+        RodElement *rod = dynamic_cast<RodElement*>(layer->getElement(item.rodID).get());
+        if(rod){
+            rod->updateIPC(item);
+        }
+    }
 }
 
 void MainWindow::itfSetGPSDataList(std::list<std::shared_ptr<ZCHX::Data::GPSPoint> > list)
@@ -1708,41 +2054,57 @@ void MainWindow::itfSetDisplayRouteAc(bool display)
 
 void MainWindow::itfAppendFocusAis(const QStringList &list)
 {
-    ZCHX_DATA_FACTORY->getAisDataMgr()->appendConcernList(list, false);
+    foreach (QString val, list) {
+        if(!MapLayerMgr::instance()->getLayer(ZCHX::LAYER_AIS)->appendConcern(val)) break;
+    }
 }
 
 void MainWindow::itfRemoveFocusAis(const QStringList &list)
 {
-    ZCHX_DATA_FACTORY->getAisDataMgr()->removeConcernList(list);
+    foreach (QString val, list) {
+        MapLayerMgr::instance()->getLayer(ZCHX::LAYER_AIS)->removeConcern(val);
+    }
 }
 
 void MainWindow::itfAppendFocusRadar(const QStringList& list)
 {
-    ZCHX_DATA_FACTORY->getRadarDataMgr()->appendConcernList(list, false);
+    foreach (QString val, list) {
+        if(!MapLayerMgr::instance()->getLayer(ZCHX::LAYER_RADAR)->appendConcern(val)) break;
+    }
 }
 
 void MainWindow::itfRemoveFocusRadar(const QStringList& list)
 {
-    ZCHX_DATA_FACTORY->getRadarDataMgr()->removeConcernList(list);
+    foreach (QString val, list) {
+        MapLayerMgr::instance()->getLayer(ZCHX::LAYER_RADAR)->removeConcern(val);
+    }
 }
 
 void MainWindow::itfAppendRadarTailTrackList(const QStringList &list)
 {
-    ZCHX_DATA_FACTORY->getRadarDataMgr()->appendRealtimeTailTrackList(list, false);
+    foreach (QString id, list) {
+        if(!MapLayerMgr::instance()->getLayer(ZCHX::LAYER_RADAR)->appendRealtimeTrack(id)) break;
+    }
 }
 
 void MainWindow::itfRemoveRadarTailTrackList(const QStringList &list)
 {
-    ZCHX_DATA_FACTORY->getRadarDataMgr()->removeRealtimeTailTrackList(list);
+    foreach (QString id, list) {
+        MapLayerMgr::instance()->getLayer(ZCHX::LAYER_RADAR)->removeRealtimeTrack(id);
+    }
 }
 void MainWindow::itfAppendAisTailTrackList(const QStringList &list)
 {
-    ZCHX_DATA_FACTORY->getAisDataMgr()->appendRealtimeTailTrackList(list, false);
+    foreach (QString id, list) {
+        if(!MapLayerMgr::instance()->getLayer(ZCHX::LAYER_AIS)->appendRealtimeTrack(id)) break;
+    }
 }
 
 void MainWindow::itfRemoveAisTailTrackList(const QStringList &list)
 {
-    ZCHX_DATA_FACTORY->getAisDataMgr()->removeRealtimeTailTrackList(list);
+    foreach (QString id, list) {
+        MapLayerMgr::instance()->getLayer(ZCHX::LAYER_AIS)->removeRealtimeTrack(id);
+    }
 }
 
 void MainWindow::itfToolBarCameraNetGridAdd(const QSizeF& size, const QString& camera)
@@ -1752,17 +2114,13 @@ void MainWindow::itfToolBarCameraNetGridAdd(const QSizeF& size, const QString& c
 
 void MainWindow::itfSetCameraNetGridList(const QList<ZCHX::Data::ITF_NetGrid> & list)
 {
-    ZCHX_DATA_FACTORY->getNetGridMgr()->setData(list);
-}
-
-void MainWindow::itfAppendItemDataMgr(std::shared_ptr<zchxEcdisDataMgr> mgr)
-{
-    ZCHX_DATA_FACTORY->appendDataMgr(mgr);
-}
-
-void MainWindow::itfRemoveItemDataMgr(std::shared_ptr<zchxEcdisDataMgr> mgr)
-{
-    ZCHX_DATA_FACTORY->removeDataMgr(mgr);
+    std::shared_ptr<MapLayer> layer = MapLayerMgr::instance()->getLayer(ZCHX::LAYER_CAMERANETGRID);
+    if(!layer) return;
+    QList<std::shared_ptr<Element>> res;
+    foreach (ZCHX::Data::ITF_NetGrid item, list) {
+        res.append(std::shared_ptr<GridElement>(new GridElement(item, mMapWidget)));
+    }
+    layer->addElements(res, true);
 }
 
 void MainWindow::itfPickUpPTZ()

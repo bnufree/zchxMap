@@ -77,7 +77,8 @@ void CameraElement::drawElement(QPainter *painter)
 
     QRectF rect(0,0, image.width(),image.height());
     rect.moveCenter(pos);
-
+    m_boundingRect = rect;
+    updateGeometry(pos, getDrawScaleSize());
     if(getIsActive())
     {
         PainterPair chk(painter);
@@ -104,5 +105,15 @@ void CameraElement::clicked(bool isDouble)
     } else {
         mView->signalIsSelected4CameraDev(data());
     }
+}
+
+void CameraElement::showToolTip(const QPoint &pos)
+{
+    ZCHX::Data::ITF_CameraDev info = data();
+    QString base_text = QObject::tr("相机名称: ")+info.szCamName+"\n";
+    base_text += QObject::tr("经度: ")+FLOAT_STRING(info.getLon(), 6)+"\n";
+    base_text += QObject::tr("纬度: ")+FLOAT_STRING(info.getLat(), 6)+"\n";
+    base_text += QObject::tr("相机类型: ")+info.getCameraTypeString();
+    QToolTip::showText(pos,base_text);
 }
 

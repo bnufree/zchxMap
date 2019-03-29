@@ -185,14 +185,14 @@ public:
          * \brief 通过名称获取防区
          * \return 获取成功返回 true; 否则返回 false
          */
-    bool itfWarringZoneDataByName(const QString &name, ZCHX::Data::ITF_WarringZone &info);
+    //bool itfWarringZoneDataByName(const QString &name, ZCHX::Data::ITF_WarringZone &info);
     /*!
          * \brief 通过名称获取防区
          * \note 效率更高
          * \return 获取成功返回 true; 否则返回 false
          */
-    bool itfWarringZoneDataByName(const std::string &name, ZCHX::Data::ITF_WarringZone &info);
-    void itfIslandData4id(int uuid, ZCHX::Data::ITF_IslandLine &info, bool &ok);
+    //bool itfWarringZoneDataByName(const std::string &name, ZCHX::Data::ITF_WarringZone &info);
+    void itfIslandData4id(int id, ZCHX::Data::ITF_IslandLine &info, bool &ok);
 
     /*!
          * \brief 设置Element闪烁的时候, Alpha值的步进速度
@@ -270,17 +270,17 @@ public:
     /*!
          * \brief 通过 uuid   获取航道
          */
-    void itfChannelZoneData4id(int uuid, ZCHX::Data::tagITF_Channel &info, bool &ok);
+    void itfChannelZoneData4id(int id, ZCHX::Data::tagITF_Channel &info, bool &ok);
 
     /*!
          * \brief 通过 uuid   获取锚泊
          */
-    void itfMooringZoneData4id(int uuid, ZCHX::Data::tagITF_Mooring &info, bool &ok);
+    void itfMooringZoneData4id(int id, ZCHX::Data::tagITF_Mooring &info, bool &ok);
 
     /*!
          * \brief 通过 uuid   获取卡口
          */
-    void itfCardMouthZoneData4id(int uuid, ZCHX::Data::tagITF_CardMouth &info, bool &ok);
+    void itfCardMouthZoneData4id(int id, ZCHX::Data::tagITF_CardMouth &info, bool &ok);
 
     /*!
          * \brief 获取是否采用ATI显卡的地图引擎初始化方式
@@ -466,8 +466,8 @@ public slots: //定义Recive数据接口
 
     void itfSetChannel(const QList<ZCHX::Data::ITF_Channel> &data);  //设置航道
     void itfImportChannel(const std::vector<std::pair<double, double> > &data); // 导入航道
-    void itfSelectChannelLine(int channelId, const ZCHX::Data::ITF_ChannelLine & line); // 选择航道线
-    void itfCancelChannelLine(int channelId); // 取消航道线
+    void itfSelectChannelLine(const QString& name, const ZCHX::Data::ITF_ChannelLine & line); // 选择航道线
+    void itfCancelChannelLine(const QString& name); // 取消航道线
 
     void itfSetMooring(const QList<ZCHX::Data::ITF_Mooring> &data);  //设置锚泊
     void itfImportMooring(const std::vector<std::pair<double, double> > &data); // 导入锚泊
@@ -624,9 +624,6 @@ public slots: //定义Recive数据接口
     void itfRemoveRadarTailTrackList(const QStringList& list);
     void itfAppendAisTailTrackList(const QStringList& list);
     void itfRemoveAisTailTrackList(const QStringList& list);
-    //数据显示管理
-    void itfAppendItemDataMgr(std::shared_ptr<zchxEcdisDataMgr> mgr);
-    void itfRemoveItemDataMgr(std::shared_ptr<zchxEcdisDataMgr> mgr);
     //PTZ获取
     void itfPickUpPTZ();
 protected Q_SLOTS:
