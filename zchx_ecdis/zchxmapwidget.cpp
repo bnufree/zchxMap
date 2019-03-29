@@ -90,7 +90,7 @@ void zchxMapWidget::paintEvent(QPaintEvent *e)
     QPainter painter(this);
     painter.setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform, true);
     //显示地图
-    mFrameWork->updateEcdis(&painter);
+    mFrameWork->updateEcdis(&painter, rect());
 
     //显示图元
     MapLayerMgr::instance()->show(&painter);
@@ -104,6 +104,7 @@ void zchxMapWidget::paintEvent(QPaintEvent *e)
 //    painter.drawEllipse(pnt.x, pnt.y, 5, 5);
     mZoomLbl->setText(QString("zoom:%1").arg(mFrameWork->Zoom()));
     updateCurrentPos(this->mapFromGlobal(QCursor::pos()));
+    autoChangeCurrentStyle();
 }
 
 bool zchxMapWidget::IsLeftButton(Qt::MouseButtons buttons)
@@ -826,6 +827,7 @@ void zchxMapWidget::autoChangeCurrentStyle()
     {
         setMapStyle(MapStyleEcdisDayDUSK);
     }
+
 
 }
 
@@ -1706,7 +1708,6 @@ void zchxMapWidget::invokeHotSpot()
     data.targetType = 0;
     data.targetLon = ll.lon;
     data.targetLat = ll.lat;
-    qDebug()<<"hot spot:"<<mPressPnt<<"lon- lat:"<<FLOAT_STRING(ll.lon, 10)<<FLOAT_STRING(ll.lat, 10);
     emit signalInvokeHotSpot(data);
 }
 

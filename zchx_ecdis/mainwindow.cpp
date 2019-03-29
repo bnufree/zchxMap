@@ -330,12 +330,23 @@ void MainWindow::itfSetAisCameraDevData(const QList<ZCHX::Data::ITF_CameraDev> &
     itfSetCameraDevData(data, ZCHX::Data::ITF_CameraDev::PARENT_AIS);
 }
 
-void MainWindow::itfSetPastrolStation(const QList<ZCHX::Data::ITF_PastrolStation> &data)
+void MainWindow::itfSetPastrolStation(const QList<ZCHX::Data::ITF_PastrolRadarStation> &data)
 {
     std::shared_ptr<MapLayer> layer = MapLayerMgr::instance()->getLayer(ZCHX::LAYER_PATROL_SITE);
     if(!layer) return;
     QList<std::shared_ptr<Element>> res;
-    foreach (ZCHX::Data::ITF_PastrolStation item, data) {
+    foreach (ZCHX::Data::ITF_PastrolRadarStation item, data) {
+        res.append(std::shared_ptr<PastrolStationElement>(new PastrolStationElement(item, mMapWidget)));
+    }
+    layer->addElements(res, true);
+}
+
+void MainWindow::itfSetRadarStation(const QList<ZCHX::Data::ITF_PastrolRadarStation> &data)
+{
+    std::shared_ptr<MapLayer> layer = MapLayerMgr::instance()->getLayer(ZCHX::LAYER_RADAR_SITE);
+    if(!layer) return;
+    QList<std::shared_ptr<Element>> res;
+    foreach (ZCHX::Data::ITF_PastrolRadarStation item, data) {
         res.append(std::shared_ptr<PastrolStationElement>(new PastrolStationElement(item, mMapWidget)));
     }
     layer->addElements(res, true);

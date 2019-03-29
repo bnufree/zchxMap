@@ -1,4 +1,4 @@
-﻿#include "drawelement.hpp"
+#include "drawelement.hpp"
 #include "zchxmapframe.h"
 #include "zchxmapwidget.h"
 #include "zchxMapDatautils.h"
@@ -392,32 +392,8 @@ void Multibeam::setData(const ZCHX::Data::ITF_Multibeam &data)
     m_data = data;
 }
 
-RadarVideoElement::RadarVideoElement(const ZCHX::Data::ITF_RadarVideo &ele, int uIndex)
-    :Element(ele.dCentreLat,ele.dCentreLon, 0, ZCHX::Data::ELE_RADAR_ECHO),m_uMsgIndex(uIndex)
-{
-    m_data = ele;
-}
-
-ZCHX::Data::ITF_RadarVideo RadarVideoElement::data() const
-{
-    return m_data;
-}
-
-void RadarVideoElement::setData(const ZCHX::Data::ITF_RadarVideo &data)
-{
-    m_data = data;
-}
 
 
-void RadarVideoElement::setMsgIndex(int uIndex)
-{
-    m_uMsgIndex = uIndex;
-}
-
-int RadarVideoElement::getMsgIndex()
-{
-    return m_uMsgIndex;
-}
 
 SpecialRouteLineElement::SpecialRouteLineElement(const ZCHX::Data::SpecialRouteLine &ele)
     :Element(0, 0, 0, ZCHX::Data::ELE_ROUTE_LINE)

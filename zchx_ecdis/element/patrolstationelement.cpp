@@ -3,48 +3,32 @@
 #include "zchxmapframe.h"
 
 namespace qt {
-PastrolStationElement::PastrolStationElement(const ZCHX::Data::ITF_PastrolStation &data, zchxMapWidget* f)
-    :Element(data.ll.lat,data.ll.lon, f, ZCHX::Data::ELE_PATROL_STATION)
+PastrolStationElement::PastrolStationElement(const ZCHX::Data::ITF_PastrolRadarStation &data, zchxMapWidget* f)
+    :FixElement(data, ZCHX::Data::ELE_PATROL_STATION, ZCHX::LAYER_PATROL_SITE, f)
 {
-    m_data = data;
-    setIsUpdate(true);
 }
 
-ZCHX::Data::ITF_PastrolStation PastrolStationElement::data() const
-{
-    return m_data;
-}
-
-void PastrolStationElement::setData(const ZCHX::Data::ITF_PastrolStation &data)
-{
-    m_data = data;
-    setIsUpdate(true);
-}
 
 void PastrolStationElement::drawElement(QPainter *painter)
 {
-    QString layer_name, img_name;
+    if(!isDrawAvailable(painter)) return ;
+    QString img_name;
     if(data().type == ZCHX::Data::ECDIS_STATION_RADAR)
     {
-        layer_name = ZCHX::LAYER_RADAR_SITE;
         img_name = ":/element/XlzVo.png";
     } else {
-        layer_name = ZCHX::LAYER_PATROL_SITE;
         img_name = ":/element/LdVo.png";
     }
-    if(!painter || !MapLayerMgr::instance()->isLayerVisible(layer_name)) return;
 
-    int curScale = mView->framework()->GetDrawScale();
+    int curScale = getDrawScaleSize();
     QPixmap img = ZCHX::Utils::getImage(img_name, Qt::green, curScale);
-    ZCHX::Data::Point2D pos = mView->framework()->LatLon2Pixel(data().ll.lat,data().ll.lon);
-    QRect rect(pos.x - img.width() / 2, pos.y - img.height() / 2, img.width(), img.height());
-    if(getIsActive())
-    {
-        PainterPair chk(painter);
-        painter->setPen(QPen(Qt::red,2));
-        painter->drawRect(rect.x() -5, rect.y() -5, rect.width()+10, rect.height()+10);
-    }
+    QPoint pos = getCurrentPos().toPoint();
+    QRect rect(0, 0, img.width(), img.height());
+    rect.moveCenter(pos);
+    m_boundingRect = rect;
+    updateGeometry(pos, curScale);
     painter->drawPixmap(rect, img);
+    drawActive(painter);
 }
 }
 

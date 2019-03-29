@@ -359,7 +359,7 @@ signals: //定义发送信号接口
     void itfSignalIsSelected4CameraDev(const ZCHX::Data::ITF_CameraDev &info); //传送相机及光电仪还有无人机数据
     void itfSignalIsSelected4WarringZone(const ZCHX::Data::ITF_WarringZone &info); //防区
     void itfSignalIsSelected4WarringLine(const ZCHX::Data::ITF_WarringZone &info); //防线
-    void itfSignalIsSelected4PastrolStation(const ZCHX::Data::ITF_PastrolStation &info);
+    void itfSignalIsSelected4PastrolStation(const ZCHX::Data::ITF_PastrolRadarStation &info);
     void itfSignalIsSelected4LocalMark(const ZCHX::Data::ITF_LocalMark &info);
     void itfSignalIsSelected4IslandLine(const ZCHX::Data::ITF_IslandLine &info); //环岛线
     void itfSignalIsSelected4CameraVideoWarn(const ZCHX::Data::ITF_VideoTarget &info); //选中了视频分析目标
@@ -388,7 +388,7 @@ signals: //定义发送信号接口
     void signalIsDoubleClicked4CameraRod(const ZCHX::Data::ITF_CameraRod &info);//相机杆双击
     void signalIsDoubleClicked4WarringLine(const ZCHX::Data::ITF_WarringZone); //警戒线双击
     void signalIsDoubleClicked4WarringZone(const ZCHX::Data::ITF_WarringZone &info);//防区双击
-    void signalIsDoubleClicked4PastrolStation(const ZCHX::Data::ITF_PastrolStation &info);//巡逻站双击
+    void signalIsDoubleClicked4PastrolStation(const ZCHX::Data::ITF_PastrolRadarStation &info);//巡逻站双击
     void signalIsDoubleClicked4LocalMark(const ZCHX::Data::ITF_LocalMark &info);    //关注点双击
     void signalIsDoubleClicked4IslandLine(const ZCHX::Data::ITF_IslandLine &info); //环岛线双击
     void signalIsDoubleClicked4CameraVideoWarn(const ZCHX::Data::ITF_VideoTarget &info); //双击了视频分析目标
@@ -446,7 +446,8 @@ public slots: //定义Recive数据接口
     void itfSetCameraRodData(const QList<ZCHX::Data::ITF_CameraRod> &data); //设置摄像杆接口数据
     void itfSetCameraDevData(const QList<ZCHX::Data::ITF_CameraDev> &data, ZCHX::Data::ITF_CameraDev::ITF_CAMERA_PARENT parent = ZCHX::Data::ITF_CameraDev::PARENT_NONE); //设置相机设备数据接口
     void itfSetAisCameraDevData(const QList<ZCHX::Data::ITF_CameraDev> &data);  //设置船载相机的数据接口
-    void itfSetPastrolStation(const QList<ZCHX::Data::ITF_PastrolStation> &data); //设置巡逻站数据
+    void itfSetPastrolStation(const QList<ZCHX::Data::ITF_PastrolRadarStation> &data); //设置巡逻站数据
+    void itfSetRadarStation(const QList<ZCHX::Data::ITF_PastrolRadarStation> &data); //设置雷达站数据
 
     void itfSetWarringZoneData(const QList<ZCHX::Data::ITF_WarringZone> &data); //设置告警区域数据
     void itfSetShipSiumtionData(const std::vector<std::pair<double, double>> &data);    //事件模拟船舶航线

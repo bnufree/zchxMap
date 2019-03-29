@@ -1,6 +1,7 @@
 #include "zchxmoveelements.h"
 #include "zchxMapDataUtils.h"
 #include "zchxmapframe.h"
+#include "zchxmapwidget.h"
 
 using namespace qt;
 void WarningZoneElement::drawElement(QPainter *painter)
@@ -46,6 +47,20 @@ void WarningZoneElement::drawElement(QPainter *painter)
     } else {
         painter->drawPolyline(polygon);
         painter->drawText(polygon.last(), m_data.getName());
+    }
+}
+
+void WarningZoneElement::clicked(bool isDouble)
+{
+    if(mView)
+    {
+        if(isDouble)
+        {
+            mView->signalIsDoubleClicked4WarringZone(data());
+        } else
+        {
+            mView->signalIsSelected4WarringZone(data());
+        }
     }
 }
 
@@ -138,7 +153,6 @@ void SeabedPipeLineElement::drawElement(QPainter *painter)
     painter->drawText(polygon.boundingRect().center(),name);
 }
 
-
 void AreaNetElement::drawElement(QPainter *painter)
 {
     if(!this->isDrawAvailable(painter)) return;
@@ -216,6 +230,20 @@ void CardMouthElement::drawElement(QPainter *painter)
     painter->setBrush(Qt::NoBrush);
     painter->drawPath(polygon);
     painter->drawText(polygon.boundingRect().center(),name);
+}
+
+void CardMouthElement::clicked(bool isDouble)
+{
+    if(mView)
+    {
+        if(isDouble)
+        {
+            mView->signalIsDoubleClicked4CardMouthZone(data());
+        } else
+        {
+            mView->signalIsSelected4CardMouthZone(data());
+        }
+    }
 }
 
 void ChannelElement::setLineSelected(int i, bool selectStatus)
@@ -307,6 +335,20 @@ void ChannelElement::drawElement(QPainter *painter)
     }
 }
 
+void ChannelElement::clicked(bool isDouble)
+{
+    if(mView)
+    {
+        if(isDouble)
+        {
+            mView->signalIsDoubleClicked4ChannelZone(data());
+        } else
+        {
+            mView->signalIsSelected4ChannelZone(data());
+        }
+    }
+}
+
 void MooringElement::drawElement(QPainter *painter)
 {
     if(!this->isDrawAvailable(painter)) return;
@@ -343,5 +385,19 @@ void MooringElement::drawElement(QPainter *painter)
     painter->setOpacity(0.3);
     painter->drawPolygon(polygon);
     painter->drawText(polygon.boundingRect().center(),name);
+}
+
+void MooringElement::clicked(bool isDouble)
+{
+    if(mView)
+    {
+        if(isDouble)
+        {
+            mView->signalIsDoubleClicked4MooringZone(data());
+        } else
+        {
+            mView->signalIsSelected4MooringZone(data());
+        }
+    }
 }
 

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "IDrawElement.hpp"
 #include "aiselement.hpp"
@@ -234,33 +234,9 @@ private:
 
 
 
-//回波数据
-class RadarVideoElement:public Element
-{
-public:
-    RadarVideoElement(const ZCHX::Data::ITF_RadarVideo &ele,int uIndex = 0);
-    ZCHX::Data::ITF_RadarVideo data()const;
-    void setData(const ZCHX::Data::ITF_RadarVideo &data);
-    void setMsgIndex(int uIndex);
-    int getMsgIndex();
-private:
-    ZCHX::Data::ITF_RadarVideo m_data;
-    int m_uMsgIndex;//扇区索引
-};
 
 
-/*标准图元*/
 
-class  PastrolStation : public Element
-{
-public:
-    explicit PastrolStation(const ZCHX::Data::ITF_PastrolStation &data);
-    ZCHX::Data::ITF_PastrolStation data() const;
-
-    void updateGeometry(QPointF, qreal){}
-private:
-    ZCHX::Data::ITF_PastrolStation m_data;
-};
 
 
 //namespace end

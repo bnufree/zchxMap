@@ -763,7 +763,7 @@ signals: //发送外部信号
     void signalIsSelected4ChannelZone(const ZCHX::Data::ITF_Channel &info);//选中的航道
     void signalIsSelected4MooringZone(const ZCHX::Data::ITF_Mooring &info);//选中的锚泊
     void signalIsSelected4CardMouthZone(const ZCHX::Data::ITF_CardMouth &info);//选中的卡口
-    void signalIsSelected4PastrolStation(const ZCHX::Data::ITF_PastrolStation &info);
+    void signalIsSelected4PastrolStation(const ZCHX::Data::ITF_PastrolRadarStation &info);
     void signalIsSelected4LocalMark(const ZCHX::Data::ITF_LocalMark &info);
     void signalIsSelected4IslandLine(const ZCHX::Data::ITF_IslandLine &info); //选中的环岛线
     void signalIsSelected4CameraVideoWarn(const ZCHX::Data::ITF_VideoTarget &info); //选中了视频分析目标
@@ -775,7 +775,7 @@ signals: //发送外部信号
     void signalIsDoubleClicked4RadarArea(const ZCHX::Data::ITF_RadarArea &info); //雷达区域双击
     void signalIsDoubleClicked4CameraRod(const ZCHX::Data::ITF_CameraRod &info);//相机杆双击
     void signalIsDoubleClicked4WarringZone(const ZCHX::Data::ITF_WarringZone &info);//防区双击
-    void signalIsDoubleClicked4PastrolStation(const ZCHX::Data::ITF_PastrolStation &info);//巡逻站双击
+    void signalIsDoubleClicked4PastrolStation(const ZCHX::Data::ITF_PastrolRadarStation &info);//巡逻站双击
     void signalIsDoubleClicked4LocalMark(const ZCHX::Data::ITF_LocalMark &info);    //关注点双击
     void signalIsDoubleClicked4IslandLine(const ZCHX::Data::ITF_IslandLine &info); //环岛线双击
     void signalIsDoubleClicked4CameraVideoWarn(const ZCHX::Data::ITF_VideoTarget &info); //双击了视频分析目标

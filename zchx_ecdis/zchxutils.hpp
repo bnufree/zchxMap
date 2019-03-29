@@ -1685,7 +1685,7 @@ struct ITF_CameraDev
 };
 
 //巡逻站 和雷达站
-typedef struct tagITF_PatrolStation
+typedef struct tagITF_PatrolRadarStation
 {
     double getLat() const {return ll.lat;}
     double getLon() const {return ll.lon;}
@@ -1696,7 +1696,7 @@ typedef struct tagITF_PatrolStation
     ECDIS_STATION type;
     QString name;
     QString sbid;
-}ITF_PastrolStation;
+}ITF_PastrolRadarStation;
 
 //位置标注
 typedef struct tagITF_LocalMark{

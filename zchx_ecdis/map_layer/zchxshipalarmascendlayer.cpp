@@ -31,6 +31,3 @@ void zchxShipAlarmAscendLayer::drawLayer(QPainter *painter)
     MapLayer::drawLayer(painter);
 
 }
-
-
-

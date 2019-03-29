@@ -187,7 +187,7 @@ PPATH zchxMapFrameWork::convert2QtPonitList(const GPATH& path)
     return pts;
 }
 
-void zchxMapFrameWork::updateEcdis(QPainter *painter, bool img_num)
+void zchxMapFrameWork::updateEcdis(QPainter *painter, QRect rect, bool img_num)
 {
     if(!painter) return;
     foreach(TileImage data, mDataList)
@@ -196,6 +196,19 @@ void zchxMapFrameWork::updateEcdis(QPainter *painter, bool img_num)
         int y = data.mPosY + mOffset.height();
         painter->drawPixmap(x, y, data.mImg);
         if(img_num)painter->drawText(x, y, data.mName);
+    }
+    switch (mStyle) {
+    case MapStyleEcdisDayBright:
+        painter->fillRect(rect, Qt::transparent);
+        break;
+    case MapStyleEcdisNight:
+        painter->fillRect(rect, QColor(100,100,100,100));
+        break;
+    case MapStyleEcdisDayDUSK:
+        painter->fillRect(rect, QColor(0,100,100,100));
+        break;
+    default:
+        break;
     }
 }
 
