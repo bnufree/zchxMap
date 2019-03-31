@@ -370,7 +370,7 @@ void Element::drawFlashRegion(QPainter *painter, QPointF pos, int status, QColor
     if(!painter || status == 0)
         return;
     if(radius < 0.1)
-        radius = getDrawScaleSize();
+        radius = 1;
 
 //    if(color.isValid())
 //        m_mapFlashColor.insert(status, color);

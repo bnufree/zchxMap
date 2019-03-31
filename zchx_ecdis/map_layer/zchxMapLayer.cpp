@@ -253,6 +253,7 @@ void MapLayer::drawLayer(QPainter *painter)
     for(std::shared_ptr<Element> item : d->m_elements)
     {
         if(!item) continue;
+        if(d->m_drawWidget && !d->m_drawWidget->rect().contains(item->getCurrentPos().toPoint())) continue;
         //更新各个element的状态
         QString id = item->getID();
         if(isConcern(id)){
