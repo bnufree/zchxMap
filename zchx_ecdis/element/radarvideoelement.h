@@ -11,6 +11,7 @@ public:
         :FixElement<ZCHX::Data::ITF_RadarVideoGLow>(data, ZCHX::Data::ELE_RADAR_VIDEOGLOW, ZCHX::LAYER_RADARVIDEO, frame) {}
     void drawElement(QPainter *painter);
     void drawOutline(QPainter *painter, const QPointF& center, double in, double out);
+    void copyDataFromOther(std::shared_ptr<Element> other);
 
 private:
 };

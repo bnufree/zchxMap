@@ -115,6 +115,16 @@ void RodElement::drawElement(QPainter *painter)
     drawActive(painter);
 }
 
+void RodElement::copyDataFromOther(std::shared_ptr<Element> other)
+{
+    if(!other) return;
+    RodElement *src = dynamic_cast<RodElement*>(other.get());
+    if(src)
+    {
+        this->setData(src->data());
+    }
+}
+
 void RodElement::updateElementStatus(qint64 ele, bool sts)
 {
     if(sts) {

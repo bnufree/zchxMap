@@ -125,15 +125,18 @@ void MapLayer::addElement(std::shared_ptr<Element> element)
     }
     //检查图元是否添加过
     element->setLayer(d->m_type);
-    if(d->m_elements.contains(element->getID()) && d->m_drawWidget){
+    if(d->m_elements.contains(element->getID())){
         std::shared_ptr<Element> old = d->m_elements[element->getID()];
-        if(old.get() == d->m_drawWidget->getCurrentSelectedElement())
-        {
-            d->m_drawWidget->setCurrentSelectedItem(element.get());
-        }
-    }
+        if(old) old->copyDataFromOther(element);
 
-    d->m_elements[element->getID()] = element;
+//        if(old.get() == d->m_drawWidget->getCurrentSelectedElement())
+//        {
+//            d->m_drawWidget->setCurrentSelectedItem(element.get());
+//        }
+    } else {
+
+        d->m_elements[element->getID()] = element;
+    }
 }
 
 void MapLayer::addElements(QList<std::shared_ptr<Element> > &list, bool check)

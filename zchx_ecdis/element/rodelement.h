@@ -20,6 +20,7 @@ public:
     ZCHX::Data::CAMERAROD_STATUS status() const;
     virtual void drawElement(QPainter *painter);
     void updateElementStatus(qint64 ele, bool sts);
+    void copyDataFromOther(std::shared_ptr<Element> other);
 
 private:
     //保存当前各个子项的状态.子项全部OK则杆位OK,否则就是异常

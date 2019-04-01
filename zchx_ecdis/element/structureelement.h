@@ -11,6 +11,7 @@ public:
     explicit StructureElement(const ZCHX::Data::ITF_Structure &ele, zchxMapWidget* f)
         :FixElement<ZCHX::Data::ITF_Structure>(ele, ZCHX::Data::ELE_STRUCTURE, ZCHX::LAYER_STRUCTURE, f) {}
     void drawElement(QPainter *painter);
+    void copyDataFromOther(std::shared_ptr<Element> other);
 
 private:
 };

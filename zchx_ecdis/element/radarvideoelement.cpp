@@ -82,5 +82,16 @@ void RadarVideoGlowElement::drawElement(QPainter *painter)
         }
     }
 }
+
+void RadarVideoGlowElement::copyDataFromOther(std::shared_ptr<Element> other)
+{
+    if(!other) return;
+    RadarVideoGlowElement *src = dynamic_cast<RadarVideoGlowElement*>(other.get());
+    if(src)
+    {
+        this->setData(src->data());
+    }
+}
+
 }
 

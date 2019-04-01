@@ -222,6 +222,7 @@ public:
     //element 是否固定
     bool    isFixElement() const {return m_fixelement;}
     void    setFix(bool fix) {m_fixelement = fix;}
+    virtual void copyDataFromOther(std::shared_ptr<Element> other) {}
 
 signals:
 

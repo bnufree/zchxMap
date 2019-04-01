@@ -117,3 +117,13 @@ void CameraElement::showToolTip(const QPoint &pos)
     QToolTip::showText(pos,base_text);
 }
 
+void CameraElement::copyDataFromOther(std::shared_ptr<Element> other)
+{
+    if(!other) return;
+    CameraElement *src = dynamic_cast<CameraElement*>(other.get());
+    if(src)
+    {
+        this->setData(src->data());
+    }
+}
+

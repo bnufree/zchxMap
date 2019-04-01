@@ -17,6 +17,7 @@ public:
     QString getAlarmColor() const;
 
     void drawElement(QPainter* painter);
+    void copyDataFromOther(std::shared_ptr<Element> other);
 private:
     QStringList  mTargetIImgList;
 };

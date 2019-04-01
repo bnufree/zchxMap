@@ -152,6 +152,16 @@ void RadarAreaElement::drawElement(QPainter *painter)
     }
 }
 
+void RadarAreaElement::copyDataFromOther(std::shared_ptr<Element> other)
+{
+    if(!other) return;
+    RadarAreaElement *src = dynamic_cast<RadarAreaElement*>(other.get());
+    if(src)
+    {
+        this->setData(src->data());
+    }
+}
+
 QPolygonF RadarAreaElement::getShapePnts(double angleFromNorth) const
 {
     QPolygonF polygon;
@@ -263,6 +273,16 @@ void RadarPointElement::initFromSettings()
 
     Element::initFromSettings();
     //qDebug()<<"radar ini seetings."<<mDrawAsAis<<mRadarShape<<mFillingColor.name()<<mTextColor.name()<<mConcernColor.name()<<mBorderColor.name();
+}
+
+void RadarPointElement::copyDataFromOther(std::shared_ptr<Element> other)
+{
+    if(!other) return;
+    RadarPointElement *src = dynamic_cast<RadarPointElement*>(other.get());
+    if(src)
+    {
+        this->setData(src->data());
+    }
 }
 
 void RadarPointElement::drawElement(QPainter *painter)
