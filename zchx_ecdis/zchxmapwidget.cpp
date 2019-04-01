@@ -36,8 +36,8 @@ zchxMapWidget::zchxMapWidget(QWidget *parent) : QWidget(parent),
 {
     this->setMouseTracking(true);
     mZoomLbl = new QLabel(this);
-    mZoomLbl->setStyleSheet("background-color:transparent; border:none; color:black; font-size:20pt;");
-    mZoomLbl->setVisible(false);
+    mZoomLbl->setStyleSheet("background-color:transparent; border:none; color:black; font-size:16pt;");
+    mZoomLbl->setVisible(true);
     QTimer *timer = new QTimer;
     timer->setInterval(Profiles::instance()->value(MAP_INDEX, MAP_UPDATE_INTERVAL).toInt());
     connect(timer, SIGNAL(timeout()), this, SLOT(update()));
@@ -80,7 +80,7 @@ void zchxMapWidget::resizeEvent(QResizeEvent *e)
         }
     }
 
-    mZoomLbl->setGeometry(10, 10, 100, 60);
+    mZoomLbl->setGeometry(10, 10, 200, 100);
 }
 
 
@@ -102,7 +102,7 @@ void zchxMapWidget::paintEvent(QPaintEvent *e)
 //    //qDebug()<<pnt.x<<pnt.y;
 //    painter.setBrush(QBrush(Qt::red));
 //    painter.drawEllipse(pnt.x, pnt.y, 5, 5);
-    mZoomLbl->setText(QString("zoom:%1").arg(mFrameWork->Zoom()));
+    mZoomLbl->setText(QString("Zoom:%1").arg(mFrameWork->Zoom()));
     updateCurrentPos(this->mapFromGlobal(QCursor::pos()));
     autoChangeCurrentStyle();
 }
