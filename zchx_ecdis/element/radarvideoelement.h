@@ -4,7 +4,7 @@
 #include "fixelement.h"
 
 namespace qt {
-class RadarVideoGlowElement : public FixElement<ZCHX::Data::ITF_RadarVideoGLow>
+class ZCHX_ECDIS_EXPORT RadarVideoGlowElement : public FixElement<ZCHX::Data::ITF_RadarVideoGLow>
 {
 public:
     explicit RadarVideoGlowElement(const ZCHX::Data::ITF_RadarVideoGLow& data, zchxMapWidget* frame)

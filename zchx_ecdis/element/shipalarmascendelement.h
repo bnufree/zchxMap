@@ -5,7 +5,7 @@
 
 namespace qt {
 // 预警追溯
-class ShipAlarmAscendElement : public FixElement<ZCHX::Data::ITF_ShipAlarmAscend>
+class ZCHX_ECDIS_EXPORT ShipAlarmAscendElement : public FixElement<ZCHX::Data::ITF_ShipAlarmAscend>
 {
 public:
     explicit ShipAlarmAscendElement(const ZCHX::Data::ITF_ShipAlarmAscend &ele, zchxMapWidget* f)

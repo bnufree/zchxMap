@@ -4,7 +4,7 @@
 #include "zchxMapLayer.h"
 
 namespace qt {
-class zchxShipAlarmAscendLayer : public MapLayer
+class ZCHX_ECDIS_EXPORT zchxShipAlarmAscendLayer : public MapLayer
 {
     Q_OBJECT
 public:

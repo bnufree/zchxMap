@@ -6,7 +6,7 @@
 namespace qt
 {
 
-class  RodElement : public FixElement<ZCHX::Data::ITF_CameraRod>
+class ZCHX_ECDIS_EXPORT RodElement : public FixElement<ZCHX::Data::ITF_CameraRod>
 {
 public:
     explicit RodElement(const ZCHX::Data::ITF_CameraRod &data, zchxMapWidget* f);

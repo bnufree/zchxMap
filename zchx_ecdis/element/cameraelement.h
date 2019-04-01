@@ -4,7 +4,7 @@
 #include "fixelement.h"
 
 namespace qt {
-class CameraElement : public FixElement<ZCHX::Data::ITF_CameraDev>
+class ZCHX_ECDIS_EXPORT CameraElement : public FixElement<ZCHX::Data::ITF_CameraDev>
 {
 public:
     explicit CameraElement(const ZCHX::Data::ITF_CameraDev & data, zchxMapWidget* frame);

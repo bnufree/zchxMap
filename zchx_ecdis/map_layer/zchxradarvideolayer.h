@@ -4,7 +4,7 @@
 #include "zchxMapLayer.h"
 
 namespace qt {
-class zchxRadarVideoLayer : public MapLayer
+class ZCHX_ECDIS_EXPORT zchxRadarVideoLayer : public MapLayer
 {
     Q_OBJECT
 public:

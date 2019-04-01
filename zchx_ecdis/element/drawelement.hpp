@@ -21,7 +21,7 @@ namespace qt
 {
 
 //路由线
-class RouteLineElement:public Element
+class ZCHX_ECDIS_EXPORT RouteLineElement:public Element
 {
     Q_OBJECT
 public:
@@ -133,7 +133,7 @@ private:
 };
 
 //路由交越数据
-class RouteCrossElement:public Element
+class ZCHX_ECDIS_EXPORT RouteCrossElement:public Element
 {
 public:
     explicit RouteCrossElement(const ZCHX::Data::ITF_RouteCross &ele);
@@ -142,7 +142,7 @@ private:
     ZCHX::Data::ITF_RouteCross m_data;
 };
 //多波束数据
-class Multibeam:public Element
+class ZCHX_ECDIS_EXPORT Multibeam:public Element
 {
 public:
     Multibeam(const ZCHX::Data::ITF_Multibeam &ele);
@@ -153,7 +153,7 @@ private:
 };
 
 //船舶计划航线
-class ShipPlanLineElement:public Element
+class ZCHX_ECDIS_EXPORT ShipPlanLineElement:public Element
 {
 public:
     explicit ShipPlanLineElement(const ZCHX::Data::ShipPlanLine &ele);

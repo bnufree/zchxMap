@@ -147,7 +147,7 @@ void MapLayer::addElements(QList<std::shared_ptr<Element> > &list, bool check)
         //先将旧的图元设定为不刷新
         for(std::shared_ptr<Element> ele : d->m_elements)
         {
-            ele->setIsUpdate(false);
+            if(ele) ele->setIsUpdate(false);
         }
     }
     for(std::shared_ptr<Element> ele : list) {
@@ -250,9 +250,11 @@ void MapLayer::drawLayer(QPainter *painter)
     Q_D(MapLayer);
     if(!visible()) return;
     //开始画当前图层的图元
+    qDebug()<<"size:"<<d->m_elements.size()<<d->m_type;
     for(std::shared_ptr<Element> item : d->m_elements)
     {
         if(!item) continue;
+        if(d->m_drawWidget && !d->m_drawWidget->rect().contains(item->getCurrentPos().toPoint())) continue;
         //更新各个element的状态
         QString id = item->getID();
         if(isConcern(id)){

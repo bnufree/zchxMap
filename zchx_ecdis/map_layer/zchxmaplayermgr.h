@@ -11,7 +11,7 @@ class zchxAisMapLayer;
 
 #define         LayerMgr          MapLayerMgr::instance()
 
-class MapLayerMgr : public QObject
+class ZCHX_ECDIS_EXPORT MapLayerMgr : public QObject
 {
     Q_OBJECT
 public:

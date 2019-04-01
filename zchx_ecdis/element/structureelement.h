@@ -5,7 +5,7 @@
 
 namespace qt {
 //结构物
-class StructureElement : public FixElement<ZCHX::Data::ITF_Structure>
+class ZCHX_ECDIS_EXPORT StructureElement : public FixElement<ZCHX::Data::ITF_Structure>
 {
 public:
     explicit StructureElement(const ZCHX::Data::ITF_Structure &ele, zchxMapWidget* f)

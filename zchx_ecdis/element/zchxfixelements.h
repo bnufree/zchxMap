@@ -6,7 +6,7 @@
 namespace qt {
 
 //海图绘制元素
-class EllipseElement : public FixElement<ZCHX::Data::ITF_EleEllipse>
+class ZCHX_ECDIS_EXPORT EllipseElement : public FixElement<ZCHX::Data::ITF_EleEllipse>
 {
 public:
     explicit  EllipseElement(const ZCHX::Data::ITF_EleEllipse &ele, zchxMapWidget* w)
@@ -16,14 +16,14 @@ public:
 };
 
 //三角形
-class TriangleElement : public FixElement<ZCHX::Data::ITF_EleTriangle>
+class ZCHX_ECDIS_EXPORT TriangleElement : public FixElement<ZCHX::Data::ITF_EleTriangle>
 {
     explicit  TriangleElement(const ZCHX::Data::ITF_EleTriangle &ele, zchxMapWidget* w)
         :FixElement<ZCHX::Data::ITF_EleTriangle>(ele, ZCHX::Data::ELE_TRIANGLE, ZCHX::LAYER_TRIANGLE, w) {}
 };
 
 //直线
-class LineElement : public FixElement<ZCHX::Data::ITF_EleLine>
+class ZCHX_ECDIS_EXPORT LineElement : public FixElement<ZCHX::Data::ITF_EleLine>
 {
     explicit  LineElement(const ZCHX::Data::ITF_EleLine &ele, zchxMapWidget* w)
         :FixElement<ZCHX::Data::ITF_EleLine>(ele, ZCHX::Data::ELE_LINE,ZCHX::LAYER_LINE, w) {}
@@ -32,7 +32,7 @@ class LineElement : public FixElement<ZCHX::Data::ITF_EleLine>
 
 
 //矩形
-class RectElement : public FixElement<ZCHX::Data::ITF_EleRect>
+class ZCHX_ECDIS_EXPORT RectElement : public FixElement<ZCHX::Data::ITF_EleRect>
 {
     explicit  RectElement(const ZCHX::Data::ITF_EleRect &ele, zchxMapWidget* w)
         :FixElement<ZCHX::Data::ITF_EleRect>(ele, ZCHX::Data::ELE_RECT, ZCHX::LAYER_RECT, w) {}
@@ -42,7 +42,7 @@ class RectElement : public FixElement<ZCHX::Data::ITF_EleRect>
 
 
 //位置标注
-class LocalMarkElement :public FixElement<ZCHX::Data::ITF_LocalMark>
+class ZCHX_ECDIS_EXPORT LocalMarkElement :public FixElement<ZCHX::Data::ITF_LocalMark>
 {
 public:
     explicit  LocalMarkElement(const ZCHX::Data::ITF_LocalMark &ele, zchxMapWidget* w)
@@ -51,7 +51,7 @@ public:
 };
 
 //导航
-class  NavigationElement : public FixElement<ZCHX::Data::ITF_Navigation>
+class ZCHX_ECDIS_EXPORT NavigationElement : public FixElement<ZCHX::Data::ITF_Navigation>
 {
 public:
     explicit  NavigationElement(const ZCHX::Data::ITF_Navigation &ele, zchxMapWidget* w)
@@ -60,7 +60,7 @@ public:
 };
 
 //危险圈
-class DangerousCircleElement : public FixElement<ZCHX::Data::ITF_DangerousCircle>
+class ZCHX_ECDIS_EXPORT DangerousCircleElement : public FixElement<ZCHX::Data::ITF_DangerousCircle>
 {
 public:
     explicit DangerousCircleElement(const ZCHX::Data::ITF_DangerousCircle &data, zchxMapWidget* w)
@@ -68,7 +68,7 @@ public:
 };
 
 //特征区域
-class RadarFeatureZoneElement : public FixElement<ZCHX::Data::ITF_RadarFeaturesZone>
+class ZCHX_ECDIS_EXPORT RadarFeatureZoneElement : public FixElement<ZCHX::Data::ITF_RadarFeaturesZone>
 {
 public:
     explicit RadarFeatureZoneElement(const ZCHX::Data::ITF_RadarFeaturesZone &data, zchxMapWidget* w)
@@ -77,7 +77,7 @@ public:
 };
 
 //相机视场
-class CameraViewElement : public FixElement<ZCHX::Data::ITF_CameraView>
+class ZCHX_ECDIS_EXPORT CameraViewElement : public FixElement<ZCHX::Data::ITF_CameraView>
 {
 public:
     explicit CameraViewElement(const ZCHX::Data::ITF_CameraView &data, zchxMapWidget* w)

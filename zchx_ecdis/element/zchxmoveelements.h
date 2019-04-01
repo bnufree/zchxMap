@@ -5,7 +5,7 @@
 
 namespace qt {
 //防区及防线
-class WarningZoneElement : public zchxMoveElement<ZCHX::Data::ITF_WarringZone>
+class ZCHX_ECDIS_EXPORT WarningZoneElement : public zchxMoveElement<ZCHX::Data::ITF_WarringZone>
 {
 public:
     explicit WarningZoneElement(const ZCHX::Data::ITF_WarringZone &ele, zchxMapWidget* w)
@@ -18,7 +18,7 @@ public:
 };
 
 //海岸数据
-class CoastElement : public zchxMoveElement<ZCHX::Data::ITF_CoastData>
+class ZCHX_ECDIS_EXPORT CoastElement : public zchxMoveElement<ZCHX::Data::ITF_CoastData>
 {
 public:
     explicit CoastElement(const ZCHX::Data::ITF_CoastData &ele, zchxMapWidget* w)
@@ -28,7 +28,7 @@ public:
 };
 
 //海底岸线数据
-class SeabedPipeLineElement : public zchxMoveElement<ZCHX::Data::ITF_SeabedPipeLine>
+class ZCHX_ECDIS_EXPORT SeabedPipeLineElement : public zchxMoveElement<ZCHX::Data::ITF_SeabedPipeLine>
 {
 public:
     explicit SeabedPipeLineElement(const ZCHX::Data::ITF_SeabedPipeLine &ele,  zchxMapWidget* w)
@@ -38,7 +38,7 @@ public:
 };
 
 //地理区域网络
-class AreaNetElement : public zchxMoveElement<ZCHX::Data::ITF_AreaNet>
+class ZCHX_ECDIS_EXPORT AreaNetElement : public zchxMoveElement<ZCHX::Data::ITF_AreaNet>
 {
 public:
     explicit AreaNetElement(const ZCHX::Data::ITF_AreaNet &ele, zchxMapWidget* w)
@@ -48,7 +48,7 @@ public:
 };
 
 //卡口
-class CardMouthElement : public zchxMoveElement<ZCHX::Data::ITF_CardMouth>
+class ZCHX_ECDIS_EXPORT CardMouthElement : public zchxMoveElement<ZCHX::Data::ITF_CardMouth>
 {
 public:
     explicit CardMouthElement(const ZCHX::Data::ITF_CardMouth &ele, zchxMapWidget* w)
@@ -58,7 +58,7 @@ public:
 };
 
 //航道
-class ChannelElement : public zchxMoveElement<ZCHX::Data::ITF_Channel>
+class ZCHX_ECDIS_EXPORT ChannelElement : public zchxMoveElement<ZCHX::Data::ITF_Channel>
 {
 public:
     explicit ChannelElement(const ZCHX::Data::ITF_Channel &ele, zchxMapWidget* w)
@@ -69,7 +69,7 @@ public:
 };
 
 //锚泊
-class MooringElement : public zchxMoveElement<ZCHX::Data::ITF_Mooring>
+class ZCHX_ECDIS_EXPORT MooringElement : public zchxMoveElement<ZCHX::Data::ITF_Mooring>
 {
 public:
     explicit MooringElement(const ZCHX::Data::ITF_Mooring &ele, zchxMapWidget* w)

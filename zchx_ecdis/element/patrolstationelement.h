@@ -5,7 +5,7 @@
 
 namespace qt {
 //结构物
-class  PastrolStationElement : public FixElement<ZCHX::Data::ITF_PastrolRadarStation>
+class ZCHX_ECDIS_EXPORT PastrolStationElement : public FixElement<ZCHX::Data::ITF_PastrolRadarStation>
 {
 public:
     explicit PastrolStationElement(const ZCHX::Data::ITF_PastrolRadarStation &data, zchxMapWidget* f);

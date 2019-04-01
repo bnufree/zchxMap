@@ -5,7 +5,7 @@
 
 namespace qt
 {
-class  RadarPointElement: public FixElement<ZCHX::Data::ITF_RadarPoint>
+class ZCHX_ECDIS_EXPORT RadarPointElement: public FixElement<ZCHX::Data::ITF_RadarPoint>
 {
 public:
     RadarPointElement(const ZCHX::Data::ITF_RadarPoint &ele, zchxMapWidget* frame);
@@ -52,7 +52,7 @@ private:
     bool mDrawAsAis;  //是否将目标画为一个船舶图标
 };
 
-class  RadarAreaElement: public FixElement<ZCHX::Data::ITF_RadarArea>
+class ZCHX_ECDIS_EXPORT RadarAreaElement: public FixElement<ZCHX::Data::ITF_RadarArea>
 {
 public:
     explicit RadarAreaElement(const ZCHX::Data::ITF_RadarArea &ele, zchxMapWidget* v);

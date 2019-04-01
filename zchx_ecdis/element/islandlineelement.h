@@ -5,7 +5,7 @@
 
 namespace qt {
 //海岸数据
-class  IslandLineElement : public zchxMoveElement<ZCHX::Data::ITF_IslandLine>
+class ZCHX_ECDIS_EXPORT IslandLineElement : public zchxMoveElement<ZCHX::Data::ITF_IslandLine>
 {
 public:
     explicit IslandLineElement(const ZCHX::Data::ITF_IslandLine &ele, zchxMapWidget* f)

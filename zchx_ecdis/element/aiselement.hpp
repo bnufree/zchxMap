@@ -19,7 +19,7 @@ enum SHIP_ITEM {
 Q_DECLARE_FLAGS(SHIP_ITEMs, SHIP_ITEM)
 Q_DECLARE_OPERATORS_FOR_FLAGS(SHIP_ITEMs)
 
-class AisHistoryElement : public FixElement<ZCHX::Data::ITF_AIS_TRACK>
+class ZCHX_ECDIS_EXPORT AisHistoryElement : public FixElement<ZCHX::Data::ITF_AIS_TRACK>
 {
     Q_OBJECT
 public:
@@ -39,7 +39,7 @@ private:
     int                                                         m_iHistoryTrackWidth;
 };
 
-class  AisElement : public FixElement<ZCHX::Data::ITF_AIS>
+class ZCHX_ECDIS_EXPORT AisElement : public FixElement<ZCHX::Data::ITF_AIS>
 {
     Q_OBJECT
 public:

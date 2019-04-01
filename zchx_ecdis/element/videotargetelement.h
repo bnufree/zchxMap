@@ -5,7 +5,7 @@
 
 namespace qt {
 //人车船
-class  VideoTargetElement : public FixElement<ZCHX::Data::ITF_VideoTarget>
+class ZCHX_ECDIS_EXPORT VideoTargetElement : public FixElement<ZCHX::Data::ITF_VideoTarget>
 {
 public:
     explicit VideoTargetElement(const ZCHX::Data::ITF_VideoTarget & data, zchxMapWidget* work);
