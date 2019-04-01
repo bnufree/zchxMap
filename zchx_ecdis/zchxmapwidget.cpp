@@ -704,6 +704,7 @@ void zchxMapWidget::mousePressEvent(QMouseEvent *e)
 
         }
         menu.exec(QCursor::pos());
+        qDebug()<<"list:"<<menu.actions().size();
     }
 }
 
@@ -1051,7 +1052,9 @@ Element* zchxMapWidget::getCurrentSelectedElement()
 
 void zchxMapWidget::setCurrentSelectedItem(Element* item)
 {
+    qDebug()<<__FUNCTION__<<__LINE__<<mCurrentSelectElement;
     mCurrentSelectElement = item;
+    qDebug()<<__FUNCTION__<<__LINE__<<mCurrentSelectElement;
     emit sigElementSelectionChanged(item);
 }
 

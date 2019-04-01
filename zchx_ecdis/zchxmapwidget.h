@@ -12,7 +12,6 @@
 #include <QPixmap>
 #include "zchxMapDataUtils.h"
 #include "zchxutils.hpp"
-#include "localmarkdlg.h"
 #include "element/drawelement.hpp"
 #include "draw_manager/zchxecdismousedefines.h"
 

@@ -64,9 +64,9 @@ SOURCES += mainwindow.cpp \
     slider_ctrl.cpp \
     proxystyle.cpp \
     info_dialog.cpp \
-    localmarkdlg.cpp \
-    structureinfodialog.cpp \
-    warningzoneparadialog.cpp \
+    dialog/localmarkdlg.cpp \
+    dialog/structureinfodialog.cpp \
+    dialog/warningzoneparadialog.cpp \
     element/IDrawElement.cpp \
     element/drawelement.cpp \
     map_layer/zchxmaplayermgr.cpp \
@@ -124,9 +124,9 @@ HEADERS  += mainwindow.h \
     slider_ctrl.hpp \
     proxystyle.hpp \
     info_dialog.hpp \
-    localmarkdlg.h \
-    structureinfodialog.h \
-    warningzoneparadialog.h \
+    dialog/localmarkdlg.h \
+    dialog/structureinfodialog.h \
+    dialog/warningzoneparadialog.h \
     map_layer/zchxmaplayermgr.h \
     map_layer/zchxmaplayer_p.h \
     map_layer/zchxMapLayer.h \
@@ -171,9 +171,9 @@ HEADERS  += mainwindow.h \
     map_layer/zchxshipalarmascendlayer.h
 
 FORMS    += mainwindow.ui \
-    localmarkdlg.ui \
-    structureinfodialog.ui \
-    warningzoneparadialog.ui \
+    dialog/localmarkdlg.ui \
+    dialog/structureinfodialog.ui \
+    dialog/warningzoneparadialog.ui \
     dialog/radarfeaturezone.ui \
     dialog/defenceinfodialog.ui \
     dialog/channelinfodialog.ui \

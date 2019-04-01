@@ -1,6 +1,5 @@
 #include "zchxdrawcameranetgridtool.h"
 #include "zchxmapframe.h"
-#include "localmarkdlg.h"
 
 using namespace qt;
 using namespace ZCHX::Data;
