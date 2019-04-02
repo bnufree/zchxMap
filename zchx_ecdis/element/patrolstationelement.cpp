@@ -8,6 +8,15 @@ PastrolStationElement::PastrolStationElement(const ZCHX::Data::ITF_PastrolRadarS
 {
 }
 
+void PastrolStationElement::copyDataFromOther(std::shared_ptr<Element> other)
+{
+    if(!other) return;
+    PastrolStationElement *src = dynamic_cast<PastrolStationElement*>(other.get());
+    if(src)
+    {
+        this->setData(src->data());
+    }
+}
 
 void PastrolStationElement::drawElement(QPainter *painter)
 {

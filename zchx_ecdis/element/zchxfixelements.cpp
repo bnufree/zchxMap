@@ -5,6 +5,16 @@
 
 using namespace qt;
 
+void EllipseElement::copyDataFromOther(std::shared_ptr<Element> other)
+{
+    if(!other) return;
+    EllipseElement *src = dynamic_cast<EllipseElement*>(other.get());
+    if(src)
+    {
+        this->setData(src->data());
+    }
+}
+
 void EllipseElement::drawElement(QPainter *painter)
 {
     if(!isDrawAvailable(painter)) return;
@@ -24,6 +34,36 @@ void EllipseElement::drawElement(QPainter *painter)
     if(getIsActive()) drawActive(painter);
 }
 
+void TriangleElement::copyDataFromOther(std::shared_ptr<Element> other)
+{
+    if(!other) return;
+    TriangleElement *src = dynamic_cast<TriangleElement*>(other.get());
+    if(src)
+    {
+        this->setData(src->data());
+    }
+}
+
+void LineElement::copyDataFromOther(std::shared_ptr<Element> other)
+{
+    if(!other) return;
+    LineElement *src = dynamic_cast<LineElement*>(other.get());
+    if(src)
+    {
+        this->setData(src->data());
+    }
+}
+
+void RectElement::copyDataFromOther(std::shared_ptr<Element> other)
+{
+    if(!other) return;
+    RectElement *src = dynamic_cast<RectElement*>(other.get());
+    if(src)
+    {
+        this->setData(src->data());
+    }
+}
+
 void LocalMarkElement::drawElement(QPainter *painter)
 {
     if(!isDrawAvailable(painter)) return;
@@ -38,6 +78,36 @@ void LocalMarkElement::drawElement(QPainter *painter)
     updateBouningRect(pos, 20, 20);
     updateGeometry(pos, getDrawScaleSize());
     if(getIsActive()) drawActive(painter);
+}
+
+void LocalMarkElement::copyDataFromOther(std::shared_ptr<Element> other)
+{
+    if(!other) return;
+    LocalMarkElement *src = dynamic_cast<LocalMarkElement*>(other.get());
+    if(src)
+    {
+        this->setData(src->data());
+    }
+}
+
+void NavigationElement::copyDataFromOther(std::shared_ptr<Element> other)
+{
+    if(!other) return;
+    NavigationElement *src = dynamic_cast<NavigationElement*>(other.get());
+    if(src)
+    {
+        this->setData(src->data());
+    }
+}
+
+void DangerousCircleElement::copyDataFromOther(std::shared_ptr<Element> other)
+{
+    if(!other) return;
+    DangerousCircleElement *src = dynamic_cast<DangerousCircleElement*>(other.get());
+    if(src)
+    {
+        this->setData(src->data());
+    }
 }
 
 void RadarFeatureZoneElement::drawElement(QPainter *painter)
@@ -66,6 +136,26 @@ void RadarFeatureZoneElement::drawElement(QPainter *painter)
     painter->setBrush(QBrush(Qt::blue, Qt::Dense7Pattern));
     painter->drawPolygon(polygon);
     painter->drawText(polygon.boundingRect().center(), data().getName());
+}
+
+void RadarFeatureZoneElement::copyDataFromOther(std::shared_ptr<Element> other)
+{
+    if(!other) return;
+    RadarFeatureZoneElement *src = dynamic_cast<RadarFeatureZoneElement*>(other.get());
+    if(src)
+    {
+        this->setData(src->data());
+    }
+}
+
+void CameraViewElement::copyDataFromOther(std::shared_ptr<Element> other)
+{
+    if(!other) return;
+    CameraViewElement *src = dynamic_cast<CameraViewElement*>(other.get());
+    if(src)
+    {
+        this->setData(src->data());
+    }
 }
 
 void AISBaseStationElement::drawElement(QPainter *painter)
@@ -100,14 +190,33 @@ void AISBaseStationElement::updateGeometry(QPointF pos, qreal size)
 void AISBaseStationElement::showToolTip(const QPoint &pos)
 {
     ZCHX::Data::ITF_AISBASESTATION data = this->data();
-    QStringList infoList;
-    infoList.append(QObject::tr("基站名称：%1").arg(data.aisName));
-    infoList.append(QObject::tr("基站ID：%1").arg(data.aisId));
-    infoList.append(QObject::tr("基站IP：%1").arg(data.ipAddress));
-    infoList.append(QObject::tr("基站港口：%1").arg(data.position));
-    infoList.append(QObject::tr("基站经度：%1").arg(FLOAT_STRING(data.getLon(), 6)));
+//    QStringList infoList;
+//    infoList.append(QObject::tr("基站名称：%1").arg(data.aisName));
+//    infoList.append(QObject::tr("基站ID：%1").arg(data.aisId));
+//    infoList.append(QObject::tr("基站IP：%1").arg(data.ipAddress));
+//    infoList.append(QObject::tr("基站港口：%1").arg(data.position));
+//    infoList.append(QObject::tr("基站经度：%1").arg(FLOAT_STRING(data.getLon(), 6)));
+//    infoList.append(QObject::tr("基站纬度：%1").arg(FLOAT_STRING(data.getLat(), 6)));
+//    QToolTip::showText(pos, infoList.join("\n"));
+
+    QString infoList;
+    infoList.append(QObject::tr("基站名称：%1").arg(data.aisName) + "\n");
+    infoList.append(QObject::tr("基站ID：%1").arg(data.aisId) + "\n");
+    infoList.append(QObject::tr("基站IP：%1").arg(data.ipAddress) + "\n");
+    infoList.append(QObject::tr("基站港口：%1").arg(data.position) + "\n");
+    infoList.append(QObject::tr("基站经度：%1").arg(FLOAT_STRING(data.getLon(), 6)) + "\n");
     infoList.append(QObject::tr("基站纬度：%1").arg(FLOAT_STRING(data.getLat(), 6)));
-    QToolTip::showText(pos, infoList.join("\n"));
+    QToolTip::showText(pos, infoList);
+}
+
+void AISBaseStationElement::copyDataFromOther(std::shared_ptr<Element> other)
+{
+    if(!other) return;
+    AISBaseStationElement *src = dynamic_cast<AISBaseStationElement*>(other.get());
+    if(src)
+    {
+        this->setData(src->data());
+    }
 }
 
 void AISRadarFuseElement::drawElement(QPainter *painter)
@@ -155,6 +264,16 @@ void AISRadarFuseElement::updateGeometry(QPointF pos, qreal size)
 
     m_boundingRect =  m_polygon.boundingRect().normalized();
     Element::updateGeometry(pos, size);
+}
+
+void AISRadarFuseElement::copyDataFromOther(std::shared_ptr<Element> other)
+{
+    if(!other) return;
+    AISRadarFuseElement *src = dynamic_cast<AISRadarFuseElement*>(other.get());
+    if(src)
+    {
+        this->setData(src->data());
+    }
 }
 
 
@@ -207,6 +326,16 @@ void CDMAElement::updateGeometry(QPointF pos, qreal size)
     Element::updateGeometry(pos, size);
 }
 
+void CDMAElement::copyDataFromOther(std::shared_ptr<Element> other)
+{
+    if(!other) return;
+    CDMAElement *src = dynamic_cast<CDMAElement*>(other.get());
+    if(src)
+    {
+        this->setData(src->data());
+    }
+}
+
 
 void BigDipperElement::drawElement(QPainter *painter)
 {
@@ -249,6 +378,26 @@ void BigDipperElement::updateGeometry(QPointF pos, qreal size)
     m_bdRect.moveCenter(pos);
     m_boundingRect =  m_bdRect.adjusted(-1,-1,1,1);
     Element::updateGeometry(pos, size);
+}
+
+void BigDipperElement::copyDataFromOther(std::shared_ptr<Element> other)
+{
+    if(!other) return;
+    BigDipperElement *src = dynamic_cast<BigDipperElement*>(other.get());
+    if(src)
+    {
+        this->setData(src->data());
+    }
+}
+
+void CameraRegionElement::copyDataFromOther(std::shared_ptr<Element> other)
+{
+    if(!other) return;
+    CameraRegionElement *src = dynamic_cast<CameraRegionElement*>(other.get());
+    if(src)
+    {
+        this->setData(src->data());
+    }
 }
 
 void CameraRegionElement::drawRegion(QPainter *painter, const QColor& penColor, const QColor& brushColor)
@@ -374,6 +523,16 @@ void DramCircularElement::updateGeometry(QPointF pos, qreal size)
 
 }
 
+void DramCircularElement::copyDataFromOther(std::shared_ptr<Element> other)
+{
+    if(!other) return;
+    DramCircularElement *src = dynamic_cast<DramCircularElement*>(other.get());
+    if(src)
+    {
+        this->setData(src->data());
+    }
+}
+
 void VesselTargetElement::drawElement(QPainter *painter)
 {
     if(!isDrawAvailable(painter)) return;
@@ -412,6 +571,15 @@ void VesselTargetElement::updateGeometry(QPointF pos, qreal size)
     Element::updateGeometry(pos, size);
 }
 
+void VesselTargetElement::copyDataFromOther(std::shared_ptr<Element> other)
+{
+    if(!other) return;
+    VesselTargetElement *src = dynamic_cast<VesselTargetElement*>(other.get());
+    if(src)
+    {
+        this->setData(src->data());
+    }
+}
 
 void VesselTrackLineElement::drawElement(QPainter *painter)
 {
@@ -456,6 +624,35 @@ void VesselTrackElement::updateGeometry(QPointF pos, qreal size)
     Element::updateGeometry(pos, size);
 }
 
+void VesselTrackElement::copyDataFromOther(std::shared_ptr<Element> other)
+{
+    if(!other) return;
+    VesselTrackElement *src = dynamic_cast<VesselTrackElement*>(other.get());
+    if(src)
+    {
+        this->setData(src->data());
+    }
+}
+
+void VesselTrackLineElement::copyDataFromOther(std::shared_ptr<Element> other)
+{
+    if(!other) return;
+    VesselTrackLineElement *src = dynamic_cast<VesselTrackLineElement*>(other.get());
+    if(src)
+    {
+        this->setData(src->data());
+    }
+}
+
+void HistoryTraceElement::copyDataFromOther(std::shared_ptr<Element> other)
+{
+    if(!other) return;
+    HistoryTraceElement *src = dynamic_cast<HistoryTraceElement*>(other.get());
+    if(src)
+    {
+        this->setData(src->data());
+    }
+}
 
 void HistoryTraceElement::drawElement(QPainter *painter)
 {
@@ -493,6 +690,16 @@ void WeatherWindWavesElement::updateGeometry(QPointF pos, qreal size)
     m_boundingRect = QRectF(0,0,weatherImg.width(),weatherImg.height());
     m_boundingRect.moveCenter(pos);
     Element::updateGeometry(pos, size);
+}
+
+void WeatherWindWavesElement::copyDataFromOther(std::shared_ptr<Element> other)
+{
+    if(!other) return;
+    WeatherWindWavesElement *src = dynamic_cast<WeatherWindWavesElement*>(other.get());
+    if(src)
+    {
+        this->setData(src->data());
+    }
 }
 
 

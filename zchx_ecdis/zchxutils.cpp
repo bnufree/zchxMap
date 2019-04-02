@@ -1246,6 +1246,7 @@ QString ITF_CameraDev::getCameraTypeString() const
     default:
         break;
     }
+    return res;
 }
 
 }

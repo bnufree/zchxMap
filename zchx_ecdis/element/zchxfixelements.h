@@ -12,6 +12,7 @@ public:
     explicit  EllipseElement(const ZCHX::Data::ITF_EleEllipse &ele, zchxMapWidget* w)
         :FixElement<ZCHX::Data::ITF_EleEllipse>(ele, ZCHX::Data::ELE_ELLIPSE, ZCHX::LAYER_ELLIPSE, w) {}
     void drawElement(QPainter* painter);
+    void copyDataFromOther(std::shared_ptr<Element> other);
 
 };
 
@@ -20,6 +21,7 @@ class ZCHX_ECDIS_EXPORT TriangleElement : public FixElement<ZCHX::Data::ITF_EleT
 {
     explicit  TriangleElement(const ZCHX::Data::ITF_EleTriangle &ele, zchxMapWidget* w)
         :FixElement<ZCHX::Data::ITF_EleTriangle>(ele, ZCHX::Data::ELE_TRIANGLE, ZCHX::LAYER_TRIANGLE, w) {}
+    void copyDataFromOther(std::shared_ptr<Element> other);
 };
 
 //直线
@@ -27,6 +29,8 @@ class ZCHX_ECDIS_EXPORT LineElement : public FixElement<ZCHX::Data::ITF_EleLine>
 {
     explicit  LineElement(const ZCHX::Data::ITF_EleLine &ele, zchxMapWidget* w)
         :FixElement<ZCHX::Data::ITF_EleLine>(ele, ZCHX::Data::ELE_LINE,ZCHX::LAYER_LINE, w) {}
+
+    void copyDataFromOther(std::shared_ptr<Element> other);
 };
 
 
@@ -36,6 +40,8 @@ class ZCHX_ECDIS_EXPORT RectElement : public FixElement<ZCHX::Data::ITF_EleRect>
 {
     explicit  RectElement(const ZCHX::Data::ITF_EleRect &ele, zchxMapWidget* w)
         :FixElement<ZCHX::Data::ITF_EleRect>(ele, ZCHX::Data::ELE_RECT, ZCHX::LAYER_RECT, w) {}
+
+    void copyDataFromOther(std::shared_ptr<Element> other);
 };
 
 /*标准图元*/
@@ -48,6 +54,7 @@ public:
     explicit  LocalMarkElement(const ZCHX::Data::ITF_LocalMark &ele, zchxMapWidget* w)
         :FixElement<ZCHX::Data::ITF_LocalMark>(ele, ZCHX::Data::ELE_LOCALMARK, ZCHX::LAYER_LOCALMARK,w) {}
     void drawElement(QPainter *painter);
+    void copyDataFromOther(std::shared_ptr<Element> other);
 };
 
 //导航
@@ -57,6 +64,8 @@ public:
     explicit  NavigationElement(const ZCHX::Data::ITF_Navigation &ele, zchxMapWidget* w)
         :FixElement<ZCHX::Data::ITF_Navigation>(ele, ZCHX::Data::ELE_NAVIGATION, ZCHX::LAYER_NAVIGATION_MARK, w) {}
 
+    void copyDataFromOther(std::shared_ptr<Element> other);
+
 };
 
 //危险圈
@@ -65,6 +74,7 @@ class ZCHX_ECDIS_EXPORT DangerousCircleElement : public FixElement<ZCHX::Data::I
 public:
     explicit DangerousCircleElement(const ZCHX::Data::ITF_DangerousCircle &data, zchxMapWidget* w)
     :FixElement<ZCHX::Data::ITF_DangerousCircle>(data, ZCHX::Data::ELE_DANGREOUS, ZCHX::LAYER_DANGEROUS_CIRLE, w) {}
+    void copyDataFromOther(std::shared_ptr<Element> other);
 };
 
 //特征区域
@@ -74,6 +84,7 @@ public:
     explicit RadarFeatureZoneElement(const ZCHX::Data::ITF_RadarFeaturesZone &data, zchxMapWidget* w)
     :FixElement<ZCHX::Data::ITF_RadarFeaturesZone>(data, ZCHX::Data::ELE_RADAR_FEATURE_ZONE, ZCHX::LAYER_RADAR_FRETURE_AREA, w) {}
     void drawElement(QPainter *painter);
+    void copyDataFromOther(std::shared_ptr<Element> other);
 };
 
 //相机视场
@@ -82,6 +93,7 @@ class ZCHX_ECDIS_EXPORT CameraViewElement : public FixElement<ZCHX::Data::ITF_Ca
 public:
     explicit CameraViewElement(const ZCHX::Data::ITF_CameraView &data, zchxMapWidget* w)
     :FixElement<ZCHX::Data::ITF_CameraView>(data, ZCHX::Data::ELE_CAMERA_VIEW, ZCHX::LAYER_CAMERA_VIEW, w) {}
+    void copyDataFromOther(std::shared_ptr<Element> other);
 };
 
 //AIS基站
@@ -95,6 +107,7 @@ public:
     void updateGeometry(QPointF pos, qreal size);
     virtual void clicked(bool isDouble ) {}
     virtual void showToolTip(const QPoint& pos);
+    void copyDataFromOther(std::shared_ptr<Element> other);
 private:
     QPolygonF   m_polygon;
 
@@ -108,6 +121,7 @@ public:
     :FixElement<ZCHX::Data::ITF_AIS>(data, ZCHX::Data::ELE_AIS_FUSION, ZCHX::LAYER_AIS_FUSION, w) {}
     void drawElement(QPainter *painter) ;
     void updateGeometry(QPointF pos, qreal size);
+    void copyDataFromOther(std::shared_ptr<Element> other);
 
 private:
     QPolygonF m_polygon;
@@ -126,6 +140,8 @@ public:
 
     void drawElement(QPainter *painter) ;
     void updateGeometry(QPointF pos, qreal size);
+    void copyDataFromOther(std::shared_ptr<Element> other);
+
 private:
     QPolygonF m_polygon;
     qreal m_oldCog; //上一次的航向
@@ -144,6 +160,7 @@ public:
     }
     void drawElement(QPainter *painter) ;
     void updateGeometry(QPointF pos, qreal size);
+    void copyDataFromOther(std::shared_ptr<Element> other);
 private:
     QRectF m_bdRect;
     qreal m_oldCog; //上一次的航向
@@ -161,6 +178,7 @@ public:
     void updateGeometry(QPointF pos, qreal size);
     inline bool isVisited() const {return m_isVisited;}
     inline void setIsVisited(bool isVisited) {m_isVisited = isVisited;}
+    void copyDataFromOther(std::shared_ptr<Element> other);
 private:
     void drawRegion(QPainter* painter, const QColor& pen, const QColor& brush);
     void drawText(QPainter *painter, bool adjust_text_pos,  const QString& ststext, const QString& photoText = QString());
@@ -180,6 +198,7 @@ public:
 
     void drawElement(QPainter *painter) ;
     void updateGeometry(QPointF pos, qreal size);
+    void copyDataFromOther(std::shared_ptr<Element> other);
 private:
 
 private:
@@ -196,6 +215,7 @@ public:
 
     void drawElement(QPainter *painter) ;
     void updateGeometry(QPointF pos, qreal size);
+    void copyDataFromOther(std::shared_ptr<Element> other);
 private:
 
 private:
@@ -212,6 +232,7 @@ public:
 
     void drawElement(QPainter *painter) ;
     void updateGeometry(QPointF pos, qreal size);
+    void copyDataFromOther(std::shared_ptr<Element> other);
 private:
 
 private:
@@ -227,6 +248,7 @@ public:
 
     void drawElement(QPainter *painter) ;
     void updateGeometry(QPointF pos, qreal size);
+    void copyDataFromOther(std::shared_ptr<Element> other);
 private:
 
 private:
@@ -241,6 +263,7 @@ public:
     {}
 
     void drawElement(QPainter *painter) ;
+    void copyDataFromOther(std::shared_ptr<Element> other);
 private:
 
 private:
@@ -257,6 +280,7 @@ public:
 
     void drawElement(QPainter *painter) ;
     void updateGeometry(QPointF pos, qreal size);
+    void copyDataFromOther(std::shared_ptr<Element> other);
 
 private:
    QPixmap weatherImg;

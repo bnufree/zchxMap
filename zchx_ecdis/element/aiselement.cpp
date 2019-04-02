@@ -80,6 +80,16 @@ void AisHistoryElement::drawHistoryTrackPoint(QPainter *painter)
     }
 }
 
+void AisHistoryElement::copyDataFromOther(std::shared_ptr<Element> other)
+{
+    if(!other) return;
+    AisHistoryElement *src = dynamic_cast<AisHistoryElement*>(other.get());
+    if(src)
+    {
+        this->setData(src->data());
+    }
+}
+
 bool AisHistoryElement::contains(const QPoint &pt)
 {
     //检查轨迹是否选中
@@ -884,5 +894,15 @@ void AisElement::slotSetWhiteList()
 void AisElement::slotSetCPATrack()
 {
     if(mView) mView->signalCreateCPATrack(getID());
+}
+
+void AisElement::copyDataFromOther(std::shared_ptr<Element> other)
+{
+    if(!other) return;
+    AisElement* src = dynamic_cast<AisElement*>(other.get());
+    if(src)
+    {
+        this->setData(src->data());
+    }
 }
 

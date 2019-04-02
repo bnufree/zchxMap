@@ -56,5 +56,16 @@ void VideoTargetElement::drawElement(QPainter *painter)
     painter->drawText(QPointF(rect.x() + rect.width() +3,rect.y()),getObjId());
     drawActive(painter);
 }
+
+void VideoTargetElement::copyDataFromOther(std::shared_ptr<Element> other)
+{
+    if(!other) return;
+    VideoTargetElement *src = dynamic_cast<VideoTargetElement*>(other.get());
+    if(src)
+    {
+        this->setData(src->data());
+    }
+}
+
 }
 

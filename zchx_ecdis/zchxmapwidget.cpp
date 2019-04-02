@@ -640,6 +640,7 @@ void zchxMapWidget::mousePressEvent(QMouseEvent *e)
 
         }
         menu.exec(QCursor::pos());
+        qDebug()<<"list:"<<menu.actions().size();
     }
 }
 
@@ -1675,10 +1676,9 @@ void zchxMapWidget::setHoverDrawElement(const ZCHX::Data::Point2D &pos)
     //检查各个数据管理类,获取当前选择的目标
     foreach (std::shared_ptr<MapLayer> mgr, LayerMgr->getLayerTree()) {
         if(!mgr) continue;
-        Element *ele = mgr->hoverElement(pos.toPoint()).get();
+        std::shared_ptr<Element>ele = mgr->hoverElement(pos.toPoint());
         if(ele)
         {
-            qDebug()<<"ele:"<<ele<<ele->getID()<<ele->layerName();
             ele->showToolTip(mapToGlobal(pos.toPoint()));
         }
     }

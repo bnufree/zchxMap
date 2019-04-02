@@ -4,6 +4,16 @@
 
 namespace qt {
 
+void StructureElement::copyDataFromOther(std::shared_ptr<Element> other)
+{
+    if(!other) return;
+    StructureElement *src = dynamic_cast<StructureElement*>(other.get());
+    if(src)
+    {
+        this->setData(src->data());
+    }
+}
+
 void StructureElement::drawElement(QPainter *painter)
 {
     if(!isDrawAvailable(painter)) return;

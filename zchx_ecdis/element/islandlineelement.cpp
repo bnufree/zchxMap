@@ -8,6 +8,16 @@ std::string IslandLineElement::content() const
     return m_content;
 }
 
+void IslandLineElement::copyDataFromOther(std::shared_ptr<Element> other)
+{
+    if(!other) return;
+    IslandLineElement *src = dynamic_cast<IslandLineElement*>(other.get());
+    if(src)
+    {
+        this->setData(src->data());
+    }
+}
+
 void IslandLineElement::setContent(const std::string &content)
 {
     m_content = content;

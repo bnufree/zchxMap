@@ -4,6 +4,16 @@
 
 namespace qt {
 
+void ShipAlarmAscendElement::copyDataFromOther(std::shared_ptr<Element> other)
+{
+    if(!other) return;
+    ShipAlarmAscendElement *src = dynamic_cast<ShipAlarmAscendElement*>(other.get());
+    if(src)
+    {
+        this->setData(src->data());
+    }
+}
+
 void ShipAlarmAscendElement::drawElement(QPainter *painter)
 {
     if(!painter || !MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_ALARMASCEND)) return;

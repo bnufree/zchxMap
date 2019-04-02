@@ -152,6 +152,16 @@ void RadarAreaElement::drawElement(QPainter *painter)
     }
 }
 
+void RadarAreaElement::copyDataFromOther(std::shared_ptr<Element> other)
+{
+    if(!other) return;
+    RadarAreaElement *src = dynamic_cast<RadarAreaElement*>(other.get());
+    if(src)
+    {
+        this->setData(src->data());
+    }
+}
+
 QPolygonF RadarAreaElement::getShapePnts(double angleFromNorth) const
 {
     QPolygonF polygon;
@@ -265,6 +275,16 @@ void RadarPointElement::initFromSettings()
     //qDebug()<<"radar ini seetings."<<mDrawAsAis<<mRadarShape<<mFillingColor.name()<<mTextColor.name()<<mConcernColor.name()<<mBorderColor.name();
 }
 
+void RadarPointElement::copyDataFromOther(std::shared_ptr<Element> other)
+{
+    if(!other) return;
+    RadarPointElement *src = dynamic_cast<RadarPointElement*>(other.get());
+    if(src)
+    {
+        this->setData(src->data());
+    }
+}
+
 void RadarPointElement::drawElement(QPainter *painter)
 {
     if(!isDrawAvailable(painter)) return;
@@ -284,6 +304,7 @@ void RadarPointElement::drawElement(QPainter *painter)
     QPointF pos = getCurrentPos();
     int sideLen = getDrawScaleSize();
     updateGeometry(pos, sideLen);
+    //qDebug()<<"radar mbound rect:"<<m_boundingRect.topLeft()<<m_boundingRect.size();
     double angleFromNorth = mView->framework()->GetRotateAngle(); //计算当前正北方向的方向角
     QColor fillColor = getIsConcern() ? getConcernColor() : getFillingColor();
     //地图缩放比例小于10级的情况只画点

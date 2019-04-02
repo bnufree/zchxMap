@@ -28,7 +28,9 @@ public:
     void     drawActive(QPainter * painter);
     void     setHistoryTrackStyle(const QString &color, const int lineWidth);
     bool     contains(const QPoint &pos);
-    void     setBigDisplayIndex(int i) {mBigDisplayHistoryIndex = 1;}
+    void     setBigDisplayIndex(int i) {mBigDisplayHistoryIndex = i;}
+    void     copyDataFromOther(std::shared_ptr<Element> other);
+
 private:
     void    drawHistoryTrackPolyLine(std::vector<QPointF>& pts, QPainter* painter);
     void    drawHistoryTrackPoint(QPainter *painter);
@@ -110,6 +112,8 @@ public:
     void setLabelDisplayMode(SHIP_ITEMs mode) {mLabelDisplayMode = mode;}
     //碰撞船舶
     void setCollideAis(const ZCHX::Data::ITF_AIS& data) {mCollideAis = data;}
+
+    void copyDataFromOther(std::shared_ptr<Element> other);
 signals:
 public slots:
     void slotOpenCameraList();

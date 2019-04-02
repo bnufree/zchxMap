@@ -15,6 +15,7 @@ public:
     QString getWarnColor(){return m_data.warnColor;}
     void drawElement(QPainter* painter);
     void clicked(bool isDouble);
+    void copyDataFromOther(std::shared_ptr<Element> other);
 };
 
 //海岸数据
@@ -25,6 +26,7 @@ public:
         : zchxMoveElement<ZCHX::Data::ITF_CoastData>(ele, ZCHX::Data::ELE_COAST, ZCHX::LAYER_COASTDATA, w) {}
     void drawElement(QPainter* painter);
     void clicked(bool isDouble){}
+    void copyDataFromOther(std::shared_ptr<Element> other);
 };
 
 //海底岸线数据
@@ -35,6 +37,7 @@ public:
         : zchxMoveElement<ZCHX::Data::ITF_SeabedPipeLine>(ele, ZCHX::Data::ELE_SEABEDPIPLINE, ZCHX::LAYER_SEABEDPIPELINE, w) {}
     void drawElement(QPainter* painter);
     void clicked(bool isDouble){}
+    void copyDataFromOther(std::shared_ptr<Element> other);
 };
 
 //地理区域网络
@@ -45,6 +48,7 @@ public:
         : zchxMoveElement<ZCHX::Data::ITF_AreaNet>(ele, ZCHX::Data::ELE_AREA_NET, ZCHX::LAYER_AREANET, w) {}
     void drawElement(QPainter *painter);
     void clicked(bool isDouble){}
+    void copyDataFromOther(std::shared_ptr<Element> other);
 };
 
 //卡口
@@ -55,6 +59,7 @@ public:
         : zchxMoveElement<ZCHX::Data::ITF_CardMouth>(ele, ZCHX::Data::ELE_CARD_MOUTH, ZCHX::LAYER_CARDMOUTH, w) {}
     void drawElement(QPainter *painter);
     void clicked(bool isDouble);
+    void copyDataFromOther(std::shared_ptr<Element> other);
 };
 
 //航道
@@ -66,6 +71,7 @@ public:
     void drawElement(QPainter *painter);
     void setLineSelected(int i, bool selectStatus);
     void clicked(bool isDouble);
+    void copyDataFromOther(std::shared_ptr<Element> other);
 };
 
 //锚泊
@@ -76,6 +82,7 @@ public:
         : zchxMoveElement<ZCHX::Data::ITF_Mooring>(ele, ZCHX::Data::ELE_MOOR, ZCHX::LAYER_MOORING, w) {}
     void drawElement(QPainter *painter);
     void clicked(bool isDouble);
+    void copyDataFromOther(std::shared_ptr<Element> other);
 };
 }
 

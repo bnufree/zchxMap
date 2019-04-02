@@ -1,6 +1,6 @@
 #include "zchxdrawlocalmarktool.h"
 #include "zchxmapframe.h"
-#include "localmarkdlg.h"
+#include "dialog/localmarkdlg.h"
 
 using namespace qt;
 using namespace ZCHX::Data;

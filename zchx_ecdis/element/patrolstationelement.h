@@ -11,6 +11,7 @@ public:
     explicit PastrolStationElement(const ZCHX::Data::ITF_PastrolRadarStation &data, zchxMapWidget* f);
     void updateGeometry(QPointF, qreal){}
     void drawElement(QPainter *painter);
+    void copyDataFromOther(std::shared_ptr<Element> other);
 
 private:
 };

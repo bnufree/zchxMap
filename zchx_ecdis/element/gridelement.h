@@ -12,6 +12,7 @@ public:
         :FixElement<ZCHX::Data::ITF_NetGrid>(ele, ZCHX::Data::ELE_GRID, ele.mLayer, w) {}
     void drawElement(QPainter *painter);
     void updateGeometry(QPointF pos, qreal size) {}
+    void copyDataFromOther(std::shared_ptr<Element> other);
 
 private:
     void drawCameraGrid(QPainter* painter);

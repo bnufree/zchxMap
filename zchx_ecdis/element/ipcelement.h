@@ -14,6 +14,7 @@ public:
     int status() const;
     virtual void drawElement(QPainter *painter) {}
     void updateGeometry(QPointF pos, qreal size) {}
+    void copyDataFromOther(std::shared_ptr<Element> other);
 private:
 };
 }

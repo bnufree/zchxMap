@@ -64,6 +64,16 @@ void WarningZoneElement::clicked(bool isDouble)
     }
 }
 
+void WarningZoneElement::copyDataFromOther(std::shared_ptr<Element> other)
+{
+    if(!other) return;
+    WarningZoneElement* src = dynamic_cast<WarningZoneElement*>(other.get());
+    if(src)
+    {
+        this->setData(src->data());
+    }
+}
+
 void CoastElement::drawElement(QPainter *painter)
 {
     if(!this->isDrawAvailable(painter)) return;
@@ -107,6 +117,16 @@ void CoastElement::drawElement(QPainter *painter)
     painter->setBrush(Qt::NoBrush);
     painter->drawPath(polygon);
     painter->drawText(polygon.boundingRect().center(),name);
+}
+
+void CoastElement::copyDataFromOther(std::shared_ptr<Element> other)
+{
+    if(!other) return;
+    CoastElement* src = dynamic_cast<CoastElement*>(other.get());
+    if(src)
+    {
+        this->setData(src->data());
+    }
 }
 
 void SeabedPipeLineElement::drawElement(QPainter *painter)
@@ -153,6 +173,16 @@ void SeabedPipeLineElement::drawElement(QPainter *painter)
     painter->drawText(polygon.boundingRect().center(),name);
 }
 
+void SeabedPipeLineElement::copyDataFromOther(std::shared_ptr<Element> other)
+{
+    if(!other) return;
+    SeabedPipeLineElement* src = dynamic_cast<SeabedPipeLineElement*>(other.get());
+    if(src)
+    {
+        this->setData(src->data());
+    }
+}
+
 void AreaNetElement::drawElement(QPainter *painter)
 {
     if(!this->isDrawAvailable(painter)) return;
@@ -187,6 +217,16 @@ void AreaNetElement::drawElement(QPainter *painter)
     painter->setBrush(QBrush(Qt::blue, Qt::Dense7Pattern));
     painter->drawPolygon(polygon);
     painter->drawText(polygon.boundingRect().center(),name);
+}
+
+void AreaNetElement::copyDataFromOther(std::shared_ptr<Element> other)
+{
+    if(!other) return;
+    AreaNetElement* src = dynamic_cast<AreaNetElement*>(other.get());
+    if(src)
+    {
+        this->setData(src->data());
+    }
 }
 
 void CardMouthElement::drawElement(QPainter *painter)
@@ -243,6 +283,16 @@ void CardMouthElement::clicked(bool isDouble)
         {
             mView->signalIsSelected4CardMouthZone(data());
         }
+    }
+}
+
+void CardMouthElement::copyDataFromOther(std::shared_ptr<Element> other)
+{
+    if(!other) return;
+    CardMouthElement* src = dynamic_cast<CardMouthElement*>(other.get());
+    if(src)
+    {
+        this->setData(src->data());
     }
 }
 
@@ -349,6 +399,16 @@ void ChannelElement::clicked(bool isDouble)
     }
 }
 
+void ChannelElement::copyDataFromOther(std::shared_ptr<Element> other)
+{
+    if(!other) return;
+    ChannelElement* src = dynamic_cast<ChannelElement*>(other.get());
+    if(src)
+    {
+        this->setData(src->data());
+    }
+}
+
 void MooringElement::drawElement(QPainter *painter)
 {
     if(!this->isDrawAvailable(painter)) return;
@@ -398,6 +458,16 @@ void MooringElement::clicked(bool isDouble)
         {
             mView->signalIsSelected4MooringZone(data());
         }
+    }
+}
+
+void MooringElement::copyDataFromOther(std::shared_ptr<Element> other)
+{
+    if(!other) return;
+    MooringElement* src = dynamic_cast<MooringElement*>(other.get());
+    if(src)
+    {
+        this->setData(src->data());
     }
 }
 

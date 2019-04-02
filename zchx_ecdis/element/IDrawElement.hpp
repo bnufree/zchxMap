@@ -146,6 +146,7 @@ public:
     //图元双击的处理
     virtual void clicked(bool isDouble ) {}
     virtual void showToolTip(const QPoint& pos) {}
+    virtual QString toolTipString() const {return QString("");}
 
     void addChild(std::shared_ptr<Element> child);
     void removeChild(std::shared_ptr<Element> child);
@@ -222,6 +223,7 @@ public:
     //element 是否固定
     bool    isFixElement() const {return m_fixelement;}
     void    setFix(bool fix) {m_fixelement = fix;}
+    virtual void copyDataFromOther(std::shared_ptr<Element> other) {}
 
 signals:
 

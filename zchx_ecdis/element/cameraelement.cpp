@@ -117,3 +117,23 @@ void CameraElement::showToolTip(const QPoint &pos)
     QToolTip::showText(pos,base_text);
 }
 
+QString CameraElement::toolTipString() const
+{
+    ZCHX::Data::ITF_CameraDev info = data();
+    QString base_text = QObject::tr("相机名称: ")+info.szCamName+"\n";
+    base_text += QObject::tr("经度: ")+FLOAT_STRING(info.getLon(), 6)+"\n";
+    base_text += QObject::tr("纬度: ")+FLOAT_STRING(info.getLat(), 6)+"\n";
+    base_text += QObject::tr("相机类型: ")+info.getCameraTypeString();
+    return base_text;
+}
+
+void CameraElement::copyDataFromOther(std::shared_ptr<Element> other)
+{
+    if(!other) return;
+    CameraElement *src = dynamic_cast<CameraElement*>(other.get());
+    if(src)
+    {
+        this->setData(src->data());
+    }
+}
+

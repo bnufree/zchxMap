@@ -17,6 +17,7 @@ public:
     void setColor(QString color);
     void updateGeometry(QPointF, qreal){}
     void drawElement(QPainter *painter);
+    void copyDataFromOther(std::shared_ptr<Element> other);
 
 private:
     std::string      m_content;

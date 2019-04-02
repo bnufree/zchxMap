@@ -4,6 +4,16 @@
 
 using namespace qt;
 
+void GridElement::copyDataFromOther(std::shared_ptr<Element> other)
+{
+    if(!other) return;
+    GridElement *src = dynamic_cast<GridElement*>(other.get());
+    if(src)
+    {
+        this->setData(src->data());
+    }
+}
+
 void GridElement::drawElement(QPainter *painter)
 {
     if(!isDrawAvailable(painter)) return;

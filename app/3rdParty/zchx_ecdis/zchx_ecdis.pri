@@ -30,9 +30,9 @@ exists( $${ZCHX_ECDIS_PATH} ) {
     ZCHX_ECDIS_install.path = $${IDE_APP_PATH}/
     INSTALLS += ZCHX_ECDIS_install
 
-    ZCHX_ECDIS_SETTING.files += $${ZCHX_ECDIS_PATH}/bin/mapdata/*
-    ZCHX_ECDIS_SETTING.path = $${IDE_APP_PATH}/mapdata/
-    INSTALLS += ZCHX_ECDIS_SETTING
+#    ZCHX_ECDIS_SETTING.files += $${ZCHX_ECDIS_PATH}/bin/mapdata/*
+#    ZCHX_ECDIS_SETTING.path = $${IDE_APP_PATH}/mapdata/
+#    INSTALLS += ZCHX_ECDIS_SETTING
 
     warning("app path:" + $${IDE_APP_PATH})
 }

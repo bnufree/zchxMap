@@ -7,6 +7,16 @@ IPCElement::IPCElement(const ZCHX::Data::IPCastDevice &data, zchxMapWidget* f)
 {
 }
 
+void IPCElement::copyDataFromOther(std::shared_ptr<Element> other)
+{
+    if(!other) return;
+    IPCElement *src = dynamic_cast<IPCElement*>(other.get());
+    if(src)
+    {
+        this->setData(src->data());
+    }
+}
+
 void IPCElement::setStatus(int sts)
 {
     m_data.status = sts;

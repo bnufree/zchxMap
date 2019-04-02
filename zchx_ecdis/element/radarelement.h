@@ -37,6 +37,7 @@ public:
     virtual void initFromSettings();
     //目标描绘
     void drawElement(QPainter *painter);
+    void copyDataFromOther(std::shared_ptr<Element> other);
     //绘制轨迹点
     void drawTrack(QPainter *painter);
     void drawText(QPainter *painter, QPointF pos, int sideLen);
@@ -81,6 +82,7 @@ public:
     bool contains(const QPoint& pos) {return mShapePnts.contains(pos);}
     QPolygonF getShapePnts(double angleFromNorth) const;
     void updateGeometry(QPointF pos, qreal size) {}
+    void copyDataFromOther(std::shared_ptr<Element> other);
 private:
     QPolygonF mShapePnts;
 };

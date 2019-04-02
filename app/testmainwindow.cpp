@@ -2,6 +2,7 @@
 #include "ui_testmainwindow.h"
 #include <QDateTime>
 #include "qt/zchxutils.hpp"
+#include "qt/element/fixelement.h"
 
 TestMainWindow::TestMainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -102,6 +103,12 @@ TestMainWindow::TestMainWindow(QWidget *parent) :
     mTestTimer->start();
 //    m_pEcdisWin->itfsetPluginUseModel(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL);
 //    m_pEcdisWin->itfToolBarChannelAreaAdd();
+    ZCHX::Data::ITF_AISBASESTATION cam;
+    cam.latItude = 22.223459;
+    cam.longIteude = 113.083457;
+    cam.aisName = tr("test ais station");
+    cam.aisId = "1";
+    m_pEcdisWin->itfGetLayer(ZCHX::LAYER_AIS_STATION)->addElement(std::shared_ptr<qt::Element>(new qt::AISBaseStationElement(cam, m_pEcdisWin->getMapWidget()) ));
 }
 
 TestMainWindow::~TestMainWindow()
@@ -145,6 +152,9 @@ void TestMainWindow::slotTimerout()
         radarList.append(item);
     }
 
-//    m_pEcdisWin->itfSetRadarPointData(radarList);
+    m_pEcdisWin->itfSetRadarPointData(radarList);
     m_pEcdisWin->itfSetAisData(aisList);
+
+
+
 }

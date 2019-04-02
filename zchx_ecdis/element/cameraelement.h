@@ -25,6 +25,8 @@ public:
     Element* getParent();
     void clicked(bool isDouble);
     void showToolTip(const QPoint &pos);
+    void copyDataFromOther(std::shared_ptr<Element> other);
+    QString toolTipString() const;
 private:
     Element     *mParent;               //相机悬挂的目标
 };
