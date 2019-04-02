@@ -39,7 +39,7 @@ TargetRoot=$$dirname(PWD)
 BINARIES_PATH = $$TargetRoot/out/$$CONFIG_NAME
 DESTDIR = $$BINARIES_PATH
 warning("dest:" + $$DESTDIR)
-#翻译文件
+#
 TRANSLATIONS += $$PWD/translations/zchx_ecdis_zh_CN.ts
 exists($$PWD/translations/zchx_ecdis_zh_CN.ts){
     mkpath($$BINARIES_PATH/translations)

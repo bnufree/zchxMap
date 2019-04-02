@@ -22,7 +22,7 @@ void PastrolStationElement::drawElement(QPainter *painter)
 {
     if(!isDrawAvailable(painter)) return ;
     QString img_name;
-    if(data().type == ZCHX::Data::ECDIS_STATION_RADAR)
+    if(data().type == ZCHX::Data::ECDIS_STATION_PATROL)
     {
         img_name = ":/element/XlzVo.png";
     } else {
@@ -38,6 +38,17 @@ void PastrolStationElement::drawElement(QPainter *painter)
     updateGeometry(pos, curScale);
     painter->drawPixmap(rect, img);
     drawActive(painter);
+}
+
+void PastrolStationElement::showToolTip(const QPoint &pos)
+{
+    ZCHX::Data::ITF_PastrolRadarStation data = this->data();
+    QString infoList;
+    infoList.append(QObject::tr("站点名称：%1").arg(data.getName()) + "\n");
+    infoList.append(QObject::tr("站点ID：%1").arg(data.sbid) + "\n");
+    infoList.append(QObject::tr("经度：%1").arg(FLOAT_STRING(data.getLon(), 6)) + "\n");
+    infoList.append(QObject::tr("纬度：%1").arg(FLOAT_STRING(data.getLat(), 6)));
+    QToolTip::showText(pos, infoList);
 }
 }
 

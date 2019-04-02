@@ -114,6 +114,8 @@ void MapLayerMgr::loadEcdisLayers()
     addLayer(ZCHX::LAYER_VESSEL_TARGET, ZCHX::TR_LAYER_VESSEL_TARGET, true);
     addLayer(ZCHX::LAYER_VESSEL_TRACK, ZCHX::TR_LAYER_VESSEL_TRACK, true);
     addLayer(ZCHX::LAYER_RECT, ZCHX::LAYER_RECT, true);
+    addLayer(ZCHX::LAYER_RADAR_SITE, ZCHX::TR_LAYER_RADAR_STATION, true);
+    addLayer(ZCHX::LAYER_PATROL_SITE, ZCHX::TR_LAYER_PATROL, true);
 
     //添加雷达配置
     std::shared_ptr<MapLayer> layer = MapLayerMgr::instance()->getLayer(ZCHX::LAYER_RADAR);

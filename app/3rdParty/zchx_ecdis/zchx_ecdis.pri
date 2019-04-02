@@ -30,9 +30,16 @@ exists( $${ZCHX_ECDIS_PATH} ) {
     ZCHX_ECDIS_install.path = $${IDE_APP_PATH}/
     INSTALLS += ZCHX_ECDIS_install
 
-#    ZCHX_ECDIS_SETTING.files += $${ZCHX_ECDIS_PATH}/bin/mapdata/*
-#    ZCHX_ECDIS_SETTING.path = $${IDE_APP_PATH}/mapdata/
-#    INSTALLS += ZCHX_ECDIS_SETTING
+# 安装翻译文件
+    ZCHX_ECDIS_translation.files = $${ZCHX_ECDIS_PATH}/translations/*.qm
+    ZCHX_ECDIS_translation.path =  $$IDE_BUILD_TREE/Share/sccmms/translations/
+    #message($$ZCHX_ECDIS_translation.path)
+
+        # 安装资源文件
+        ZCHX_ECDIS_resource.files = $${ZCHX_ECDIS_PATH}/resources/*.rcc
+        ZCHX_ECDIS_resource.path = $$IDE_BUILD_TREE/Share/sccmms/resource/
+
+    INSTALLS += ZCHX_ECDIS_install ZCHX_ECDIS_translation ZCHX_ECDIS_resource
 
     warning("app path:" + $${IDE_APP_PATH})
 }

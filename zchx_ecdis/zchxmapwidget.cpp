@@ -225,7 +225,7 @@ void zchxMapWidget::setPickUpNavigationTarget(const ZCHX::Data::Point2D &pos)
 
 void zchxMapWidget::getPointNealyCamera(const ZCHX::Data::Point2D &pos)
 {
-    if(ZCHX::Data::ECDIS_PICKUP_RADARPOINT !=  mCurPickupType) return;
+//    if(ZCHX::Data::ECDIS_PICKUP_RADARPOINT !=  mCurPickupType) return;
     std::shared_ptr<MapLayer> layer = MapLayerMgr::instance()->getLayer(ZCHX::LAYER_RADAR);
     if(!layer) return;
     Element *ele = layer->pickUpElement(pos.toPoint()).get();
@@ -613,7 +613,13 @@ void zchxMapWidget::mousePressEvent(QMouseEvent *e)
             {
                 menu.addAction(tr("平移"),this,SLOT(releaseDrawStatus()));
                 //处于显示模式时.对各个数据对象进行检查,如果当前选择了目标,且当前鼠标位置在对应的目标范围内,则弹出目标对应的菜单,否则只显示基本的右键菜单
+                bool hotspot_flag = true;
                 if(mCurrentSelectElement){
+                    int type =  mCurrentSelectElement->getElementType();
+                    if( type == ZCHX::Data::ELE_AIS || type == ZCHX::Data::ELE_RADAR_POINT)
+                    {
+                        hotspot_flag = false;
+                    }
                     QList<QAction*> list = mCurrentSelectElement->getRightMenuAction();
                     if(list.size() > 0)
                     {
@@ -621,7 +627,7 @@ void zchxMapWidget::mousePressEvent(QMouseEvent *e)
                     }
                 }
 
-                if(bShowOtherRightKeyMenu && menu.actions().size() == 1)
+                if(bShowOtherRightKeyMenu && hotspot_flag)
                 {
 
                     //                menu.addAction(tr("截屏"),this,SIGNAL(signalScreenShot()));

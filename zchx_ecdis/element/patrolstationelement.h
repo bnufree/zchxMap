@@ -12,6 +12,7 @@ public:
     void updateGeometry(QPointF, qreal){}
     void drawElement(QPainter *painter);
     void copyDataFromOther(std::shared_ptr<Element> other);
+    void showToolTip(const QPoint &pos);
 
 private:
 };
