@@ -602,7 +602,7 @@ void zchxMapWidget::mousePressEvent(QMouseEvent *e)
         //            setCursor(Qt::OpenHandCursor);
     } else if(IsRightButton(e) && mUseRightKey)
     {
-        qDebug()<<"right mouse press event:"<<e->pos();
+        qDebug()<<"right mouse press event:"<<e->pos()<<mToolPtr.get();
         QMenu menu;
         if(mToolPtr) {
             menu.addActions(mToolPtr->getRightMenuActions(e->pos()));
@@ -635,71 +635,7 @@ void zchxMapWidget::mousePressEvent(QMouseEvent *e)
 
             } else
             {
-#if 0
-                //处于编辑模式时,则弹出对应操作的右键菜单
-                //绘制路由线时候，增加右键结束绘制
-                if ROUTELINEDRAW:
-                {
-                    menu.addAction(tr("End draw"),  this,   SLOT(routeLineRightKeyOKSlot()));
-                    menu.addAction(tr("Cancel"),    this,   SLOT(routeLineRightKeyCancelSlot()));
-                }
-                if(isActiveETool && (m_eTool == ROUTEINSERTCTRL ||
-                                     m_eTool == ROUTEMOVECTRL ||
-                                     m_eTool == ROUTEDELCTRL ||
-                                     m_eTool == ROUTEADDCTRL))
-                {
-                    menu.addAction(tr("End edit"),this,SLOT(routeLineRightKeyOKSlot()));
-                    menu.addAction(tr("Cancel"),this,SLOT(routeLineRightKeyCancelSlot()));
-                }
-                if(isActiveETool && (m_eTool == SHIPPLANINSERTCTRL ||
-                                     m_eTool == SHIPPLANMOVECTRL ||
-                                     m_eTool == SHIPPLANEDELCTRL ||
-                                     m_eTool == SHIPPLANADDCTRL))
-                {
-                    menu.addAction(tr("End edit"),this,SLOT(shipPlanLineRightKeyOkSlot()));
-                    menu.addAction(tr("Cancel"),this,SLOT(shipPlanLineRightKeyCancelSlot()));
-                }
-                if(isActiveETool && m_eTool == SHIPPLANDRAW)
-                {
-                    menu.addAction(tr("End draw"),this,SLOT(shipPlanLineRightKeyOkSlot()));
-                    menu.addAction(tr("Cancel"),this,SLOT(shipPlanLineRightKeyCancelSlot()));
-                }
-                if(isActiveETool && m_eTool == COASTDATALINEDRAW)
-                {
-                    menu.addAction(tr("End draw"),this,SLOT(coastDataRightKeyOkSlot()));
-                    menu.addAction(tr("Cancel"),this,SLOT(coastDataRightKeyCancelSlot()));
-                }
-                if(isActiveETool && m_eTool == SEABEDPIPELINEDRAW)
-                {
-                    menu.addAction(tr("End draw"),this,SLOT(seabedPipeLineRightKeyOkSlot()));
-                    menu.addAction(tr("Cancel"),this,SLOT(seabedPipeLineRightKeyCancelSlot()));
-                }
-                if(isActiveETool && m_eTool == STRUCTUREPOINTDRAW)
-                {
-                    menu.addAction(tr("End draw"),this,SLOT(structureRightKeyOkSlot()));
-                    menu.addAction(tr("Cancel"),this,SLOT(structureRightKeyCancelSlot()));
-                    return;
-                }
-                if(isActiveETool && m_eTool == AREANETZONEDRAW)
-                {
-                    menu.addAction(tr("End draw"),this,SLOT(areaNetRightKeyOkSlot()));
-                    menu.addAction(tr("Cancel"),this,SLOT(areaNetRightKeyCancelSlot()));
-                }
-
-
-                if (isActiveETool && m_eTool == SHIPSIMULATIONDRAW)
-                {
-
-                    menu.addAction(tr("End draw"),this,SLOT(shipSlumtionLineRightKeyOKSlot()));
-                    menu.addAction(tr("Cancel"),this,SLOT(shipSlumtionLineRightKeyCancelSlot()));
-                }
-                if (isActiveETool && m_eTool == CUSTOMFLOWLINE)
-                {
-                    menu.addAction(tr("End draw"),this,SLOT(customFlowLineRightKeyOKSlot()));
-                    menu.addAction(tr("Cancel"),this,SLOT(customFlowLineRightKeyCancelSlot()));
-                    return;
-                }
-#endif
+                qDebug()<<"right mouse press event:"<<__LINE__;
             }
 
         }
@@ -1051,7 +987,9 @@ Element* zchxMapWidget::getCurrentSelectedElement()
 
 void zchxMapWidget::setCurrentSelectedItem(Element* item)
 {
+    qDebug()<<"current seleted item:"<<mCurrentSelectElement;
     mCurrentSelectElement = item;
+    qDebug()<<"current seleted item:"<<mCurrentSelectElement;
     emit sigElementSelectionChanged(item);
 }
 
@@ -1736,8 +1674,13 @@ void zchxMapWidget::setHoverDrawElement(const ZCHX::Data::Point2D &pos)
 {
     //检查各个数据管理类,获取当前选择的目标
     foreach (std::shared_ptr<MapLayer> mgr, LayerMgr->getLayerTree()) {
+        if(!mgr) continue;
         Element *ele = mgr->hoverElement(pos.toPoint()).get();
-        if(ele) ele->showToolTip(mapToGlobal(pos.toPoint()));
+        if(ele)
+        {
+            qDebug()<<"ele:"<<ele<<ele->getID()<<ele->layerName();
+            ele->showToolTip(mapToGlobal(pos.toPoint()));
+        }
     }
 }
 

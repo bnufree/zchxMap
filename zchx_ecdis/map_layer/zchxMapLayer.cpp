@@ -219,18 +219,12 @@ std::list<std::shared_ptr<Element> > MapLayer::getElements()
 std::shared_ptr<Element> MapLayer::getElement(const QString &name)
 {
     Q_D(MapLayer);
-    return d->m_elements[name];
-//    for(std::shared_ptr<Element> element : d->m_elements)
-//    {
-//        if(!element) continue;
+    if(d->m_elements.contains(name))
+    {
+        return d->m_elements[name];
+    }
 
-//        if(element->getID() == name)
-//        {
-//            return element;
-//        }
-//    }
-
-//    return 0;
+    return 0;
 }
 
 void MapLayer::update()
@@ -250,7 +244,7 @@ void MapLayer::drawLayer(QPainter *painter)
     Q_D(MapLayer);
     if(!visible()) return;
     //开始画当前图层的图元
-    qDebug()<<"size:"<<d->m_elements.size()<<d->m_type;
+    //qDebug()<<"size:"<<d->m_elements.size()<<d->m_type;
     for(std::shared_ptr<Element> item : d->m_elements)
     {
         if(!item) continue;
@@ -724,7 +718,7 @@ MapLayerPrivate::MapLayerPrivate()
     , m_parent(0)
     , m_pickupAvailable(true)
 {
-
+    m_elements.clear();
 }
 
 MapLayerPrivate::MapLayerPrivate(const QString &type, const QString &displayName, bool visible)
@@ -736,7 +730,7 @@ MapLayerPrivate::MapLayerPrivate(const QString &type, const QString &displayName
     , m_parent(0)
     , m_pickupAvailable(true)
 {
-
+    m_elements.clear();
 }
 
 MapLayerPrivate::MapLayerPrivate(zchxMapWidget *drawWidget, const QString &type, const QString &displayName, bool visible)
@@ -748,6 +742,6 @@ MapLayerPrivate::MapLayerPrivate(zchxMapWidget *drawWidget, const QString &type,
     , m_parent(0)
     , m_pickupAvailable(true)
 {
-
+    m_elements.clear();
 }
 }

@@ -145,6 +145,6 @@ void TestMainWindow::slotTimerout()
         radarList.append(item);
     }
 
-    m_pEcdisWin->itfSetRadarPointData(radarList);
-//    m_pEcdisWin->itfSetAisData(aisList);
+//    m_pEcdisWin->itfSetRadarPointData(radarList);
+    m_pEcdisWin->itfSetAisData(aisList);
 }
