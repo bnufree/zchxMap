@@ -161,7 +161,7 @@ void MapLayer::addElements(QList<std::shared_ptr<Element> > &list, bool check)
     {
         if(!ele->getIsUpdate())
         {
-            qDebug()<<"remove element:"<<ele->getElementType()<<ele->getID();
+            //qDebug()<<"remove element:"<<ele->getElementType()<<ele->getID();
             //删除数据之前，检查数据是否在其他地方是否被使用
             removeConcern(ele->getID());
             removeRealtimeTrack(ele->getID());
@@ -251,7 +251,7 @@ void MapLayer::drawLayer(QPainter *painter)
     for(std::shared_ptr<Element> item : d->m_elements)
     {
         if(!item) continue;
-        if(d->m_drawWidget && !d->m_drawWidget->rect().contains(item->getCurrentPos().toPoint())) continue;
+//        if(d->m_drawWidget && !d->m_drawWidget->rect().contains(item->getCurrentPos().toPoint())) continue;
         //更新各个element的状态
         QString id = item->getID();
         if(isConcern(id)){

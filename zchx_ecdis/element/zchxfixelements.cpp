@@ -135,7 +135,7 @@ void RadarFeatureZoneElement::drawElement(QPainter *painter)
     painter->setPen(QPen(QColor(Qt::red),1,Qt::DashLine));
     painter->setBrush(QBrush(Qt::blue, Qt::Dense7Pattern));
     painter->drawPolygon(polygon);
-    painter->drawText(polygon.boundingRect().center(), data().getName());
+    painter->drawText(polygon.boundingRect().center(), data().getDisplayName());
 }
 
 void RadarFeatureZoneElement::copyDataFromOther(std::shared_ptr<Element> other)

@@ -70,7 +70,7 @@ public:
         m_data = data;
         updateOldPath();
         setIsUpdate(true);
-        setID(m_data.getName());
+        setID(m_data.getID());
     }
     T data() const {return m_data;}
 

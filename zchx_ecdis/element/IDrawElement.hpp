@@ -214,7 +214,7 @@ public:
     //创建菜单关联
     QAction *addAction(const QString &text, const QObject *obj, const char* slot, void* userData = 0);
     //右键菜单
-    virtual QList<QAction*> getRightMenuAction() {}
+    virtual QList<QAction*> getRightMenuAction() {return QList<QAction*>();}
     //预推操作
     bool    getIsExtrapolate() const { return isExtrapolate;}
     void    setIsExtrapolate(bool sts) {isExtrapolate = sts;}

@@ -20,9 +20,9 @@ public:
     virtual void setData(const T& data) {
         m_data = data;
         setIsUpdate(true);
-        setID(m_data.getName());
+        setID(m_data.getID());
     }
-    std::string name() const {return m_data.getName().toStdString();}
+    std::string name() const {return m_data.getDisplayName().toStdString();}
 //    void updateGeometry(QPointF pos, QSize size)
 //    {
 //        m_boundingRect.setSize(size);

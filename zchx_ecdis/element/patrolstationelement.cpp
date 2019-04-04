@@ -44,7 +44,7 @@ void PastrolStationElement::showToolTip(const QPoint &pos)
 {
     ZCHX::Data::ITF_PastrolRadarStation data = this->data();
     QString infoList;
-    infoList.append(QObject::tr("站点名称：%1").arg(data.getName()) + "\n");
+    infoList.append(QObject::tr("站点名称：%1").arg(data.getDisplayName()) + "\n");
     infoList.append(QObject::tr("站点ID：%1").arg(data.sbid) + "\n");
     infoList.append(QObject::tr("经度：%1").arg(FLOAT_STRING(data.getLon(), 6)) + "\n");
     infoList.append(QObject::tr("纬度：%1").arg(FLOAT_STRING(data.getLat(), 6)));

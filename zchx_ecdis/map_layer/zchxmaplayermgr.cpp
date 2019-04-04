@@ -38,7 +38,6 @@ void MapLayerMgr::loadEcdisLayers()
 {
     //雷达回波图层
      addLayer(std::shared_ptr<MapLayer>(new zchxRadarVideoLayer(m_drawWidget, true)));
-
     //ais
     addLayer(std::shared_ptr<MapLayer>(new zchxAisMapLayer(m_drawWidget, true)));
     addLayer(ZCHX::LAYER_HISTORY_AIS, ZCHX::TR_LAYER_HISTORY_AIS, true, ZCHX::LAYER_AIS);  //AIS历史轨迹

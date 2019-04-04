@@ -627,6 +627,8 @@ public slots: //定义Recive数据接口
     void itfRemoveAisTailTrackList(const QStringList& list);
     //PTZ获取
     void itfPickUpPTZ();
+
+    void itfSetZoomLableDisplay(bool display);
 protected Q_SLOTS:
     void OnMeasureAreaAction();
     void OnDirAngleAction();

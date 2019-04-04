@@ -37,7 +37,7 @@ zchxMapWidget::zchxMapWidget(QWidget *parent) : QWidget(parent),
     this->setMouseTracking(true);
     mZoomLbl = new QLabel(this);
     mZoomLbl->setStyleSheet("background-color:transparent; border:none; color:black; font-size:16pt;");
-    mZoomLbl->setVisible(true);
+    setZoomLableDisplay(false);
     QTimer *timer = new QTimer;
     timer->setInterval(Profiles::instance()->value(MAP_INDEX, MAP_UPDATE_INTERVAL).toInt());
     connect(timer, SIGNAL(timeout()), this, SLOT(update()));
@@ -55,6 +55,11 @@ zchxMapWidget::zchxMapWidget(QWidget *parent) : QWidget(parent),
     //数据选择默认为不能选择
     setCurPickupType(ZCHX::Data::ECDIS_PICKUP_TYPE::ECDIS_PICKUP_NONE);
 
+}
+
+void zchxMapWidget::setZoomLableDisplay(bool display)
+{
+    if(mZoomLbl) mZoomLbl->setVisible(display);
 }
 
 zchxMapWidget::~zchxMapWidget()
@@ -80,7 +85,7 @@ void zchxMapWidget::resizeEvent(QResizeEvent *e)
         }
     }
 
-    mZoomLbl->setGeometry(10, 10, 200, 100);
+    if(mZoomLbl->isVisible())mZoomLbl->setGeometry(10, 10, 200, 100);
 }
 
 
@@ -104,7 +109,7 @@ void zchxMapWidget::paintEvent(QPaintEvent *e)
 //    painter.drawEllipse(pnt.x, pnt.y, 5, 5);
     mZoomLbl->setText(QString("Zoom:%1").arg(mFrameWork->Zoom()));
     updateCurrentPos(this->mapFromGlobal(QCursor::pos()));
-    autoChangeCurrentStyle();
+//    autoChangeCurrentStyle();
 }
 
 bool zchxMapWidget::IsLeftButton(Qt::MouseButtons buttons)
@@ -226,19 +231,41 @@ void zchxMapWidget::setPickUpNavigationTarget(const ZCHX::Data::Point2D &pos)
 void zchxMapWidget::getPointNealyCamera(const ZCHX::Data::Point2D &pos)
 {
 //    if(ZCHX::Data::ECDIS_PICKUP_RADARPOINT !=  mCurPickupType) return;
-    std::shared_ptr<MapLayer> layer = MapLayerMgr::instance()->getLayer(ZCHX::LAYER_RADAR);
-    if(!layer) return;
-    Element *ele = layer->pickUpElement(pos.toPoint()).get();
-    if(!ele) return;
-
     ZCHX::Data::LatLon ll = zchxUtilToolLL4CurPoint(pos.toPointF());
     int trackNum = 0;
-    RadarPointElement *item = dynamic_cast<RadarPointElement*>(ele);
-    if(!item) return;
-    trackNum = item->data().trackNumber;
-    ll.lat = item->data().getLat();
-    ll.lon = item->data().getLon();
 
+    bool found_radar = false;
+    std::shared_ptr<MapLayer> layer = MapLayerMgr::instance()->getLayer(ZCHX::LAYER_RADAR);
+    if(layer){
+        Element *ele = layer->pickUpElement(pos.toPoint()).get();
+        if(ele){
+            RadarPointElement *item = dynamic_cast<RadarPointElement*>(ele);
+            if(item)
+            {
+                trackNum = item->getID().toInt();
+                ll.lat = item->data().getLat();
+                ll.lon = item->data().getLon();
+            }
+            found_radar = true;
+        }
+    }
+    if(!found_radar)
+    {
+        layer = MapLayerMgr::instance()->getLayer(ZCHX::LAYER_AIS);
+            if(layer){
+                Element *ele = layer->pickUpElement(pos.toPoint()).get();
+                if(ele){
+                    AisElement *item = dynamic_cast<AisElement*>(ele);
+                    if(item)
+                    {
+                        trackNum = 0;
+                        ll.lat = item->data().getLat();
+                        ll.lon = item->data().getLon();
+                    }
+                }
+            }
+    }
+    qDebug()<<__FUNCTION__<<__LINE__<<trackNum<<ll.lat<<ll.lon;
     emit signalSendPointNealyCamera(trackNum, ll.lat,ll.lon);
 }
 
@@ -626,7 +653,6 @@ void zchxMapWidget::mousePressEvent(QMouseEvent *e)
                         menu.addActions(list);
                     }
                 }
-
                 if(bShowOtherRightKeyMenu && hotspot_flag)
                 {
 
@@ -646,7 +672,6 @@ void zchxMapWidget::mousePressEvent(QMouseEvent *e)
 
         }
         menu.exec(QCursor::pos());
-        qDebug()<<"list:"<<menu.actions().size();
     }
 }
 
@@ -994,9 +1019,9 @@ Element* zchxMapWidget::getCurrentSelectedElement()
 
 void zchxMapWidget::setCurrentSelectedItem(Element* item)
 {
-    qDebug()<<"current seleted item:"<<mCurrentSelectElement;
+//    qDebug()<<"current seleted item:"<<mCurrentSelectElement;
     mCurrentSelectElement = item;
-    qDebug()<<"current seleted item:"<<mCurrentSelectElement;
+//    qDebug()<<"current seleted item:"<<mCurrentSelectElement;
     emit sigElementSelectionChanged(item);
 }
 

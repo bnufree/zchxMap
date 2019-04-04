@@ -159,15 +159,31 @@ void zchxMapFrameWork::UpdateDisplayRange()
     if(mMapThread) mMapThread->appendTask(setting);
 }
 
-void zchxMapFrameWork::ZoomIn()
+void zchxMapFrameWork::ZoomIn(double lon, double lat)
 {
     int zoom = mCurZoom;
+    if(fabs(lon) > 0.00001)
+    {
+        mCenter.lon = lon;
+    }
+    if(fabs(lat) > 0.00001)
+    {
+        mCenter.lat = lat;
+    }
     SetZoom(++zoom);
 }
 
-void zchxMapFrameWork::ZoomOut()
+void zchxMapFrameWork::ZoomOut(double lon, double lat)
 {
     int zoom = mCurZoom;
+    if(fabs(lon) > 0.00001)
+    {
+        mCenter.lon = lon;
+    }
+    if(fabs(lat) > 0.00001)
+    {
+        mCenter.lat = lat;
+    }
     SetZoom(--zoom);
 }
 

@@ -43,10 +43,10 @@ void WarningZoneElement::drawElement(QPainter *painter)
     painter->setBrush(QBrush(Qt::blue, Qt::Dense7Pattern));
     if(m_data.shape != ZCHX::Data::ITF_WarringZone::ZONE_LINE){
         painter->drawPolygon(polygon);
-        painter->drawText(polygon.boundingRect().center(), m_data.getName());
+        painter->drawText(polygon.boundingRect().center(), m_data.getDisplayName());
     } else {
         painter->drawPolyline(polygon);
-        painter->drawText(polygon.last(), m_data.getName());
+        painter->drawText(polygon.last(), m_data.getDisplayName());
     }
 }
 

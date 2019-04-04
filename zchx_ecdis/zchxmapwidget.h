@@ -39,6 +39,7 @@ public:
     explicit zchxMapWidget(QWidget *parent = 0);
     ~zchxMapWidget();
     //地图显示
+    void setZoomLableDisplay(bool display);
     void setCurZoom(int zoom);
     int  zoom() const;
     void setCenterLL(const ZCHX::Data::LatLon& pnt );

@@ -31,8 +31,8 @@ public:
     ZCHX::Data::LatLon      Center() const {return mCenter;}
     void        UpdateDisplayRange();
     ZCHX::Data::Point2D     Mercator2Pixel(const ZCHX::Data::Mercator& mct);
-    void        ZoomIn();
-    void        ZoomOut();
+    void        ZoomIn(double lon = 0, double lat = 0);
+    void        ZoomOut(double lon = 0, double lat = 0);
     void        Update();
     void        Drag(int x, int y);
     void        SetSource(int source);

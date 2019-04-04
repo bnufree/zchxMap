@@ -109,6 +109,49 @@ TestMainWindow::TestMainWindow(QWidget *parent) :
     cam.aisName = tr("test ais station");
     cam.aisId = "1";
     m_pEcdisWin->itfGetLayer(ZCHX::LAYER_AIS_STATION)->addElement(std::shared_ptr<qt::Element>(new qt::AISBaseStationElement(cam, m_pEcdisWin->getMapWidget()) ));
+    m_pEcdisWin->itfSetZoomLableDisplay(false);
+
+    //防区测试
+    ZCHX::Data::ITF_CameraRegion zone;
+    zone.id = "123";
+    zone.harbourId = "1";
+    zone.regionId = "2";
+    zone.CameraBallName = "ball";
+    zone.CameraGunName = "gun";
+    zone.Berth = "berth";
+    zone.Status = ZCHX::Data::CameraRegionStatus::DEFAULT;
+    zone.lat = 22.6472;
+    zone.lon = 114.074;
+    zone.shipNumbers = "10";
+    zone.photoNumbers = "0";
+    zone.CameraPointList.append(ZCHX::Data::LatLon(22.6472, 114.074));
+    zone.CameraPointList.append(ZCHX::Data::LatLon(22.6453, 114.083));
+    zone.CameraPointList.append(ZCHX::Data::LatLon(22.6472, 114.084));
+    zone.CameraPointList.append(ZCHX::Data::LatLon(22.6483, 114.083));
+    std::shared_ptr<qt::MapLayer> layer = m_pEcdisWin->itfGetLayer(ZCHX::LAYER_CAMERA_REGION);
+    layer->addElement(std::shared_ptr<qt::Element>(new qt::CameraRegionElement(zone, m_pEcdisWin->getMapWidget())));
+
+
+
+    //检查椭圆图层是否存在，不存在就添加
+    layer = m_pEcdisWin->itfGetLayer(ZCHX::LAYER_ELLIPSE);
+    if(!layer)
+    {
+        m_pEcdisWin->itfAddLayer(ZCHX::LAYER_ELLIPSE, tr("航行位置点"), true);
+        layer = m_pEcdisWin->itfGetLayer(ZCHX::LAYER_ELLIPSE);
+        if(!layer) return;
+    }
+
+    ZCHX::Data::ITF_EleEllipse ele;
+    ele.name = "";
+    ele.pen = QPen(Qt::red);
+    ele.rx = 20;
+    ele.ry = 20;
+    ele.showCircleCenter = false; // 禁止显示圆心
+    ele.ll.lat = QString::number(22.6472,'f', 13).toDouble();
+    ele.ll.lon = QString::number(114.084,'f', 13).toDouble();
+    layer->addElement(std::shared_ptr<qt::Element>(new qt::EllipseElement(ele,  m_pEcdisWin->getMapWidget())));
+
 }
 
 TestMainWindow::~TestMainWindow()

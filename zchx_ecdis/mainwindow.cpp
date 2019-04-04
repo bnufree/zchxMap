@@ -677,7 +677,7 @@ void MainWindow::removeWarrningZone(const ZCHX::Data::ITF_WarringZone &zone)
 {
     std::shared_ptr<MapLayer> layer = MapLayerMgr::instance()->getLayer(ZCHX::LAYER_DEFENCE);
     if(!layer) return;
-    layer->removeElement(zone.getName());
+    layer->removeElement(zone.getID());
 }
 
 QList<ZCHX::Data::ITF_WarringZone> MainWindow::getAllWarrningZone() const
@@ -2137,6 +2137,11 @@ void MainWindow::itfSetCameraNetGridList(const QList<ZCHX::Data::ITF_NetGrid> & 
 void MainWindow::itfPickUpPTZ()
 {
     if(mMapWidget) mMapWidget->setETool2PickUpPTZ();
+}
+
+void MainWindow::itfSetZoomLableDisplay(bool display)
+{
+    if(mMapWidget) mMapWidget->setZoomLableDisplay(display);
 }
 }
 

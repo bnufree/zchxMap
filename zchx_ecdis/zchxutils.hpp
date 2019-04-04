@@ -440,7 +440,9 @@ struct RadarMeet
 {
     double getLat() const {return lat;}
     double getLon() const {return lon;}
-    QString getName() const {return QString("T%1_%2_%3").arg(trackNumber).arg(id).arg(UTC);}
+    QString getID() const {return QString("T%1_%2_%3").arg(trackNumber).arg(id).arg(UTC);}
+    QString getDisplayName() const {return getID();}
+
 
     int trackNumber;		       // 航迹号 I010/161
     QString id;                //ais id
@@ -474,7 +476,9 @@ struct AISCollide
 {
     double getLat() const {return lat;}
     double getLon() const {return lon;}
-    QString getName() const {return QString("%1_%2").arg(id).arg(collideTime);}
+    QString getID() const {return QString("%1_%2").arg(id).arg(collideTime);}
+    QString getDisplayName() const {return getID();}
+
 
 
     QString id;                // 唯一识别码("AIS"+消息识别码+"__"+用户识别码)
@@ -526,7 +530,9 @@ typedef struct tagITF_RadarPoint
 {
     double getLat() const {return wgs84PosLat;}
     double getLon() const {return wgs84PosLon;}
-    QString getName() const {return QString("T%1").arg(trackNumber);}
+    QString getID() const {return QString("%1").arg(trackNumber);}
+    QString getDisplayName() const {return getID();}
+
 
     int uuid;
     std::vector<RadarMeet> RadarMeetVec; //交汇点集合
@@ -635,7 +641,9 @@ public:
     ITF_AIS();
     double getLat() const {return lat;}
     double getLon() const {return lon;}
-    QString getName() const {return id;}
+    QString getID() const {return id;}
+    QString getDisplayName() const {return shipName;}
+
 
     std::vector<RadarMeet> RadarMeetVec;  //交汇点集合
     TargetType type;                             //类型 0：ais，1：北斗，2：CMDA
@@ -726,7 +734,9 @@ public:
     }
     double getLat() const {return 0;}
     double getLon() const {return 0;}
-    QString getName() const {return mID;}
+    QString getID() const {return mID;}
+    QString getDisplayName() const {return mID;}
+
 public:
     QString mID;
 
@@ -746,7 +756,9 @@ typedef struct NavigationITF
 public:
     double getLat() const {return ll.lat;}
     double getLon() const {return ll.lon;}
-    QString getName() const {return name;}
+    QString getID() const {return name;}
+    QString getDisplayName() const {return name;}
+
 public:
     LatLon ll;
     float heading ;
@@ -759,7 +771,9 @@ typedef struct DangerousCircleITF
 {
     double getLat() const {return ll.lat;}
     double getLon() const {return ll.lon;}
-    QString getName() const {return name;}
+    QString getID() const {return name;}
+    QString getDisplayName() const {return name;}
+
 
     QString name;                 //唯一识别码
     LatLon  ll;
@@ -773,7 +787,9 @@ typedef struct tagITF_VideoTarget
 {
     double getLat() const {return objectMapPosY;}
     double getLon() const {return objectMapPosX;}
-    QString getName() const {return objectID;}
+    QString getID() const {return objectID;}
+    QString getDisplayName() const {return getID();}
+
     int uuid;
     uint cameraId;		    	// 相机id
     QString objectID;           	 // 目标ID
@@ -795,7 +811,10 @@ typedef struct tagITF_RadarArea
 {
     double getLat() const {return radarY;}
     double getLon() const {return radarX;}
-    QString getName() const {return name;}
+    QString getID() const {return name;}
+    QString getDisplayName() const {return name;}
+
+
     int uuid;
     double radarX;
     double radarY;
@@ -812,7 +831,9 @@ typedef struct tagITF_EditRadarZone
 {
     double getLat() const {return 0;}
     double getLon() const {return 0;}
-    QString getName() const {return name;}
+    QString getID() const {return name;}
+    QString getDisplayName() const {return name;}
+
 
     int zoneNumber;
     QString name;
@@ -829,7 +850,10 @@ public:
     SpecialRoutePoint &operator=(const SpecialRoutePoint &other);
     double getLat() const {return m_dY;}
     double getLon() const {return m_dX;}
-    QString getName() const {return QString::number(m_iNumber);}
+    QString getID() const {return QString::number(m_iNumber);}
+    QString getDisplayName() const {return getID();}
+
+
     int     m_iFileId;
     int     m_iNumber;      //序号
     QString m_sCableType;   //编号
@@ -852,7 +876,9 @@ public:
     SpecialRouteLine &operator=(const SpecialRouteLine &other);
     double getLat() const {return 0;}
     double getLon() const {return 0;}
-    QString getName() const {return name;}
+    QString getID() const {return QString::number(m_iId);}
+    QString getDisplayName() const {return name;}
+
 
     int     m_iId;
     int     m_iProjectId;       //项目ID
@@ -897,7 +923,9 @@ public:
 
     double getLat() const {return 0;}
     double getLon() const {return 0;}
-    QString getName() const {return m_sAssemblyName;}
+    QString getID() const {return QString::number(m_uID);}
+    QString getDisplayName() const {return m_sAssemblyName;}
+
 
     int          m_uID;
     QString      m_sAssemblyName;
@@ -931,7 +959,9 @@ public:
     QString getTypeStr() const;
     double getLat() const {return lat;}
     double getLon() const {return lon;}
-    QString getName() const {return name;}
+    QString getID() const {return QString::number(m_idbID);}
+    QString getDisplayName() const {return getID();}
+
 
     double lon;
     double lat;
@@ -992,7 +1022,8 @@ public:
 
     double getLat() const {return 0;}
     double getLon() const {return 0;}
-    QString getName() const {return name;}
+    QString getID() const {return QString::number(routeID);}
+    QString getDisplayName() const {return name;}
 
     int routeID;
     int projectID;
@@ -1022,7 +1053,9 @@ public:
     ITF_RouteCross &operator =(const ITF_RouteCross &other);
     double getLat() const {return m_fCrossLat;}
     double getLon() const {return m_fCrossLon;}
-    QString getName() const {return QString("%1_%2_CROSS(%3,%4)").arg(m_sOriginalRouteName).arg(m_sCrossoverRouteName).arg(FLOAT_STRING(m_fCrossLon, 6)).arg(FLOAT_STRING(m_fCrossLat, 6));}
+    QString getID() const {return QString("%1_%2_CROSS(%3,%4)").arg(m_sOriginalRouteName).arg(m_sCrossoverRouteName).arg(FLOAT_STRING(m_fCrossLon, 6)).arg(FLOAT_STRING(m_fCrossLat, 6));}
+    QString getDisplayName() const {return getID();}
+
 
     int        m_uKeyID;
     QString    m_sOriginalRouteName;    //原路由名称
@@ -1044,7 +1077,9 @@ public:
     ITF_Multibeam &operator =(const ITF_Multibeam &other);
     double getLat() const {return m_dLat;}
     double getLon() const {return m_dLon;}
-    QString getName() const {return name;}
+    QString getID() const {return name;}
+    QString getDisplayName() const {return name;}
+
 
     int m_uRouteID;
     double m_dLon;
@@ -1063,7 +1098,9 @@ public:
     bool operator ==(const ShipPlanPoint &other);
     double getLat() const {return m_dShipLat;}
     double getLon() const {return m_dShipLon;}
-    QString getName() const {return QString::number(m_dShipPlanIndex);}
+    QString getID() const {return QString::number(m_dShipPlanIndex);}
+    QString getDisplayName() const {return getID();}
+
 
     int m_dId;                  //
     int m_dShipPlanIndex;       //船舶计划明细点索引
@@ -1102,7 +1139,9 @@ public:
     bool operator ==(const ShipPlanLine &other);
     double getLat() const {return 0;}
     double getLon() const {return 0;}
-    QString getName() const {return m_sShipPlanName;}
+    QString getID() const {return QString::number(m_dShipPlanId);}
+    QString getDisplayName() const {return m_sShipPlanName;}
+
 
     int m_dShipPlanId;                  //
     int m_iStartPosType;        //路径开始方式  :  路由 ,KP , 海缆
@@ -1145,7 +1184,9 @@ typedef struct WaterPoint
 {
     double getLat() const {return lat;}
     double getLon() const {return lon;}
-    QString getName() const {return name;}
+    QString getID() const {return name;}
+    QString getDisplayName() const {return name;}
+
 
     int id;
     double dx;
@@ -1166,7 +1207,9 @@ typedef struct tagITF_CameraView
 {
     double getLat() const {return lat;}
     double getLon() const {return lon;}
-    QString getName() const {return name;}
+    QString getID() const {return name;}
+    QString getDisplayName() const {return name;}
+
 
     double lat;
     double lon;
@@ -1191,7 +1234,9 @@ typedef struct tagITF_WarringZone
 
     double getLat() const {return 0;}
     double getLon() const {return 0;}
-    QString getName() const {return QString::number(id);}
+    QString getID() const {return QString::number(id);}
+    QString getDisplayName() const {return name;}
+
 
     enum WARRING_ZONE_SHAPE {
         ZONE_POLYGON = 1,
@@ -1246,7 +1291,9 @@ typedef struct tagITF_CoastData
 {
     double getLat() const {return 0;}
     double getLon() const {return 0;}
-    QString getName() const {return name;}
+    QString getID() const {return QString::number(id);}
+    QString getDisplayName() const {return name;}
+
 
     int         id;                     // 主键号
     QString     name;                   // 名称
@@ -1263,7 +1310,9 @@ typedef struct tagITF_SeabedPipeLine
 {
     double getLat() const {return 0;}
     double getLon() const {return 0;}
-    QString getName() const {return name;}
+    QString getID() const {return QString::number(id);}
+    QString getDisplayName() const {return name;}
+
 
     int         id;                     // 主键号
     QString     name;                   // 名称
@@ -1280,7 +1329,9 @@ typedef struct tagITF_Structure
 {
     double getLat() const {return point.first;}
     double getLon() const {return point.second;}
-    QString getName() const {return name;}
+    QString getID() const {return QString::number(id);}
+    QString getDisplayName() const {return name;}
+
 
     int         id;                     // 主键号
     QString     name;                   // 名称
@@ -1295,7 +1346,10 @@ typedef struct tagITF_AreaNet
 {
     double getLat() const {return 0;}
     double getLon() const {return 0;}
-    QString getName() const {return name;}
+    QString getID() const {return QString::number(id);}
+    QString getDisplayName() const {return name;}
+
+
     int         id;                     // 主键号
     QString     name;                   // 名称
     double      area;                   // 面积
@@ -1308,7 +1362,9 @@ typedef struct tagITF_ChannelLine
 {
     double getLat() const {return 0;}
     double getLon() const {return 0;}
-    QString getName() const {return name;}
+    QString getID() const {return name;}
+    QString getDisplayName() const {return name;}
+
 
     int      lineType;    // 航道线类型1：航道入口 2：航道出口3：航道边线4：特殊边线
     bool     isSelected;  // 是否选中
@@ -1326,7 +1382,9 @@ typedef struct tagITF_Channel
 {
     double getLat() const {return 0;}
     double getLon() const {return 0;}
-    QString getName() const {return QString::number(id);}
+    QString getID() const {return QString::number(id);}
+    QString getDisplayName() const {return name;}
+
 
     int      id;                   // 航道编号
     QString  name;                 // 航道名称
@@ -1362,7 +1420,8 @@ typedef struct tagITF_Mooring
 {
     double getLat() const {return 0;}
     double getLon() const {return 0;}
-    QString getName() const {return QString::number(id);}
+    QString getID() const {return QString::number(id);}
+    QString getDisplayName() const {return name;}
 
     int      id;            // 锚泊编号
     QString  name;          // 锚泊名称
@@ -1387,7 +1446,8 @@ typedef struct tagITF_CardMouth
 {
     double getLat() const {return 0;}
     double getLon() const {return 0;}
-    QString getName() const {return QString::number(id);}
+    QString getID() const {return QString::number(id);}
+    QString getDisplayName() const {return name;}
 
     int            id;              // 卡口编号
     QString        name;            // 卡口名称
@@ -1415,7 +1475,8 @@ typedef struct tagITF_ShipAlarmAscend
 {
     double getLat() const {return lat;}
     double getLon() const {return lon;}
-    QString getName() const {return QString("%1_%2").arg(sShipName).arg(time);}
+    QString getID() const {return QString("%1_%2").arg(sShipName).arg(time);}
+    QString getDisplayName() const {return getID();}
 
     QString  sShipName;       //船名
     qint64   immsi;           //mmsi
@@ -1432,7 +1493,8 @@ typedef struct tagITF_Fleet
 {
     double getLat() const {return 0;}
     double getLon() const {return 0;}
-    QString getName() const {return name;}
+    QString getID() const {return aisId;}
+    QString getDisplayName() const {return name;}
 
     QString   aisId;                   // AIS编号
     QString   name;                    // 船名
@@ -1453,7 +1515,8 @@ typedef struct tagITF_CloudHotSpot
 {
     double getLat() const {return targetLat;}
     double getLon() const {return targetLon;}
-    QString getName() const {return targetNumber;}
+    QString getID() const {return targetNumber;}
+    QString getDisplayName() const {return getID();}
 
     enum FLLOW_TYPE{
         FLLOW_TYPE_TURN = 1,
@@ -1477,7 +1540,8 @@ typedef struct tagITF_FlowLine
 {
     double getLat() const {return 0;}
     double getLon() const {return 0;}
-    QString getName() const {return m_sName;}
+    QString getID() const {return m_sName;}
+    QString getDisplayName() const {return getID();}
 
     int     m_iLineId;
     QString m_sName;
@@ -1490,7 +1554,9 @@ typedef struct tagITF_FlowLine
 typedef struct tagITF_IslandLine{
     double getLat() const {return 0;}
     double getLon() const {return 0;}
-    QString getName() const {return QString::number(id);}
+    QString getID() const {return QString::number(id);}
+    QString getDisplayName() const {return name;}
+
     int uuid;
     std::vector<std::pair<double, double> > path;
     int type;
@@ -1512,7 +1578,8 @@ typedef struct tagITF_ElePos
 {
     double getLat() const {return ll.lat;}
     double getLon() const {return ll.lon;}
-    QString getName() const {return name;}
+    QString getID() const {return name;}
+    QString getDisplayName() const {return name;}
 
     LatLon ll;
     double radius;
@@ -1535,7 +1602,8 @@ public:
     }
     double getLat() const {return ll.lat;}
     double getLon() const {return ll.lon;}
-    QString getName() const {return name;}
+    QString getID() const {return name;}
+    QString getDisplayName() const {return name;}
 
 public:
     double rx; //绘制圆, 或者绘制椭圆时的横轴半径
@@ -1554,7 +1622,9 @@ typedef struct tagITF_EleTriangle
 public:
     double getLat() const {return ll.lat;}
     double getLon() const {return ll.lon;}
-    QString getName() const {return name;}
+    QString getID() const {return name;}
+    QString getDisplayName() const {return name;}
+
     LatLon ll; //经纬度点ss
     int   alpha; //透明度0~255
     double angle; //与正北方向的夹角, 顺时针方向
@@ -1570,7 +1640,8 @@ typedef struct tagITF_EleLine
 {
     double getLat() const {return ll1.lat;}
     double getLon() const {return ll1.lon;}
-    QString getName() const {return name;}
+    QString getID() const {return name;}
+    QString getDisplayName() const {return name;}
 
     LatLon ll1; //启点
     LatLon ll2; //终点
@@ -1584,7 +1655,8 @@ typedef struct tagITF_EleRect
 {
     double getLat() const {return ll.lat;}
     double getLon() const {return ll.lon;}
-    QString getName() const {return name;}
+    QString getID() const {return name;}
+    QString getDisplayName() const {return name;}
 
     QString name;
     LatLon ll;
@@ -1607,7 +1679,8 @@ enum CAMERAROD_STATUS{
 typedef struct tagITF_CameraRod{
     double getLat() const {return nLatLon.lat;}
     double getLon() const {return nLatLon.lon;}
-    QString getName() const {return szName;}
+    QString getID() const {return szID;}
+    QString getDisplayName() const {return szName;}
 
     int                 nUUID;
     LatLon              nLatLon;
@@ -1624,7 +1697,8 @@ struct IPCastDevice                 // 号角设备
 {
     double getLat() const {return lat;}
     double getLon() const {return lon;}
-    QString getName() const {return name;}
+    QString getID() const {return QString::number(id);}
+    QString getDisplayName() const {return name;}
 
     uint    id;                     // 终端ID
     uint    sessionID;              // 活动会话ID
@@ -1650,7 +1724,9 @@ struct ITF_CameraDev
     ITF_CameraDev():mParentEleID(""), nStatus(1) {}       //默认正常
     double getLat() const {return ll.lat;}
     double getLon() const {return ll.lon;}
-    QString getName() const {return szCamName;}
+    QString getID() const {return QString::number(nDBID);}
+    QString getDisplayName() const {return szCamName;}
+
     QString getCameraTypeString() const;
 
     uint                nUUID;
@@ -1689,7 +1765,8 @@ typedef struct tagITF_PatrolRadarStation
 {
     double getLat() const {return ll.lat;}
     double getLon() const {return ll.lon;}
-    QString getName() const {return name;}
+    QString getID() const {return QString::number(uuid);}
+    QString getDisplayName() const {return name;}
 
     int uuid;
     LatLon ll;
@@ -1702,7 +1779,8 @@ typedef struct tagITF_PatrolRadarStation
 typedef struct tagITF_LocalMark{
     double getLat() const {return ll.lat;}
     double getLon() const {return ll.lon;}
-    QString getName() const {return name;}
+    QString getID() const {return QString::number(uuid);}
+    QString getDisplayName() const {return name;}
 
     int uuid; //唯一索引
     LatLon ll;         //位置标注坐标(WGS84)
@@ -1716,7 +1794,8 @@ struct GPSPoint
     enum Type{GPS, BIGDIPPER, CDMA};
     double getLat() const {return lat;}
     double getLon() const {return lon;}
-    QString getName() const {return deviceName;}
+    QString getID() const {return imei;}
+    QString getDisplayName() const {return deviceName;}
 
     Type type;
 
@@ -1761,7 +1840,8 @@ class ZCHX_ECDIS_EXPORT ITF_RadarVideoGLow
 public:
     double getLat() const {return lat;}
     double getLon() const {return lon;}
-    QString getName() const {return name;}
+    QString getID() const {return name;}
+    QString getDisplayName() const {return name;}
 
     enum RadarVideoGLowType{
         RadarVideo = 1,
@@ -1793,7 +1873,8 @@ typedef struct tagITF_CameraTrackTarget
 {
     double getLat() const {return lat;}
     double getLon() const {return lon;}
-    QString getName() const {return id;}
+    QString getID() const {return id;}
+    QString getDisplayName() const {return id;}
 
     int type;           //1 船 2 雷达  3 其他
     QString id;         //船 名和雷达 ID
@@ -1805,7 +1886,9 @@ typedef struct tagITF_CameraTrackTarget
 typedef struct  tagITF_NetGridPolyGon{
     double getLat() const {if(mLatLonList.size() > 0) return mLatLonList.first().lat; return 0;}
     double getLon() const {if(mLatLonList.size() > 0) return mLatLonList.first().lon; return 0;}
-    QString getName() const {return name;}
+    QString getID() const {return name;}
+    QString getDisplayName() const {return name;}
+
     long            id;                         //	网格编号	long	否
     QString         name;                       //网格名称	String	否       //相机ID_网格编号ID
     QList<LatLon>   mLatLonList;                //网格点的数据.矩形(左上,右下点).多边形所有点
@@ -1821,7 +1904,8 @@ typedef struct tagITF_NetGrid{
 public:
     double getLat() const {return 0;}
     double getLon() const {return 0;}
-    QString getName() const {return mName;}
+    QString getID() const {return mName;}
+    QString getDisplayName() const {return mName;}
 
     QString                         mName;              //总的网格名称
     QString                         mMark;
@@ -1839,7 +1923,8 @@ typedef struct tagITF_AisBaseStation
 {
     double getLat() const {return latItude;}
     double getLon() const {return longIteude;}
-    QString getName() const {return aisId;}
+    QString getID() const {return aisId;}
+    QString getDisplayName() const {return aisName;}
 
     QString             aisName;           //基站名称
     QString             aisId;             //基站ID
@@ -1866,7 +1951,8 @@ struct ITF_CameraRegion
 {
     double getLat() const {return lat;}
     double getLon() const {return lon;}
-    QString getName() const {return id;}
+    QString getID() const {return id;}
+    QString getDisplayName() const {return id;}
 
     QString    id;     // id +_ +  区域id 1-1
     QString    harbourId;     //港口id
@@ -1887,7 +1973,8 @@ struct ITF_DramCircular
 {
     double getLat() const {return ll.lat;}
     double getLon() const {return ll.lon;}
-    QString getName() const {return QString("%1-%2").arg(ship).arg(time);}
+    QString getID() const {return QString("%1-%2").arg(ship).arg(time);}
+    QString getDisplayName() const {return getID();}
 
     LatLon      ll;
     QString     ship;
@@ -1907,7 +1994,8 @@ struct ITF_VesselTargetData
 {
     double getLat() const {return lat;}
     double getLon() const {return lon;}
-    QString getName() const {return QString::number(vtID);}
+    QString getID() const {return QString::number(vtID);}
+    QString getDisplayName() const {return getID();}
 
     double                  lon;       //经度
     double                  lat;       //纬度
@@ -1928,7 +2016,8 @@ struct ITF_VesselTrackData
 {
     double getLat() const {return m_lat;}
     double getLon() const {return m_lon;}
-    QString getName() const {return QString::number(m_id);}
+    QString getID() const {return QString::number(m_id);}
+    QString getDisplayName() const {return getID();}
 
     double     m_lon;       //经度
     double     m_lat;       //纬度
@@ -1941,7 +2030,8 @@ struct ITF_vesselTrackLineData
 {
     double getLat() const {return lat;}
     double getLon() const {return lon;}
-    QString getName() const {return QString::number(m_targetId);}
+    QString getID() const {return QString::number(m_targetId);}
+    QString getDisplayName() const {return getID();}
 
     int                             m_targetId;       //id
     QList<ITF_VesselTrackData>      m_trackPointList;      //轨迹点列表
@@ -1965,7 +2055,8 @@ typedef struct tagITF_VoyageTrackInfo
 {
     double getLat() const {return m_lat;}
     double getLon() const {return m_lon;}
-    QString getName() const {return QString::number(m_targetId);}
+    QString getID() const {return QString::number(m_targetId);}
+    QString getDisplayName() const {return getID();}
 
     int                  m_targetId;
     QList<ITF_TrackPointInfo>    m_trackPointList;
@@ -1979,7 +2070,8 @@ typedef struct tagITF_WeatherWindWaves
 {
     double getLat() const {return lat;}
     double getLon() const {return lon;}
-    QString getName() const {return fishing_ground_name;}
+    QString getID() const {return id;}
+    QString getDisplayName() const {return fishing_ground_name;}
 
     QString                   id;                      //ID号，唯一标识符
     QString                   region;                  // 地区
