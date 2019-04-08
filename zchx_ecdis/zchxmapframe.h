@@ -6,12 +6,20 @@
 #include "zchxMapDataUtils.h"
 
 namespace qt {
+struct MapPatchData{
+    int zoom;               //地图多大层级时使用补丁数据
+    QColor  color;          //填充颜色
+    QList<ZCHX::Data::LatLon>   polygon;//  填充范围
+    QString                     name;   //名称
+};
+
 class zchxMapLoadThread;
 class zchxMapFrameWork : public QObject
 {
     Q_OBJECT
 public:
     explicit zchxMapFrameWork(double center_lat, double center_lon, int zoom, int width, int height, int source, int min_zoom, int max_zoom, QObject *parent = 0);
+    virtual ~zchxMapFrameWork();
     ZCHX::Data::LatLon      Pixel2LatLon(const ZCHX::Data::Point2D& pos);
     ZCHX::Data::Point2D     LatLon2Pixel(const ZCHX::Data::LatLon& ll);
     ZCHX::Data::Point2D     LatLon2Pixel(double lat, double lon);
@@ -47,6 +55,8 @@ public:
     PPATH convert2QtPonitList(const GPATH &path);
     //          画地图
     void        updateEcdis(QPainter* painter, QRect rect,  bool image_num = false);
+private:
+    void        loadPatch();
 
 signals:
     void        signalSendCurMapinfo(double lat, double lon, int zoom);
@@ -72,6 +82,8 @@ private:
     //地图图片更新
     zchxMapLoadThread*          mMapThread;
     TileImageList               mDataList;
+    //
+    QList<MapPatchData>         mPatchDataList;
 };
 }
 

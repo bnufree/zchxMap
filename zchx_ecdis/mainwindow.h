@@ -16,7 +16,7 @@ class ZCHX_ECDIS_EXPORT MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = 0);
+    explicit MainWindow(const ZCHX::Data::zchxEcdisInitVal& val = ZCHX::Data::zchxEcdisInitVal(), QWidget *parent = 0);
     ~MainWindow();
     void resizeEvent(QResizeEvent *e);
     void closeEvent(QCloseEvent *);

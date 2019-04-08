@@ -24,6 +24,12 @@ MapLayer::MapLayer(QObject *parent)
 
 }
 
+MapLayer::~MapLayer()
+{
+    qDebug()<<__FUNCTION__<<__LINE__;
+    removeAllElement();
+}
+
 QString MapLayer::type() const
 {
     Q_D(const MapLayer);

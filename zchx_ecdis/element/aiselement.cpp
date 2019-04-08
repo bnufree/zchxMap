@@ -611,13 +611,13 @@ void AisElement::drawTargetInformation(QPainter *painter)
     if(mode & SHIP_ITEM::SHIP_ITEM_SOG) InfoList.append(QString("%1 Kn").arg(AisData.sog));
     if(mode & SHIP_ITEM::SHIP_ITEM_COG) InfoList.append(QString("%1 °").arg(AisData.cog));
     sizeNumer = InfoList.size();
-
+    QFont font("微软雅黑", 9, QFont::Normal, false);//微软雅黑 新宋体
+    int font_height = QFontMetrics(font).height();
     if(mode & SHIP_ITEM::SHIP_ITEM_MULTILINE) //多行
     {
-        Information = InfoList.join("\n");
-        QFont font("微软雅黑", 9, QFont::Normal, false);//微软雅黑 新宋体
+        Information = InfoList.join("\n");       
         painter->setFont(font);
-        QRect rectangle = QRect(pos.x() - 150, pos.y() - 25 * sizeNumer, 300, 25 * sizeNumer);
+        QRect rectangle = QRect(pos.x() - 150, pos.y() - font_height * sizeNumer - 20, 300, font_height * sizeNumer);
         painter->drawText(rectangle, Qt::AlignCenter,Information);
 
         if(!warnName.isEmpty() && AisData.warn_status != ZCHX::Data::WARN_CHANNEL_COLLISION)
@@ -635,7 +635,7 @@ void AisElement::drawTargetInformation(QPainter *painter)
         Information = InfoList.join(" ");
         QFont font("微软雅黑", 9, QFont::Normal, false);////微软雅黑 新宋体
         painter->setFont(font);
-        QRect rectangle = QRect(pos.x()-(150*sizeNumer), pos.y()-30, 300*sizeNumer, 30);
+        QRect rectangle = QRect(pos.x()-(150*sizeNumer), pos.y()-font_height, 300*sizeNumer, font_height);
         painter->drawText(rectangle, Qt::AlignCenter, Information);
 
         if(!warnName.isEmpty() && AisData.warn_status != ZCHX::Data::WARN_CHANNEL_COLLISION)

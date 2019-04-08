@@ -19,7 +19,7 @@
 #include "dialog/mooringinfodialog.h"
 
 namespace qt {
-MainWindow::MainWindow(QWidget *parent) :
+MainWindow::MainWindow(const ZCHX::Data::zchxEcdisInitVal& val, QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
     mMapWidget(0)
@@ -36,7 +36,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->load_frame->setVisible(false);
     ui->pos_frame->setVisible(false);
     ui->ctrl_frame->setVisible(false);
-    mMapWidget = new zchxMapWidget(this);
+    mMapWidget = new zchxMapWidget(val, this);
     ui->ecdis_frame->layout()->addWidget(mMapWidget);
     connect(mMapWidget, SIGNAL(signalDisplayCurPos(double,double)), this, SLOT(slotUpdateCurrentPos(double,double)));
     connect(mMapWidget, SIGNAL(signalSendNewMap(double,double,int)), this, SLOT(slotDisplayMapCenterAndZoom(double,double,int)));
@@ -47,6 +47,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+    //删掉所有的层
+    MapLayerMgr::instance()->clear();
     delete ui;
 }
 

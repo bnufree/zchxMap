@@ -2,6 +2,8 @@
 #include <QDebug>
 #include "zchxmaploadthread.h"
 #include <QPainter>
+#include <QDomDocument>
+#include <QApplication>
 
 using namespace qt;
 
@@ -24,6 +26,12 @@ zchxMapFrameWork::zchxMapFrameWork(double center_lat, double center_lon, int zoo
     connect(mMapThread, SIGNAL(signalSendNewMap(double, double, int, bool)), this, SLOT(slotRecvNewMap(double,double,int, bool)));
     connect(mMapThread, SIGNAL(signalSendImgList(TileImageList)), this, SLOT(append(TileImageList)));
     mMapThread->start();
+    loadPatch();
+}
+
+zchxMapFrameWork::~zchxMapFrameWork()
+{
+     qDebug()<<__FUNCTION__<<__LINE__;
 }
 
 void zchxMapFrameWork::setOffSet(int offset_x, int offset_y)
@@ -213,19 +221,45 @@ void zchxMapFrameWork::updateEcdis(QPainter *painter, QRect rect, bool img_num)
         painter->drawPixmap(x, y, data.mImg);
         if(img_num)painter->drawText(x, y, data.mName);
     }
-    switch (mStyle) {
-    case MapStyleEcdisDayBright:
-        painter->fillRect(rect, Qt::transparent);
-        break;
-    case MapStyleEcdisNight:
-        painter->fillRect(rect, QColor(100,100,100,100));
-        break;
-    case MapStyleEcdisDayDUSK:
-        painter->fillRect(rect, QColor(0,100,100,100));
-        break;
-    default:
-        break;
+    //检查用户是否存在补丁文件,在补丁区域重新叠加图片
+    if(mPatchDataList.size() > 0)
+    {
+
+        foreach (MapPatchData patch, mPatchDataList) {
+            if(patch.zoom != mCurZoom) continue;
+            //计算多边形在当前zoom下的像素坐标
+            QPolygon wkpoly;
+            for(int i = 0; i < patch.polygon.size(); ++i)
+            {
+                ZCHX::Data::LatLon ll = patch.polygon[i];
+                wkpoly.append(LatLon2Pixel(ll.lat,ll.lon).toPoint());
+            }
+            //获取当前区域和矩形区域的交集
+           if(wkpoly.size() > 0)
+           {
+               QPolygon res = wkpoly.intersected(QPolygon(rect, true));
+               painter->save();
+               painter->setPen(Qt::NoPen);
+               painter->setBrush(patch.color);
+               painter->drawPolygon(res);
+               painter->restore();
+
+           }
+        }
     }
+//    switch (mStyle) {
+//    case MapStyleEcdisDayBright:
+//        painter->fillRect(rect, Qt::transparent);
+//        break;
+//    case MapStyleEcdisNight:
+//        painter->fillRect(rect, QColor(100,100,100,100));
+//        break;
+//    case MapStyleEcdisDayDUSK:
+//        painter->fillRect(rect, QColor(0,100,100,100));
+//        break;
+//    default:
+//        break;
+//    }
 }
 
 void zchxMapFrameWork::slotRecvNewMap(double lon, double lat, int zoom, bool sync)
@@ -244,3 +278,79 @@ void zchxMapFrameWork::append(const TileImageList &list)
     mDataList = list;
     setOffSet(0, 0);
 }
+
+void zchxMapFrameWork::loadPatch()
+{
+    QString xmlPath = QString("%1/mapdata/patch.kml").arg(QApplication::applicationDirPath());
+    QFile xmlFile(xmlPath);
+    if(!xmlFile.exists() || !xmlFile.open(QFile::ReadOnly))
+    {
+        qWarning() << "patch's configuration file has error: " << xmlPath;
+        return;
+    }
+    QDomDocument doc;
+    if(!doc.setContent(&xmlFile))
+    {
+        qWarning() << "xml file have error: " << xmlPath;
+        return;
+    }
+    QDomElement rootNode = doc.documentElement();
+    QDomElement patchNode = rootNode.firstChildElement("Patch");
+    while(!patchNode.isNull())
+    {
+        MapPatchData patch;
+        QDomElement ele = patchNode.toElement();
+        patch.name = ele.attribute("name");
+        patch.zoom = ele.attribute("zoom").toInt();
+        patch.color.setNamedColor(ele.attribute("color"));
+        QStringList lon_lat_list = ele.text().split(QRegularExpression("[\\n ]"), QString::SkipEmptyParts);
+        if(lon_lat_list.size() > 0)
+        {
+            foreach (QString lon_lat, lon_lat_list) {
+                QStringList res = lon_lat.split(",",  QString::SkipEmptyParts);
+                if(res.size() >= 2)
+                {
+                    patch.polygon.append(ZCHX::Data::LatLon(res[1].toDouble(), res[0].toDouble()));
+                }
+            }
+        }
+        if(patch.polygon.size() > 0)
+        {
+            mPatchDataList.append(patch);
+//            foreach (ZCHX::Data::LatLon ll, patch.polygon) {
+//                qDebug()<<FLOAT_STRING(ll.lat, 10)<<FLOAT_STRING(ll.lon, 10);
+//            }
+        }
+        patchNode = patchNode.nextSiblingElement("Patch");
+    }
+    return;
+}
+
+//void zchxMapFrameWork::_readMapLayerNode(QDomElement node, std::shared_ptr<MapLayer> parent)
+//{
+//    if(node.isNull()) return;
+//    QString type = node.attribute("type");
+//    QString trSource = node.attribute("tr");
+//    bool visible = (node.attribute("visible") == "true");
+//    QString strMode = node.attribute("mode");
+
+//    std::shared_ptr<MapLayer> layer(new MapLayer(type, trSource, visible) );
+//    if(strMode.contains("display"))
+//    {
+//        layer->setMode(ZCHX::Data::ECDIS_PLUGIN_USE_DISPLAY_MODEL);
+//    }
+//    if(strMode.contains("editor"))
+//    {
+//        layer->setMode(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL);
+//    }
+
+//    addLayer(layer, parent);
+
+//    //detect children layers
+//    QDomElement layerNode = node.firstChildElement("MapLayer");
+//    while(!layerNode.isNull())
+//    {
+//        _readMapLayerNode(layerNode, layer);
+//        layerNode = layerNode.nextSiblingElement("MapLayer");
+//    }
+//}

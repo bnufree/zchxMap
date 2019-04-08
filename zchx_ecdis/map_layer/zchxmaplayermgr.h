@@ -20,6 +20,9 @@ public:
     void setDrawWidget(zchxMapWidget* w) {m_drawWidget = w;}
     zchxMapWidget * drawWidget() const {return m_drawWidget;}
     zchxAisMapLayer* getAisLayer();
+    void removeAllElement();
+    void removeAllLayer();
+    void clear();
 
 
     //地图图层管理

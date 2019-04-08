@@ -41,6 +41,7 @@ public:
     MapLayer(const QString &type, const QString &displayName, bool visible, QObject *parent = 0);
     MapLayer(zchxMapWidget *drawWidget, const QString &type, const QString &displayName, bool visible, QObject *parent = 0);
     explicit MapLayer(QObject *parent = 0);
+    virtual ~MapLayer();
 
     /*!
      * \brief 图层的类型名

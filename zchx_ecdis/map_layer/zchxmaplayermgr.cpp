@@ -16,7 +16,7 @@ MapLayerMgr::MapLayerMgr(QObject *parent) : QObject(parent), m_drawWidget(0)
 
 MapLayerMgr::~MapLayerMgr()
 {
-
+        qDebug()<<__FUNCTION__<<__LINE__;
 }
 
 MapLayerMgr* MapLayerMgr::instance()
@@ -32,6 +32,27 @@ zchxAisMapLayer* MapLayerMgr::getAisLayer()
 {
     zchxAisMapLayer* layer = dynamic_cast<zchxAisMapLayer*>(getLayer(ZCHX::LAYER_AIS).get());
     return layer;
+}
+
+void MapLayerMgr::clear()
+{
+    //removeAllElement();
+    removeAllLayer();
+    setDrawWidget(0);
+}
+
+void MapLayerMgr::removeAllElement()
+{
+    for(std::shared_ptr<MapLayer> layer : m_layerList)
+    {
+        if(layer) layer->removeAllElement();
+    }
+}
+
+void MapLayerMgr::removeAllLayer()
+{
+    m_layerList.clear();
+    m_layerTree.clear();
 }
 
 void MapLayerMgr::loadEcdisLayers()

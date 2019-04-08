@@ -26,3 +26,6 @@ FORMS += \
 HEADERS += \
     testmainwindow.h
 
+DISTFILES += \
+    3rdParty/zchx_ecdis/3.0.0/bin/mapdata/patch.kml
+

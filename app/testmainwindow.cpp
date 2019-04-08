@@ -3,6 +3,7 @@
 #include <QDateTime>
 #include "qt/zchxutils.hpp"
 #include "qt/element/fixelement.h"
+#include "qt/element/aiselement.hpp"
 
 TestMainWindow::TestMainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -151,11 +152,13 @@ TestMainWindow::TestMainWindow(QWidget *parent) :
     ele.ll.lat = QString::number(22.6472,'f', 13).toDouble();
     ele.ll.lon = QString::number(114.084,'f', 13).toDouble();
     layer->addElement(std::shared_ptr<qt::Element>(new qt::EllipseElement(ele,  m_pEcdisWin->getMapWidget())));
+    m_pEcdisWin->itfSetEnableShipTag(qt::SHIP_ITEM_LABEL | qt::SHIP_ITEM_NAME | qt::SHIP_ITEM_MULTILINE);
 
 }
 
 TestMainWindow::~TestMainWindow()
 {
+    if(m_pEcdisWin) delete m_pEcdisWin;
     delete ui;
 }
 
@@ -174,6 +177,7 @@ void TestMainWindow::slotTimerout()
         data.lat =  20.123456 + qrand() % 1000 * 0.0001;
         data.lon =  110.12345678 + qrand() % 1000 * 0.0001;
         data.type = ZCHX::Data::ITF_AIS::Target_AIS;
+        data.shipName = tr("test_%1").arg(i+1);
         std::vector<std::pair<double, double> > path;
         path.push_back(std::pair<double, double>(data.lat, data.lon));
         data.setPath(path);

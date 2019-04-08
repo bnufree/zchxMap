@@ -15,7 +15,7 @@
 //#define     DEFAULT_LAT         22.216150
 //#define     DEFAULT_ZOOM        13
 using namespace qt;
-zchxMapWidget::zchxMapWidget(QWidget *parent) : QWidget(parent),
+zchxMapWidget::zchxMapWidget(const ZCHX::Data::zchxEcdisInitVal& val, QWidget *parent) : QWidget(parent),
     m_eTool(DRAWNULL),
     mLastWheelTime(0),
     mCurrentSelectElement(0),
@@ -38,22 +38,49 @@ zchxMapWidget::zchxMapWidget(QWidget *parent) : QWidget(parent),
     mZoomLbl = new QLabel(this);
     mZoomLbl->setStyleSheet("background-color:transparent; border:none; color:black; font-size:16pt;");
     setZoomLableDisplay(false);
-    QTimer *timer = new QTimer;
-    timer->setInterval(Profiles::instance()->value(MAP_INDEX, MAP_UPDATE_INTERVAL).toInt());
-    connect(timer, SIGNAL(timeout()), this, SLOT(update()));
-    timer->start();    
-    //创建地图框架
+
+    //创建地图框架,没有设定地图中心点的情况从地图配置进行显示
     double lat = Profiles::instance()->value(MAP_INDEX, MAP_DEFAULT_LAT).toDouble();
     double lon = Profiles::instance()->value(MAP_INDEX, MAP_DEFAULT_LON).toDouble();
     int     source = Profiles::instance()->value(MAP_INDEX, MAP_SOURCE).toInt();
     int zoom = Profiles::instance()->value(MAP_INDEX, MAP_DEFAULT_ZOOM).toInt();
     int min_zoom = Profiles::instance()->value(MAP_INDEX, MAP_MIN_ZOOM).toInt();
     int max_zoom = Profiles::instance()->value(MAP_INDEX, MAP_MAX_ZOOM).toInt();
+    if(val.usefull)
+    {
+        lat = val.lat;
+        lon = val.lon;
+        zoom = val.zoom;
+    }
+    if(source == qt::TILE_TMS)
+    {
+        //遍历目录获取最大级别
+        QString map_dir = Profiles::instance()->value(MAP_INDEX, MAP_FILE_DIR).toString().trimmed();
+        QDir dir(map_dir);
+        QStringList dirList = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+        int work_zoom = -1;
+        foreach (QString str, dirList) {
+            if(work_zoom < str.toInt())
+            {
+                work_zoom = str.toInt();
+            }
+        }
+        if(work_zoom > 0)
+        {
+            max_zoom = work_zoom + 1;
+        }
+
+    }
     mFrameWork = new zchxMapFrameWork(lat, lon, zoom, width(), height(), source, min_zoom, max_zoom);
     //地图状态初始化
     releaseDrawStatus();
     //数据选择默认为不能选择
     setCurPickupType(ZCHX::Data::ECDIS_PICKUP_TYPE::ECDIS_PICKUP_NONE);
+    //地图刷新频率
+    QTimer *timer = new QTimer;
+    timer->setInterval(Profiles::instance()->value(MAP_INDEX, MAP_UPDATE_INTERVAL).toInt());
+    connect(timer, SIGNAL(timeout()), this, SLOT(update()));
+    timer->start();
 
 }
 
@@ -64,7 +91,8 @@ void zchxMapWidget::setZoomLableDisplay(bool display)
 
 zchxMapWidget::~zchxMapWidget()
 {
-    if(!mFrameWork) delete mFrameWork;
+    qDebug()<<__FUNCTION__<<__LINE__;
+    if(mFrameWork) delete mFrameWork;
 }
 
 void zchxMapWidget::setUseRightKey(bool bUseRightKey)
@@ -835,16 +863,17 @@ ZCHX::Data::LatLon zchxMapWidget::centerLatLon() const
 void zchxMapWidget::wheelEvent(QWheelEvent *e)
 {
     //qDebug()<<__FUNCTION__<<__LINE__<<e->delta()<<e->angleDelta().x()<<e->angleDelta().y()<<e->phase();
+    ZCHX::Data::LatLon ll = zchxUtilToolLL4CurPoint(e->pos());
     if(QDateTime::currentMSecsSinceEpoch() - mLastWheelTime >= 1* 1000)
     {
         if(e->delta() > 0)
         {
             //放大
-            if(mFrameWork) mFrameWork->ZoomIn();
+            if(mFrameWork) mFrameWork->ZoomIn(ll.lon, ll.lat);
         } else
         {
             //缩小
-            if(mFrameWork) mFrameWork->ZoomOut();
+            if(mFrameWork) mFrameWork->ZoomOut(ll.lon, ll.lat);
         }
         mLastWheelTime = QDateTime::currentMSecsSinceEpoch();
     }

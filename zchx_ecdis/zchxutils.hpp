@@ -2106,6 +2106,19 @@ typedef struct tagITF_WeatherWindWaves
 
 }ITF_WeatherWindWaves;
 
+struct zchxEcdisInitVal{
+    double lon;
+    double lat;
+    int zoom;
+    bool usefull;
+
+    zchxEcdisInitVal()
+    {
+        usefull = false;
+        zoom = 15;
+    }
+};
+
 }
 
 enum tagsFocus{

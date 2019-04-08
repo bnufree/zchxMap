@@ -36,7 +36,7 @@ class zchxMapWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit zchxMapWidget(QWidget *parent = 0);
+    explicit zchxMapWidget(const ZCHX::Data::zchxEcdisInitVal& val, QWidget *parent = 0);
     ~zchxMapWidget();
     //地图显示
     void setZoomLableDisplay(bool display);
