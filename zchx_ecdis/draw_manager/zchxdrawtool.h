@@ -35,6 +35,7 @@ public:
     virtual void                updateOldPath() {}
     bool                        isStartMove() const {return mIsStartMove;}
     void                        setStartMove(bool sts) {mIsStartMove = sts;}
+    QPolygonF                   convertLL2Polygon() const;
 
 public slots:
     virtual void                appendPoint(const QPointF& pnt);

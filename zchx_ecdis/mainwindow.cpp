@@ -222,6 +222,8 @@ void MainWindow::initSignalConnect()
     connect(mMapWidget,SIGNAL(signalSendPTZLocation(double, double)),this,SIGNAL(itfSignalSendPTZLocation(double, double)));
     connect(mMapWidget, SIGNAL(sigElementHoverChanged(qt::Element*)), this, SIGNAL(sigLayerElementHoverChanged(qt::Element*)));
     connect(mMapWidget,  SIGNAL(sigElementSelectionChanged(qt::Element*)), this, SIGNAL(sigLayerElementSelectionChanged(qt::Element*)));
+    connect(mMapWidget, SIGNAL(signalSendPickPoints(QList<ZCHX::Data::LatLon>)),
+            this, SIGNAL(itfSendPickPoints(QList<ZCHX::Data::LatLon>)));
 }
 
 void MainWindow::itfSetAisData(const QList<ZCHX::Data::ITF_AIS> &data)

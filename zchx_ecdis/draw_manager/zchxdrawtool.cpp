@@ -37,6 +37,18 @@ void zchxDrawTool::appendPoint(const QPointF& pnt)
     mPoints.append(ll);
 }
 
+QPolygonF zchxDrawTool::convertLL2Polygon() const
+{
+    QPolygonF poly;
+    if(mWidget)
+    {
+        foreach (ZCHX::Data::LatLon ll, mPoints) {
+            poly.append(mWidget->framework()->LatLon2Pixel(ll).toPointF());
+        }
+    }
+    return poly;
+}
+
 int zchxDrawTool::getPointSize()
 {
     return mPoints.size();

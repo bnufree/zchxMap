@@ -12,10 +12,11 @@ zchxDrawLocalMarkTool::zchxDrawLocalMarkTool(zchxMapWidget* w, QObject *parent) 
 
 void zchxDrawLocalMarkTool::appendPoint(const QPointF &pnt)
 {
+    if(!mWidget) return;
     if(mPoints.size() == 0) {
-        mPoints.append(pnt);
+        mPoints.append(mWidget->framework()->Pixel2LatLon(pnt));
     } else {
-        mPoints[0] = pnt;
+        mPoints[0] = mWidget->framework()->Pixel2LatLon(pnt);
     }
 
 }
@@ -23,7 +24,7 @@ void zchxDrawLocalMarkTool::appendPoint(const QPointF &pnt)
 void zchxDrawLocalMarkTool::endDraw()
 {
     if(!isReady()) return ;
-    LatLon ll = mWidget->framework()->Pixel2LatLon(mPoints[0]);
+    LatLon ll = mPoints[0];
     LocalMarkDlg d;
     d.setLocalMarkPos(ll.lon, ll.lat);
     d.move(QCursor::pos().x() - d.width() / 2, QCursor::pos().y() - d.height() / 2 );

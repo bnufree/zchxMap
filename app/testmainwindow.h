@@ -18,6 +18,7 @@ public:
     ~TestMainWindow();
 public slots:
     void slotTimerout();
+    void slotRecvPickPnts(const QList<ZCHX::Data::LatLon>& ll);
 
 private:
     Ui::TestMainWindow *ui;

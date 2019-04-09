@@ -323,6 +323,7 @@ void zchxMapWidget::mousePressEvent(QMouseEvent *e)
             case CHANNELMANAGER:
             case MOORINGMANAGER:
             case CARDMOUTHMANAGER:
+            case PICKPOINTS:
             {
                 if(mToolPtr) mToolPtr->appendPoint(e->pos());
                 break;
@@ -1266,10 +1267,10 @@ void zchxMapWidget::initDrawTool()
         case CARDMOUTHMANAGER:
             mToolPtr = std::shared_ptr<zchxDrawCardMouthTool>(new zchxDrawCardMouthTool(this));
             break;
-        case ZONEDRAW:
-            mToolPtr = std::shared_ptr<zchxDrawWarningZoneTool>(new zchxDrawWarningZoneTool(this));
-            break;
         case PICKPOINTS:
+            mToolPtr = std::shared_ptr<zchxDrawZoneTool>(new zchxDrawPickPointsTool(this));
+            break;
+        case ZONEDRAW:
             mToolPtr = std::shared_ptr<zchxDrawWarningZoneTool>(new zchxDrawWarningZoneTool(this));
             break;
         case COMMONZONESELECT:

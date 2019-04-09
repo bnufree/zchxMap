@@ -316,6 +316,7 @@ signals: //定义发送信号接口
     void itfCreateIslandLine(ZCHX::Data::ITF_IslandLine);
     void itfCreateLocalMark(ZCHX::Data::ITF_LocalMark);
     void itfCreateShipPlanLine(ZCHX::Data::ShipPlanLine);
+    void itfSendPickPoints(const QList<ZCHX::Data::LatLon>& ll);
 
     void itfCreateCoastDataLine(ZCHX::Data::ITF_CoastData);
     void itfCreateSeabedPipeLineLine(ZCHX::Data::ITF_SeabedPipeLine);

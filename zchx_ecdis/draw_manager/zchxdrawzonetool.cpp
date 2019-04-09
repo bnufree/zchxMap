@@ -19,7 +19,7 @@ void zchxDrawZoneTool::show(QPainter *painter)
     PainterPair chk(painter);
     painter->setPen(QPen(Qt::red,1,Qt::DashLine));
     painter->setBrush(QBrush(Qt::blue, Qt::Dense7Pattern));
-    painter->drawPolygon(QPolygonF(mPoints.toVector()));
+    painter->drawPolygon(convertLL2Polygon());
 }
 
 bool zchxDrawZoneTool::checkPnts()
@@ -51,8 +51,8 @@ void zchxDrawRadarFeatureZoneTool::endDraw()
 {
     if(checkPnts() && isReady()){
         ZCHX::Data::ITF_RadarFeaturesZone radar_zone_data;
-        for(QPointF pnt : mPoints) {
-            radar_zone_data.pointList.push_back(mWidget->framework()->Pixel2LatLon(pnt));
+        for(ZCHX::Data::LatLon pnt : mPoints) {
+            radar_zone_data.pointList.push_back(pnt);
         }
         RadarFeatureZone objDialog;
         if(objDialog.exec() == QDialog::Accepted)
@@ -69,8 +69,7 @@ void zchxDrawWarningZoneTool::endDraw()
 {
     if(checkPnts() && isReady()){
         std::vector<std::pair<double, double>> path;
-        for(QPointF pnt : mPoints) {
-            ZCHX::Data::LatLon ll = mWidget->framework()->Pixel2LatLon(pnt);
+        for(ZCHX::Data::LatLon ll : mPoints) {
             path.push_back(std::pair<double, double>(ll.lat, ll.lon));
         }
         ZCHX::Data::ITF_WarringZone zone;
@@ -99,32 +98,9 @@ void zchxDrawWarningZoneTool::endDraw()
 
 void zchxDrawPickPointsTool::endDraw()
 {
-//    if(checkPnts() && isReady()){
-//        std::vector<std::pair<double, double>> path;
-//        for(QPointF pnt : mPoints) {
-//            ZCHX::Data::LatLon ll = mWidget->framework()->Pixel2LatLon(pnt);
-//            path.push_back(std::pair<double, double>(ll.lat, ll.lon));
-//        }
-//        ZCHX::Data::ITF_WarringZone zone;
-//        zone.path = path;
-//        zone.id = 0;
-//        zone.shape = ZCHX::Data::ITF_WarringZone::ZONE_POLYGON; //防区
-
-//        DefenceInfoDialog dlg;
-//        if (dlg.exec() == QDialog::Accepted)
-//        {
-//            zone.name = dlg.getName();
-//            zone.isWarn = dlg.getWarning();
-//            zone.defType = dlg.getType();
-//            zone.dropAnchorThreshold = dlg.getDropAnchorThreshold();
-//            zone.speedLimit = dlg.getSpeedLimit();
-//            zone.fillColor = dlg.getColor();
-//        }
-//        if(!zone.name.isEmpty())
-//        {
-//            emit mWidget->signalCreateWarringZONE(zone);
-//        }
-//    }
+    if(checkPnts() && isReady()){
+        emit mWidget->signalSendPickPoints(mPoints);
+    }
     zchxDrawZoneTool::endDraw();
 }
 
@@ -133,8 +109,7 @@ void zchxDrawChannelZoneTool::endDraw()
 {
     if(checkPnts() && isReady()){
         std::vector<std::pair<double, double>> path;
-        for(QPointF pnt : mPoints) {
-            ZCHX::Data::LatLon ll = mWidget->framework()->Pixel2LatLon(pnt);
+        for(ZCHX::Data::LatLon ll : mPoints) {
             path.push_back(std::pair<double, double>(ll.lat, ll.lon));
         }
         ZCHX::Data::ITF_Channel zone;
@@ -175,8 +150,7 @@ void zchxDrawMooringZoneTool::endDraw()
 {
     if(checkPnts() && isReady()){
         std::vector<std::pair<double, double>> path;
-        for(QPointF pnt : mPoints) {
-            ZCHX::Data::LatLon ll = mWidget->framework()->Pixel2LatLon(pnt);
+        for(ZCHX::Data::LatLon ll : mPoints) {
             path.push_back(std::pair<double, double>(ll.lat, ll.lon));
         }
         ZCHX::Data::ITF_Mooring zone;
@@ -207,15 +181,14 @@ void zchxDrawCardMouthTool::show(QPainter *painter)
     PainterPair chk(painter);
     painter->setPen(QPen(Qt::red,1,Qt::DashLine));
     painter->setBrush(Qt::NoBrush);
-    painter->drawPolyline(QPolygonF(mPoints.toVector()));
+    painter->drawPolyline(convertLL2Polygon());
 }
 
 void zchxDrawCardMouthTool::endDraw()
 {
     if(checkPnts() && isReady()){
         std::vector<std::pair<double, double>> path;
-        for(QPointF pnt : mPoints) {
-            ZCHX::Data::LatLon ll = mWidget->framework()->Pixel2LatLon(pnt);
+        for(ZCHX::Data::LatLon ll : mPoints) {
             path.push_back(std::pair<double, double>(ll.lat, ll.lon));
         }
         ZCHX::Data::ITF_CardMouth zone;

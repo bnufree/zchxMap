@@ -11,10 +11,12 @@ zchxDrawCameraNetGridTool::zchxDrawCameraNetGridTool(zchxMapWidget* w, QObject *
 
 void zchxDrawCameraNetGridTool::appendPoint(const QPointF &pnt)
 {
+    if(!mWidget) return;
+    ZCHX::Data::LatLon ll = mWidget->framework()->Pixel2LatLon(pnt);
     if(mPoints.size() < 2) {
-        mPoints.append(pnt);
+        mPoints.append(ll);
     } else {
-        mPoints[1] = pnt;
+        mPoints[1] = ll;
     }
 
 }
@@ -27,9 +29,7 @@ void zchxDrawCameraNetGridTool::show(QPainter *painter)
     painter->setRenderHint(QPainter::Antialiasing);
     if(mPoints.size() >= 2)
     {
-        LatLon p1 = mWidget->framework()->Pixel2LatLon(mPoints[0]);
-        LatLon p2 = mWidget->framework()->Pixel2LatLon(mPoints[1]);
-        ZCHX::Data::ITF_NetGrid res = makeCameraGrid(p1, p2);
+        ZCHX::Data::ITF_NetGrid res = makeCameraGrid(mPoints[0], mPoints[1]);
         if(res.mNetGridList.size() > 0)
         {
             std::shared_ptr<GridElement> ele(new GridElement(res, mWidget));
@@ -52,9 +52,7 @@ void zchxDrawCameraNetGridTool::endDraw()
         box.setButtonText(QMessageBox::No,tr("取消"));
         if(box.exec () == QMessageBox::Ok)
         {
-            LatLon p1 = mWidget->framework()->Pixel2LatLon(mPoints[0]);
-            LatLon p2 = mWidget->framework()->Pixel2LatLon(mPoints[1]);
-            if(mWidget) mWidget->signalSendCameraNetGrid(makeCameraGrid(p1, p2));
+            if(mWidget) mWidget->signalSendCameraNetGrid(makeCameraGrid(mPoints[0], mPoints[1]));
         }
     }
     zchxDrawTool::endDraw();

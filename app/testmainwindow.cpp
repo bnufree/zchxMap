@@ -101,7 +101,7 @@ TestMainWindow::TestMainWindow(QWidget *parent) :
     mTestTimer->setInterval(3000);
     connect(mTestTimer, SIGNAL(timeout()), this, SLOT(slotTimerout()));
 //    mTestTimer->setSingleShot(true);
-    mTestTimer->start();
+//    mTestTimer->start();
 //    m_pEcdisWin->itfsetPluginUseModel(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL);
 //    m_pEcdisWin->itfToolBarChannelAreaAdd();
     ZCHX::Data::ITF_AISBASESTATION cam;
@@ -153,7 +153,19 @@ TestMainWindow::TestMainWindow(QWidget *parent) :
     ele.ll.lon = QString::number(114.084,'f', 13).toDouble();
     layer->addElement(std::shared_ptr<qt::Element>(new qt::EllipseElement(ele,  m_pEcdisWin->getMapWidget())));
     m_pEcdisWin->itfSetEnableShipTag(qt::SHIP_ITEM_LABEL | qt::SHIP_ITEM_NAME | qt::SHIP_ITEM_MULTILINE);
+    connect(m_pEcdisWin, SIGNAL(itfSendPickPoints(QList<ZCHX::Data::LatLon>)),
+            this, SLOT(slotRecvPickPnts(QList<ZCHX::Data::LatLon>)));
+    m_pEcdisWin->itfToolBarPickPoints();
 
+
+}
+
+void TestMainWindow::slotRecvPickPnts(const QList<ZCHX::Data::LatLon> &list)
+{
+    qDebug()<<"total pnts size:"<<list.size();
+    foreach (ZCHX::Data::LatLon ll, list) {
+        qDebug()<<"ll:"<<ll.lat<<ll.lon;
+    }
 }
 
 TestMainWindow::~TestMainWindow()

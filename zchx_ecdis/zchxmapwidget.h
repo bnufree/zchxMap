@@ -708,6 +708,8 @@ private:
 //    QString getPolygonOfGravityPoint(const std::vector<std::pair<double, double>> &Points); //求多边形重心, 返回 (lon,lat)
 
 signals: //发送外部信号
+    //发送勾选区域的经纬度
+    void signalSendPickPoints(const QList<ZCHX::Data::LatLon>& list);
     //创建告警区域数据
     void signalCreateWarringZONE(ZCHX::Data::ITF_WarringZone/*std::vector<std::pair<double, double> >  path*/);
     //防区 防线编辑状态  type ：0为防线 1位防区 state：0为编辑 1取消编辑
