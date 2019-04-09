@@ -45,6 +45,18 @@ signals:
 public slots:
 };
 
+class zchxDrawPickPointsTool: public zchxDrawZoneTool
+{
+    Q_OBJECT
+public:
+    explicit zchxDrawPickPointsTool(zchxMapWidget* w, QObject *parent = 0):
+        zchxDrawZoneTool(w, qt::eTool::PICKPOINTS, 3, parent) {}
+    void endDraw();
+
+signals:
+public slots:
+};
+
 class zchxDrawChannelZoneTool: public zchxDrawZoneTool
 {
     Q_OBJECT

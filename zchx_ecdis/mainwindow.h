@@ -105,6 +105,7 @@ public:
     void itfToolBarPickup();          //拾取
     void itfToolBarShowAll();         // 显示世界地图（复位）
     void itfToolBarGps();             //跟踪
+    void itfToolBarPickPoints();        //地图点列获取
 
     //有关海图编辑的工具条接口
     void itfToolBarMapModelChanged(ZCHX::Data::ECDIS_DISPLAY_MODEL mod); //海图模式改变

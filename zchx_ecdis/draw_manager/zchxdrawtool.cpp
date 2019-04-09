@@ -1,4 +1,5 @@
 #include "zchxdrawtool.h"
+#include "zchxmapframe.h"
 
 
 namespace qt {
@@ -29,9 +30,11 @@ void zchxDrawTool::startDraw()
 
 void zchxDrawTool::appendPoint(const QPointF& pnt)
 {
+    if(!mWidget) return;
+    ZCHX::Data::LatLon ll = mWidget->framework()->Pixel2LatLon(ZCHX::Data::Point2D(pnt));
     //检查是否与前一个点相同,相同就不添加
-    if(mPoints.size() > 0 && mPoints.last() == pnt) return;
-    mPoints.append(pnt);
+    if(mPoints.size() > 0 && mPoints.last() == ll) return;
+    mPoints.append(ll);
 }
 
 int zchxDrawTool::getPointSize()

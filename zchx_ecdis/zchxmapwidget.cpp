@@ -52,6 +52,7 @@ zchxMapWidget::zchxMapWidget(const ZCHX::Data::zchxEcdisInitVal& val, QWidget *p
         lon = val.lon;
         zoom = val.zoom;
     }
+#if 0
     if(source == qt::TILE_TMS)
     {
         //遍历目录获取最大级别
@@ -71,6 +72,7 @@ zchxMapWidget::zchxMapWidget(const ZCHX::Data::zchxEcdisInitVal& val, QWidget *p
         }
 
     }
+#endif
     mFrameWork = new zchxMapFrameWork(lat, lon, zoom, width(), height(), source, min_zoom, max_zoom);
     //地图状态初始化
     releaseDrawStatus();
@@ -1177,6 +1179,16 @@ void zchxMapWidget::setETool2DrawPickup()
     setCurPickupType(ZCHX::Data::ECDIS_PICKUP_TARGET );
 }
 
+void zchxMapWidget::setETool2DrawPickPoints()
+{
+    //在编辑模式下使用
+    setCurPluginUserModel(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL);
+    m_eTool = PICKPOINTS;
+    isActiveETool = true;
+    setCursor(Qt::CrossCursor);
+    initDrawTool();
+}
+
 void zchxMapWidget::setETool2DrawTrackTarget()
 {
     m_eTool = TRACKTARGET;
@@ -1255,6 +1267,9 @@ void zchxMapWidget::initDrawTool()
             mToolPtr = std::shared_ptr<zchxDrawCardMouthTool>(new zchxDrawCardMouthTool(this));
             break;
         case ZONEDRAW:
+            mToolPtr = std::shared_ptr<zchxDrawWarningZoneTool>(new zchxDrawWarningZoneTool(this));
+            break;
+        case PICKPOINTS:
             mToolPtr = std::shared_ptr<zchxDrawWarningZoneTool>(new zchxDrawWarningZoneTool(this));
             break;
         case COMMONZONESELECT:

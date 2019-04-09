@@ -1863,6 +1863,11 @@ void MainWindow::itfToolBarPickup()
     OnPickupAction();
 }
 
+void MainWindow::itfToolBarPickPoints()
+{
+    if(mMapWidget) mMapWidget->setETool2DrawPickPoints();
+}
+
 void MainWindow::itfToolBarShowAll()
 {
     OnShowAllAction();

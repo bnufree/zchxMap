@@ -49,7 +49,7 @@ signals:
 public slots:
 
 protected:
-    QList<QPointF>       mPoints;
+    QList<ZCHX::Data::LatLon>       mPoints;
     int                 mType;                      //数据管理类型
     zchxMapWidget*      mWidget;
     MoveElement*        mEle;

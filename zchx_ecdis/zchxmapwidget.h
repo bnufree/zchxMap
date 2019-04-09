@@ -240,6 +240,7 @@ public Q_SLOTS:
     void setETool2DrawDirAngle();
     void setETool2DrawDistance();
     void setETool2DrawPickup();
+    void setETool2DrawPickPoints();
     void setETool2DrawTrackTarget();
     void setETool2DrawCameraTrackTarget();
     void setETool2DrawGps();

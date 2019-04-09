@@ -75,6 +75,7 @@ enum eTool{
     CARDMOUTHDEL,                   //删除航道
     DRAWCAMERANETGRID,              //相机网格图
     PICKUPPTZ,                      //PTZ获取
+    PICKPOINTS,                     //地图经纬度点列获取
 };
 }
 #endif // ZCHXECDISMOUSEDEFINES_H
